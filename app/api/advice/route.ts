@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const genAI = new GoogleGenerativeAI(process.env.Gemini_API_Key ?? '');
 
 export async function POST(req: NextRequest) {
   const { url, geoData, analyzeData } = await req.json();
@@ -58,13 +58,9 @@ ${geoData.issues.map((i: { title: string; detail: string; impact: string }) => `
 (LLM 검색 최적화를 위한 핵심 조언 2~3가지)`;
 
   try {
-    const message = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 1024,
-      messages: [{ role: 'user', content: prompt }],
-    });
-
-    const text = message.content[0].type === 'text' ? message.content[0].text : '';
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
     return NextResponse.json({ advice: text });
   } catch (e) {
     console.error(e);
