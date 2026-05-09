@@ -79,6 +79,8 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
   const [geoData, setGeoData] = useState<GeoResult | null>(null);
   const [strategy, setStrategy] = useState<'mobile' | 'desktop'>('mobile');
   const [error, setError] = useState('');
+  const [advice, setAdvice] = useState<string | null>(null);
+  const [adviceLoading, setAdviceLoading] = useState(false);
 
   const startAnalysis = async () => {
     if (!url.trim()) return;
@@ -86,6 +88,7 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
     setError('');
     setAnalyzeData(null);
     setGeoData(null);
+    setAdvice(null);
 
     try {
       setStep('PageSpeed Insights 분석 중...');
@@ -108,6 +111,18 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
       setAnalyzeData(aData);
       setGeoData(gData);
       setStatus('complete');
+
+      // AI 어드바이저 비동기 호출
+      setAdviceLoading(true);
+      fetch('/api/advice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, geoData: gData, analyzeData: aData }),
+      })
+        .then((r) => r.json())
+        .then((d) => setAdvice(d.advice ?? null))
+        .catch(() => setAdvice(null))
+        .finally(() => setAdviceLoading(false));
     } catch (e) {
       setError(e instanceof Error ? e.message : '알 수 없는 오류');
       setStatus('error');
@@ -239,6 +254,26 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
           </Card>
 
           {/* Issues & Opportunities */}
+          {/* AI 어드바이저 */}
+          {(adviceLoading || advice) && (
+            <Card className="p-6 border-indigo-200 bg-gradient-to-br from-indigo-950 to-slate-900 text-white">
+              <h4 className="font-bold mb-4 flex items-center gap-2 text-indigo-300">
+                <Sparkles size={18} className="text-indigo-400 animate-pulse" />
+                AI 시니어 마케터 종합 진단
+              </h4>
+              {adviceLoading ? (
+                <div className="flex items-center gap-3 text-slate-400 text-sm">
+                  <Loader2 size={16} className="animate-spin text-indigo-400" />
+                  AI가 진단 결과를 분석하고 있습니다...
+                </div>
+              ) : (
+                <div className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">
+                  {advice}
+                </div>
+              )}
+            </Card>
+          )}
+
           {(geoData.issues.length > 0 || current!.opportunities.length > 0) && (
             <Card className="p-6 bg-slate-900 text-white">
               <h4 className="font-bold mb-4 flex items-center gap-2">
