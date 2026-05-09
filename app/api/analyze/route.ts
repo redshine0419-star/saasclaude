@@ -16,10 +16,10 @@ export async function POST(req: NextRequest) {
         const endpoint = new URL('https://www.googleapis.com/pagespeedonline/v5/runPagespeed');
         endpoint.searchParams.set('url', url);
         endpoint.searchParams.set('strategy', strategy);
-        endpoint.searchParams.set('category', 'PERFORMANCE');
-        endpoint.searchParams.set('category', 'SEO');
-        endpoint.searchParams.set('category', 'ACCESSIBILITY');
-        endpoint.searchParams.set('category', 'BEST_PRACTICES');
+        endpoint.searchParams.append('category', 'PERFORMANCE');
+        endpoint.searchParams.append('category', 'SEO');
+        endpoint.searchParams.append('category', 'ACCESSIBILITY');
+        endpoint.searchParams.append('category', 'BEST_PRACTICES');
         if (apiKey) endpoint.searchParams.set('key', apiKey);
         return fetch(endpoint.toString());
       })
