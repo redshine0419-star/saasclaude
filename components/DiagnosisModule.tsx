@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import {
   Globe, Loader2, Sparkles, Copy, CheckCircle2, AlertCircle,
-  Smartphone, Monitor, ShieldCheck,
+  Smartphone, Monitor, ShieldCheck, FileText, Image,
 } from 'lucide-react';
 
 const Badge = ({ children, variant = 'default' }: { children: React.ReactNode; variant?: string }) => {
@@ -29,8 +29,17 @@ const Card = ({ children, className = '' }: { children: React.ReactNode; classNa
 
 const ScoreRing = ({ score, label, sub }: { score: number | string; label: string; sub: string }) => {
   const num = typeof score === 'number' ? score : null;
-  const color = num === null ? 'border-indigo-500' : num >= 80 ? 'border-emerald-500' : num >= 50 ? 'border-amber-500' : 'border-rose-500';
-  const textColor = num === null ? 'text-indigo-600' : num >= 80 ? 'text-emerald-600' : num >= 50 ? 'text-amber-600' : 'text-rose-600';
+  const color =
+    num === null ? 'border-indigo-500' :
+    num >= 80 ? 'border-emerald-500' :
+    num >= 50 ? 'border-amber-500' :
+    'border-rose-500';
+  const textColor =
+    num === null ? 'text-indigo-600' :
+    num >= 80 ? 'text-emerald-600' :
+    num >= 50 ? 'text-amber-600' :
+    'text-rose-600';
+
   return (
     <Card className="p-6 flex flex-col items-center text-center">
       <div className={`w-20 h-20 rounded-full border-4 ${color} flex items-center justify-center mb-4`}>
@@ -66,6 +75,8 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
   const [geoData, setGeoData] = useState<GeoResult | null>(null);
   const [strategy, setStrategy] = useState<'mobile' | 'desktop'>('mobile');
   const [error, setError] = useState('');
+  const [advice, setAdvice] = useState<string | null>(null);
+  const [adviceLoading, setAdviceLoading] = useState(false);
 
   const startAnalysis = async () => {
     if (!url.trim()) return;
@@ -73,19 +84,40 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
     setError('');
     setAnalyzeData(null);
     setGeoData(null);
+    setAdvice(null);
+
     try {
       setStep('PageSpeed Insights 분석 중...');
       const [analyzeRes, geoRes] = await Promise.all([
         fetch('/api/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) }),
         fetch('/api/geo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) }),
       ]);
-      if (!analyzeRes.ok) { const e = await analyzeRes.json(); throw new Error(e.error ?? 'PageSpeed API 오류'); }
-      if (!geoRes.ok) { const e = await geoRes.json(); throw new Error(e.error ?? 'GEO 분석 오류'); }
+
+      if (!analyzeRes.ok) {
+        const e = await analyzeRes.json();
+        throw new Error(e.error ?? 'PageSpeed API 오류');
+      }
+      if (!geoRes.ok) {
+        const e = await geoRes.json();
+        throw new Error(e.error ?? 'GEO 분석 오류');
+      }
+
       setStep('결과 처리 중...');
       const [aData, gData] = await Promise.all([analyzeRes.json(), geoRes.json()]);
       setAnalyzeData(aData);
       setGeoData(gData);
       setStatus('complete');
+
+      setAdviceLoading(true);
+      fetch('/api/advice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, geoData: gData, analyzeData: aData }),
+      })
+        .then((r) => r.json())
+        .then((d) => setAdvice(d.advice ?? null))
+        .catch(() => setAdvice(null))
+        .finally(() => setAdviceLoading(false));
     } catch (e) {
       setError(e instanceof Error ? e.message : '알 수 없는 오류');
       setStatus('error');
@@ -93,18 +125,23 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
   };
 
   const current = analyzeData?.[strategy];
-  const impactVariant = (impact: string) => impact === 'High' ? 'danger' : impact === 'Medium' ? 'warning' : 'default';
+
+  const impactVariant = (impact: string) =>
+    impact === 'High' ? 'danger' : impact === 'Medium' ? 'warning' : 'default';
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <Card className="p-6 md:p-8 border-indigo-100 bg-gradient-to-br from-white to-indigo-50/30">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-indigo-600 text-white rounded-xl shadow-indigo-200 shadow-lg"><Globe size={24} /></div>
+          <div className="p-3 bg-indigo-600 text-white rounded-xl shadow-indigo-200 shadow-lg">
+            <Globe size={24} />
+          </div>
           <div>
             <h3 className="text-xl font-bold text-slate-800">GEO & SEO 기술 엔진 진단</h3>
             <p className="text-sm text-slate-500">PageSpeed Insights + HTML 파싱으로 실제 데이터를 분석합니다.</p>
           </div>
         </div>
+
         <div className="flex flex-col md:flex-row gap-3">
           <div className="flex-1 relative">
             <input
@@ -117,7 +154,9 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
               disabled={status === 'scanning'}
             />
             {status === 'scanning' && (
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 text-indigo-600"><Loader2 className="animate-spin" size={20} /></div>
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 text-indigo-600">
+                <Loader2 className="animate-spin" size={20} />
+              </div>
             )}
           </div>
           <button
@@ -125,22 +164,31 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
             disabled={status === 'scanning' || !url.trim()}
             className="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-bold rounded-2xl transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 whitespace-nowrap"
           >
-            {status === 'scanning' ? <><Loader2 size={18} className="animate-spin" /> {step}</> : 'AI 진단 엔진 가동'}
+            {status === 'scanning' ? (
+              <><Loader2 size={18} className="animate-spin" /> {step}</>
+            ) : 'AI 진단 엔진 가동'}
           </button>
         </div>
+
         {status === 'error' && (
           <div className="mt-4 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-3 text-sm text-rose-700">
-            <AlertCircle size={18} className="shrink-0" />{error}
+            <AlertCircle size={18} className="shrink-0" />
+            {error}
           </div>
         )}
       </Card>
 
       {status === 'complete' && analyzeData && geoData && (
-        <div className="space-y-6">
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="flex gap-2 justify-end">
             {(['mobile', 'desktop'] as const).map((s) => (
-              <button key={s} onClick={() => setStrategy(s)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${strategy === s ? 'bg-indigo-600 text-white shadow' : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
+              <button
+                key={s}
+                onClick={() => setStrategy(s)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                  strategy === s ? 'bg-indigo-600 text-white shadow' : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50'
+                }`}
+              >
                 {s === 'mobile' ? <Smartphone size={16} /> : <Monitor size={16} />}
                 {s === 'mobile' ? '모바일' : '데스크탑'}
               </button>
@@ -168,7 +216,8 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
 
           <Card className="p-6">
             <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <ShieldCheck size={20} className="text-indigo-600" />GEO 체크리스트
+              <ShieldCheck size={20} className="text-indigo-600" />
+              GEO 체크리스트
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {[
@@ -193,10 +242,30 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
             </div>
           </Card>
 
+          {(adviceLoading || advice) && (
+            <Card className="p-6 border-indigo-200 bg-gradient-to-br from-indigo-950 to-slate-900 text-white">
+              <h4 className="font-bold mb-4 flex items-center gap-2 text-indigo-300">
+                <Sparkles size={18} className="text-indigo-400 animate-pulse" />
+                AI 시니어 마케터 종합 진단
+              </h4>
+              {adviceLoading ? (
+                <div className="flex items-center gap-3 text-slate-400 text-sm">
+                  <Loader2 size={16} className="animate-spin text-indigo-400" />
+                  AI가 진단 결과를 분석하고 있습니다...
+                </div>
+              ) : (
+                <div className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">
+                  {advice}
+                </div>
+              )}
+            </Card>
+          )}
+
           {(geoData.issues.length > 0 || current!.opportunities.length > 0) && (
             <Card className="p-6 bg-slate-900 text-white">
               <h4 className="font-bold mb-4 flex items-center gap-2">
-                <Sparkles size={18} className="text-indigo-400" />즉각 개선 패치 제안
+                <Sparkles size={18} className="text-indigo-400" />
+                즐각 개선 패치 제안
               </h4>
               <div className="space-y-3">
                 {geoData.issues.map((item, idx) => (
@@ -208,8 +277,10 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
                       </div>
                       <p className="text-xs text-slate-400">{item.detail}</p>
                     </div>
-                    <button onClick={() => { navigator.clipboard.writeText(item.detail); onToast('클립보드에 복사되었습니다.'); }}
-                      className="ml-3 p-2 hover:bg-slate-700 rounded-lg transition-colors text-indigo-400 shrink-0">
+                    <button
+                      onClick={() => { navigator.clipboard.writeText(item.detail); onToast('클립보드에 복사되었습니다.'); }}
+                      className="ml-3 p-2 hover:bg-slate-700 rounded-lg transition-colors text-indigo-400 shrink-0"
+                    >
                       <Copy size={16} />
                     </button>
                   </div>
