@@ -3,6 +3,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '');
 
+const MODEL = 'gemini-2.5-flash-preview-05-20';
+
 const prompts = {
   blog: (input: string) => `당신은 10년차 SEO 전문 콘텐츠 마케터입니다.
 아래 핵심 내용을 바탕으로 SEO 최적화된 블로그 본문을 작성하세요.
@@ -68,7 +70,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-05-20' });
+    const model = genAI.getGenerativeModel({ model: MODEL });
 
     const blog = await generate(model, prompts.blog(content));
     await delay(500);

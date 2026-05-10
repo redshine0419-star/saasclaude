@@ -3,6 +3,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '');
 
+const MODEL = 'gemini-2.5-flash-preview-05-20';
+
 export async function POST(req: NextRequest) {
   const { url, geoData, analyzeData } = await req.json();
 
@@ -58,7 +60,7 @@ ${geoData.issues.map((i: { title: string; detail: string; impact: string }) => \
 (LLM 검색 최적화를 위한 핵심 조언 2~3가지)`;
 
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-05-20' });
+    const model = genAI.getGenerativeModel({ model: MODEL });
     const result = await model.generateContent(prompt);
     const text = result.response.text();
     return NextResponse.json({ advice: text });
