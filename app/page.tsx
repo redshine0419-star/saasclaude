@@ -2,13 +2,14 @@
 
 import { useState } from 'react';
 import {
-  LayoutDashboard, Search, FileText, Zap, ChevronRight, Bell, User, CheckCircle2,
+  LayoutDashboard, Search, FileText, Zap, ChevronRight, Bell, User, CheckCircle2, Tag,
 } from 'lucide-react';
 import DiagnosisModule from '@/components/DiagnosisModule';
 import ContentHubModule from '@/components/ContentHubModule';
 import DashboardModule from '@/components/DashboardModule';
+import KeywordModule from '@/components/KeywordModule';
 
-const TABS = { DIAGNOSIS: 'diagnosis', CONTENT: 'content', DASHBOARD: 'dashboard' } as const;
+const TABS = { DIAGNOSIS: 'diagnosis', CONTENT: 'content', KEYWORD: 'keyword', DASHBOARD: 'dashboard' } as const;
 type Tab = typeof TABS[keyof typeof TABS];
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
   const menuItems = [
     { id: TABS.DIAGNOSIS, icon: <Search size={20} />, label: 'Engine Diagnosis', mobileLabel: '진단' },
     { id: TABS.CONTENT, icon: <FileText size={20} />, label: 'Content Orchestrator', mobileLabel: '콘텐츠' },
+    { id: TABS.KEYWORD, icon: <Tag size={20} />, label: 'Keyword Analysis', mobileLabel: '키워드' },
     { id: TABS.DASHBOARD, icon: <LayoutDashboard size={20} />, label: 'Ops Dashboard', mobileLabel: '대시보드' },
   ];
 
@@ -95,6 +97,7 @@ export default function App() {
         <div className="flex-1 overflow-y-auto p-4 md:p-10 pb-24 md:pb-10 scroll-smooth">
           {activeTab === TABS.DIAGNOSIS && <DiagnosisModule onToast={showToast} />}
           {activeTab === TABS.CONTENT && <ContentHubModule onToast={showToast} />}
+          {activeTab === TABS.KEYWORD && <KeywordModule onToast={showToast} />}
           {activeTab === TABS.DASHBOARD && <DashboardModule />}
         </div>
 
