@@ -55,6 +55,28 @@ Last updated: 2026-05-10
 
 ---
 
+## 완료된 작업 — Phase 2 기능 (Done)
+
+---
+
+### 경쟁사 비교 분석 (Competitor Analysis 탭)
+- [x] `app/api/compare/route.ts` — Gemini AI 기반 경쟁 격차·기회 분석
+- [x] `components/CompetitorModule.tsx` — 내 URL vs 경쟁사 URL 병렬 분석, 점수 비교, GEO 체크리스트 비교, AI 우선순위 액션
+
+### 콘텐츠 리라이터 (Content Rewriter 탭)
+- [x] `app/api/rewrite/route.ts` — 목표(SEO/GEO/가독성/간결화)별 Gemini 리라이팅
+- [x] `components/RewriterModule.tsx` — 원본·결과 비교 뷰, 변경사항 목록, 복사 기능
+
+### llms.txt 생성기 탭
+- [x] `app/api/llmstxt/route.ts` — 회사 정보 입력 → Gemini가 표준 llms.txt 생성
+- [x] `components/LlmsTxtModule.tsx` — 폼 입력, 미리보기, 다운로드·복사 기능
+
+### 네비게이션 확장
+- [x] `app/page.tsx` — 7탭으로 확장 (경쟁사·리라이터·LLMs 추가)
+- [x] 모바일 하단 탭바 가로 스크롤 처리
+
+---
+
 ## 예정된 작업 (Backlog)
 
 ### Phase 2 — 필수 인프라
@@ -80,12 +102,20 @@ Last updated: 2026-05-10
 - [ ] **단축키** — `Cmd+K` 글로벌 검색/진단 실행
 - [ ] **모바일 최적화** — 콘텐츠 카드 스와이프 제스처
 
-### Phase 3 — 수익화
+### Phase 3 — AdSense 수익화
 
-- [ ] **Freemium 플랜** — 월 5회 무료, 초과 시 업그레이드 유도 모달
-- [ ] **결제 연동** — Stripe (Vercel Marketplace)
-- [ ] **Team 플랜** — 멤버 초대, 프로젝트 공유, 뷰어·편집자 권한 분리
-- [ ] **API 플랜** — `/api/v1/diagnose` 외부 공개 엔드포인트 + API Key 관리
+- [ ] **커스텀 도메인 연결** — Vercel에서 도메인 설정 (AdSense 승인 요건)
+- [ ] **AdSense 계정 생성 및 신청** — 커스텀 도메인으로 사이트 신청
+- [ ] **`public/ads.txt`** — publisher ID 입력 (`google.com, ca-pub-XXXXXX, DIRECT, f08c47fec0942fa0`)
+- [ ] **`app/layout.tsx`** — AdSense 스크립트 추가 (`next/script`, strategy="afterInteractive")
+- [ ] **`components/AdUnit.tsx`** — 재사용 광고 컴포넌트 (반응형, SSR 안전 처리)
+- [ ] **광고 배치 — DiagnosisModule** — AI 어드바이저 섹션 하단
+- [ ] **광고 배치 — KeywordModule** — 콘텐츠 방향 카드와 SEO 제목 사이
+- [ ] **광고 배치 — ContentHubModule** — 생성된 콘텐츠 하단
+- [ ] **`app/privacy/page.tsx`** — Privacy Policy 페이지 추가 (AdSense 정책 필수)
+- [ ] **Google Search Console 등록** — 도메인 인증 + 색인 요청
+- [ ] **AdSense 승인 확인** — 심사 기간 약 2~4주
+- [ ] **성과 모니터링** — 노출수·CTR·RPM 주간 체크
 
 ### Phase 3 — 고도화
 
