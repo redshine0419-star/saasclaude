@@ -53,6 +53,13 @@ ${input}
 - 클릭을 유도하는 강력한 CTA`,
 };
 
+const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+async function generate(model: ReturnType<typeof genAI.getGenerativeModel>, prompt: string): Promise<string> {
+  const result = await model.generateContent(prompt);
+  return result.response.text();
+}
+
 export async function POST(req: NextRequest) {
   const { content } = await req.json();
 
@@ -63,16 +70,18 @@ export async function POST(req: NextRequest) {
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-    const [blog, social, newsletter, ads] = await Promise.all([
-      model.generateContent(prompts.blog(content)).then((r) => r.response.text()),
-      model.generateContent(prompts.social(content)).then((r) => r.response.text()),
-      model.generateContent(prompts.newsletter(content)).then((r) => r.response.text()),
-      model.generateContent(prompts.ads(content)).then((r) => r.response.text()),
-    ]);
+    const blog = await generate(model, prompts.blog(content));
+    await delay(500);
+    const social = await generate(model, prompts.social(content));
+    await delay(500);
+    const newsletter = await generate(model, prompts.newsletter(content));
+    await delay(500);
+    const ads = await generate(model, prompts.ads(content));
 
     return NextResponse.json({ blog, social, newsletter, ads });
   } catch (e) {
     console.error(e);
-    return NextResponse.json({ error: '콘텐츠 생성 중 오류가 발생했습니다.' }, { status: 500 });
+    const msg = e instanceof Error ? e.message : '콘텐츠 생성 중 오류가 발생했습니다.';
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
