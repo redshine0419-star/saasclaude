@@ -1,101 +1,205 @@
 'use client';
 
-import { BarChart3, TrendingUp, Zap, MousePointer2, ShieldCheck, AlertTriangle } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-
-const Badge = ({ children }: { children: React.ReactNode }) => (
-  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600">{children}</span>
-);
+import { useEffect, useState } from 'react';
+import { BarChart3, TrendingUp, Zap, Globe, FileText, Clock } from 'lucide-react';
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  RadarChart, Radar, PolarGrid, PolarAngleAxis,
+} from 'recharts';
+import { getDiagnoses, getStats, DiagnosisRecord, UsageStats } from '@/lib/storage';
 
 const Card = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
-  <div className={`bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden ${className}`}>{children}</div>
+  <div className={`bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden ${className}`}>
+    {children}
+  </div>
 );
 
-const MOCK_CHART_DATA = [
-  { day: 'Mon', roas: 4.2 }, { day: 'Tue', roas: 4.5 }, { day: 'Wed', roas: 3.8 },
-  { day: 'Thu', roas: 5.1 }, { day: 'Fri', roas: 4.9 }, { day: 'Sat', roas: 5.5 }, { day: 'Sun', roas: 4.3 },
-];
+function timeAgo(ts: number): string {
+  const diff = Date.now() - ts;
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return '방금 전';
+  if (m < 60) return m + '분 전';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + '시간 전';
+  return Math.floor(h / 24) + '일 전';
+}
+
+function buildChartData(diagnoses: DiagnosisRecord[]) {
+  const map: Record<string, { perf: number[]; seo: number[]; geo: number[] }> = {};
+  diagnoses.forEach((d) => {
+    const date = new Date(d.timestamp);
+    const key = (date.getMonth() + 1) + '/' + date.getDate();
+    if (!map[key]) map[key] = { perf: [], seo: [], geo: [] };
+    map[key].perf.push(d.scores.performance);
+    map[key].seo.push(d.scores.seo);
+    map[key].geo.push(d.scores.geo);
+  });
+  return Object.entries(map)
+    .slice(-7)
+    .map(([day, v]) => ({
+      day,
+      performance: Math.round(v.perf.reduce((a, b) => a + b, 0) / v.perf.length),
+      seo: Math.round(v.seo.reduce((a, b) => a + b, 0) / v.seo.length),
+      geo: Math.round(v.geo.reduce((a, b) => a + b, 0) / v.geo.length),
+    }));
+}
+
+function scoreColor(score: number) {
+  if (score >= 80) return 'text-emerald-600';
+  if (score >= 50) return 'text-amber-500';
+  return 'text-rose-500';
+}
+
+function ScoreBadge({ score }: { score: number }) {
+  const color = score >= 80 ? 'bg-emerald-100 text-emerald-700' : score >= 50 ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700';
+  return <span className={'text-[10px] font-black px-2 py-0.5 rounded-full ' + color}>{score}</span>;
+}
 
 export default function DashboardModule() {
+  const [diagnoses, setDiagnoses] = useState<DiagnosisRecord[]>([]);
+  const [stats, setStats] = useState<UsageStats>({ diagnosisCount: 0, contentCount: 0 });
+
+  useEffect(() => {
+    setDiagnoses(getDiagnoses());
+    setStats(getStats());
+  }, []);
+
+  const chartData = buildChartData(diagnoses);
+  const latest = diagnoses[0];
+
+  const radarData = latest
+    ? [
+        { subject: 'Performance', value: latest.scores.performance },
+        { subject: 'SEO', value: latest.scores.seo },
+        { subject: 'Accessibility', value: latest.scores.accessibility },
+        { subject: 'GEO', value: latest.scores.geo },
+      ]
+    : [];
+
+  const bestSeo = diagnoses.length > 0 ? Math.max(...diagnoses.map((d) => d.scores.seo)) : 0;
+  const bestGeo = diagnoses.length > 0 ? Math.max(...diagnoses.map((d) => d.scores.geo)) : 0;
+
+  if (diagnoses.length === 0) {
+    return (
+      <div className="max-w-6xl mx-auto">
+        <Card className="p-12 flex flex-col items-center text-center">
+          <div className="p-4 bg-indigo-100 rounded-2xl mb-4">
+            <BarChart3 size={32} className="text-indigo-600" />
+          </div>
+          <h3 className="text-xl font-bold text-slate-800 mb-2">아직 분석 데이터가 없습니다</h3>
+          <p className="text-sm text-slate-500 max-w-sm">
+            진단 탭에서 URL을 분석하면 여기에 실제 성과 데이터가 표시됩니다.
+          </p>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <Card className="p-5 md:p-6 border-rose-100 bg-rose-50/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex gap-4 items-center">
-          <div className="p-3 bg-rose-500 text-white rounded-2xl animate-bounce"><AlertTriangle size={24} /></div>
-          <div>
-            <h4 className="font-bold text-rose-900 text-sm mb-0.5 uppercase tracking-wide">이상 징후 리포트</h4>
-            <p className="text-rose-700 text-sm leading-relaxed">최근 3시간 내 <strong className="text-rose-900">결제 완료 단계</strong>의 이탈률이 15% 증가했습니다.</p>
-          </div>
-        </div>
-        <button className="whitespace-nowrap px-6 py-2.5 bg-rose-600 text-white text-xs font-bold rounded-xl shadow-lg shadow-rose-100 hover:bg-rose-700 transition-all">로그 데이터 즉시 확인</button>
-      </Card>
-
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Active Users', value: '12,840', change: '+12%', positive: true },
-          { label: 'Avg ROAS', value: '5.2x', change: '+0.4x', positive: true },
-          { label: 'Conversion Rate', value: '3.1%', change: '-0.2%', positive: false },
-          { label: 'Ad Spend', value: '₩15.2M', change: '+5.4%', positive: true },
+          { label: '총 진단 횟수', value: stats.diagnosisCount + '회', icon: <Globe size={18} />, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+          { label: '콘텐츠 생성', value: stats.contentCount + '세트', icon: <FileText size={18} />, color: 'text-purple-600', bg: 'bg-purple-50' },
+          { label: '최고 SEO 점수', value: bestSeo + '점', icon: <TrendingUp size={18} />, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+          { label: '최고 GEO 점수', value: bestGeo + '점', icon: <Zap size={18} />, color: 'text-amber-600', bg: 'bg-amber-50' },
         ].map((m, i) => (
-          <Card key={i} className="p-5 flex flex-col justify-between h-32">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{m.label}</span>
-            <div className="flex items-end justify-between mt-2">
-              <span className="text-2xl font-black text-slate-800">{m.value}</span>
-              <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded ${m.positive ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>{m.change}</span>
+          <Card key={i} className="p-5">
+            <div className={'inline-flex p-2 rounded-xl mb-3 ' + m.bg}>
+              <span className={m.color}>{m.icon}</span>
             </div>
-            <div className="h-1 w-full bg-indigo-500/10 mt-3 rounded-full overflow-hidden"><div className="h-full bg-indigo-500 w-2/3" /></div>
+            <div className="text-2xl font-black text-slate-800">{m.value}</div>
+            <div className="text-[11px] text-slate-400 font-medium mt-1">{m.label}</div>
           </Card>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 p-6 md:p-8">
-          <div className="flex justify-between items-center mb-8">
-            <h4 className="font-bold text-slate-800 flex items-center gap-2"><BarChart3 size={20} className="text-indigo-600" />퍼포먼스 성과 매트릭스</h4>
-            <div className="flex gap-2">
-              <button className="px-3 py-1 text-[10px] font-bold bg-slate-900 text-white rounded-lg">Realtime</button>
-              <button className="px-3 py-1 text-[10px] font-bold bg-slate-100 text-slate-500 rounded-lg hover:bg-slate-200">Historical</button>
+        <Card className="lg:col-span-2 p-6">
+          <h4 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
+            <BarChart3 size={18} className="text-indigo-600" />
+            점수 추이 (최근 7일)
+          </h4>
+          {chartData.length > 1 ? (
+            <div className="h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData}>
+                  <defs>
+                    <linearGradient id="gPerf" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="gSeo" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                  <YAxis domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', fontSize: '12px' }} />
+                  <Area type="monotone" dataKey="performance" name="Performance" stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#gPerf)" />
+                  <Area type="monotone" dataKey="seo" name="SEO" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#gSeo)" />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
-          </div>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={MOCK_CHART_DATA}>
-                <defs>
-                  <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
-                <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 8px 30px rgba(0,0,0,0.08)', padding: '12px' }} />
-                <Area type="monotone" dataKey="roas" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+          ) : (
+            <div className="h-56 flex items-center justify-center text-sm text-slate-400">
+              추이 차트는 2일 이상 데이터가 필요합니다
+            </div>
+          )}
         </Card>
 
-        <Card className="p-6 md:p-8 flex flex-col">
-          <h4 className="font-bold text-slate-800 mb-6 flex items-center gap-2"><TrendingUp size={20} className="text-indigo-600" />AI 시니어 마케터 제언</h4>
-          <div className="flex-1 space-y-4">
-            {[
-              { icon: <Zap size={16} />, text: 'GFA 타겟팅 범위를 25-34에서 20-39로 소폭 확장 권장', tag: 'Traffic' },
-              { icon: <MousePointer2 size={16} />, text: '상세 페이지 스크롤 50% 지점 이탈 급증. UI 개선 필요', tag: 'UX/UI' },
-              { icon: <ShieldCheck size={16} />, text: '주요 키워드 "AI 에이전트" 검색 광고 순위 하락 방어 필요', tag: 'Ads' },
-            ].map((item, idx) => (
-              <div key={idx} className="p-4 bg-slate-50 rounded-2xl hover:bg-indigo-50 transition-colors group cursor-pointer border border-transparent hover:border-indigo-100">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="p-1.5 bg-white rounded-lg text-indigo-600 shadow-sm">{item.icon}</div>
-                  <Badge>{item.tag}</Badge>
-                </div>
-                <p className="text-xs font-semibold text-slate-700 leading-relaxed group-hover:text-indigo-700">{item.text}</p>
+        <Card className="p-6">
+          <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <TrendingUp size={18} className="text-indigo-600" />
+            최근 진단 종합
+          </h4>
+          {latest && (
+            <>
+              <p className="text-xs text-slate-400 mb-4 truncate">{latest.url}</p>
+              <div className="h-44">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart data={radarData}>
+                    <PolarGrid stroke="#e2e8f0" />
+                    <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                    <Radar dataKey="value" stroke="#6366f1" fill="#6366f1" fillOpacity={0.2} strokeWidth={2} />
+                  </RadarChart>
+                </ResponsiveContainer>
               </div>
-            ))}
-          </div>
-          <button className="mt-6 w-full py-3.5 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:scale-[1.02] transition-transform active:scale-95 shadow-lg shadow-slate-200">액션 아이템 일괄 처리하기</button>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                {radarData.map((r) => (
+                  <div key={r.subject} className="flex items-center justify-between px-3 py-1.5 bg-slate-50 rounded-lg">
+                    <span className="text-[10px] text-slate-500 font-medium">{r.subject}</span>
+                    <span className={'text-xs font-black ' + scoreColor(r.value)}>{r.value}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </Card>
       </div>
+
+      <Card className="p-6">
+        <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
+          <Clock size={18} className="text-indigo-600" />
+          최근 진단 기록
+        </h4>
+        <div className="space-y-2">
+          {diagnoses.slice(0, 8).map((d, i) => (
+            <div key={i} className="flex items-center gap-4 p-3 bg-slate-50 rounded-xl hover:bg-indigo-50 transition-colors">
+              <Globe size={16} className="text-slate-400 shrink-0" />
+              <span className="text-sm text-slate-700 font-medium flex-1 truncate">{d.url}</span>
+              <div className="flex items-center gap-2 shrink-0">
+                <ScoreBadge score={d.scores.performance} />
+                <ScoreBadge score={d.scores.seo} />
+                <ScoreBadge score={d.scores.geo} />
+              </div>
+              <span className="text-[10px] text-slate-400 shrink-0">{timeAgo(d.timestamp)}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
     </div>
   );
 }
