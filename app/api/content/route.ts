@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI(process.env.Gemini_API_Key ?? '');
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '');
 
 const prompts = {
   blog: (input: string) => `당신은 10년차 SEO 전문 콘텐츠 마케터입니다.
