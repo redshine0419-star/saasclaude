@@ -1,0 +1,160 @@
+# MarketerOps.ai — Project Context for LLMs
+
+## What This Project Is
+
+MarketerOps.ai is a Korean-market SaaS for marketers.
+It provides AI-powered SEO, GEO (Generative Engine Optimization), content generation, and keyword analysis in a single dashboard.
+The target user is a 1-person in-house marketer or startup growth lead who needs senior-level marketing insights without an agency.
+
+---
+
+## Tech Stack
+
+- Framework: Next.js 16 with App Router (NOT Pages Router)
+- Language: TypeScript 5
+- Styling: Tailwind CSS v4 (utility-first, no CSS modules, no styled-components)
+- Icons: lucide-react
+- Charts: recharts (AreaChart, RadarChart)
+- AI: Google Gemini 2.5 Flash via @google/generative-ai
+- HTML parsing: cheerio (server-side only)
+- Data persistence: localStorage via lib/storage.ts (no database yet)
+- Deployment: Vercel (Fluid Compute, Node.js runtime)
+- Node version: 24 LTS
+
+---
+
+## Directory Structure
+
+```
+/
+├── app/
+│   ├── layout.tsx              # Root layout (html, body, globals.css)
+│   ├── page.tsx                # Single-page app shell — sidebar, tabs, toast
+│   ├── globals.css             # Global styles + Tailwind directives
+│   └── api/
+│       ├── analyze/route.ts    # POST — PageSpeed Insights API v5 (mobile + desktop)
+│       ├── geo/route.ts        # POST — GEO visibility analysis via HTML parsing
+│       ├── advice/route.ts     # POST — Gemini AI senior marketer diagnosis report
+│       ├── content/route.ts    # POST — Gemini AI content generation (blog, SNS, CTA)
+│       └── keyword/route.ts    # POST — Gemini AI keyword analysis
+├── components/
+│   ├── DiagnosisModule.tsx     # Tab 1: SEO + GEO diagnosis UI
+│   ├── ContentHubModule.tsx    # Tab 2: Content generation UI
+│   ├── KeywordModule.tsx       # Tab 3: Keyword analysis UI
+│   └── DashboardModule.tsx     # Tab 4: Analytics dashboard (charts, history)
+├── lib/
+│   └── storage.ts              # localStorage helpers: saveDiagnosis, getDiagnoses, getStats, incrementContentCount
+├── public/                     # Static assets
+├── CLAUDE.md                   # Points to AGENTS.md
+├── AGENTS.md                   # LLM agent instructions
+├── master_plan.md              # Product vision, feature roadmap, tech decisions
+├── todo_list.md                # Done / in-progress / backlog tasks
+└── llms.txt                    # This file — project context for AI assistants
+```
+
+---
+
+## Conventions
+
+### Code Style
+
+- No comments unless the WHY is non-obvious
+- No docstrings or multi-line comment blocks
+- Prefer string concatenation over nested template literals (MCP file push corrupts nested backticks)
+- TypeScript interfaces defined at the top of the file that uses them
+- No barrel exports (import directly from the file)
+- `'use client'` at the top of every component file
+
+### API Routes
+
+- All routes are POST with JSON body
+- Validate input at the top, return 400 for missing params
+- Use string concatenation (NOT template literals) for Gemini prompts
+- Always use model `gemini-2.5-flash`
+- Strip markdown code fences from Gemini responses before JSON.parse:
+  ```ts
+  text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
+  ```
+- Return errors as `{ error: 'message' }` with appropriate HTTP status
+
+### Components
+
+- Shared UI primitives (Card, Badge, ScoreRing) defined inline at the top of the file that uses them — do not extract to separate files unless used in 3+ files
+- Color coding for scores: `>= 80` → emerald, `>= 50` → amber, `< 50` → rose
+- onToast prop pattern: `({ onToast }: { onToast: (msg: string) => void })`
+- Loading state uses `Loader2` with `animate-spin` from lucide-react
+- Error state uses a rose-colored div with `AlertCircle` icon
+
+### Styling
+
+- Max width containers: `max-w-5xl mx-auto` (most modules), `max-w-6xl mx-auto` (dashboard)
+- Card base: `bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden`
+- Primary action button: `bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-bold rounded-2xl`
+- Input field: `border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none`
+- Animation on result reveal: `animate-in fade-in slide-in-from-bottom-4 duration-500`
+
+### Data / Storage
+
+- `lib/storage.ts` is the single source of truth for localStorage keys
+- DIAGNOSIS_KEY = `'marketerops_diagnoses'` (max 20 records, newest first)
+- STATS_KEY = `'marketerops_stats'` (diagnosisCount, contentCount)
+- Always guard with `if (typeof window === 'undefined') return` for SSR safety
+
+### Git & Deployment
+
+- Production branch: `main` (triggers Vercel auto-deploy)
+- Feature branches: `claude/*`
+- NEVER use nested template literals in files pushed via MCP
+- ALWAYS run `npm run build` locally before pushing to main
+- Use `mcp__github__create_or_update_file` (not `push_files`) for safe GitHub updates
+- SHA required for existing files: `git rev-parse origin/main:<path>`
+
+---
+
+## Environment Variables
+
+| Variable | Required | Purpose |
+|---|---|---|
+| GEMINI_API_KEY | Yes | Google Gemini AI (all AI features) |
+| PAGESPEED_API_KEY | No | PageSpeed Insights (works without key, lower rate limit) |
+
+---
+
+## Key Business Logic
+
+### GEO Score Calculation (app/api/geo/route.ts)
+
+Starts at 100, deducts points for each issue:
+- No llms.txt: -20
+- No JSON-LD: -20 / wrong types: -10
+- AI bots blocked in robots.txt: -15
+- No meta description: -10
+- No canonical URL: -5
+- Missing image alt attributes: -2 per image, max -10
+- No H1 tag: -10
+
+### Diagnosis Storage (lib/storage.ts)
+
+Saves mobile Performance, SEO, Accessibility scores from PageSpeed + GEO score from HTML analysis.
+Dashboard reads this data to render charts and history.
+
+### Content Generation Flow (ContentHubModule → /api/content)
+
+Input: keyword, target audience, tone (professional/friendly/casual/authoritative)
+Output: 3 blog titles, 5-step blog outline, 3 SNS captions, 3 CTAs
+
+### Keyword Analysis Flow (KeywordModule → /api/keyword)
+
+Input: single keyword string
+Output: intent (정보형/거래형/탐색형/비교형), difficulty (Low/Medium/High), monthly volume estimate, 8 related keywords, 4 long-tail keywords, 3 content angles, 3 SEO titles, 1 meta description
+
+---
+
+## What NOT To Do
+
+- Do not use Pages Router (`pages/` directory)
+- Do not use Edge Runtime (cheerio requires Node.js)
+- Do not add a database without updating storage.ts interface first
+- Do not create new shared component files unless 3+ modules need it
+- Do not use nested template literals in API route prompts
+- Do not push to main without a local build check
