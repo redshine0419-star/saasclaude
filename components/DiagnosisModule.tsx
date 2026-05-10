@@ -5,6 +5,7 @@ import {
   Globe, Loader2, Sparkles, Copy, CheckCircle2, AlertCircle,
   Smartphone, Monitor, ShieldCheck, FileText, Image,
 } from 'lucide-react';
+import { saveDiagnosis } from '@/lib/storage';
 
 const Badge = ({ children, variant = 'default' }: { children: React.ReactNode; variant?: string }) => {
   const styles: Record<string, string> = {
@@ -107,6 +108,17 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
       setAnalyzeData(aData);
       setGeoData(gData);
       setStatus('complete');
+
+      saveDiagnosis({
+        url,
+        timestamp: Date.now(),
+        scores: {
+          performance: aData.mobile.scores.performance,
+          seo: aData.mobile.scores.seo,
+          accessibility: aData.mobile.scores.accessibility,
+          geo: gData.score,
+        },
+      });
 
       setAdviceLoading(true);
       fetch('/api/advice', {
@@ -222,12 +234,12 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {[
                 { label: 'llms.txt', ok: geoData.llmsTxt.exists, good: 'AI 봇 가이드 파일 존재', bad: 'llms.txt 없음 — AI 학습 효율 저하' },
-                { label: 'JSON-LD', ok: geoData.jsonLd.exists, good: `구조화 데이터 ${geoData.jsonLd.count}개 (${geoData.jsonLd.types.join(', ')})`, bad: 'JSON-LD 없음 — 검색 스니펫 표시 불가' },
+                { label: 'JSON-LD', ok: geoData.jsonLd.exists, good: '구조화 데이터 ' + geoData.jsonLd.count + '개 (' + geoData.jsonLd.types.join(', ') + ')', bad: 'JSON-LD 없음 — 검색 스니펫 표시 불가' },
                 { label: 'robots.txt', ok: !geoData.robotsTxt.llmBlocked, good: 'AI 봇 허용', bad: 'GPTBot/ClaudeBot 차단됨' },
                 { label: 'Meta Description', ok: !!geoData.metaTags.description, good: (geoData.metaTags.description?.slice(0, 60) ?? '') + '…', bad: 'Meta Description 없음' },
                 { label: 'Canonical URL', ok: !!geoData.metaTags.canonical, good: '설정됨', bad: 'Canonical URL 미설정' },
-                { label: 'H1 태그', ok: geoData.headings.h1.length > 0, good: `"${geoData.headings.h1[0]}"`, bad: 'H1 태그 없음' },
-                { label: '이미지 Alt', ok: geoData.images.missingAlt === 0, good: `전체 ${geoData.images.total}개 Alt 완비`, bad: `${geoData.images.missingAlt}/${geoData.images.total}개 Alt 누락` },
+                { label: 'H1 태그', ok: geoData.headings.h1.length > 0, good: '"' + geoData.headings.h1[0] + '"', bad: 'H1 태그 없음' },
+                { label: '이미지 Alt', ok: geoData.images.missingAlt === 0, good: '전체 ' + geoData.images.total + '개 Alt 완비', bad: geoData.images.missingAlt + '/' + geoData.images.total + '개 Alt 누락' },
               ].map((item) => (
                 <div key={item.label} className={`flex items-start gap-3 p-3 rounded-xl ${item.ok ? 'bg-emerald-50' : 'bg-rose-50'}`}>
                   {item.ok ? <CheckCircle2 size={18} className="text-emerald-600 shrink-0 mt-0.5" /> : <AlertCircle size={18} className="text-rose-500 shrink-0 mt-0.5" />}
