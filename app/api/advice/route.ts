@@ -31,14 +31,14 @@ ${url}
 [GEO 가시성 점수]
 - GEO Score: ${geoData.score}/100
 - llms.txt: ${geoData.llmsTxt.exists ? '있음' : '없음'}
-- JSON-LD: ${geoData.jsonLd.exists ? `있음 (${geoData.jsonLd.types.join(', ')})` : '없음'}
+- JSON-LD: ${geoData.jsonLd.exists ? \`있음 (\${geoData.jsonLd.types.join(', ')})\` : '없음'}
 - AI 봇 차단: ${geoData.robotsTxt.llmBlocked ? '차단됨' : '허용됨'}
 - Meta Description: ${geoData.metaTags.description ? '있음' : '없음'}
 - H1 태그: ${geoData.headings.h1.length > 0 ? geoData.headings.h1[0] : '없음'}
 - 이미지 Alt 누락: ${geoData.images.missingAlt}/${geoData.images.total}개
 
 [발견된 이슈]
-${geoData.issues.map((i: { title: string; detail: string; impact: string }) => `- [${i.impact}] ${i.title}: ${i.detail}`).join('\n')}
+${geoData.issues.map((i: { title: string; detail: string; impact: string }) => \`- [\${i.impact}] \${i.title}: \${i.detail}\`).join('\n')}
 
 다음 형식으로 답변하세요:
 
@@ -58,7 +58,7 @@ ${geoData.issues.map((i: { title: string; detail: string; impact: string }) => `
 (LLM 검색 최적화를 위한 핵심 조언 2~3가지)`;
 
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
     const result = await model.generateContent(prompt);
     const text = result.response.text();
     return NextResponse.json({ advice: text });

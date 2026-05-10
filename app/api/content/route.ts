@@ -35,7 +35,7 @@ ${input}
 ${input}
 
 조건:
-- 제목(Subject): 개세율 높은 이메일 제목 3가지 제안
+- 제목(Subject): 개봉률 높은 이메일 제목 3가지 제안
 - 프리헤더 텍스트 1줄
 - 본문: 인사말 → 핵심 가치 전달 → CTA 버튼 텍스트
 - 600자 내외, 친근하고 전문적인 톤`,
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const blog = await generate(model, prompts.blog(content));
     await delay(500);
