@@ -5,6 +5,7 @@ import {
   Globe, Loader2, Sparkles, Copy, CheckCircle2, AlertCircle,
   Smartphone, Monitor, ShieldCheck, FileText, Image,
 } from 'lucide-react';
+import { saveDiagnosis } from '@/lib/storage';
 
 // ---- shared ui ----
 const Badge = ({ children, variant = 'default' }: { children: React.ReactNode; variant?: string }) => {
@@ -111,6 +112,17 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
       setAnalyzeData(aData);
       setGeoData(gData);
       setStatus('complete');
+
+      saveDiagnosis({
+        url,
+        timestamp: Date.now(),
+        scores: {
+          performance: aData.mobile.scores.performance,
+          seo: aData.mobile.scores.seo,
+          accessibility: aData.mobile.scores.accessibility,
+          geo: gData.score,
+        },
+      });
 
       // AI 어드바이저 비동기 호출
       setAdviceLoading(true);
