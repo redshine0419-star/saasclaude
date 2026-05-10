@@ -265,7 +265,7 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
             <Card className="p-6 bg-slate-900 text-white">
               <h4 className="font-bold mb-4 flex items-center gap-2">
                 <Sparkles size={18} className="text-indigo-400" />
-                즐각 개선 패치 제안
+                즉각 개선 패치 제안
               </h4>
               <div className="space-y-3">
                 {geoData.issues.map((item, idx) => (
@@ -275,7 +275,7 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
                         <span className="text-sm font-bold">{item.title}</span>
                         <Badge variant={impactVariant(item.impact)}>{item.impact}</Badge>
                       </div>
-                      <p className="text-xs text-slate-400">{item.detail}</p>
+                      <p className="text-xs text-slate-200">{item.detail}</p>
                     </div>
                     <button
                       onClick={() => { navigator.clipboard.writeText(item.detail); onToast('클립보드에 복사되었습니다.'); }}
@@ -292,7 +292,7 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
                         <span className="text-sm font-bold">{op.title}</span>
                         <Badge variant="primary">Performance</Badge>
                       </div>
-                      <p className="text-xs text-slate-400">{op.description}</p>
+                      <p className="text-xs text-slate-200">{op.description}</p>
                     </div>
                   </div>
                 ))}
