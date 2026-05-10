@@ -2,14 +2,26 @@
 
 import { useState } from 'react';
 import {
-  LayoutDashboard, Search, FileText, Zap, ChevronRight, Bell, User, CheckCircle2, Tag,
+  LayoutDashboard, Search, FileText, Zap, ChevronRight, Bell, User, CheckCircle2,
+  Tag, ArrowLeftRight, PenLine, Bot,
 } from 'lucide-react';
 import DiagnosisModule from '@/components/DiagnosisModule';
 import ContentHubModule from '@/components/ContentHubModule';
 import DashboardModule from '@/components/DashboardModule';
 import KeywordModule from '@/components/KeywordModule';
+import CompetitorModule from '@/components/CompetitorModule';
+import RewriterModule from '@/components/RewriterModule';
+import LlmsTxtModule from '@/components/LlmsTxtModule';
 
-const TABS = { DIAGNOSIS: 'diagnosis', CONTENT: 'content', KEYWORD: 'keyword', DASHBOARD: 'dashboard' } as const;
+const TABS = {
+  DIAGNOSIS: 'diagnosis',
+  COMPETITOR: 'competitor',
+  CONTENT: 'content',
+  REWRITER: 'rewriter',
+  KEYWORD: 'keyword',
+  LLMSTXT: 'llmstxt',
+  DASHBOARD: 'dashboard',
+} as const;
 type Tab = typeof TABS[keyof typeof TABS];
 
 export default function App() {
@@ -23,8 +35,11 @@ export default function App() {
 
   const menuItems = [
     { id: TABS.DIAGNOSIS, icon: <Search size={20} />, label: 'Engine Diagnosis', mobileLabel: '진단' },
+    { id: TABS.COMPETITOR, icon: <ArrowLeftRight size={20} />, label: 'Competitor Analysis', mobileLabel: '경쟁사' },
     { id: TABS.CONTENT, icon: <FileText size={20} />, label: 'Content Orchestrator', mobileLabel: '콘텐츠' },
+    { id: TABS.REWRITER, icon: <PenLine size={20} />, label: 'Content Rewriter', mobileLabel: '리라이터' },
     { id: TABS.KEYWORD, icon: <Tag size={20} />, label: 'Keyword Analysis', mobileLabel: '키워드' },
+    { id: TABS.LLMSTXT, icon: <Bot size={20} />, label: 'llms.txt 생성기', mobileLabel: 'LLMs' },
     { id: TABS.DASHBOARD, icon: <LayoutDashboard size={20} />, label: 'Ops Dashboard', mobileLabel: '대시보드' },
   ];
 
@@ -32,19 +47,19 @@ export default function App() {
     <div className="flex flex-col md:flex-row h-screen bg-slate-50 font-sans text-slate-900 overflow-hidden select-none">
       {/* Sidebar (Desktop) */}
       <aside className="hidden md:flex w-72 bg-white border-r border-slate-200 flex-col z-20">
-        <div className="p-8">
+        <div className="p-8 pb-4">
           <div className="flex items-center gap-2.5 text-indigo-600 font-black text-2xl tracking-tighter">
             <Zap size={32} fill="currentColor" strokeWidth={2.5} />
             <span>MarketerOps<span className="text-slate-400 font-light">.ai</span></span>
           </div>
         </div>
 
-        <nav className="flex-1 px-4 space-y-1.5">
+        <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
           {menuItems.map((item) => (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl transition-all duration-200 group ${
+              className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-2xl transition-all duration-200 group ${
                 activeTab === item.id
                   ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 translate-x-1'
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
@@ -57,7 +72,7 @@ export default function App() {
           ))}
         </nav>
 
-        <div className="p-6 mt-auto">
+        <div className="p-6 mt-auto shrink-0">
           <div className="p-5 bg-gradient-to-br from-slate-900 to-indigo-900 text-white rounded-2xl relative overflow-hidden">
             <div className="relative z-10">
               <div className="flex items-center gap-2 mb-3">
@@ -84,7 +99,7 @@ export default function App() {
             </h2>
           </div>
           <div className="flex items-center gap-3 md:gap-5">
-            <button className="relative p-2.5 text-slate-500 hover:bg-slate-50 rounded-xl transition-colors group">
+            <button className="relative p-2.5 text-slate-500 hover:bg-slate-50 rounded-xl transition-colors">
               <Bell size={22} />
               <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-rose-500 border-2 border-white rounded-full" />
             </button>
@@ -96,23 +111,26 @@ export default function App() {
 
         <div className="flex-1 overflow-y-auto p-4 md:p-10 pb-24 md:pb-10 scroll-smooth">
           {activeTab === TABS.DIAGNOSIS && <DiagnosisModule onToast={showToast} />}
+          {activeTab === TABS.COMPETITOR && <CompetitorModule onToast={showToast} />}
           {activeTab === TABS.CONTENT && <ContentHubModule onToast={showToast} />}
+          {activeTab === TABS.REWRITER && <RewriterModule onToast={showToast} />}
           {activeTab === TABS.KEYWORD && <KeywordModule onToast={showToast} />}
+          {activeTab === TABS.LLMSTXT && <LlmsTxtModule onToast={showToast} />}
           {activeTab === TABS.DASHBOARD && <DashboardModule />}
         </div>
 
         {/* Bottom Nav (Mobile) */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-white/95 backdrop-blur-lg border-t border-slate-200 flex items-center justify-around px-4 z-30">
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-white/95 backdrop-blur-lg border-t border-slate-200 flex items-center px-2 gap-1 overflow-x-auto z-30 scrollbar-hide">
           {menuItems.map((item) => (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center gap-1.5 transition-all duration-300 ${activeTab === item.id ? 'text-indigo-600 scale-110' : 'text-slate-400'}`}
+              className={'flex flex-col items-center gap-1 transition-all duration-300 px-2 shrink-0 ' + (activeTab === item.id ? 'text-indigo-600' : 'text-slate-400')}
             >
-              <div className={`p-2 rounded-xl transition-colors ${activeTab === item.id ? 'bg-indigo-50' : ''}`}>
+              <div className={'p-1.5 rounded-xl transition-colors ' + (activeTab === item.id ? 'bg-indigo-50' : '')}>
                 {item.icon}
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest">{item.mobileLabel}</span>
+              <span className="text-[9px] font-black uppercase tracking-widest whitespace-nowrap">{item.mobileLabel}</span>
             </button>
           ))}
         </nav>
@@ -133,6 +151,8 @@ export default function App() {
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </div>
   );
