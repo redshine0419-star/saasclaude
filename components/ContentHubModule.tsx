@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Sparkles, Zap, Loader2, MessageSquare, Share2, Mail, BarChart3, Copy, ChevronDown, ChevronUp } from 'lucide-react';
+import { incrementContentCount } from '@/lib/storage';
 
 const Badge = ({ children, variant = 'default' }: { children: React.ReactNode; variant?: string }) => {
   const styles: Record<string, string> = {
@@ -121,6 +122,7 @@ export default function ContentHubModule({ onToast }: { onToast: (msg: string) =
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? '생성 실패');
       setResult(data);
+      incrementContentCount();
       onToast('모든 채널별 소재 생성이 완료되었습니다.');
     } catch (e) {
       setError(e instanceof Error ? e.message : '오류가 발생했습니다.');
