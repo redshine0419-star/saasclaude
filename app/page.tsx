@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import {
   LayoutDashboard, Search, FileText, Zap, ChevronRight, Bell, User, CheckCircle2,
-  Tag, ArrowLeftRight, PenLine, Bot,
+  Tag, ArrowLeftRight, PenLine, Bot, BarChart3,
 } from 'lucide-react';
 import DiagnosisModule from '@/components/DiagnosisModule';
 import ContentHubModule from '@/components/ContentHubModule';
@@ -12,6 +12,7 @@ import KeywordModule from '@/components/KeywordModule';
 import CompetitorModule from '@/components/CompetitorModule';
 import RewriterModule from '@/components/RewriterModule';
 import LlmsTxtModule from '@/components/LlmsTxtModule';
+import GA4Module from '@/components/GA4Module';
 
 const TABS = {
   DIAGNOSIS: 'diagnosis',
@@ -20,6 +21,7 @@ const TABS = {
   REWRITER: 'rewriter',
   KEYWORD: 'keyword',
   LLMSTXT: 'llmstxt',
+  GA4: 'ga4',
   DASHBOARD: 'dashboard',
 } as const;
 type Tab = typeof TABS[keyof typeof TABS];
@@ -40,6 +42,7 @@ export default function App() {
     { id: TABS.REWRITER, icon: <PenLine size={20} />, label: 'Content Rewriter', mobileLabel: '리라이터' },
     { id: TABS.KEYWORD, icon: <Tag size={20} />, label: 'Keyword Analysis', mobileLabel: '키워드' },
     { id: TABS.LLMSTXT, icon: <Bot size={20} />, label: 'llms.txt 생성기', mobileLabel: 'LLMs' },
+    { id: TABS.GA4, icon: <BarChart3 size={20} />, label: 'GA4 Analytics', mobileLabel: 'GA4' },
     { id: TABS.DASHBOARD, icon: <LayoutDashboard size={20} />, label: 'Ops Dashboard', mobileLabel: '대시보드' },
   ];
 
@@ -116,6 +119,7 @@ export default function App() {
           {activeTab === TABS.REWRITER && <RewriterModule onToast={showToast} />}
           {activeTab === TABS.KEYWORD && <KeywordModule onToast={showToast} />}
           {activeTab === TABS.LLMSTXT && <LlmsTxtModule onToast={showToast} />}
+          {activeTab === TABS.GA4 && <GA4Module onToast={showToast} />}
           {activeTab === TABS.DASHBOARD && <DashboardModule />}
         </div>
 
