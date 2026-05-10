@@ -288,7 +288,7 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
                         <span className="text-sm font-bold">{item.title}</span>
                         <Badge variant={impactVariant(item.impact)}>{item.impact}</Badge>
                       </div>
-                      <p className="text-xs text-slate-400">{item.detail}</p>
+                      <p className="text-xs text-slate-200">{item.detail}</p>
                     </div>
                     <button
                       onClick={() => { navigator.clipboard.writeText(item.detail); onToast('클립보드에 복사되었습니다.'); }}
@@ -305,7 +305,7 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
                         <span className="text-sm font-bold">{op.title}</span>
                         <Badge variant="primary">Performance</Badge>
                       </div>
-                      <p className="text-xs text-slate-400">{op.description}</p>
+                      <p className="text-xs text-slate-200">{op.description}</p>
                     </div>
                   </div>
                 ))}
