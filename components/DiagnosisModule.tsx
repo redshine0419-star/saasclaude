@@ -4,6 +4,7 @@ import { useState } from 'react';
 import {
   Globe, Loader2, Sparkles, Copy, CheckCircle2, AlertCircle,
   Smartphone, Monitor, ShieldCheck, FileText, Image,
+  Link, Type, Share2, Code2, Bot, ChevronDown, ChevronUp,
 } from 'lucide-react';
 import { saveDiagnosis } from '@/lib/storage';
 import AdUnit from '@/components/AdUnit';
@@ -62,14 +63,80 @@ interface AnalyzeResult {
 }
 
 interface GeoResult {
-  llmsTxt: { exists: boolean };
-  robotsTxt: { exists: boolean; llmBlocked: boolean };
-  jsonLd: { exists: boolean; types: string[]; count: number };
-  metaTags: { title: string | null; description: string | null; ogTitle: string | null; canonical: string | null };
-  headings: { h1: string[]; h2: string[] };
+  meta: {
+    title: string | null; titleLength: number;
+    description: string | null; descriptionLength: number;
+    viewport: string | null; lang: string | null; charset: string | null;
+    author: string | null; articlePublished: string | null; articleModified: string | null;
+    robotsMeta: string | null; isNoindex: boolean; canonical: string | null;
+  };
+  og: {
+    title: string | null; description: string | null; image: string | null;
+    type: string | null; url: string | null;
+    twitterCard: string | null; twitterTitle: string | null;
+    twitterDescription: string | null; twitterImage: string | null;
+  };
+  headings: { h1: string[]; h1Count: number; h2: string[]; h2Count: number; h3Count: number };
+  content: { wordCount: number; internalLinks: number; externalLinks: number; nofollowLinks: number; isHttps: boolean; hasFavicon: boolean };
   images: { total: number; missingAlt: number };
+  jsonLd: {
+    exists: boolean; count: number; types: string[];
+    hasFaq: boolean; hasArticle: boolean; hasBreadcrumb: boolean;
+    hasProduct: boolean; hasOrganization: boolean; hasHowTo: boolean;
+  };
+  llmsTxt: { exists: boolean };
+  robotsTxt: { exists: boolean; llmBlocked: boolean; hasSitemap: boolean };
+  sitemap: { exists: boolean };
   score: number;
   issues: { title: string; detail: string; impact: 'High' | 'Medium' | 'Low' }[];
+}
+
+// ---- checklist section ----
+function CheckSection({ title, icon, items, defaultOpen = true }: {
+  title: string;
+  icon: React.ReactNode;
+  items: { label: string; ok: boolean; warn?: boolean; value: string }[];
+  defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  const passed = items.filter((i) => i.ok).length;
+  const total = items.length;
+  return (
+    <div className="border border-slate-200 rounded-2xl overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-5 py-3.5 bg-slate-50 hover:bg-slate-100 transition-colors"
+      >
+        <div className="flex items-center gap-2.5">
+          <span className="text-indigo-600">{icon}</span>
+          <span className="font-bold text-sm text-slate-800">{title}</span>
+          <span className={`text-xs font-black px-2 py-0.5 rounded-full ${passed === total ? 'bg-emerald-100 text-emerald-700' : passed > 0 ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-600'}`}>
+            {passed}/{total}
+          </span>
+        </div>
+        {open ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
+      </button>
+      {open && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 p-4">
+          {items.map((item) => (
+            <div key={item.label} className={`flex items-start gap-2.5 p-3 rounded-xl ${item.ok ? 'bg-emerald-50' : item.warn ? 'bg-amber-50' : 'bg-rose-50'}`}>
+              {item.ok
+                ? <CheckCircle2 size={16} className="text-emerald-600 shrink-0 mt-0.5" />
+                : item.warn
+                  ? <AlertCircle size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                  : <AlertCircle size={16} className="text-rose-500 shrink-0 mt-0.5" />}
+              <div className="min-w-0">
+                <div className="text-[10px] font-black text-slate-500 uppercase tracking-wide">{item.label}</div>
+                <div className={`text-xs mt-0.5 font-semibold truncate ${item.ok ? 'text-emerald-700' : item.warn ? 'text-amber-700' : 'text-rose-700'}`}>
+                  {item.value}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 // ---- main component ----
@@ -125,7 +192,6 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
         },
       });
 
-      // AI 어드바이저 비동기 호출
       setAdviceLoading(true);
       fetch('/api/advice', {
         method: 'POST',
@@ -149,7 +215,6 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Input Card */}
       <Card className="p-6 md:p-8 border-indigo-100 bg-gradient-to-br from-white to-indigo-50/30">
         <div className="flex items-center gap-3 mb-6">
           <div className="p-3 bg-indigo-600 text-white rounded-xl shadow-indigo-200 shadow-lg">
@@ -197,10 +262,8 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
         )}
       </Card>
 
-      {/* Results */}
       {status === 'complete' && analyzeData && geoData && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          {/* Strategy Toggle */}
           <div className="flex gap-2 justify-end">
             {(['mobile', 'desktop'] as const).map((s) => (
               <button
@@ -216,7 +279,6 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
             ))}
           </div>
 
-          {/* Score Rings */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <ScoreRing score={current!.scores.performance} label="Performance" sub="Core Web Vitals 종합 점수" />
             <ScoreRing score={current!.scores.seo} label="SEO" sub="검색엔진 최적화 점수" />
@@ -224,7 +286,6 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
             <ScoreRing score={geoData.score} label="GEO Visibility" sub="AI 가독성 및 LLM 크롤링 점수" />
           </div>
 
-          {/* Core Web Vitals */}
           <Card className="p-6">
             <h4 className="font-bold text-slate-800 mb-4">Core Web Vitals</h4>
             <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
@@ -237,36 +298,131 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
             </div>
           </Card>
 
-          {/* GEO Checklist */}
           <Card className="p-6">
             <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
               <ShieldCheck size={20} className="text-indigo-600" />
-              GEO 체크리스트
+              SEO & GEO 체크리스트
+              <span className="ml-auto text-xs text-slate-400 font-normal">
+                {[
+                  geoData.meta.title, geoData.meta.description, geoData.meta.viewport,
+                  geoData.meta.lang, geoData.meta.canonical, !geoData.meta.isNoindex,
+                  geoData.og.title, geoData.og.description, geoData.og.image, geoData.og.twitterCard,
+                  geoData.headings.h1Count === 1, geoData.headings.h2Count > 0,
+                  geoData.content.wordCount >= 300, geoData.content.internalLinks > 0,
+                  geoData.content.isHttps, geoData.content.hasFavicon, geoData.images.missingAlt === 0,
+                  geoData.jsonLd.exists, geoData.llmsTxt.exists, !geoData.robotsTxt.llmBlocked,
+                  geoData.sitemap.exists, geoData.meta.charset,
+                ].filter(Boolean).length} / 22 통과
+              </span>
             </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {[
-                { label: 'llms.txt', ok: geoData.llmsTxt.exists, good: 'AI 봇 가이드 파일 존재', bad: 'llms.txt 없음 — AI 학습 효율 저하' },
-                { label: 'JSON-LD', ok: geoData.jsonLd.exists, good: `구조화 데이터 ${geoData.jsonLd.count}개 (${geoData.jsonLd.types.join(', ')})`, bad: 'JSON-LD 없음 — 검색 스니펫 표시 불가' },
-                { label: 'robots.txt', ok: !geoData.robotsTxt.llmBlocked, good: 'AI 봇 허용', bad: 'GPTBot/ClaudeBot 차단됨' },
-                { label: 'Meta Description', ok: !!geoData.metaTags.description, good: (geoData.metaTags.description?.slice(0, 60) ?? '') + '…', bad: 'Meta Description 없음' },
-                { label: 'Canonical URL', ok: !!geoData.metaTags.canonical, good: '설정됨', bad: 'Canonical URL 미설정' },
-                { label: 'H1 태그', ok: geoData.headings.h1.length > 0, good: `"${geoData.headings.h1[0]}"`, bad: 'H1 태그 없음' },
-                { label: '이미지 Alt', ok: geoData.images.missingAlt === 0, good: `전체 ${geoData.images.total}개 Alt 완비`, bad: `${geoData.images.missingAlt}/${geoData.images.total}개 Alt 누락` },
-              ].map((item) => (
-                <div key={item.label} className={`flex items-start gap-3 p-3 rounded-xl ${item.ok ? 'bg-emerald-50' : 'bg-rose-50'}`}>
-                  {item.ok ? <CheckCircle2 size={18} className="text-emerald-600 shrink-0 mt-0.5" /> : <AlertCircle size={18} className="text-rose-500 shrink-0 mt-0.5" />}
-                  <div>
-                    <div className="text-xs font-black text-slate-500 uppercase tracking-wide">{item.label}</div>
-                    <div className={`text-xs mt-0.5 font-semibold ${item.ok ? 'text-emerald-700' : 'text-rose-700'}`}>
-                      {item.ok ? item.good : item.bad}
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div className="space-y-3">
+              <CheckSection
+                title="타이틀 & 메타"
+                icon={<Type size={16} />}
+                items={[
+                  {
+                    label: 'Title 태그',
+                    ok: !!geoData.meta.title && geoData.meta.titleLength >= 10 && geoData.meta.titleLength <= 60,
+                    warn: !!geoData.meta.title && (geoData.meta.titleLength < 10 || geoData.meta.titleLength > 60),
+                    value: geoData.meta.title
+                      ? '"' + geoData.meta.title.slice(0, 45) + (geoData.meta.title.length > 45 ? '…' : '') + '" (' + geoData.meta.titleLength + '자)'
+                      : 'Title 태그 없음',
+                  },
+                  {
+                    label: 'Meta Description',
+                    ok: !!geoData.meta.description && geoData.meta.descriptionLength >= 70 && geoData.meta.descriptionLength <= 160,
+                    warn: !!geoData.meta.description && (geoData.meta.descriptionLength < 70 || geoData.meta.descriptionLength > 160),
+                    value: geoData.meta.description
+                      ? geoData.meta.descriptionLength + '자 ' + (geoData.meta.descriptionLength < 70 ? '(짧음)' : geoData.meta.descriptionLength > 160 ? '(김)' : '(최적)')
+                      : 'Meta Description 없음',
+                  },
+                  { label: 'Viewport (모바일)', ok: !!geoData.meta.viewport, warn: false, value: geoData.meta.viewport ?? 'Viewport 태그 없음 — 모바일 순위 하락' },
+                  { label: 'HTML lang 속성', ok: !!geoData.meta.lang, warn: false, value: geoData.meta.lang ? 'lang="' + geoData.meta.lang + '"' : 'lang 속성 없음' },
+                  { label: 'Charset 인코딩', ok: !!geoData.meta.charset, warn: false, value: geoData.meta.charset ?? 'Charset 선언 없음' },
+                  { label: 'Robots 메타', ok: !geoData.meta.isNoindex, warn: false, value: geoData.meta.isNoindex ? '⚠ noindex 감지 — 검색 색인 차단됨' : geoData.meta.robotsMeta ?? '설정 없음 (기본 색인)' },
+                  { label: 'Canonical URL', ok: !!geoData.meta.canonical, warn: false, value: geoData.meta.canonical ? geoData.meta.canonical.slice(0, 50) + (geoData.meta.canonical.length > 50 ? '…' : '') : 'Canonical 태그 없음' },
+                  {
+                    label: '게시/수정일',
+                    ok: !!geoData.meta.articleModified || !!geoData.meta.articlePublished,
+                    warn: false,
+                    value: geoData.meta.articleModified ? '수정일: ' + geoData.meta.articleModified.slice(0, 10) : geoData.meta.articlePublished ? '게시일: ' + geoData.meta.articlePublished.slice(0, 10) : '날짜 메타 없음 (콘텐츠 신선도 불명확)',
+                  },
+                  { label: 'Author 정보', ok: !!geoData.meta.author, warn: false, value: geoData.meta.author ?? 'Author 메타 없음 (E-E-A-T 약화)' },
+                ]}
+              />
+
+              <CheckSection
+                title="Open Graph & SNS"
+                icon={<Share2 size={16} />}
+                defaultOpen={false}
+                items={[
+                  { label: 'og:title', ok: !!geoData.og.title, warn: false, value: geoData.og.title ?? 'og:title 없음' },
+                  { label: 'og:description', ok: !!geoData.og.description, warn: false, value: geoData.og.description ? geoData.og.description.slice(0, 50) + '…' : 'og:description 없음' },
+                  { label: 'og:image', ok: !!geoData.og.image, warn: false, value: geoData.og.image ? '이미지 설정됨' : 'og:image 없음 — SNS 공유 시 이미지 미표시' },
+                  { label: 'og:type', ok: !!geoData.og.type, warn: false, value: geoData.og.type ?? 'og:type 없음' },
+                  { label: 'Twitter Card', ok: !!geoData.og.twitterCard, warn: false, value: geoData.og.twitterCard ?? 'twitter:card 없음' },
+                  { label: 'Twitter Image', ok: !!geoData.og.twitterImage, warn: false, value: geoData.og.twitterImage ? '이미지 설정됨' : 'twitter:image 없음' },
+                ]}
+              />
+
+              <CheckSection
+                title="콘텐츠 구조"
+                icon={<FileText size={16} />}
+                defaultOpen={false}
+                items={[
+                  {
+                    label: 'H1 태그',
+                    ok: geoData.headings.h1Count === 1,
+                    warn: geoData.headings.h1Count > 1,
+                    value: geoData.headings.h1Count === 0 ? 'H1 없음 — 핵심 키워드 누락' : geoData.headings.h1Count === 1 ? '"' + (geoData.headings.h1[0] ?? '').slice(0, 40) + '"' : 'H1 ' + geoData.headings.h1Count + '개 중복 — 1개만 허용',
+                  },
+                  { label: 'H2 구조', ok: geoData.headings.h2Count > 0, warn: false, value: geoData.headings.h2Count > 0 ? 'H2 ' + geoData.headings.h2Count + '개, H3 ' + geoData.headings.h3Count + '개' : 'H2 소제목 없음 — 콘텐츠 구조 취약' },
+                  {
+                    label: '콘텐츠 분량',
+                    ok: geoData.content.wordCount >= 300,
+                    warn: geoData.content.wordCount >= 300 && geoData.content.wordCount < 1000,
+                    value: '약 ' + geoData.content.wordCount.toLocaleString() + '단어 ' + (geoData.content.wordCount < 300 ? '(너무 짧음)' : geoData.content.wordCount < 1000 ? '(보통)' : '(양호)'),
+                  },
+                  {
+                    label: '내부 링크',
+                    ok: geoData.content.internalLinks >= 3,
+                    warn: geoData.content.internalLinks > 0 && geoData.content.internalLinks < 3,
+                    value: geoData.content.internalLinks + '개 ' + (geoData.content.internalLinks === 0 ? '(없음)' : geoData.content.internalLinks < 3 ? '(3개 이상 권장)' : '(양호)'),
+                  },
+                  { label: '외부 링크', ok: geoData.content.externalLinks > 0, warn: false, value: geoData.content.externalLinks + '개 ' + (geoData.content.externalLinks === 0 ? '(신뢰 신호 약함)' : '(신뢰 도메인 연결)') },
+                  { label: '이미지 Alt', ok: geoData.images.missingAlt === 0, warn: false, value: geoData.images.missingAlt === 0 ? '전체 ' + geoData.images.total + '개 Alt 완비' : geoData.images.missingAlt + '/' + geoData.images.total + '개 Alt 누락' },
+                  { label: 'Favicon', ok: geoData.content.hasFavicon, warn: false, value: geoData.content.hasFavicon ? '파비콘 설정됨' : '파비콘 없음' },
+                ]}
+              />
+
+              <CheckSection
+                title="구조화 데이터 (Schema.org)"
+                icon={<Code2 size={16} />}
+                defaultOpen={false}
+                items={[
+                  { label: 'JSON-LD 존재', ok: geoData.jsonLd.exists, warn: false, value: geoData.jsonLd.exists ? geoData.jsonLd.count + '개 — ' + geoData.jsonLd.types.join(', ') : 'JSON-LD 없음 — 리치 스니펫 불가' },
+                  { label: 'Article / BlogPosting', ok: geoData.jsonLd.hasArticle, warn: false, value: geoData.jsonLd.hasArticle ? '설정됨' : '없음 (블로그/뉴스에 필수)' },
+                  { label: 'FAQPage', ok: geoData.jsonLd.hasFaq, warn: false, value: geoData.jsonLd.hasFaq ? '설정됨' : '없음 (Q&A 직접 노출 불가)' },
+                  { label: 'BreadcrumbList', ok: geoData.jsonLd.hasBreadcrumb, warn: false, value: geoData.jsonLd.hasBreadcrumb ? '설정됨' : '없음 (URL 경로 표시 불가)' },
+                  { label: 'Organization', ok: geoData.jsonLd.hasOrganization, warn: false, value: geoData.jsonLd.hasOrganization ? '설정됨' : '없음 (브랜드 신뢰도 약화)' },
+                  { label: 'HowTo', ok: geoData.jsonLd.hasHowTo, warn: false, value: geoData.jsonLd.hasHowTo ? '설정됨' : '없음 (해당 시 추가 권장)' },
+                ]}
+              />
+
+              <CheckSection
+                title="기술 SEO & GEO (AI 가시성)"
+                icon={<Bot size={16} />}
+                items={[
+                  { label: 'HTTPS', ok: geoData.content.isHttps, warn: false, value: geoData.content.isHttps ? 'HTTPS 적용됨' : '⚠ HTTP — 보안 경고 및 순위 하락' },
+                  { label: 'XML Sitemap', ok: geoData.sitemap.exists || geoData.robotsTxt.hasSitemap, warn: false, value: geoData.sitemap.exists ? '/sitemap.xml 존재' : geoData.robotsTxt.hasSitemap ? 'robots.txt에 Sitemap 선언됨' : 'Sitemap 없음 — 색인 속도 저하' },
+                  { label: 'robots.txt', ok: geoData.robotsTxt.exists, warn: false, value: geoData.robotsTxt.exists ? '존재' : 'robots.txt 없음' },
+                  { label: 'AI 봇 정책', ok: !geoData.robotsTxt.llmBlocked, warn: false, value: geoData.robotsTxt.llmBlocked ? 'GPTBot/ClaudeBot 차단됨' : 'AI 봇 크롤링 허용' },
+                  { label: 'llms.txt (GEO)', ok: geoData.llmsTxt.exists, warn: false, value: geoData.llmsTxt.exists ? 'llms.txt 존재' : 'llms.txt 없음 — GEO 노출 저하' },
+                ]}
+              />
             </div>
           </Card>
 
-          {/* AI 어드바이저 */}
           {(adviceLoading || advice) && (
             <Card className="p-6 border-indigo-200 bg-gradient-to-br from-indigo-950 to-slate-900 text-white">
               <h4 className="font-bold mb-4 flex items-center gap-2 text-indigo-300">
@@ -279,9 +435,7 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
                   AI가 진단 결과를 분석하고 있습니다...
                 </div>
               ) : (
-                <div className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">
-                  {advice}
-                </div>
+                <div className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">{advice}</div>
               )}
             </Card>
           )}
