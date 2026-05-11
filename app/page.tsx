@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import {
   LayoutDashboard, Search, FileText, Zap, ChevronRight, Bell, User, CheckCircle2,
   Tag, ArrowLeftRight, PenLine, Bot, BarChart3,
@@ -76,7 +77,7 @@ export default function App() {
         </nav>
 
         <div className="p-6 mt-auto shrink-0">
-          <div className="p-5 bg-gradient-to-br from-slate-900 to-indigo-900 text-white rounded-2xl relative overflow-hidden">
+          <div className="p-5 bg-gradient-to-br from-slate-900 to-indigo-900 text-white rounded-2xl relative overflow-hidden mb-4">
             <div className="relative z-10">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
@@ -86,6 +87,11 @@ export default function App() {
               <p className="text-[10px] text-slate-300">10년차 이상의 직관을 AI가 보조합니다.</p>
             </div>
             <Zap className="absolute -right-4 -bottom-4 text-white/5 w-24 h-24 rotate-12" />
+          </div>
+          <div className="text-center">
+            <Link href="/privacy" className="text-[10px] text-slate-400 hover:text-slate-600 transition-colors">
+              Privacy Policy
+            </Link>
           </div>
         </div>
       </aside>
