@@ -50,7 +50,7 @@ export async function generateText(prompt: string): Promise<AIResult> {
 
   if (process.env.FORCE_CLAUDE !== 'true') {
     try {
-      const model = geminiClient.getGenerativeModel({ model: 'gemini-2.0-flash' });
+      const model = geminiClient.getGenerativeModel({ model: 'gemini-1.5-flash' });
       const result = await model.generateContent(prompt);
       const text = result.response.text();
       const usage = result.response.usageMetadata;
@@ -58,7 +58,7 @@ export async function generateText(prompt: string): Promise<AIResult> {
         text,
         usage: {
           provider: 'gemini',
-          model: 'gemini-2.0-flash',
+          model: 'gemini-1.5-flash',
           promptTokens: usage?.promptTokenCount,
           outputTokens: usage?.candidatesTokenCount,
           latencyMs: Date.now() - t0,
