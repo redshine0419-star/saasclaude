@@ -6,6 +6,7 @@ import {
   Smartphone, Monitor, ShieldCheck, FileText, Image,
 } from 'lucide-react';
 import { saveDiagnosis } from '@/lib/storage';
+import AdUnit from '@/components/AdUnit';
 
 // ---- shared ui ----
 const Badge = ({ children, variant = 'default' }: { children: React.ReactNode; variant?: string }) => {
@@ -285,6 +286,8 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
               )}
             </Card>
           )}
+
+          <AdUnit slot="1234567890" />
 
           {(geoData.issues.length > 0 || current!.opportunities.length > 0) && (
             <Card className="p-6 bg-slate-900 text-white">

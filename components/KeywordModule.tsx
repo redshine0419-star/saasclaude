@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Search, Loader2, TrendingUp, Target, Lightbulb, FileText, BarChart2, Tag } from 'lucide-react';
+import AdUnit from '@/components/AdUnit';
 
 const Card = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
   <div className={'bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden ' + className}>
@@ -198,6 +199,8 @@ export default function KeywordModule({ onToast }: { onToast: (msg: string) => v
               ))}
             </div>
           </Card>
+
+          <AdUnit slot="0987654321" />
 
           {/* SEO 제목 + 메타 설명 */}
           <Card className="p-6">
