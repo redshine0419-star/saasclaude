@@ -66,12 +66,16 @@ export async function generateText(prompt: string): Promise<AIResult> {
         },
       };
     } catch (err) {
-      console.warn('[AI] Gemini failed, falling back to Claude:', (err as Error).message);
+      const geminiErr = (err as Error).message;
+      console.warn('[AI] Gemini failed, falling back to Claude:', geminiErr);
+      if (!process.env.ANTHROPIC_API_KEY) {
+        throw new Error('Gemini 오류: ' + geminiErr);
+      }
     }
   }
 
   if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error('AI 서비스를 사용할 수 없습니다. 환경변수를 확인해주세요.');
+    throw new Error('ANTHROPIC_API_KEY 환경변수가 설정되지 않았습니다.');
   }
 
   // Fallback: Claude claude-sonnet-4-6
