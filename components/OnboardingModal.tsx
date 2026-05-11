@@ -49,19 +49,19 @@ export default function OnboardingModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/70" onClick={finish} />
-      <div className="relative bg-white dark:bg-[#161b22] rounded-lg shadow-2xl w-full max-w-md overflow-hidden border border-[#eaeef2] dark:border-[#30363d]">
+      <div className="absolute inset-0 bg-black/80" onClick={finish} />
+      <div className="relative bg-white dark:bg-[#0d1117] rounded-lg w-full max-w-md overflow-hidden border border-[#eaeef2] dark:border-[#30363d] shadow-lg">
 
-        {/* Top border accent */}
-        <div className="h-px bg-[#eaeef2] dark:bg-[#30363d]" />
+        {/* Top black accent bar */}
+        <div className="h-[3px] bg-[#000000] dark:bg-[#ffffff]" />
 
         <div className="p-8">
           {/* Close */}
           <button
             onClick={finish}
-            className="absolute top-4 right-4 p-1.5 text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] rounded-md transition-colors"
+            className="absolute top-5 right-4 p-1.5 text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] rounded-md transition-colors"
           >
-            <X size={18} />
+            <X size={16} />
           </button>
 
           {/* Progress dots */}
@@ -69,8 +69,10 @@ export default function OnboardingModal() {
             {STEPS.map((_, i) => (
               <div
                 key={i}
-                className={`h-1 rounded-full flex-1 transition-all duration-300 ${
-                  i <= step ? 'bg-[#24292f] dark:bg-[#e6edf3]' : 'bg-[#eaeef2] dark:bg-[#30363d]'
+                className={`h-0.5 rounded-full flex-1 transition-all duration-300 ${
+                  i <= step
+                    ? 'bg-[#000000] dark:bg-[#ffffff]'
+                    : 'bg-[#eaeef2] dark:bg-[#30363d]'
                 }`}
               />
             ))}
@@ -78,7 +80,7 @@ export default function OnboardingModal() {
 
           {/* Content */}
           <div className="flex flex-col items-center text-center space-y-4 mb-8">
-            <div className="w-16 h-16 rounded-lg bg-[#f6f8fa] dark:bg-[#21262d] border border-[#eaeef2] dark:border-[#30363d] flex items-center justify-center text-[#24292f] dark:text-[#e6edf3]">
+            <div className="w-14 h-14 rounded-md bg-[#f6f8fa] dark:bg-[#161b22] border border-[#eaeef2] dark:border-[#30363d] flex items-center justify-center text-[#24292f] dark:text-[#e6edf3]">
               {current.icon}
             </div>
             <div>
@@ -92,7 +94,7 @@ export default function OnboardingModal() {
             <p className="text-sm text-[#57606a] dark:text-[#8b949e] leading-relaxed">
               {current.description}
             </p>
-            <div className="px-4 py-2 bg-[#f6f8fa] dark:bg-[#21262d] border border-[#eaeef2] dark:border-[#30363d] rounded-md w-full">
+            <div className="px-4 py-2 bg-[#f6f8fa] dark:bg-[#161b22] border border-[#eaeef2] dark:border-[#30363d] rounded-md w-full text-left">
               <p className="text-xs font-mono text-[#57606a] dark:text-[#8b949e]">
                 {current.highlight}
               </p>
@@ -104,14 +106,14 @@ export default function OnboardingModal() {
             {step > 0 && (
               <button
                 onClick={() => setStep(s => s - 1)}
-                className="flex-1 py-2.5 border border-[#eaeef2] dark:border-[#30363d] rounded-md text-sm font-medium text-[#57606a] dark:text-[#8b949e] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors"
+                className="flex-1 py-2.5 border border-[#eaeef2] dark:border-[#30363d] rounded-md text-sm font-medium text-[#57606a] dark:text-[#8b949e] hover:bg-[#f6f8fa] dark:hover:bg-[#161b22] hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors"
               >
                 이전
               </button>
             )}
             <button
               onClick={() => (isLast ? finish() : setStep(s => s + 1))}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-[#24292f] dark:bg-[#e6edf3] hover:bg-[#444c56] dark:hover:bg-white text-white dark:text-[#24292f] rounded-md text-sm font-medium transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-[#000000] dark:bg-[#ffffff] hover:bg-[#333333] dark:hover:bg-[#e6edf3] text-white dark:text-[#000000] rounded-md text-sm font-medium transition-colors"
             >
               {isLast ? (
                 <><Zap size={14} fill="currentColor" /> 시작하기</>

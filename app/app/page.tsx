@@ -75,13 +75,13 @@ export default function App() {
       <CommandPalette onNavigate={(tab) => setActiveTab(tab as Tab)} />
 
       {/* Top Header */}
-      <header className="shrink-0 bg-[#24292f] dark:bg-[#161b22] border-b border-[#444c56] z-20">
+      <header className="shrink-0 bg-[#000000] dark:bg-[#000000] border-b border-[#333333] z-20">
         {/* Brand bar */}
         <div className="flex items-center justify-between px-4 md:px-6 h-14">
           {/* Logo */}
           <div className="flex items-center gap-2 text-white font-black text-lg tracking-tight">
-            <Zap size={22} fill="currentColor" strokeWidth={0} />
-            <span>MarketerOps<span className="text-[#8b949e] font-light">.ai</span></span>
+            <Zap size={20} fill="currentColor" strokeWidth={0} />
+            <span className="font-bold">MarketerOps<span className="text-[#888888] font-normal">.ai</span></span>
           </div>
 
           {/* Right controls */}
@@ -89,7 +89,7 @@ export default function App() {
             {/* Cmd+K */}
             <button
               onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }))}
-              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md border border-[#444c56] text-[#8b949e] hover:text-white hover:border-[#8b949e] text-xs font-mono transition-colors"
+              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md border border-[#444444] text-[#888888] hover:text-white hover:border-[#666666] text-xs font-mono transition-colors"
             >
               <Command size={12} />
               <span>K</span>
@@ -98,21 +98,21 @@ export default function App() {
             {/* Dark mode */}
             <button
               onClick={toggle}
-              className="p-2 text-[#8b949e] hover:text-white hover:bg-white/10 rounded-md transition-colors"
+              className="p-2 text-[#888888] hover:text-white hover:bg-white/10 rounded-md transition-colors"
               title={dark ? 'Light mode' : 'Dark mode'}
             >
               {dark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
 
             {/* Notifications */}
-            <button className="relative p-2 text-[#8b949e] hover:text-white hover:bg-white/10 rounded-md transition-colors">
+            <button className="relative p-2 text-[#888888] hover:text-white hover:bg-white/10 rounded-md transition-colors">
               <Bell size={18} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-white border border-[#24292f] rounded-full" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-white border border-[#000000] rounded-full" />
             </button>
 
             {/* Avatar */}
-            <div className="w-8 h-8 rounded-full bg-[#8b949e] border border-[#444c56] flex items-center justify-center cursor-pointer hover:border-[#8b949e] transition-colors ml-1">
-              <User size={16} className="text-[#24292f]" strokeWidth={2} />
+            <div className="w-8 h-8 rounded-full bg-[#444444] border border-[#555555] flex items-center justify-center cursor-pointer hover:border-[#888888] transition-colors ml-1">
+              <User size={16} className="text-[#cccccc]" strokeWidth={2} />
             </div>
           </div>
         </div>
@@ -125,11 +125,11 @@ export default function App() {
               onClick={() => setActiveTab(item.id)}
               className={`flex items-center gap-1.5 px-3 py-2.5 text-sm font-medium border-b-2 whitespace-nowrap transition-colors shrink-0 ${
                 activeTab === item.id
-                  ? 'border-[#f78166] text-white'
-                  : 'border-transparent text-[#8b949e] hover:text-[#e6edf3] hover:border-[#6e7681]'
+                  ? 'border-white text-white'
+                  : 'border-transparent text-[#888888] hover:text-[#cccccc] hover:border-[#555555]'
               }`}
             >
-              <span className={activeTab === item.id ? 'text-[#f78166]' : ''}>{item.icon}</span>
+              <span>{item.icon}</span>
               <span className="hidden md:inline">{item.label}</span>
               <span className="md:hidden">{item.mobileLabel}</span>
             </button>
@@ -174,7 +174,7 @@ export default function App() {
       {/* Toast */}
       {toast && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
-          <div className="bg-[#24292f] text-white px-5 py-3 rounded-lg shadow-lg flex items-center gap-3 border border-[#444c56]">
+          <div className="bg-[#000000] text-white px-5 py-3 rounded-lg shadow-lg flex items-center gap-3 border border-[#333333]">
             <CheckCircle2 size={16} className="text-white shrink-0" />
             <span className="text-sm font-medium">{toast}</span>
           </div>

@@ -57,7 +57,7 @@ body {
 .dark .from-white { --tw-gradient-from: #161b22 var(--tw-gradient-from-position) !important; }
 .dark .to-white { --tw-gradient-to: #161b22 var(--tw-gradient-to-position) !important; }
 
-/* Colored backgrounds → neutral */
+/* Colored backgrounds → neutral gray */
 .dark .bg-indigo-50 { background-color: #21262d !important; }
 .dark .bg-indigo-50\/30 { background-color: rgba(33, 38, 45, 0.5) !important; }
 .dark .bg-emerald-50 { background-color: #21262d !important; }
@@ -68,14 +68,59 @@ body {
 .dark .bg-violet-50 { background-color: #21262d !important; }
 .dark .bg-pink-50 { background-color: #21262d !important; }
 
+/* Light mode colored backgrounds → neutral gray */
+.bg-indigo-50 { background-color: #f6f8fa !important; }
+.bg-emerald-50 { background-color: #f6f8fa !important; }
+.bg-amber-50 { background-color: #f6f8fa !important; }
+.bg-rose-50 { background-color: #f6f8fa !important; }
+.bg-blue-50 { background-color: #f6f8fa !important; }
+.bg-purple-50 { background-color: #f6f8fa !important; }
+.bg-violet-50 { background-color: #f6f8fa !important; }
+.bg-pink-50 { background-color: #f6f8fa !important; }
+
 /* Colored borders → neutral */
 .dark .border-indigo-100 { border-color: #30363d !important; }
 .dark .border-indigo-200 { border-color: #30363d !important; }
 .dark .border-emerald-100 { border-color: #30363d !important; }
 .dark .border-rose-200 { border-color: #30363d !important; }
 
+.border-indigo-100 { border-color: #eaeef2 !important; }
+.border-indigo-200 { border-color: #eaeef2 !important; }
+.border-emerald-100 { border-color: #eaeef2 !important; }
+.border-rose-200 { border-color: #eaeef2 !important; }
+
+/* Colored text → neutral */
+.text-indigo-600 { color: #24292f !important; }
+.text-indigo-500 { color: #57606a !important; }
+.text-emerald-600 { color: #24292f !important; }
+.text-amber-600 { color: #24292f !important; }
+.text-rose-600 { color: #24292f !important; }
+.text-blue-600 { color: #24292f !important; }
+.text-purple-600 { color: #24292f !important; }
+
+.dark .text-indigo-400 { color: #e6edf3 !important; }
+.dark .text-emerald-400 { color: #e6edf3 !important; }
+.dark .text-amber-400 { color: #e6edf3 !important; }
+.dark .text-rose-400 { color: #e6edf3 !important; }
+.dark .text-blue-400 { color: #e6edf3 !important; }
+.dark .text-purple-400 { color: #e6edf3 !important; }
+
+/* Colored active/filled backgrounds → black */
+.bg-indigo-600 { background-color: #000000 !important; }
+.bg-indigo-500 { background-color: #000000 !important; }
+.bg-emerald-500 { background-color: #000000 !important; }
+.bg-blue-600 { background-color: #000000 !important; }
+.bg-purple-600 { background-color: #000000 !important; }
+
+.dark .bg-indigo-600 { background-color: #ffffff !important; }
+.dark .bg-indigo-500 { background-color: #ffffff !important; }
+.dark .bg-emerald-500 { background-color: #ffffff !important; }
+.dark .bg-blue-600 { background-color: #ffffff !important; }
+.dark .bg-purple-600 { background-color: #ffffff !important; }
+
 /* Checkbox */
 .dark input[type="checkbox"] { accent-color: #e6edf3; }
+input[type="checkbox"] { accent-color: #000000; }
 
 /* ── Scrollbar ──────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; }

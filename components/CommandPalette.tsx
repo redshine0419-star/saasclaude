@@ -68,13 +68,16 @@ export default function CommandPalette({ onNavigate }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-start justify-center pt-[15vh] bg-black/60"
+      className="fixed inset-0 z-[9999] flex items-start justify-center pt-[15vh] bg-black/70"
       onClick={() => setOpen(false)}
     >
       <div
-        className="w-full max-w-lg bg-white dark:bg-[#161b22] rounded-lg shadow-2xl border border-[#eaeef2] dark:border-[#30363d] overflow-hidden"
+        className="w-full max-w-lg bg-white dark:bg-[#0d1117] rounded-lg shadow-2xl border border-[#eaeef2] dark:border-[#30363d] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Top accent bar */}
+        <div className="h-[2px] bg-[#000000] dark:bg-[#ffffff]" />
+
         {/* Input */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-[#eaeef2] dark:border-[#30363d]">
           <Search size={16} className="text-[#57606a] dark:text-[#8b949e] shrink-0" />
@@ -86,7 +89,7 @@ export default function CommandPalette({ onNavigate }: Props) {
             placeholder="탭 이동 또는 기능 검색..."
             className="flex-1 bg-transparent text-sm text-[#24292f] dark:text-[#e6edf3] placeholder:text-[#57606a] dark:placeholder:text-[#8b949e] outline-none"
           />
-          <kbd className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 bg-[#f6f8fa] dark:bg-[#21262d] border border-[#eaeef2] dark:border-[#30363d] rounded text-[10px] text-[#57606a] dark:text-[#8b949e] font-mono">
+          <kbd className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 bg-[#f6f8fa] dark:bg-[#161b22] border border-[#eaeef2] dark:border-[#30363d] rounded text-[10px] text-[#57606a] dark:text-[#8b949e] font-mono">
             <Command size={9} />K
           </kbd>
         </div>
@@ -103,17 +106,29 @@ export default function CommandPalette({ onNavigate }: Props) {
                 onClick={() => select(cmd.id)}
                 className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
                   cursor === i
-                    ? 'bg-[#0969da] text-white'
-                    : 'text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d]'
+                    ? 'bg-[#000000] dark:bg-[#ffffff] text-white dark:text-[#000000]'
+                    : 'text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#161b22]'
                 }`}
               >
-                <span className={`shrink-0 ${cursor === i ? 'text-white' : 'text-[#57606a] dark:text-[#8b949e]'}`}>{cmd.icon}</span>
+                <span className={`shrink-0 ${
+                  cursor === i
+                    ? 'text-white dark:text-[#000000]'
+                    : 'text-[#57606a] dark:text-[#8b949e]'
+                }`}>
+                  {cmd.icon}
+                </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium truncate">{cmd.label}</p>
-                  <p className={`text-[11px] truncate ${cursor === i ? 'text-blue-100' : 'text-[#57606a] dark:text-[#8b949e]'}`}>{cmd.desc}</p>
+                  <p className={`text-[11px] truncate ${
+                    cursor === i
+                      ? 'text-[#cccccc] dark:text-[#555555]'
+                      : 'text-[#57606a] dark:text-[#8b949e]'
+                  }`}>
+                    {cmd.desc}
+                  </p>
                 </div>
                 {cursor === i && (
-                  <kbd className="ml-auto shrink-0 px-1.5 py-0.5 bg-white/20 rounded text-[10px] text-white font-mono">
+                  <kbd className="ml-auto shrink-0 px-1.5 py-0.5 bg-white/20 dark:bg-black/20 rounded text-[10px] font-mono">
                     Enter
                   </kbd>
                 )}
