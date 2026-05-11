@@ -30,7 +30,7 @@ export async function generateChat(
   if (process.env.FORCE_CLAUDE !== 'true') {
     try {
       const model = geminiClient.getGenerativeModel({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-2.0-flash',
         systemInstruction: systemPrompt,
       });
       const history: Content[] = messages.slice(0, -1).map((m) => ({
@@ -43,11 +43,15 @@ export async function generateChat(
       const text = result.response.text();
       return {
         text,
-        usage: { provider: 'gemini', model: 'gemini-2.5-flash', latencyMs: Date.now() - t0, fallback: false },
+        usage: { provider: 'gemini', model: 'gemini-2.0-flash', latencyMs: Date.now() - t0, fallback: false },
       };
     } catch (err) {
       console.warn('[AI] Gemini chat failed, falling back to Claude:', (err as Error).message);
     }
+  }
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error('AI 서비스를 사용할 수 없습니다. 환경변수를 확인해주세요.');
   }
 
   const t1 = Date.now();
@@ -81,7 +85,7 @@ export async function generateText(prompt: string): Promise<AIResult> {
 
   if (process.env.FORCE_CLAUDE !== 'true') {
     try {
-      const model = geminiClient.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      const model = geminiClient.getGenerativeModel({ model: 'gemini-2.0-flash' });
       const result = await model.generateContent(prompt);
       const text = result.response.text();
       const usage = result.response.usageMetadata;
@@ -89,7 +93,7 @@ export async function generateText(prompt: string): Promise<AIResult> {
         text,
         usage: {
           provider: 'gemini',
-          model: 'gemini-2.5-flash',
+          model: 'gemini-2.0-flash',
           promptTokens: usage?.promptTokenCount,
           outputTokens: usage?.candidatesTokenCount,
           latencyMs: Date.now() - t0,
@@ -99,6 +103,10 @@ export async function generateText(prompt: string): Promise<AIResult> {
     } catch (err) {
       console.warn('[AI] Gemini failed, falling back to Claude:', (err as Error).message);
     }
+  }
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error('AI 서비스를 사용할 수 없습니다. 환경변수를 확인해주세요.');
   }
 
   // Fallback: Claude claude-sonnet-4-6
