@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Sparkles, Zap, Loader2, MessageSquare, Share2, Mail, BarChart3, Copy, ChevronDown, ChevronUp } from 'lucide-react';
+import AdUnit from '@/components/AdUnit';
 import { incrementContentCount } from '@/lib/storage';
 
 const Badge = ({ children, variant = 'default' }: { children: React.ReactNode; variant?: string }) => {
@@ -184,6 +185,8 @@ export default function ContentHubModule({ onToast }: { onToast: (msg: string) =
           />
         ))}
       </div>
+
+      {result && <AdUnit slot="1122334455" />}
     </div>
   );
 }
