@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, Content } from '@google/generative-ai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import Anthropic from '@anthropic-ai/sdk';
 
 const geminiClient = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '');
@@ -20,60 +20,25 @@ export interface AIResult {
 
 export interface ChatMessage { role: 'user' | 'assistant'; content: string; }
 
-/** Chat with message history — Gemini primary, Claude fallback. */
+/** Chat with message history — Gemini primary, Claude fallback.
+ *  Builds a single prompt string to avoid Gemini's history-must-start-with-user constraint.
+ */
 export async function generateChat(
   systemPrompt: string,
   messages: ChatMessage[],
 ): Promise<AIResult> {
-  const t0 = Date.now();
+  // Build a single prompt: system + conversation history + last user message
+  const historyText = messages.slice(0, -1)
+    .map((m) => (m.role === 'user' ? 'User: ' : 'Assistant: ') + m.content)
+    .join('\n');
+  const lastMessage = messages[messages.length - 1].content;
 
-  if (process.env.FORCE_CLAUDE !== 'true') {
-    try {
-      const model = geminiClient.getGenerativeModel({
-        model: 'gemini-2.0-flash',
-        systemInstruction: systemPrompt,
-      });
-      const history: Content[] = messages.slice(0, -1).map((m) => ({
-        role: m.role === 'user' ? 'user' : 'model',
-        parts: [{ text: m.content }],
-      }));
-      const lastMessage = messages[messages.length - 1].content;
-      const chat = model.startChat({ history });
-      const result = await chat.sendMessage(lastMessage);
-      const text = result.response.text();
-      return {
-        text,
-        usage: { provider: 'gemini', model: 'gemini-2.0-flash', latencyMs: Date.now() - t0, fallback: false },
-      };
-    } catch (err) {
-      console.warn('[AI] Gemini chat failed, falling back to Claude:', (err as Error).message);
-    }
-  }
+  const fullPrompt = systemPrompt +
+    (historyText ? '\n\n[대화 이력]\n' + historyText : '') +
+    '\n\nUser: ' + lastMessage +
+    '\n\nAssistant:';
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error('AI 서비스를 사용할 수 없습니다. 환경변수를 확인해주세요.');
-  }
-
-  const t1 = Date.now();
-  const anthropicMessages: Anthropic.MessageParam[] = messages.map((m) => ({
-    role: m.role === 'user' ? 'user' : 'assistant',
-    content: m.content,
-  }));
-  const message = await anthropicClient.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 2048,
-    system: systemPrompt,
-    messages: anthropicMessages,
-  });
-  const text = message.content.filter((b) => b.type === 'text').map((b) => b.text).join('');
-  return {
-    text,
-    usage: {
-      provider: 'claude', model: 'claude-sonnet-4-6',
-      promptTokens: message.usage.input_tokens, outputTokens: message.usage.output_tokens,
-      latencyMs: Date.now() - t1, fallback: true,
-    },
-  };
+  return generateText(fullPrompt);
 }
 
 /**
