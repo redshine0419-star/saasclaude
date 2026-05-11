@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '');
+import { generateText } from '@/lib/ai';
 
 export async function POST(req: NextRequest) {
   const { name, description, services, urls, audience, instructions, blockedSections } = await req.json();
@@ -29,9 +27,8 @@ export async function POST(req: NextRequest) {
     '완성된 llms.txt 전체 내용만 출력하세요 (JSON 아님, 마크다운 코드블록 없이 plain text).';
 
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-    const result = await model.generateContent(prompt);
-    const text = result.response.text().trim();
+    const { text: rawText } = await generateText(prompt);
+    const text = rawText.trim();
     const content = text.replace(/^```[\w]*\s*/i, '').replace(/\s*```$/i, '').trim();
     return NextResponse.json({ content });
   } catch (e) {

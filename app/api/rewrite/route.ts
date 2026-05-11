@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '');
+import { generateText } from '@/lib/ai';
 
 const GOAL_PROMPTS: Record<string, string> = {
   seo: 'SEO 최적화: 타겟 키워드를 자연스럽게 포함하고, 검색 의도에 맞는 헤딩 구조(H2/H3)와 메타 설명 초안을 함께 제안하세요.',
@@ -41,9 +39,8 @@ export async function POST(req: NextRequest) {
     '}';
 
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-    const result = await model.generateContent(prompt);
-    const text = result.response.text().trim();
+    const { text: rawText } = await generateText(prompt);
+    const text = rawText.trim();
     const jsonStr = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
     return NextResponse.json(JSON.parse(jsonStr));
   } catch (e) {

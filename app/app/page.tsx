@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useDarkMode } from '@/components/DarkModeProvider';
 import OnboardingModal from '@/components/OnboardingModal';
+import CommandPalette from '@/components/CommandPalette';
 import DiagnosisModule from '@/components/DiagnosisModule';
 import ContentHubModule from '@/components/ContentHubModule';
 import DashboardModule from '@/components/DashboardModule';
@@ -71,6 +72,7 @@ export default function App() {
   return (
     <div className="flex flex-col md:flex-row h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 overflow-hidden select-none">
       <OnboardingModal />
+      <CommandPalette onNavigate={(tab) => setActiveTab(tab as Tab)} />
 
       {/* Sidebar (Desktop) */}
       <aside className="hidden md:flex w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 flex-col z-20">
@@ -111,6 +113,15 @@ export default function App() {
             </div>
             <Zap className="absolute -right-4 -bottom-4 text-white/5 w-24 h-24 rotate-12" />
           </div>
+
+          {/* Cmd+K hint */}
+          <button
+            onClick={() => (window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true })))}
+            className="w-full flex items-center justify-between gap-2 py-2.5 px-3 mb-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold transition-colors"
+          >
+            <span>커맨드 팔레트</span>
+            <kbd className="flex items-center gap-0.5 px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-mono">⌘K</kbd>
+          </button>
 
           {/* Dark mode toggle */}
           <button

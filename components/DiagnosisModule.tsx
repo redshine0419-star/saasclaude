@@ -6,7 +6,7 @@ import {
   Smartphone, Monitor, ShieldCheck, FileText, Image,
   Link, Type, Share2, Code2, Bot, ChevronDown, ChevronUp, Download,
 } from 'lucide-react';
-import { saveDiagnosis } from '@/lib/storage';
+import { saveDiagnosis, getDiagnoses } from '@/lib/storage';
 import AdUnit from '@/components/AdUnit';
 
 // ---- shared ui ----
@@ -181,6 +181,9 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
       setGeoData(gData);
       setStatus('complete');
 
+      const prevDiagnoses = getDiagnoses().filter((d) => d.url === url);
+      const prev = prevDiagnoses[prevDiagnoses.length - 1];
+
       saveDiagnosis({
         url,
         timestamp: Date.now(),
@@ -191,6 +194,24 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
           geo: gData.score,
         },
       });
+
+      if (prev) {
+        const newScores = { performance: aData.mobile.scores.performance, seo: aData.mobile.scores.seo, geo: gData.score };
+        const alerts = ([
+          { metric: 'Performance', previous: prev.scores.performance, current: newScores.performance },
+          { metric: 'SEO', previous: prev.scores.seo, current: newScores.seo },
+          { metric: 'GEO', previous: prev.scores.geo, current: newScores.geo },
+        ] as const).map((a) => ({ ...a, url, delta: a.current - a.previous }))
+          .filter((a) => Math.abs(a.delta) >= 10);
+
+        if (alerts.length > 0) {
+          fetch('/api/slack/notify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ alerts, context: url }),
+          }).catch(() => {});
+        }
+      }
 
       // AI 어드바이저 비동기 호출
       setAdviceLoading(true);

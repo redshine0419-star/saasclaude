@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '');
+import { generateText } from '@/lib/ai';
 
 const prompts = {
   blog: (input: string) => `당신은 10년차 SEO 전문 콘텐츠 마케터입니다.
@@ -55,11 +53,6 @@ ${input}
 
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-async function generate(model: ReturnType<typeof genAI.getGenerativeModel>, prompt: string): Promise<string> {
-  const result = await model.generateContent(prompt);
-  return result.response.text();
-}
-
 export async function POST(req: NextRequest) {
   const { content } = await req.json();
 
@@ -68,15 +61,20 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const [blogRes, socialRes] = await Promise.all([
+      generateText(prompts.blog(content)),
+      generateText(prompts.social(content)),
+    ]);
+    await delay(200);
+    const [newsletterRes, adsRes] = await Promise.all([
+      generateText(prompts.newsletter(content)),
+      generateText(prompts.ads(content)),
+    ]);
 
-    const blog = await generate(model, prompts.blog(content));
-    await delay(500);
-    const social = await generate(model, prompts.social(content));
-    await delay(500);
-    const newsletter = await generate(model, prompts.newsletter(content));
-    await delay(500);
-    const ads = await generate(model, prompts.ads(content));
+    const blog = blogRes.text;
+    const social = socialRes.text;
+    const newsletter = newsletterRes.text;
+    const ads = adsRes.text;
 
     return NextResponse.json({ blog, social, newsletter, ads });
   } catch (e) {

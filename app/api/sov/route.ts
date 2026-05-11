@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '');
+import { generateText } from '@/lib/ai';
 
 function extractContext(text: string, name: string): { mentioned: boolean; context: string } {
   const lower = text.toLowerCase();
@@ -21,16 +19,14 @@ export async function POST(req: NextRequest) {
   if (!prompts?.length) return NextResponse.json({ error: '프롬프트를 최소 1개 입력해주세요.' }, { status: 400 });
 
   const limitedPrompts = (prompts as string[]).slice(0, 6);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
   const promptResults = await Promise.all(
     limitedPrompts.map(async (prompt: string) => {
       try {
-        const res = await model.generateContent(
+        const { text: response } = await generateText(
           '당신은 사용자 질문에 자연스럽고 포괄적으로 답하는 AI 어시스턴트입니다. ' +
           '특정 브랜드를 편향 없이 있는 그대로 답변하세요. 한국어로 답변하세요.\n\n질문: ' + prompt
         );
-        const response = res.response.text();
         const companyResult = extractContext(response, company);
         const competitorMentions = (competitors as string[]).map((c: string) => ({
           name: c,
@@ -77,8 +73,8 @@ export async function POST(req: NextRequest) {
 
   let insights = '';
   try {
-    const insightRes = await model.generateContent(insightPrompt);
-    insights = insightRes.response.text();
+    const { text } = await generateText(insightPrompt);
+    insights = text;
   } catch {}
 
   return NextResponse.json({

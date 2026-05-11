@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '');
+import { generateText } from '@/lib/ai';
 
 export async function POST(req: NextRequest) {
   const { keyword } = await req.json();
@@ -32,9 +30,8 @@ export async function POST(req: NextRequest) {
     '}';
 
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-    const result = await model.generateContent(prompt);
-    const text = result.response.text().trim();
+    const { text: rawText } = await generateText(prompt);
+    const text = rawText.trim();
 
     const jsonStr = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
     const data = JSON.parse(jsonStr);

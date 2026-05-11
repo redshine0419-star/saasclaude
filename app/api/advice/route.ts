@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '');
+import { generateText } from '@/lib/ai';
 
 export async function POST(req: NextRequest) {
   const { url, geoData, analyzeData } = await req.json();
@@ -47,9 +45,7 @@ export async function POST(req: NextRequest) {
     '## AI 시대 GEO 전략 제언\n(LLM 검색 최적화를 위한 핵심 조언 2~3가지)';
 
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    const { text } = await generateText(prompt);
     return NextResponse.json({ advice: text });
   } catch (e) {
     console.error(e);

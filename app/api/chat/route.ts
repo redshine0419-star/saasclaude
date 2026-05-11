@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '');
+import { generateChat } from '@/lib/ai';
 
 const SYSTEM_PROMPT = `당신은 MarketerOps.ai의 AI 마케팅 어시스턴트입니다.
 MarketerOps.ai는 다음 9가지 무료 AI 마케팅 도구를 제공합니다:
@@ -27,22 +25,12 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash',
-      systemInstruction: SYSTEM_PROMPT,
-    });
-
-    const history = messages.slice(0, -1).map((m: { role: string; content: string }) => ({
-      role: m.role === 'user' ? 'user' : 'model',
-      parts: [{ text: m.content }],
+    const chatMessages = messages.map((m: { role: string; content: string }) => ({
+      role: (m.role === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
+      content: m.content,
     }));
 
-    const lastMessage = messages[messages.length - 1].content;
-
-    const chat = model.startChat({ history });
-    const result = await chat.sendMessage(lastMessage);
-    const text = result.response.text();
-
+    const { text } = await generateChat(SYSTEM_PROMPT, chatMessages);
     return NextResponse.json({ reply: text });
   } catch (e) {
     console.error(e);
