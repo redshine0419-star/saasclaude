@@ -52,3 +52,30 @@ export function getStats(): UsageStats {
     return { diagnosisCount: 0, contentCount: 0 };
   }
 }
+
+export interface SovRecord {
+  company: string;
+  industry: string;
+  mentionRate: number;
+  mentionCount: number;
+  totalPrompts: number;
+  timestamp: number;
+}
+
+const SOV_KEY = 'marketerops_sov';
+
+export function saveSovRecord(record: SovRecord): void {
+  if (typeof window === 'undefined') return;
+  const existing = getSovHistory();
+  const updated = [record, ...existing].slice(0, 30);
+  localStorage.setItem(SOV_KEY, JSON.stringify(updated));
+}
+
+export function getSovHistory(): SovRecord[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    return JSON.parse(localStorage.getItem(SOV_KEY) ?? '[]');
+  } catch {
+    return [];
+  }
+}
