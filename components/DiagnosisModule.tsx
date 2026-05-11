@@ -6,7 +6,9 @@ import {
   Smartphone, Monitor, ShieldCheck, FileText, Image,
 } from 'lucide-react';
 import { saveDiagnosis } from '@/lib/storage';
+import AdUnit from '@/components/AdUnit';
 
+// ---- shared ui ----
 const Badge = ({ children, variant = 'default' }: { children: React.ReactNode; variant?: string }) => {
   const styles: Record<string, string> = {
     default: 'bg-slate-100 text-slate-600',
@@ -28,6 +30,7 @@ const Card = ({ children, className = '' }: { children: React.ReactNode; classNa
   </div>
 );
 
+// ---- score ring ----
 const ScoreRing = ({ score, label, sub }: { score: number | string; label: string; sub: string }) => {
   const num = typeof score === 'number' ? score : null;
   const color =
@@ -52,6 +55,7 @@ const ScoreRing = ({ score, label, sub }: { score: number | string; label: strin
   );
 };
 
+// ---- types ----
 interface AnalyzeResult {
   mobile: { scores: Record<string, number>; vitals: Record<string, string>; opportunities: { title: string; description: string; score: number | null }[] };
   desktop: { scores: Record<string, number>; vitals: Record<string, string>; opportunities: { title: string; description: string; score: number | null }[] };
@@ -68,6 +72,7 @@ interface GeoResult {
   issues: { title: string; detail: string; impact: 'High' | 'Medium' | 'Low' }[];
 }
 
+// ---- main component ----
 export default function DiagnosisModule({ onToast }: { onToast: (msg: string) => void }) {
   const [url, setUrl] = useState('');
   const [status, setStatus] = useState<'idle' | 'scanning' | 'complete' | 'error'>('idle');
@@ -120,6 +125,7 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
         },
       });
 
+      // AI 어드바이저 비동기 호출
       setAdviceLoading(true);
       fetch('/api/advice', {
         method: 'POST',
@@ -143,6 +149,7 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
+      {/* Input Card */}
       <Card className="p-6 md:p-8 border-indigo-100 bg-gradient-to-br from-white to-indigo-50/30">
         <div className="flex items-center gap-3 mb-6">
           <div className="p-3 bg-indigo-600 text-white rounded-xl shadow-indigo-200 shadow-lg">
@@ -190,8 +197,10 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
         )}
       </Card>
 
+      {/* Results */}
       {status === 'complete' && analyzeData && geoData && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {/* Strategy Toggle */}
           <div className="flex gap-2 justify-end">
             {(['mobile', 'desktop'] as const).map((s) => (
               <button
@@ -207,6 +216,7 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
             ))}
           </div>
 
+          {/* Score Rings */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <ScoreRing score={current!.scores.performance} label="Performance" sub="Core Web Vitals 종합 점수" />
             <ScoreRing score={current!.scores.seo} label="SEO" sub="검색엔진 최적화 점수" />
@@ -214,6 +224,7 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
             <ScoreRing score={geoData.score} label="GEO Visibility" sub="AI 가독성 및 LLM 크롤링 점수" />
           </div>
 
+          {/* Core Web Vitals */}
           <Card className="p-6">
             <h4 className="font-bold text-slate-800 mb-4">Core Web Vitals</h4>
             <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
@@ -226,6 +237,7 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
             </div>
           </Card>
 
+          {/* GEO Checklist */}
           <Card className="p-6">
             <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
               <ShieldCheck size={20} className="text-indigo-600" />
@@ -234,12 +246,12 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {[
                 { label: 'llms.txt', ok: geoData.llmsTxt.exists, good: 'AI 봇 가이드 파일 존재', bad: 'llms.txt 없음 — AI 학습 효율 저하' },
-                { label: 'JSON-LD', ok: geoData.jsonLd.exists, good: '구조화 데이터 ' + geoData.jsonLd.count + '개 (' + geoData.jsonLd.types.join(', ') + ')', bad: 'JSON-LD 없음 — 검색 스니펫 표시 불가' },
+                { label: 'JSON-LD', ok: geoData.jsonLd.exists, good: `구조화 데이터 ${geoData.jsonLd.count}개 (${geoData.jsonLd.types.join(', ')})`, bad: 'JSON-LD 없음 — 검색 스니펫 표시 불가' },
                 { label: 'robots.txt', ok: !geoData.robotsTxt.llmBlocked, good: 'AI 봇 허용', bad: 'GPTBot/ClaudeBot 차단됨' },
                 { label: 'Meta Description', ok: !!geoData.metaTags.description, good: (geoData.metaTags.description?.slice(0, 60) ?? '') + '…', bad: 'Meta Description 없음' },
                 { label: 'Canonical URL', ok: !!geoData.metaTags.canonical, good: '설정됨', bad: 'Canonical URL 미설정' },
-                { label: 'H1 태그', ok: geoData.headings.h1.length > 0, good: '"' + geoData.headings.h1[0] + '"', bad: 'H1 태그 없음' },
-                { label: '이미지 Alt', ok: geoData.images.missingAlt === 0, good: '전체 ' + geoData.images.total + '개 Alt 완비', bad: geoData.images.missingAlt + '/' + geoData.images.total + '개 Alt 누락' },
+                { label: 'H1 태그', ok: geoData.headings.h1.length > 0, good: `"${geoData.headings.h1[0]}"`, bad: 'H1 태그 없음' },
+                { label: '이미지 Alt', ok: geoData.images.missingAlt === 0, good: `전체 ${geoData.images.total}개 Alt 완비`, bad: `${geoData.images.missingAlt}/${geoData.images.total}개 Alt 누락` },
               ].map((item) => (
                 <div key={item.label} className={`flex items-start gap-3 p-3 rounded-xl ${item.ok ? 'bg-emerald-50' : 'bg-rose-50'}`}>
                   {item.ok ? <CheckCircle2 size={18} className="text-emerald-600 shrink-0 mt-0.5" /> : <AlertCircle size={18} className="text-rose-500 shrink-0 mt-0.5" />}
@@ -254,6 +266,7 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
             </div>
           </Card>
 
+          {/* AI 어드바이저 */}
           {(adviceLoading || advice) && (
             <Card className="p-6 border-indigo-200 bg-gradient-to-br from-indigo-950 to-slate-900 text-white">
               <h4 className="font-bold mb-4 flex items-center gap-2 text-indigo-300">
@@ -272,6 +285,8 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
               )}
             </Card>
           )}
+
+          <AdUnit slot="1234567890" />
 
           {(geoData.issues.length > 0 || current!.opportunities.length > 0) && (
             <Card className="p-6 bg-slate-900 text-white">
