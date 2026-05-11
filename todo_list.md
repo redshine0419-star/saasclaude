@@ -125,6 +125,32 @@ Last updated: 2026-05-11
 
 - [ ] **프로젝트 관리** — 도메인 단위로 진단 이력 그룹핑
 
+### Phase 2 — AI Share of Voice (AI 언급율) 탭 ⭐ 신규
+
+> **개념**: 특정 프롬프트를 AI 모델에 던졌을 때 우리 회사가 얼마나 자주 언급되는지 측정.
+> GEO(Generative Engine Optimization)의 핵심 KPI — 검색 점유율의 AI 버전.
+
+#### 백엔드
+- [ ] **`app/api/sov/route.ts`** — AI Share of Voice 분석 API
+  - 입력: 회사명, 업종/카테고리, 테스트 프롬프트 목록 (기본 제공 + 커스텀)
+  - Gemini에 각 프롬프트를 순차 호출 → 응답에서 회사명 언급 여부 감지
+  - 경쟁사 목록도 함께 입력 시 경쟁사 언급율 비교 (Share of Voice 비교)
+  - 반환: 언급율(%), 프롬프트별 결과, 언급 문맥 발췌, 경쟁사 비교 데이터
+
+#### 프론트엔드
+- [ ] **`components/SovModule.tsx`** — AI Share of Voice UI
+  - **입력 폼**: 회사명, 업종, 경쟁사 목록 (선택), 커스텀 프롬프트 추가
+  - **기본 프롬프트 세트**: 업종별 자동 제안 ("○○ 분야 추천 솔루션은?", "○○ 도구 비교해줘" 등)
+  - **결과 대시보드**:
+    - 전체 언급율 게이지 (0~100%)
+    - 프롬프트별 언급 여부 (O/X 테이블 + 언급 문맥)
+    - 경쟁사 대비 Share of Voice 바 차트
+    - AI가 언급한 우리 회사 강점/약점 요약
+  - **트렌드 추적**: 측정 이력 저장 → 시간에 따른 언급율 변화 그래프
+
+#### 네비게이션
+- [ ] **`app/page.tsx`** — 9번째 탭으로 추가 (AI Share of Voice / SOV)
+
 ### Phase 2 — 기능 확장
 
 - [ ] **리포트 내보내기** — PDF/Markdown 다운로드 버튼 (jsPDF 또는 서버사이드 렌더링)
@@ -148,7 +174,7 @@ Last updated: 2026-05-11
 - [x] **`app/layout.tsx`** — AdSense 스크립트 추가 완료 (publisher ID 교체 필요)
 - [x] **`components/AdUnit.tsx`** — 완료
 - [x] **광고 배치 3곳** — 완료
-- [ ] **`app/privacy/page.tsx`** — Privacy Policy 페이지 추가 (AdSense 필수)
+- [x] **`app/privacy/page.tsx`** — Privacy Policy 페이지 추가 (AdSense 필수)
 - [ ] **AdSense publisher ID 교체** — `ca-pub-XXXXXXXXXX` → 실제 ID로 변경
 - [ ] **AdSense 승인 확인** — 심사 기간 약 2~4주
 - [ ] **성과 모니터링** — 노출수·CTR·RPM 주간 체크
