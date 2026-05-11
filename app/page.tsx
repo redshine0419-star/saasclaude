@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import {
   LayoutDashboard, Search, FileText, Zap, ChevronRight, Bell, User, CheckCircle2,
-  Tag, ArrowLeftRight, PenLine, Bot, BarChart3,
+  Tag, ArrowLeftRight, PenLine, Bot, BarChart3, Megaphone,
 } from 'lucide-react';
 import DiagnosisModule from '@/components/DiagnosisModule';
 import ContentHubModule from '@/components/ContentHubModule';
@@ -14,6 +14,7 @@ import CompetitorModule from '@/components/CompetitorModule';
 import RewriterModule from '@/components/RewriterModule';
 import LlmsTxtModule from '@/components/LlmsTxtModule';
 import GA4Module from '@/components/GA4Module';
+import SovModule from '@/components/SovModule';
 
 const TABS = {
   DIAGNOSIS: 'diagnosis',
@@ -23,6 +24,7 @@ const TABS = {
   KEYWORD: 'keyword',
   LLMSTXT: 'llmstxt',
   GA4: 'ga4',
+  SOV: 'sov',
   DASHBOARD: 'dashboard',
 } as const;
 type Tab = typeof TABS[keyof typeof TABS];
@@ -44,6 +46,7 @@ export default function App() {
     { id: TABS.KEYWORD, icon: <Tag size={20} />, label: 'Keyword Analysis', mobileLabel: '키워드' },
     { id: TABS.LLMSTXT, icon: <Bot size={20} />, label: 'llms.txt 생성기', mobileLabel: 'LLMs' },
     { id: TABS.GA4, icon: <BarChart3 size={20} />, label: 'GA4 Analytics', mobileLabel: 'GA4' },
+    { id: TABS.SOV, icon: <Megaphone size={20} />, label: 'AI Share of Voice', mobileLabel: 'SOV' },
     { id: TABS.DASHBOARD, icon: <LayoutDashboard size={20} />, label: 'Ops Dashboard', mobileLabel: '대시보드' },
   ];
 
@@ -126,6 +129,7 @@ export default function App() {
           {activeTab === TABS.KEYWORD && <KeywordModule onToast={showToast} />}
           {activeTab === TABS.LLMSTXT && <LlmsTxtModule onToast={showToast} />}
           {activeTab === TABS.GA4 && <GA4Module onToast={showToast} />}
+          {activeTab === TABS.SOV && <SovModule onToast={showToast} />}
           {activeTab === TABS.DASHBOARD && <DashboardModule />}
         </div>
 
