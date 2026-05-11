@@ -1,6 +1,6 @@
 # MarketerOps.ai — Todo List
 
-Last updated: 2026-05-10
+Last updated: 2026-05-11
 
 ---
 
@@ -55,7 +55,7 @@ Last updated: 2026-05-10
 
 ---
 
-## 완료된 작업 — Phase 2 기능 (Done)
+## 완료된 작업 — Phase 2 기능 + AdSense + GA4 (Done)
 
 ---
 
@@ -73,18 +73,56 @@ Last updated: 2026-05-10
 
 ### 네비게이션 확장
 - [x] `app/page.tsx` — 7탭으로 확장 (경쟁사·리라이터·LLMs 추가)
+- [x] `app/page.tsx` — 8탭으로 확장 (GA4 Analytics 추가)
 - [x] 모바일 하단 탭바 가로 스크롤 처리
+
+### GA4 Analytics 탭
+- [x] `app/api/ga4/check/route.ts` — URL 기반 GA4 설치 여부 확인 (GTM·gtag.js·G- ID 감지)
+- [x] `app/api/ga4/data/route.ts` — Google Analytics Data API 연동 (트렌드·채널·페이지·기기 분석)
+- [x] `app/api/ga4/analyze/route.ts` — Gemini 기반 GA4 데이터 AI 분석 (건강 점수·인사이트·목표)
+- [x] `components/GA4Module.tsx` — 설치 확인 + 데이터 대시보드 + AI 분석 통합 UI
+
+### AdSense 수익화 (코드 구현 완료)
+- [x] `public/ads.txt` — AdSense 퍼블리셔 인증 파일
+- [x] `app/layout.tsx` — AdSense 스크립트 추가 (afterInteractive)
+- [x] `components/AdUnit.tsx` — 재사용 광고 컴포넌트
+- [x] DiagnosisModule — AI 어드바이저 하단 광고 배치
+- [x] KeywordModule — 콘텐츠 방향·SEO 제목 사이 광고 배치
+- [x] ContentHubModule — 생성 결과 하단 광고 배치
 
 ---
 
 ## 예정된 작업 (Backlog)
 
-### Phase 2 — 필수 인프라
+### Phase 2 — WordPress 연동 & 오가닉 트래픽 전략
 
-- [ ] **사용자 인증** — Clerk 연동 (소셜 로그인, 이메일 회원가입)
-- [ ] **클라우드 DB** — Supabase 또는 Neon 연동 (localStorage 대체)
-  - 진단 이력 서버 저장
-  - 유저별 데이터 분리
+> **아키텍처**: 기존 WordPress(블로그·회원관리) + Next.js app 서브도메인 분리
+> `기존WP도메인.com` (블로그·랜딩·로그인) ↔ `app.기존WP도메인.com` (Next.js 도구)
+
+#### 도메인 설정
+- [ ] **Vercel 커스텀 도메인** — `app.기존WP도메인.com` 서브도메인을 Vercel에 연결
+  - Vercel 대시보드 → Project → Settings → Domains → 서브도메인 추가
+  - DNS: CNAME `app` → `cname.vercel-dns.com`
+- [ ] **WordPress 서브도메인 확인** — 기존 호스팅에서 `app` 서브도메인 충돌 없는지 확인
+- [ ] **SSL 인증서** — Vercel 자동 발급 (Let's Encrypt) 확인
+
+#### WordPress 블로그 전략 (오가닉 유입)
+- [ ] **핵심 키워드 선정** — AI SEO, GEO 최적화, 마케팅 자동화, LLM SEO 등
+- [ ] **블로그 카테고리 구성** — SEO 가이드 / AI 마케팅 / 도구 사용법 / 케이스스터디
+- [ ] **초기 콘텐츠 10편 발행** — 롱테일 키워드 기반 심층 포스팅 (2,000자 이상)
+- [ ] **내부 링크 전략** — 블로그 → `app.도메인.com` CTA 연결
+- [ ] **Google Search Console 등록** — 사이트맵 제출, 색인 요청
+- [ ] **Yoast SEO 또는 RankMath 설치** — WordPress SEO 플러그인
+
+#### WordPress 회원관리 연동
+- [ ] **MemberPress 또는 Paid Memberships Pro 설치** — 무료/유료 플랜 구분
+- [ ] **JWT Authentication 플러그인 설치** — WordPress ↔ Next.js 토큰 인증 브릿지
+- [ ] **Next.js 미들웨어** — JWT 검증 후 미인증 사용자 WordPress 로그인 페이지로 리다이렉트
+- [ ] **무료 플랜 제한** — 비로그인: 1일 3회 진단 제한 / 로그인: 무제한
+- [ ] **클라우드 DB** — Supabase 또는 Neon 연동 (유저별 진단 이력 서버 저장)
+
+### Phase 2 — 필수 인프라 (WordPress 연동 후)
+
 - [ ] **프로젝트 관리** — 도메인 단위로 진단 이력 그룹핑
 
 ### Phase 2 — 기능 확장
@@ -102,18 +140,16 @@ Last updated: 2026-05-10
 - [ ] **단축키** — `Cmd+K` 글로벌 검색/진단 실행
 - [ ] **모바일 최적화** — 콘텐츠 카드 스와이프 제스처
 
-### Phase 3 — AdSense 수익화
+### Phase 3 — AdSense 수익화 (코드 완료, 운영 작업 남음)
 
-- [ ] **커스텀 도메인 연결** — Vercel에서 도메인 설정 (AdSense 승인 요건)
-- [ ] **AdSense 계정 생성 및 신청** — 커스텀 도메인으로 사이트 신청
-- [ ] **`public/ads.txt`** — publisher ID 입력 (`google.com, ca-pub-XXXXXX, DIRECT, f08c47fec0942fa0`)
-- [ ] **`app/layout.tsx`** — AdSense 스크립트 추가 (`next/script`, strategy="afterInteractive")
-- [ ] **`components/AdUnit.tsx`** — 재사용 광고 컴포넌트 (반응형, SSR 안전 처리)
-- [ ] **광고 배치 — DiagnosisModule** — AI 어드바이저 섹션 하단
-- [ ] **광고 배치 — KeywordModule** — 콘텐츠 방향 카드와 SEO 제목 사이
-- [ ] **광고 배치 — ContentHubModule** — 생성된 콘텐츠 하단
-- [ ] **`app/privacy/page.tsx`** — Privacy Policy 페이지 추가 (AdSense 정책 필수)
-- [ ] **Google Search Console 등록** — 도메인 인증 + 색인 요청
+- [x] ~~커스텀 도메인 연결~~ → WordPress 서브도메인으로 대체
+- [ ] **AdSense 계정 생성 및 신청** — `app.기존WP도메인.com`으로 신청
+- [x] **`public/ads.txt`** — 파일 생성 완료 (publisher ID 교체 필요)
+- [x] **`app/layout.tsx`** — AdSense 스크립트 추가 완료 (publisher ID 교체 필요)
+- [x] **`components/AdUnit.tsx`** — 완료
+- [x] **광고 배치 3곳** — 완료
+- [ ] **`app/privacy/page.tsx`** — Privacy Policy 페이지 추가 (AdSense 필수)
+- [ ] **AdSense publisher ID 교체** — `ca-pub-XXXXXXXXXX` → 실제 ID로 변경
 - [ ] **AdSense 승인 확인** — 심사 기간 약 2~4주
 - [ ] **성과 모니터링** — 노출수·CTR·RPM 주간 체크
 
