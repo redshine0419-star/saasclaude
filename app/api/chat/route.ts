@@ -33,7 +33,8 @@ export async function POST(req: NextRequest) {
     const { text } = await generateChat(SYSTEM_PROMPT, chatMessages);
     return NextResponse.json({ reply: text });
   } catch (e) {
-    console.error(e);
-    return NextResponse.json({ error: 'AI 응답 중 오류가 발생했습니다.' }, { status: 500 });
+    const msg = (e as Error).message ?? String(e);
+    console.error('[chat] error:', msg);
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
