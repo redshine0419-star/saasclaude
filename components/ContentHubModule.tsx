@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { Sparkles, Zap, Loader2, MessageSquare, Share2, Mail, BarChart3, Copy, ChevronDown, ChevronUp } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Sparkles, Zap, Loader2, MessageSquare, Share2, Mail, BarChart3, Copy, ChevronDown, ChevronUp, Clock, X } from 'lucide-react';
 import AdUnit from '@/components/AdUnit';
-import { incrementContentCount } from '@/lib/storage';
+import { incrementContentCount, saveContentRecord, getContentHistory, ContentRecord } from '@/lib/storage';
 
 const Badge = ({ children, variant = 'default' }: { children: React.ReactNode; variant?: string }) => {
   const styles: Record<string, string> = {
@@ -102,11 +102,56 @@ function ContentCard({
   );
 }
 
+function HistoryItem({ record, onLoad, onCopy }: { record: ContentRecord; onLoad: (r: ContentRecord) => void; onCopy: (text: string) => void }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border border-slate-100 rounded-xl overflow-hidden">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-left"
+      >
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-slate-700 truncate">{record.sourcePreview}</p>
+          <p className="text-[10px] text-slate-400">{new Date(record.timestamp).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+        </div>
+        {open ? <ChevronUp size={14} className="text-slate-400 shrink-0" /> : <ChevronDown size={14} className="text-slate-400 shrink-0" />}
+      </button>
+      {open && (
+        <div className="px-4 pb-4 border-t border-slate-100 pt-3 space-y-3">
+          {CHANNELS.map(ch => (
+            <div key={ch.key}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wide">{ch.label}</span>
+                <button onClick={() => onCopy(record[ch.key])} className="text-slate-300 hover:text-indigo-600">
+                  <Copy size={12} />
+                </button>
+              </div>
+              <p className="text-xs text-slate-600 bg-slate-50 rounded-lg p-2 leading-relaxed line-clamp-3">{record[ch.key]}</p>
+            </div>
+          ))}
+          <button
+            onClick={() => onLoad(record)}
+            className="w-full py-2 bg-indigo-50 text-indigo-700 font-bold text-xs rounded-xl hover:bg-indigo-100 transition-colors"
+          >
+            이 결과 불러오기
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ContentHubModule({ onToast }: { onToast: (msg: string) => void }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [content, setContent] = useState('');
   const [result, setResult] = useState<ContentResult | null>(null);
   const [error, setError] = useState('');
+  const [history, setHistory] = useState<ContentRecord[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+
+  useEffect(() => {
+    setHistory(getContentHistory());
+  }, []);
 
   const generateAll = async () => {
     if (!content.trim()) return;
@@ -124,6 +169,19 @@ export default function ContentHubModule({ onToast }: { onToast: (msg: string) =
       if (!res.ok) throw new Error(data.error ?? '생성 실패');
       setResult(data);
       incrementContentCount();
+
+      const record: ContentRecord = {
+        id: Date.now().toString(),
+        sourcePreview: content.trim().slice(0, 80),
+        blog: data.blog,
+        social: data.social,
+        newsletter: data.newsletter,
+        ads: data.ads,
+        timestamp: Date.now(),
+      };
+      saveContentRecord(record);
+      setHistory(getContentHistory());
+
       onToast('모든 채널별 소재 생성이 완료되었습니다.');
     } catch (e) {
       setError(e instanceof Error ? e.message : '오류가 발생했습니다.');
@@ -135,6 +193,13 @@ export default function ContentHubModule({ onToast }: { onToast: (msg: string) =
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
     onToast('클립보드에 복사되었습니다.');
+  };
+
+  const handleLoad = (record: ContentRecord) => {
+    setResult({ blog: record.blog, social: record.social, newsletter: record.newsletter, ads: record.ads });
+    setContent(record.sourcePreview);
+    setShowHistory(false);
+    onToast('이전 결과를 불러왔습니다.');
   };
 
   return (
@@ -162,7 +227,14 @@ export default function ContentHubModule({ onToast }: { onToast: (msg: string) =
           </div>
         )}
 
-        <div className="flex flex-wrap gap-2 justify-end">
+        <div className="flex flex-wrap gap-2 justify-between items-center">
+          <button
+            onClick={() => setShowHistory(o => !o)}
+            className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 font-bold transition-colors"
+          >
+            <Clock size={16} />
+            생성 이력 {history.length > 0 && <span className="px-1.5 py-0.5 bg-slate-100 rounded-full text-[10px]">{history.length}</span>}
+          </button>
           <button
             onClick={generateAll}
             disabled={isGenerating || !content.trim()}
@@ -173,6 +245,26 @@ export default function ContentHubModule({ onToast }: { onToast: (msg: string) =
           </button>
         </div>
       </Card>
+
+      {/* 이력 패널 */}
+      {showHistory && history.length > 0 && (
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="font-bold text-slate-800 flex items-center gap-2">
+              <Clock size={18} className="text-slate-400" />
+              콘텐츠 생성 이력
+            </h4>
+            <button onClick={() => setShowHistory(false)} className="text-slate-400 hover:text-slate-600">
+              <X size={18} />
+            </button>
+          </div>
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {history.map(r => (
+              <HistoryItem key={r.id} record={r} onLoad={handleLoad} onCopy={handleCopy} />
+            ))}
+          </div>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {CHANNELS.map((channel) => (

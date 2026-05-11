@@ -79,3 +79,31 @@ export function getSovHistory(): SovRecord[] {
     return [];
   }
 }
+
+export interface ContentRecord {
+  id: string;
+  sourcePreview: string;
+  blog: string;
+  social: string;
+  newsletter: string;
+  ads: string;
+  timestamp: number;
+}
+
+const CONTENT_KEY = 'marketerops_content_history';
+
+export function saveContentRecord(record: ContentRecord): void {
+  if (typeof window === 'undefined') return;
+  const existing = getContentHistory();
+  const updated = [record, ...existing].slice(0, 20);
+  localStorage.setItem(CONTENT_KEY, JSON.stringify(updated));
+}
+
+export function getContentHistory(): ContentRecord[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    return JSON.parse(localStorage.getItem(CONTENT_KEY) ?? '[]');
+  } catch {
+    return [];
+  }
+}

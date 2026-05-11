@@ -4,7 +4,7 @@ import { useState } from 'react';
 import {
   Globe, Loader2, Sparkles, Copy, CheckCircle2, AlertCircle,
   Smartphone, Monitor, ShieldCheck, FileText, Image,
-  Link, Type, Share2, Code2, Bot, ChevronDown, ChevronUp,
+  Link, Type, Share2, Code2, Bot, ChevronDown, ChevronUp, Download,
 } from 'lucide-react';
 import { saveDiagnosis } from '@/lib/storage';
 import AdUnit from '@/components/AdUnit';
@@ -214,6 +214,84 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
   const impactVariant = (impact: string) =>
     impact === 'High' ? 'danger' : impact === 'Medium' ? 'warning' : 'default';
 
+  const downloadReport = () => {
+    if (!analyzeData || !geoData) return;
+    const date = new Date().toLocaleDateString('ko-KR');
+    const m = analyzeData.mobile.scores;
+    const d = analyzeData.desktop.scores;
+    const geo = geoData;
+
+    let md = '# SEO & GEO 진단 리포트\n\n';
+    md += `**분석 URL:** ${url}\n`;
+    md += `**분석일:** ${date}\n\n`;
+    md += '---\n\n';
+
+    md += '## 📊 성능 점수\n\n';
+    md += '| 지표 | 모바일 | 데스크탑 |\n|---|---|---|\n';
+    md += `| Performance | ${m.performance} | ${d.performance} |\n`;
+    md += `| SEO | ${m.seo} | ${d.seo} |\n`;
+    md += `| Accessibility | ${m.accessibility} | ${d.accessibility} |\n`;
+    md += `| Best Practices | ${m.bestPractices ?? '-'} | ${d.bestPractices ?? '-'} |\n`;
+    md += `| **GEO Visibility** | **${geo.score}/22** | — |\n\n`;
+
+    md += '## 🌐 Core Web Vitals (모바일)\n\n';
+    Object.entries(analyzeData.mobile.vitals).forEach(([k, v]) => {
+      md += `- **${k.toUpperCase()}**: ${v}\n`;
+    });
+    md += '\n';
+
+    md += '## ✅ SEO & GEO 체크리스트\n\n';
+    md += `### 타이틀 & 메타\n`;
+    md += `- 타이틀: ${geo.meta.title || '없음'} (${geo.meta.titleLength}자)\n`;
+    md += `- 메타 설명: ${geo.meta.description ? geo.meta.description.slice(0, 80) + '…' : '없음'} (${geo.meta.descriptionLength}자)\n`;
+    md += `- Viewport: ${geo.meta.viewport ? '있음' : '없음'}\n`;
+    md += `- 언어 속성(lang): ${geo.meta.lang || '없음'}\n`;
+    md += `- Canonical: ${geo.meta.canonical || '없음'}\n`;
+    md += `- Noindex: ${geo.meta.isNoindex ? '⚠️ 있음' : '없음'}\n\n`;
+
+    md += `### Open Graph & SNS\n`;
+    md += `- og:title: ${geo.og.title ? '있음' : '없음'}\n`;
+    md += `- og:description: ${geo.og.description ? '있음' : '없음'}\n`;
+    md += `- og:image: ${geo.og.image ? '있음' : '없음'}\n`;
+    md += `- twitter:card: ${geo.og.twitterCard || '없음'}\n\n`;
+
+    md += `### 콘텐츠 구조\n`;
+    md += `- H1: ${geo.headings.h1Count}개 / H2: ${geo.headings.h2Count}개 / H3: ${geo.headings.h3Count}개\n`;
+    md += `- 단어 수: ${geo.content.wordCount.toLocaleString()}자\n`;
+    md += `- 내부 링크: ${geo.content.internalLinks}개 / 외부 링크: ${geo.content.externalLinks}개\n`;
+    md += `- 이미지 alt 누락: ${geo.images.missingAlt}/${geo.images.total}개\n`;
+    md += `- HTTPS: ${geo.content.isHttps ? '✅' : '❌'}\n\n`;
+
+    md += `### 구조화 데이터 (JSON-LD)\n`;
+    md += `- JSON-LD: ${geo.jsonLd.exists ? '있음 (' + geo.jsonLd.types.join(', ') + ')' : '없음'}\n`;
+    md += `- FAQ: ${geo.jsonLd.hasFaq ? '✅' : '❌'} | Article: ${geo.jsonLd.hasArticle ? '✅' : '❌'} | Organization: ${geo.jsonLd.hasOrganization ? '✅' : '❌'}\n\n`;
+
+    md += `### 기술 SEO & GEO\n`;
+    md += `- Sitemap: ${geo.sitemap.exists ? '✅' : '❌'}\n`;
+    md += `- robots.txt: ${geo.robotsTxt.exists ? '✅' : '❌'}\n`;
+    md += `- AI 봇 차단: ${geo.robotsTxt.llmBlocked ? '⚠️ 차단됨' : '허용'}\n`;
+    md += `- llms.txt: ${geo.llmsTxt.exists ? '✅' : '❌'}\n\n`;
+
+    if (geo.issues.length > 0) {
+      md += '## ⚠️ 주요 개선 이슈\n\n';
+      geo.issues.forEach(issue => {
+        const icon = issue.impact === 'High' ? '🔴' : issue.impact === 'Medium' ? '🟡' : '🟢';
+        md += `### ${icon} [${issue.impact}] ${issue.title}\n${issue.detail}\n\n`;
+      });
+    }
+
+    if (advice) {
+      md += '---\n\n## 🤖 AI 시니어 마케터 어드바이저\n\n' + advice + '\n';
+    }
+
+    const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'seo-geo-report-' + new Date().toISOString().slice(0, 10) + '.md';
+    link.click();
+    URL.revokeObjectURL(link.href);
+  };
+
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Input Card */}
@@ -267,7 +345,7 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
       {/* Results */}
       {status === 'complete' && analyzeData && geoData && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          {/* Strategy Toggle */}
+          {/* Strategy Toggle + Download */}
           <div className="flex gap-2 justify-end">
             {(['mobile', 'desktop'] as const).map((s) => (
               <button
@@ -281,6 +359,14 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
                 {s === 'mobile' ? '모바일' : '데스크탑'}
               </button>
             ))}
+            <button
+              onClick={downloadReport}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-white border border-slate-200 text-slate-500 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition-all"
+              title="Markdown 리포트 다운로드"
+            >
+              <Download size={16} />
+              리포트
+            </button>
           </div>
 
           {/* Score Rings */}
