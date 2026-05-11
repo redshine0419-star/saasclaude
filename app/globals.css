@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:is(.dark *));
 
 :root {
   --background: #ffffff;
@@ -12,15 +13,68 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ── Dark mode global overrides ─────────────────────────────────────── */
+.dark {
+  color-scheme: dark;
+}
+
+/* Surfaces */
+.dark .bg-white { background-color: rgb(30 41 59) !important; }
+.dark .bg-slate-50 { background-color: rgb(15 23 42) !important; }
+.dark .bg-slate-100 { background-color: rgb(30 41 59) !important; }
+.dark .bg-slate-200 { background-color: rgb(51 65 85) !important; }
+
+/* Borders */
+.dark .border-slate-200 { border-color: rgb(51 65 85) !important; }
+.dark .border-slate-100 { border-color: rgb(30 41 59) !important; }
+
+/* Text */
+.dark .text-slate-800 { color: rgb(241 245 249) !important; }
+.dark .text-slate-700 { color: rgb(226 232 240) !important; }
+.dark .text-slate-600 { color: rgb(203 213 225) !important; }
+.dark .text-slate-500 { color: rgb(148 163 184) !important; }
+.dark .text-slate-400 { color: rgb(100 116 139) !important; }
+
+/* Interactive backgrounds */
+.dark .hover\:bg-slate-50:hover { background-color: rgb(30 41 59) !important; }
+.dark .hover\:bg-slate-100:hover { background-color: rgb(51 65 85) !important; }
+
+/* Gradient from-white overrides */
+.dark .from-white { --tw-gradient-from: rgb(30 41 59) var(--tw-gradient-from-position) !important; }
+.dark .to-white { --tw-gradient-to: rgb(30 41 59) var(--tw-gradient-to-position) !important; }
+
+/* Soft colored surfaces */
+.dark .bg-indigo-50 { background-color: rgba(79, 70, 229, 0.15) !important; }
+.dark .bg-indigo-50\/30 { background-color: rgba(79, 70, 229, 0.08) !important; }
+.dark .bg-emerald-50 { background-color: rgba(16, 185, 129, 0.1) !important; }
+.dark .bg-amber-50 { background-color: rgba(245, 158, 11, 0.1) !important; }
+.dark .bg-rose-50 { background-color: rgba(244, 63, 94, 0.1) !important; }
+.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.1) !important; }
+.dark .bg-purple-50 { background-color: rgba(168, 85, 247, 0.1) !important; }
+.dark .bg-violet-50 { background-color: rgba(139, 92, 246, 0.1) !important; }
+.dark .bg-pink-50 { background-color: rgba(236, 72, 153, 0.1) !important; }
+
+/* Soft colored borders */
+.dark .border-indigo-100 { border-color: rgba(79, 70, 229, 0.3) !important; }
+.dark .border-indigo-200 { border-color: rgba(79, 70, 229, 0.4) !important; }
+.dark .border-emerald-100 { border-color: rgba(16, 185, 129, 0.3) !important; }
+.dark .border-rose-200 { border-color: rgba(244, 63, 94, 0.3) !important; }
+
+/* Checkbox / radio */
+.dark input[type="checkbox"] { accent-color: rgb(99 102 241); }
+
+/* ── Scrollbar ──────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+.dark ::-webkit-scrollbar-thumb { background: #334155; }
+.dark ::-webkit-scrollbar-thumb:hover { background: #475569; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
