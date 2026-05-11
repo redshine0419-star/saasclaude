@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Search, Loader2, TrendingUp, Target, Lightbulb, FileText, BarChart2, Tag } from 'lucide-react';
+import AdUnit from '@/components/AdUnit';
 
 const Card = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
   <div className={'bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden ' + className}>
@@ -107,6 +108,7 @@ export default function KeywordModule({ onToast }: { onToast: (msg: string) => v
 
       {result && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {/* 검색 의도 + 경쟁도 + 검색량 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card className="p-5">
               <div className="flex items-center gap-2 mb-3">
@@ -143,6 +145,7 @@ export default function KeywordModule({ onToast }: { onToast: (msg: string) => v
             </Card>
           </div>
 
+          {/* 연관 키워드 + 롱테일 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card className="p-6">
               <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
@@ -178,6 +181,7 @@ export default function KeywordModule({ onToast }: { onToast: (msg: string) => v
             </Card>
           </div>
 
+          {/* 콘텐츠 방향 */}
           <Card className="p-6">
             <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
               <Lightbulb size={18} className="text-indigo-600" />
@@ -196,10 +200,13 @@ export default function KeywordModule({ onToast }: { onToast: (msg: string) => v
             </div>
           </Card>
 
+          <AdUnit slot="0987654321" />
+
+          {/* SEO 제목 + 메타 설명 */}
           <Card className="p-6">
             <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
               <FileText size={18} className="text-indigo-600" />
-              SEO 최적화 제목 &amp; 메타 설명
+              SEO 최적화 제목 & 메타 설명
             </h4>
             <div className="space-y-3 mb-4">
               {result.seoTitles.map((title, i) => (
