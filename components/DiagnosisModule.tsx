@@ -615,9 +615,9 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
           {/* Issues & Opportunities */}
           {/* AI 어드바이저 */}
           {(adviceLoading || advice) && (
-            <Card className="p-6 border-indigo-200 bg-gradient-to-br from-indigo-950 to-slate-900 text-white">
-              <h4 className="font-bold mb-4 flex items-center gap-2 text-indigo-300">
-                <Sparkles size={18} className="text-indigo-400 animate-pulse" />
+            <Card className="p-6 border-[#eaeef2] dark:border-[#30363d] bg-[#000000] dark:bg-[#000000] text-white">
+              <h4 className="font-bold mb-4 flex items-center gap-2 text-white">
+                <Sparkles size={18} className="text-white opacity-80" />
                 AI 시니어 마케터 종합 진단
               </h4>
               {adviceLoading ? (
