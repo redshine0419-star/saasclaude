@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import { DarkModeProvider } from "@/components/DarkModeProvider";
+import ChatWidget from "@/components/ChatWidget";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -36,7 +37,10 @@ export default function RootLayout({
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
-        <DarkModeProvider>{children}</DarkModeProvider>
+        <DarkModeProvider>
+          {children}
+          <ChatWidget />
+        </DarkModeProvider>
       </body>
     </html>
   );
