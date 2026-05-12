@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import { DarkModeProvider } from "@/components/DarkModeProvider";
+import AuthProvider from "@/components/AuthProvider";
 import ChatWidget from "@/components/ChatWidget";
 import "./globals.css";
 
@@ -37,10 +38,12 @@ export default function RootLayout({
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
-        <DarkModeProvider>
-          {children}
-          <ChatWidget />
-        </DarkModeProvider>
+        <AuthProvider>
+          <DarkModeProvider>
+            {children}
+            <ChatWidget />
+          </DarkModeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -2,9 +2,10 @@
 
 import { useState, useRef } from 'react';
 import Link from 'next/link';
+import { useSession, signIn, signOut } from 'next-auth/react';
 import {
   LayoutDashboard, Search, FileText, Zap, Bell, User, CheckCircle2,
-  Tag, ArrowLeftRight, PenLine, Bot, BarChart3, Megaphone, Sun, Moon, Command, Rss,
+  Tag, ArrowLeftRight, PenLine, Bot, BarChart3, Megaphone, Sun, Moon, Command, Rss, LogIn, LogOut,
 } from 'lucide-react';
 import { useDarkMode } from '@/components/DarkModeProvider';
 import OnboardingModal from '@/components/OnboardingModal';
@@ -40,6 +41,8 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>(TABS.DIAGNOSIS);
   const [toast, setToast] = useState<string | null>(null);
   const { dark, toggle } = useDarkMode();
+  const { data: session } = useSession();
+  const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'admin';
   const touchStartX = useRef(0);
 
   const showToast = (message: string) => {
@@ -59,18 +62,19 @@ export default function App() {
     if (dx > 0 && idx > 0) setActiveTab(TAB_ORDER[idx - 1]);
   };
 
-  const menuItems = [
-    { id: TABS.DIAGNOSIS, icon: <Search size={16} />, label: 'Engine Diagnosis', mobileLabel: '진단' },
-    { id: TABS.COMPETITOR, icon: <ArrowLeftRight size={16} />, label: 'Competitor Analysis', mobileLabel: '경쟁사' },
-    { id: TABS.CONTENT, icon: <FileText size={16} />, label: 'Content Orchestrator', mobileLabel: '콘텐츠' },
-    { id: TABS.REWRITER, icon: <PenLine size={16} />, label: 'Content Rewriter', mobileLabel: '리라이터' },
-    { id: TABS.KEYWORD, icon: <Tag size={16} />, label: 'Keyword Analysis', mobileLabel: '키워드' },
-    { id: TABS.LLMSTXT, icon: <Bot size={16} />, label: 'llms.txt', mobileLabel: 'LLMs' },
-    { id: TABS.GA4, icon: <BarChart3 size={16} />, label: 'GA4 Analytics', mobileLabel: 'GA4' },
-    { id: TABS.SOV, icon: <Megaphone size={16} />, label: 'AI Share of Voice', mobileLabel: 'SOV' },
-    { id: TABS.BLOG, icon: <Rss size={16} />, label: 'Blog 관리', mobileLabel: '블로그' },
-    { id: TABS.DASHBOARD, icon: <LayoutDashboard size={16} />, label: 'Ops Dashboard', mobileLabel: '대시보드' },
+  const allMenuItems = [
+    { id: TABS.DIAGNOSIS, icon: <Search size={16} />, label: 'Engine Diagnosis', mobileLabel: '진단', adminOnly: false },
+    { id: TABS.COMPETITOR, icon: <ArrowLeftRight size={16} />, label: 'Competitor Analysis', mobileLabel: '경쟁사', adminOnly: false },
+    { id: TABS.CONTENT, icon: <FileText size={16} />, label: 'Content Orchestrator', mobileLabel: '콘텐츠', adminOnly: false },
+    { id: TABS.REWRITER, icon: <PenLine size={16} />, label: 'Content Rewriter', mobileLabel: '리라이터', adminOnly: false },
+    { id: TABS.KEYWORD, icon: <Tag size={16} />, label: 'Keyword Analysis', mobileLabel: '키워드', adminOnly: false },
+    { id: TABS.LLMSTXT, icon: <Bot size={16} />, label: 'llms.txt', mobileLabel: 'LLMs', adminOnly: false },
+    { id: TABS.GA4, icon: <BarChart3 size={16} />, label: 'GA4 Analytics', mobileLabel: 'GA4', adminOnly: false },
+    { id: TABS.SOV, icon: <Megaphone size={16} />, label: 'AI Share of Voice', mobileLabel: 'SOV', adminOnly: false },
+    { id: TABS.BLOG, icon: <Rss size={16} />, label: 'Blog 관리', mobileLabel: '블로그', adminOnly: true },
+    { id: TABS.DASHBOARD, icon: <LayoutDashboard size={16} />, label: 'Ops Dashboard', mobileLabel: '대시보드', adminOnly: false },
   ];
+  const menuItems = allMenuItems.filter((item) => !item.adminOnly || isAdmin);
 
   return (
     <div className="flex flex-col h-screen bg-[#f6f8fa] dark:bg-[#0d1117] font-sans text-[#24292f] dark:text-[#e6edf3] overflow-hidden select-none">
@@ -113,10 +117,35 @@ export default function App() {
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-white border border-[#000000] rounded-full" />
             </button>
 
-            {/* Avatar */}
-            <div className="w-8 h-8 rounded-full bg-[#444444] border border-[#555555] flex items-center justify-center cursor-pointer hover:border-[#888888] transition-colors ml-1">
-              <User size={16} className="text-[#cccccc]" strokeWidth={2} />
-            </div>
+            {/* Login / User avatar */}
+            {session?.user ? (
+              <div className="flex items-center gap-2 ml-1">
+                {session.user.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={session.user.image} alt="avatar" width={32} height={32} className="w-8 h-8 rounded-full border border-[#555555]" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-[#444444] border border-[#555555] flex items-center justify-center">
+                    <User size={16} className="text-[#cccccc]" strokeWidth={2} />
+                  </div>
+                )}
+                <button
+                  onClick={() => signOut({ callbackUrl: '/app' })}
+                  className="p-2 text-[#888888] hover:text-white hover:bg-white/10 rounded-md transition-colors"
+                  title="로그아웃"
+                >
+                  <LogOut size={16} />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => signIn('google', { callbackUrl: '/app' })}
+                className="flex items-center gap-1.5 ml-1 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-medium rounded-md transition-colors"
+                title="Google 로그인"
+              >
+                <LogIn size={14} />
+                <span className="hidden md:inline">로그인</span>
+              </button>
+            )}
           </div>
         </div>
 
