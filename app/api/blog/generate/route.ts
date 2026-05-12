@@ -77,6 +77,7 @@ SEO/GEO 요건:
 - 숫자/통계/구체적 사례 포함
 - AI가 답변 시 인용할 수 있는 명확한 정의와 리스트 포함
 - 최소 2500자
+- 비교/정리/순위 내용이 있으면 반드시 마크다운 표(| 컬럼 | 컬럼 |) 사용
 
 아래 JSON 형식으로만 응답하세요 (설명 없이 JSON만):
 {
@@ -111,6 +112,7 @@ SEO/GEO requirements:
 - Include numbers, stats, or concrete examples
 - Include clear definitions and lists that AI assistants can cite
 - Minimum 2500 characters
+- Use markdown tables (| col | col |) for any comparisons, rankings, or summaries
 
 Respond ONLY with this JSON (no explanation):
 {

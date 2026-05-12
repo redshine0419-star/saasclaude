@@ -230,6 +230,18 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
                       </code>
                     ),
                     hr: () => <hr className="my-10 border-[#d0d7de] dark:border-[#30363d]" />,
+                    table: ({ children }) => (
+                      <div className="my-6 overflow-x-auto max-w-[680px]">
+                        <table className="w-full text-sm border-collapse border border-[#d0d7de] dark:border-[#30363d]">{children}</table>
+                      </div>
+                    ),
+                    thead: ({ children }) => <thead className="bg-[#f6f8fa] dark:bg-[#21262d]">{children}</thead>,
+                    th: ({ children }) => (
+                      <th className="px-4 py-2.5 text-left text-xs font-semibold text-[#24292f] dark:text-[#e6edf3] border border-[#d0d7de] dark:border-[#30363d]">{children}</th>
+                    ),
+                    td: ({ children }) => (
+                      <td className="px-4 py-2.5 text-[15px] text-[#24292f] dark:text-[#c9d1d9] border border-[#d0d7de] dark:border-[#30363d]">{children}</td>
+                    ),
                   }}
                 >
                   {post.content}
