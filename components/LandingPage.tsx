@@ -5,13 +5,14 @@ import Link from 'next/link';
 import {
   Zap, Globe, ArrowLeftRight, FileText, PenLine, Tag, Bot, BarChart3,
   Megaphone, LayoutDashboard, Sun, Moon, ChevronRight, CheckCircle,
-  ChevronDown, MessageCircle, Send, Loader2,
+  ChevronDown, MessageCircle, Send, Loader2, Menu, X,
 } from 'lucide-react';
 import { useDarkMode } from '@/components/DarkModeProvider';
 
 const T = {
   ko: {
     nav_features: '기능', nav_faq: 'FAQ', nav_pricing: '요금제',
+    nav_blog: '블로그', nav_blog_href: '/blog/ko',
     nav_cta: '무료로 시작하기', lang_toggle: 'EN', lang_href: '/en',
 
     hero_badge: 'AI-Powered · 완전 무료',
@@ -75,6 +76,7 @@ const T = {
   },
   en: {
     nav_features: 'Features', nav_faq: 'FAQ', nav_pricing: 'Pricing',
+    nav_blog: 'Blog', nav_blog_href: '/blog/en',
     nav_cta: 'Start for Free', lang_toggle: '한국어', lang_href: '/',
 
     hero_badge: 'AI-Powered · Free Forever',
@@ -272,6 +274,7 @@ function FAQ({ items }: { items: { q: string; a: string }[] }) {
 export default function LandingPage({ lang }: { lang: 'ko' | 'en' }) {
   const { dark, toggle } = useDarkMode();
   const t = T[lang];
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0d1117] text-[#24292f] dark:text-[#e6edf3] font-sans">
@@ -288,6 +291,7 @@ export default function LandingPage({ lang }: { lang: 'ko' | 'en' }) {
             <a href="#features" className="hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors">{t.nav_features}</a>
             <a href="#pricing" className="hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors">{t.nav_pricing}</a>
             <a href="#faq" className="hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors">{t.nav_faq}</a>
+            <Link href={t.nav_blog_href} className="hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors">{t.nav_blog}</Link>
           </nav>
 
           <div className="flex items-center gap-2">
@@ -297,11 +301,33 @@ export default function LandingPage({ lang }: { lang: 'ko' | 'en' }) {
             <Link href={t.lang_href} className="text-xs font-medium text-[#57606a] hover:text-[#24292f] dark:hover:text-[#e6edf3] px-2 py-1 rounded transition-colors">
               {t.lang_toggle}
             </Link>
-            <Link href="/app" className="flex items-center gap-1.5 bg-[#000] hover:bg-[#333] dark:bg-white dark:hover:bg-[#eee] dark:text-black text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors">
+            {/* Desktop CTA */}
+            <Link href="/app" className="hidden md:flex items-center gap-1.5 bg-[#000] hover:bg-[#333] dark:bg-white dark:hover:bg-[#eee] dark:text-black text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors">
+              {t.nav_cta} <ChevronRight size={14} />
+            </Link>
+            {/* Mobile hamburger */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-[#57606a] hover:bg-[#f6f8fa] dark:hover:bg-[#161b22] rounded-md transition-colors"
+            >
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-[#d0d7de] dark:border-[#30363d] bg-white dark:bg-[#0d1117] px-6 py-4 flex flex-col gap-3">
+            <Link href={t.nav_blog_href} onClick={() => setMobileMenuOpen(false)}
+              className="text-sm font-medium text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors py-1">
+              {t.nav_blog}
+            </Link>
+            <Link href="/app" onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center justify-center gap-1.5 bg-[#000] hover:bg-[#333] dark:bg-white dark:hover:bg-[#eee] dark:text-black text-white text-sm font-semibold px-4 py-2.5 rounded-md transition-colors">
               {t.nav_cta} <ChevronRight size={14} />
             </Link>
           </div>
-        </div>
+        )}
       </header>
 
       {/* ── Hero ── */}

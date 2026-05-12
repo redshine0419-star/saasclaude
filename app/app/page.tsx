@@ -82,10 +82,10 @@ export default function App() {
         {/* Brand bar */}
         <div className="flex items-center justify-between px-4 md:px-6 h-14">
           {/* Logo */}
-          <div className="flex items-center gap-2 text-white font-black text-lg tracking-tight">
+          <Link href="/" className="flex items-center gap-2 text-white font-black text-lg tracking-tight hover:opacity-80 transition-opacity">
             <Zap size={20} fill="currentColor" strokeWidth={0} />
             <span className="font-bold">MarketerOps<span className="text-[#888888] font-normal">.ai</span></span>
-          </div>
+          </Link>
 
           {/* Right controls */}
           <div className="flex items-center gap-1">
