@@ -2,13 +2,14 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
+import { list } from '@vercel/blob';
 import type { BlogPost, PostIndex } from '@/app/api/blog/generate/route';
 
 async function getPost(lang: string, slug: string): Promise<BlogPost | null> {
-  const blobUrl = process.env.BLOB_BASE_URL;
-  if (!blobUrl) return null;
   try {
-    const res = await fetch(`${blobUrl}/posts/${lang}/${slug}.json`, { next: { revalidate: 60 } });
+    const { blobs } = await list({ prefix: `posts/${lang}/${slug}.json` });
+    if (blobs.length === 0) return null;
+    const res = await fetch(blobs[0].url, { next: { revalidate: 60 } });
     if (!res.ok) return null;
     return await res.json();
   } catch {
@@ -17,10 +18,10 @@ async function getPost(lang: string, slug: string): Promise<BlogPost | null> {
 }
 
 async function getRelated(lang: string, currentSlug: string, tags: string[]): Promise<PostIndex[]> {
-  const blobUrl = process.env.BLOB_BASE_URL;
-  if (!blobUrl) return [];
   try {
-    const res = await fetch(`${blobUrl}/posts-index-${lang}.json`, { next: { revalidate: 60 } });
+    const { blobs } = await list({ prefix: `posts-index-${lang}.json` });
+    if (blobs.length === 0) return [];
+    const res = await fetch(blobs[0].url, { next: { revalidate: 60 } });
     if (!res.ok) return [];
     const index: PostIndex[] = await res.json();
     return index

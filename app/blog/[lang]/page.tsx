@@ -1,15 +1,16 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { list } from '@vercel/blob';
 import type { PostIndex } from '@/app/api/blog/generate/route';
 
 type Lang = 'ko' | 'en';
 
 async function getPosts(lang: Lang): Promise<PostIndex[]> {
-  const blobUrl = process.env.BLOB_BASE_URL;
-  if (!blobUrl) return [];
   try {
-    const res = await fetch(`${blobUrl}/posts-index-${lang}.json`, { next: { revalidate: 60 } });
+    const { blobs } = await list({ prefix: `posts-index-${lang}.json` });
+    if (blobs.length === 0) return [];
+    const res = await fetch(blobs[0].url, { next: { revalidate: 60 } });
     if (!res.ok) return [];
     return await res.json();
   } catch {

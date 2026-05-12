@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { list } from '@vercel/blob';
 import type { BlogPost } from '../../generate/route';
 
 export async function GET(
@@ -8,13 +9,12 @@ export async function GET(
   const { slug } = await params;
   const lang = req.nextUrl.searchParams.get('lang') || 'ko';
 
-  const blobUrl = process.env.BLOB_BASE_URL;
-  if (!blobUrl) {
-    return NextResponse.json({ error: 'BLOB_BASE_URL not configured' }, { status: 500 });
-  }
-
   try {
-    const res = await fetch(`${blobUrl}/posts/${lang}/${slug}.json`, { cache: 'no-store' });
+    const { blobs } = await list({ prefix: `posts/${lang}/${slug}.json` });
+    if (blobs.length === 0) {
+      return NextResponse.json({ error: '포스트를 찾을 수 없습니다.' }, { status: 404 });
+    }
+    const res = await fetch(blobs[0].url, { cache: 'no-store' });
     if (!res.ok) {
       return NextResponse.json({ error: '포스트를 찾을 수 없습니다.' }, { status: 404 });
     }

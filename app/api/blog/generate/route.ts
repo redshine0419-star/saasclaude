@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { put, head, del } from '@vercel/blob';
+import { put, list } from '@vercel/blob';
 import { generateText } from '@/lib/ai';
 
 export interface BlogPost {
@@ -24,11 +24,9 @@ export interface PostIndex {
 
 async function getIndex(lang: string): Promise<PostIndex[]> {
   try {
-    const url = process.env.BLOB_BASE_URL
-      ? `${process.env.BLOB_BASE_URL}/posts-index-${lang}.json`
-      : null;
-    if (!url) return [];
-    const res = await fetch(url, { cache: 'no-store' });
+    const { blobs } = await list({ prefix: `posts-index-${lang}.json` });
+    if (blobs.length === 0) return [];
+    const res = await fetch(blobs[0].url, { cache: 'no-store' });
     if (!res.ok) return [];
     return await res.json();
   } catch {

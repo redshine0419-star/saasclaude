@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { del } from '@vercel/blob';
+import { del, list, put } from '@vercel/blob';
 import type { PostIndex } from '../generate/route';
 
 async function getIndex(lang: string): Promise<PostIndex[]> {
   try {
-    const blobUrl = process.env.BLOB_BASE_URL;
-    if (!blobUrl) return [];
-    const res = await fetch(`${blobUrl}/posts-index-${lang}.json`, { cache: 'no-store' });
+    const { blobs } = await list({ prefix: `posts-index-${lang}.json` });
+    if (blobs.length === 0) return [];
+    const res = await fetch(blobs[0].url, { cache: 'no-store' });
     if (!res.ok) return [];
     return await res.json();
   } catch {
@@ -15,7 +15,6 @@ async function getIndex(lang: string): Promise<PostIndex[]> {
 }
 
 async function saveIndex(lang: string, index: PostIndex[]) {
-  const { put } = await import('@vercel/blob');
   await put(`posts-index-${lang}.json`, JSON.stringify(index), {
     access: 'public',
     contentType: 'application/json',
@@ -34,9 +33,9 @@ export async function DELETE(req: NextRequest) {
   if (!slug) return NextResponse.json({ error: 'slug 필요' }, { status: 400 });
 
   try {
-    const blobUrl = process.env.BLOB_BASE_URL;
-    if (blobUrl) {
-      await del(`${blobUrl}/posts/${lang}/${slug}.json`);
+    const { blobs } = await list({ prefix: `posts/${lang}/${slug}.json` });
+    if (blobs.length > 0) {
+      await del(blobs[0].url);
     }
 
     const index = await getIndex(lang);
