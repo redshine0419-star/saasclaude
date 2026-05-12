@@ -40,6 +40,7 @@ async function saveIndex(lang: string, index: PostIndex[]) {
     access: 'public',
     contentType: 'application/json',
     addRandomSuffix: false,
+    allowOverwrite: true,
   });
 }
 
@@ -151,6 +152,7 @@ Respond ONLY with this JSON (no explanation):
       access: 'public',
       contentType: 'application/json',
       addRandomSuffix: false,
+      allowOverwrite: true,
     });
 
     const index = await getIndex(lang);
