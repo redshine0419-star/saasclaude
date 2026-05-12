@@ -45,7 +45,7 @@ async function saveIndex(lang: string, index: PostIndex[]) {
 }
 
 export async function POST(req: NextRequest) {
-  const { keyword, targetAudience, tone, lang = 'ko' } = await req.json();
+  const { keyword, targetAudience, tone, lang = 'ko', createdAt } = await req.json();
 
   if (!keyword?.trim()) {
     return NextResponse.json({ error: '키워드를 입력해주세요.' }, { status: 400 });
@@ -146,7 +146,7 @@ Respond ONLY with this JSON (no explanation):
       tags: Array.isArray(tags) ? tags : [],
       faq: Array.isArray(faq) ? faq : [],
       content,
-      createdAt: new Date().toISOString(),
+      createdAt: createdAt || new Date().toISOString(),
       keyword,
     };
 
