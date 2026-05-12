@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import Link from 'next/link';
 import {
   LayoutDashboard, Search, FileText, Zap, Bell, User, CheckCircle2,
-  Tag, ArrowLeftRight, PenLine, Bot, BarChart3, Megaphone, Sun, Moon, Command,
+  Tag, ArrowLeftRight, PenLine, Bot, BarChart3, Megaphone, Sun, Moon, Command, Rss,
 } from 'lucide-react';
 import { useDarkMode } from '@/components/DarkModeProvider';
 import OnboardingModal from '@/components/OnboardingModal';
@@ -18,6 +18,7 @@ import RewriterModule from '@/components/RewriterModule';
 import LlmsTxtModule from '@/components/LlmsTxtModule';
 import GA4Module from '@/components/GA4Module';
 import SovModule from '@/components/SovModule';
+import BlogAdminModule from '@/components/BlogAdminModule';
 
 const TABS = {
   DIAGNOSIS: 'diagnosis',
@@ -28,6 +29,7 @@ const TABS = {
   LLMSTXT: 'llmstxt',
   GA4: 'ga4',
   SOV: 'sov',
+  BLOG: 'blog',
   DASHBOARD: 'dashboard',
 } as const;
 type Tab = typeof TABS[keyof typeof TABS];
@@ -66,6 +68,7 @@ export default function App() {
     { id: TABS.LLMSTXT, icon: <Bot size={16} />, label: 'llms.txt', mobileLabel: 'LLMs' },
     { id: TABS.GA4, icon: <BarChart3 size={16} />, label: 'GA4 Analytics', mobileLabel: 'GA4' },
     { id: TABS.SOV, icon: <Megaphone size={16} />, label: 'AI Share of Voice', mobileLabel: 'SOV' },
+    { id: TABS.BLOG, icon: <Rss size={16} />, label: 'Blog 관리', mobileLabel: '블로그' },
     { id: TABS.DASHBOARD, icon: <LayoutDashboard size={16} />, label: 'Ops Dashboard', mobileLabel: '대시보드' },
   ];
 
@@ -152,6 +155,7 @@ export default function App() {
           {activeTab === TABS.LLMSTXT && <LlmsTxtModule onToast={showToast} />}
           {activeTab === TABS.GA4 && <GA4Module onToast={showToast} />}
           {activeTab === TABS.SOV && <SovModule onToast={showToast} />}
+          {activeTab === TABS.BLOG && <BlogAdminModule onToast={showToast} />}
           {activeTab === TABS.DASHBOARD && <DashboardModule />}
         </div>
       </main>
