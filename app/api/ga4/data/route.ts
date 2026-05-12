@@ -134,14 +134,21 @@ export async function POST(req: NextRequest) {
       devices,
     });
   } catch (e) {
-    const msg = e instanceof Error ? e.message : '알 수 없는 오류';
-    if (msg.includes('PERMISSION_DENIED')) {
-      return NextResponse.json({ error: '접근 권한이 없습니다. 서비스 계정에 GA4 속성 뷰어 권한을 부여하세요.' }, { status: 403 });
+    const err = e as any;
+    const msg = err?.message || err?.details || (err?.code !== undefined ? 'gRPC code ' + err.code : '알 수 없는 오류');
+    console.error('[GA4 data]', err);
+    if (msg.includes('PERMISSION_DENIED') || err?.code === 7) {
+      return NextResponse.json({ error: '접근 권한 없음: 서비스 계정에 GA4 속성 뷰어 권한을 부여하세요.' }, { status: 403 });
     }
-    if (msg.includes('NOT_FOUND')) {
-      return NextResponse.json({ error: 'GA4 Property를 찾을 수 없습니다. Property ID를 확인하세요.' }, { status: 404 });
+    if (msg.includes('NOT_FOUND') || err?.code === 5) {
+      return NextResponse.json({ error: 'Property를 찾을 수 없습니다. Property ID(' + cleanPropertyId + ')를 확인하세요.' }, { status: 404 });
     }
-    console.error(e);
-    return NextResponse.json({ error: 'GA4 데이터 수집 중 오류: ' + msg }, { status: 500 });
+    if (msg.includes('UNAUTHENTICATED') || err?.code === 16) {
+      return NextResponse.json({ error: '인증 실패: 서비스 계정 JSON 키가 유효하지 않습니다.' }, { status: 401 });
+    }
+    if (msg.includes('invalid_grant') || msg.includes('private key')) {
+      return NextResponse.json({ error: '서비스 계정 키 오류: private_key가 올바르지 않습니다.' }, { status: 401 });
+    }
+    return NextResponse.json({ error: 'GA4 오류: ' + msg }, { status: 500 });
   }
 }
