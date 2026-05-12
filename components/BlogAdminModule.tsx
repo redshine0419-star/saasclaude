@@ -170,6 +170,7 @@ export default function BlogAdminModule({ onToast }: Props) {
   const [bulkTotal, setBulkTotal] = useState(0);
   const [bulkErrors, setBulkErrors] = useState(0);
   const [bulkCurrentKeyword, setBulkCurrentKeyword] = useState('');
+  const [bulkFailedKeywords, setBulkFailedKeywords] = useState<string[]>([]);
   const stopRef = useRef(false);
 
   const fetchPosts = async (l: Lang) => {
@@ -312,7 +313,9 @@ export default function BlogAdminModule({ onToast }: Props) {
     setBulkRunning(true);
     setBulkDone(0);
     setBulkErrors(0);
+    setBulkFailedKeywords([]);
     setBulkTotal(keywords.length);
+    const failed: string[] = [];
 
     for (let i = 0; i < keywords.length; i++) {
       if (stopRef.current) break;
@@ -329,18 +332,24 @@ export default function BlogAdminModule({ onToast }: Props) {
             createdAt: dates[i] + 'T00:00:00.000Z',
           }),
         });
-        if (!res.ok) throw new Error((await res.json()).error);
-      } catch {
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'unknown error');
+        }
+      } catch (e) {
+        failed.push(keywords[i]);
         setBulkErrors((prev) => prev + 1);
+        console.error(`[bulk] failed: ${keywords[i]}`, (e as Error).message);
       }
       setBulkDone((prev) => prev + 1);
-      if (i < keywords.length - 1) await new Promise((r) => setTimeout(r, 800));
+      if (i < keywords.length - 1) await new Promise((r) => setTimeout(r, 1500));
     }
 
+    setBulkFailedKeywords(failed);
     setBulkRunning(false);
     setBulkCurrentKeyword('');
     fetchPosts(lang);
-    onToast(stopRef.current ? '대량 생성이 중지되었습니다.' : `대량 생성 완료! (오류 ${bulkErrors}건)`);
+    onToast(stopRef.current ? '대량 생성이 중지되었습니다.' : `대량 생성 완료! (오류 ${failed.length}건)`);
   };
 
   const toneOptions = lang === 'ko'

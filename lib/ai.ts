@@ -82,7 +82,7 @@ export async function generateText(prompt: string): Promise<AIResult> {
   const t1 = Date.now();
   const message = await anthropicClient.messages.create({
     model: 'claude-sonnet-4-6',
-    max_tokens: 2048,
+    max_tokens: 8192,
     messages: [{ role: 'user', content: prompt }],
   });
   const text = message.content.filter((b) => b.type === 'text').map((b) => b.text).join('');

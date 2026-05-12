@@ -23,6 +23,24 @@ export interface PostIndex {
   keyword: string;
 }
 
+function extractJson(text: string): Record<string, unknown> | null {
+  // balanced-brace extraction — more reliable than greedy regex
+  let depth = 0;
+  let start = -1;
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === '{') {
+      if (start === -1) start = i;
+      depth++;
+    } else if (text[i] === '}') {
+      depth--;
+      if (depth === 0 && start !== -1) {
+        try { return JSON.parse(text.slice(start, i + 1)); } catch { return null; }
+      }
+    }
+  }
+  return null;
+}
+
 async function getIndex(lang: string): Promise<PostIndex[]> {
   try {
     const { blobs } = await list({ prefix: `posts-index-${lang}.json` });
@@ -128,24 +146,35 @@ Respond ONLY with this JSON (no explanation):
   "content": "## Introduction heading\\n\\nBody in markdown..."
 }`;
 
+  // retry up to 2 times on parse failure
+  let parsed: Record<string, unknown> | null = null;
+  let lastErr = '';
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const { text } = await generateText(prompt);
+      parsed = extractJson(text);
+      if (parsed && parsed.title && parsed.slug && parsed.content) break;
+      lastErr = parsed ? '필수 필드 누락' : 'AI 응답 파싱 실패';
+      parsed = null;
+    } catch (e) {
+      lastErr = (e as Error).message;
+    }
+    if (attempt < 2) await new Promise((r) => setTimeout(r, 2000));
+  }
+
   try {
-    const { text } = await generateText(prompt);
-    const match = text.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('AI 응답 파싱 실패');
-
-    const parsed = JSON.parse(match[0]);
-    const { title, slug, metaDescription, tags, faq, content } = parsed;
-
+    if (!parsed) throw new Error(lastErr || 'AI 응답 파싱 실패 (3회 시도)');
+    const { title, slug, metaDescription, tags, faq, content } = parsed as Record<string, unknown>;
     if (!title || !slug || !content) throw new Error('필수 필드 누락');
 
     const post: BlogPost = {
-      slug,
+      slug: String(slug),
       lang,
-      title,
-      metaDescription: metaDescription || '',
-      tags: Array.isArray(tags) ? tags : [],
-      faq: Array.isArray(faq) ? faq : [],
-      content,
+      title: String(title),
+      metaDescription: metaDescription ? String(metaDescription) : '',
+      tags: Array.isArray(tags) ? (tags as string[]) : [],
+      faq: Array.isArray(faq) ? (faq as { q: string; a: string }[]) : [],
+      content: String(content),
       createdAt: createdAt || new Date().toISOString(),
       keyword,
     };
@@ -158,8 +187,8 @@ Respond ONLY with this JSON (no explanation):
     });
 
     const index = await getIndex(lang);
-    const existingIdx = index.findIndex((p) => p.slug === slug);
-    const indexEntry: PostIndex = { slug, title, metaDescription: post.metaDescription, tags: post.tags, createdAt: post.createdAt, keyword };
+    const existingIdx = index.findIndex((p) => p.slug === post.slug);
+    const indexEntry: PostIndex = { slug: post.slug, title: post.title, metaDescription: post.metaDescription, tags: post.tags, createdAt: post.createdAt, keyword };
     if (existingIdx >= 0) index[existingIdx] = indexEntry;
     else index.unshift(indexEntry);
     await saveIndex(lang, index);
