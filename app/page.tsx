@@ -1,210 +1,201 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
 import {
-  LayoutDashboard, Search, FileText, Zap, ChevronRight, Bell, User, CheckCircle2,
-  Tag, ArrowLeftRight, PenLine, Bot, BarChart3, Megaphone, Sun, Moon,
+  AlertCircle,
+  Bell,
+  Calendar,
+  CheckCircle2,
+  ChevronRight,
+  Clock,
+  FileText,
+  Filter,
+  GanttChartSquare,
+  LayoutDashboard,
+  Menu,
+  MoreVertical,
+  Plus,
+  Search,
+  Settings,
+  Trello,
+  User,
+  X,
 } from 'lucide-react';
-import { useDarkMode } from '@/components/DarkModeProvider';
-import OnboardingModal from '@/components/OnboardingModal';
-import DiagnosisModule from '@/components/DiagnosisModule';
-import ContentHubModule from '@/components/ContentHubModule';
-import DashboardModule from '@/components/DashboardModule';
-import KeywordModule from '@/components/KeywordModule';
-import CompetitorModule from '@/components/CompetitorModule';
-import RewriterModule from '@/components/RewriterModule';
-import LlmsTxtModule from '@/components/LlmsTxtModule';
-import GA4Module from '@/components/GA4Module';
-import SovModule from '@/components/SovModule';
 
-const TABS = {
-  DIAGNOSIS: 'diagnosis',
-  COMPETITOR: 'competitor',
-  CONTENT: 'content',
-  REWRITER: 'rewriter',
-  KEYWORD: 'keyword',
-  LLMSTXT: 'llmstxt',
-  GA4: 'ga4',
-  SOV: 'sov',
-  DASHBOARD: 'dashboard',
-} as const;
-type Tab = typeof TABS[keyof typeof TABS];
+type Status = 'To Do' | 'In Progress' | 'Done';
+type Priority = 'Low' | 'Medium' | 'High';
 
-const TAB_ORDER = Object.values(TABS) as Tab[];
+type Issue = {
+  id: number;
+  title: string;
+  status: Status;
+  priority: Priority;
+  assignee: string;
+  dueDate: string;
+};
+
+const COLUMNS: Status[] = ['To Do', 'In Progress', 'Done'];
+
+const INITIAL_ISSUES: Issue[] = [
+  { id: 1, title: '로그인 API 개발', status: 'To Do', priority: 'High', assignee: '김철수', dueDate: '2026-05-20' },
+  { id: 2, title: '메인 대시보드 UI 디자인', status: 'In Progress', priority: 'Medium', assignee: '이영희', dueDate: '2026-05-22' },
+  { id: 3, title: '데이터베이스 스키마 설계', status: 'Done', priority: 'High', assignee: '박지민', dueDate: '2026-05-15' },
+  { id: 4, title: '사용자 권한 시스템 구축', status: 'To Do', priority: 'Low', assignee: '최승우', dueDate: '2026-05-25' },
+  { id: 5, title: '모바일 반응형 최적화', status: 'In Progress', priority: 'Medium', assignee: '정다은', dueDate: '2026-05-23' },
+];
+
+type View = 'dashboard' | 'board' | 'timeline' | 'docs' | 'settings';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<Tab>(TABS.DIAGNOSIS);
-  const [toast, setToast] = useState<string | null>(null);
-  const { dark, toggle } = useDarkMode();
-  const touchStartX = useRef(0);
+  const [activeView, setActiveView] = useState<View>('board');
+  const [issues, setIssues] = useState<Issue[]>(INITIAL_ISSUES);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [newTask, setNewTask] = useState<Omit<Issue, 'id' | 'dueDate'>>({
+    title: '',
+    status: 'To Do',
+    priority: 'Medium',
+    assignee: '나',
+  });
 
-  const showToast = (message: string) => {
-    setToast(message);
-    setTimeout(() => setToast(null), 3000);
+  useEffect(() => {
+    const onResize = () => {
+      if (window.innerWidth >= 1024) setIsSidebarOpen(false);
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const kpi = useMemo(() => ({
+    todo: issues.filter((i) => i.status !== 'Done').length,
+    urgent: issues.filter((i) => i.priority === 'High' && i.status !== 'Done').length,
+  }), [issues]);
+
+  const handleAddIssue = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTask.title.trim()) return;
+    const task: Issue = {
+      ...newTask,
+      id: Date.now(),
+      dueDate: new Date().toISOString().split('T')[0],
+    };
+    setIssues((prev) => [...prev, task]);
+    setNewTask({ title: '', status: 'To Do', priority: 'Medium', assignee: '나' });
+    setIsModalOpen(false);
   };
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
+  const moveIssue = (id: number, newStatus: Status) => {
+    setIssues((prev) => prev.map((issue) => (issue.id === id ? { ...issue, status: newStatus } : issue)));
   };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    if (Math.abs(dx) < 60) return;
-    const idx = TAB_ORDER.indexOf(activeTab);
-    if (dx < 0 && idx < TAB_ORDER.length - 1) setActiveTab(TAB_ORDER[idx + 1]);
-    if (dx > 0 && idx > 0) setActiveTab(TAB_ORDER[idx - 1]);
-  };
-
-  const menuItems = [
-    { id: TABS.DIAGNOSIS, icon: <Search size={20} />, label: 'Engine Diagnosis', mobileLabel: '진단' },
-    { id: TABS.COMPETITOR, icon: <ArrowLeftRight size={20} />, label: 'Competitor Analysis', mobileLabel: '경쟁사' },
-    { id: TABS.CONTENT, icon: <FileText size={20} />, label: 'Content Orchestrator', mobileLabel: '콘텐츠' },
-    { id: TABS.REWRITER, icon: <PenLine size={20} />, label: 'Content Rewriter', mobileLabel: '리라이터' },
-    { id: TABS.KEYWORD, icon: <Tag size={20} />, label: 'Keyword Analysis', mobileLabel: '키워드' },
-    { id: TABS.LLMSTXT, icon: <Bot size={20} />, label: 'llms.txt 생성기', mobileLabel: 'LLMs' },
-    { id: TABS.GA4, icon: <BarChart3 size={20} />, label: 'GA4 Analytics', mobileLabel: 'GA4' },
-    { id: TABS.SOV, icon: <Megaphone size={20} />, label: 'AI Share of Voice', mobileLabel: 'SOV' },
-    { id: TABS.DASHBOARD, icon: <LayoutDashboard size={20} />, label: 'Ops Dashboard', mobileLabel: '대시보드' },
-  ];
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 overflow-hidden select-none">
-      <OnboardingModal />
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden">
+      <Sidebar
+        activeView={activeView}
+        isSidebarOpen={isSidebarOpen}
+        setActiveView={setActiveView}
+        setIsSidebarOpen={setIsSidebarOpen}
+      />
+      <Header setIsSidebarOpen={setIsSidebarOpen} setIsModalOpen={setIsModalOpen} />
 
-      {/* Sidebar (Desktop) */}
-      <aside className="hidden md:flex w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 flex-col z-20">
-        <div className="p-8 pb-4">
-          <div className="flex items-center gap-2.5 text-indigo-600 font-black text-2xl tracking-tighter">
-            <Zap size={32} fill="currentColor" strokeWidth={2.5} />
-            <span>MarketerOps<span className="text-slate-400 dark:text-slate-500 font-light">.ai</span></span>
+      <main className="pt-20 lg:pt-24 p-4 lg:p-8 min-h-screen transition-all duration-300 lg:ml-64">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center gap-2 text-[11px] lg:text-sm text-slate-400 mb-4 lg:mb-6 overflow-hidden">
+            <span className="truncate">프로젝트</span>
+            <ChevronRight size={14} className="flex-shrink-0" />
+            <span className="text-indigo-600 font-medium truncate">
+              {activeView === 'dashboard' ? '대시보드' : activeView === 'board' ? '칸반 보드' : activeView === 'timeline' ? '타임라인' : '준비 중'}
+            </span>
           </div>
-        </div>
 
-        <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
-          {menuItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-2xl transition-all duration-200 group ${
-                activeTab === item.id
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 translate-x-1'
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-200'
-              }`}
-            >
-              <span className={activeTab === item.id ? 'text-white' : 'group-hover:text-indigo-500'}>{item.icon}</span>
-              <span className="font-bold text-sm">{item.label}</span>
-              {activeTab === item.id && <ChevronRight className="ml-auto opacity-50" size={16} />}
-            </button>
-          ))}
-        </nav>
+          {activeView === 'dashboard' && <DashboardView issues={issues} todo={kpi.todo} urgent={kpi.urgent} />}
+          {activeView === 'board' && <BoardView issues={issues} moveIssue={moveIssue} setIsModalOpen={setIsModalOpen} setNewTask={setNewTask} newTask={newTask} />}
+          {activeView === 'timeline' && <TimelineView issues={issues} />}
 
-        <div className="p-6 mt-auto shrink-0">
-          <div className="p-5 bg-gradient-to-br from-slate-900 to-indigo-900 text-white rounded-2xl relative overflow-hidden mb-4">
-            <div className="relative z-10">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                <span className="text-[10px] font-black uppercase tracking-[2px]">Enterprise Tier</span>
-              </div>
-              <p className="text-sm font-bold mb-1">Senior Marketer Mode</p>
-              <p className="text-[10px] text-slate-300">10년차 이상의 직관을 AI가 보조합니다.</p>
+          {(activeView === 'docs' || activeView === 'settings') && (
+            <div className="flex flex-col items-center justify-center h-[50vh] text-slate-400 px-4 text-center">
+              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4"><Clock size={32} /></div>
+              <p className="text-base lg:text-lg font-medium">준비 중인 기능입니다.</p>
+              <button onClick={() => setActiveView('board')} className="mt-4 text-indigo-600 font-bold">보드로 돌아가기</button>
             </div>
-            <Zap className="absolute -right-4 -bottom-4 text-white/5 w-24 h-24 rotate-12" />
-          </div>
-
-          {/* Dark mode toggle */}
-          <button
-            onClick={toggle}
-            className="w-full flex items-center justify-center gap-2 py-2.5 mb-3 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold transition-colors"
-          >
-            {dark ? <Sun size={14} /> : <Moon size={14} />}
-            {dark ? '라이트 모드' : '다크 모드'}
-          </button>
-
-          <div className="text-center">
-            <Link href="/privacy" className="text-[10px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-              Privacy Policy
-            </Link>
-          </div>
+          )}
         </div>
-      </aside>
-
-      {/* Main */}
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-6 md:px-10 shrink-0 z-10">
-          <div className="flex items-center gap-4">
-            <div className="md:hidden p-2 bg-indigo-600 text-white rounded-xl">
-              <Zap size={20} fill="currentColor" />
-            </div>
-            <h2 className="text-lg md:text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
-              {menuItems.find((m) => m.id === activeTab)?.label}
-            </h2>
-          </div>
-          <div className="flex items-center gap-2 md:gap-4">
-            <button
-              onClick={toggle}
-              className="p-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors"
-              title={dark ? '라이트 모드' : '다크 모드'}
-            >
-              {dark ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-            <button className="relative p-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors">
-              <Bell size={22} />
-              <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-rose-500 border-2 border-white dark:border-slate-900 rounded-full" />
-            </button>
-            <div className="h-10 w-10 md:h-11 md:w-11 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800 flex items-center justify-center text-indigo-600 cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors">
-              <User size={22} strokeWidth={2.5} />
-            </div>
-          </div>
-        </header>
-
-        {/* Content with swipe gesture */}
-        <div
-          className="flex-1 overflow-y-auto p-4 md:p-10 pb-24 md:pb-10 scroll-smooth"
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-        >
-          {activeTab === TABS.DIAGNOSIS && <DiagnosisModule onToast={showToast} />}
-          {activeTab === TABS.COMPETITOR && <CompetitorModule onToast={showToast} />}
-          {activeTab === TABS.CONTENT && <ContentHubModule onToast={showToast} />}
-          {activeTab === TABS.REWRITER && <RewriterModule onToast={showToast} />}
-          {activeTab === TABS.KEYWORD && <KeywordModule onToast={showToast} />}
-          {activeTab === TABS.LLMSTXT && <LlmsTxtModule onToast={showToast} />}
-          {activeTab === TABS.GA4 && <GA4Module onToast={showToast} />}
-          {activeTab === TABS.SOV && <SovModule onToast={showToast} />}
-          {activeTab === TABS.DASHBOARD && <DashboardModule />}
-        </div>
-
-        {/* Bottom Nav (Mobile) */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-700 flex items-center px-2 gap-1 overflow-x-auto z-30 scrollbar-hide">
-          {menuItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={'flex flex-col items-center gap-1 transition-all duration-300 px-2 shrink-0 ' + (
-                activeTab === item.id
-                  ? 'text-indigo-600 dark:text-indigo-400'
-                  : 'text-slate-400 dark:text-slate-500'
-              )}
-            >
-              <div className={'p-1.5 rounded-xl transition-colors ' + (activeTab === item.id ? 'bg-indigo-50 dark:bg-indigo-900/30' : '')}>
-                {item.icon}
-              </div>
-              <span className="text-[9px] font-black uppercase tracking-widest whitespace-nowrap">{item.mobileLabel}</span>
-            </button>
-          ))}
-        </nav>
       </main>
 
-      {/* Toast */}
-      {toast && (
-        <div className="fixed bottom-24 md:bottom-10 left-1/2 -translate-x-1/2 z-50">
-          <div className="bg-slate-900 dark:bg-slate-800 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700">
-            <CheckCircle2 size={18} className="text-emerald-400" />
-            <span className="text-sm font-bold tracking-tight">{toast}</span>
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl lg:rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
+            <div className="p-5 lg:p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <h3 className="text-lg lg:text-xl font-bold">신규 이슈 생성</h3>
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 p-1"><X size={20} /></button>
+            </div>
+            <form onSubmit={handleAddIssue} className="p-5 lg:p-6 space-y-4">
+              <input autoFocus type="text" value={newTask.title} onChange={(e) => setNewTask({ ...newTask, title: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-slate-200" placeholder="무엇을 해야 하나요?" />
+              <div className="grid grid-cols-2 gap-4">
+                <select value={newTask.status} onChange={(e) => setNewTask({ ...newTask, status: e.target.value as Status })} className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white">
+                  {COLUMNS.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+                <select value={newTask.priority} onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as Priority })} className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white">
+                  <option value="Low">Low</option><option value="Medium">Medium</option><option value="High">High</option>
+                </select>
+              </div>
+              <div className="pt-4 flex gap-3">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2.5 border border-slate-200 rounded-xl">취소</button>
+                <button type="submit" className="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl">생성하기</button>
+              </div>
+            </form>
           </div>
         </div>
       )}
     </div>
   );
+}
+
+function Sidebar({ activeView, isSidebarOpen, setActiveView, setIsSidebarOpen }: {
+  activeView: View; isSidebarOpen: boolean; setActiveView: (view: View) => void; setIsSidebarOpen: (open: boolean) => void;
+}) {
+  const nav: { id: View; icon: React.ReactNode; label: string }[] = [
+    { id: 'dashboard', icon: <LayoutDashboard size={20} />, label: '대시보드' },
+    { id: 'board', icon: <Trello size={20} />, label: '보드 (칸반)' },
+    { id: 'timeline', icon: <GanttChartSquare size={20} />, label: '타임라인' },
+    { id: 'docs', icon: <FileText size={20} />, label: '문서함' },
+    { id: 'settings', icon: <Settings size={20} />, label: '설정' },
+  ];
+
+  return <>
+    {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)} />}
+    <div className={`fixed left-0 top-0 h-screen bg-slate-900 text-white flex flex-col z-50 transition-transform duration-300 w-64 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+      <div className="p-6 text-xl font-bold flex items-center justify-between border-b border-slate-800"><span>Project Flow</span><button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-slate-400"><X size={20} /></button></div>
+      <nav className="flex-1 p-4 space-y-1">{nav.map((n) => <button key={n.id} onClick={() => { setActiveView(n.id); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${activeView === n.id ? 'bg-indigo-600' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>{n.icon}<span>{n.label}</span></button>)}</nav>
+    </div>
+  </>;
+}
+
+function Header({ setIsSidebarOpen, setIsModalOpen }: { setIsSidebarOpen: (open: boolean) => void; setIsModalOpen: (open: boolean) => void; }) {
+  return <header className="h-16 bg-white border-b border-slate-200 fixed top-0 right-0 left-0 lg:left-64 z-30 flex items-center justify-between px-4 lg:px-8">
+    <div className="flex items-center gap-3"><button onClick={() => setIsSidebarOpen(true)} className="p-2 hover:bg-slate-100 rounded-lg lg:hidden text-slate-600"><Menu size={20} /></button><h2 className="text-base lg:text-xl font-bold text-slate-800">협업 프로젝트 관리</h2></div>
+    <div className="flex items-center gap-2 lg:gap-6"><Search className="hidden xl:block text-slate-400" size={18} /><Bell className="text-slate-400" size={24} /><button onClick={() => setIsModalOpen(true)} className="bg-indigo-600 text-white px-3 py-2 rounded-lg flex items-center gap-2"><Plus size={18} />신규 이슈</button></div>
+  </header>;
+}
+
+function DashboardView({ issues, todo, urgent }: { issues: Issue[]; todo: number; urgent: number; }) {
+  return <div className="space-y-6"><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+    <StatCard title="진행률" value="65%" icon={<CheckCircle2 className="text-emerald-500" />} />
+    <StatCard title="미완료 이슈" value={todo} icon={<Clock className="text-indigo-500" />} />
+    <StatCard title="긴급" value={String(urgent)} icon={<AlertCircle className="text-red-500" />} />
+    <StatCard title="참여 팀원" value="3" icon={<User className="text-slate-500" />} />
+  </div>
+  <div className="bg-white p-5 rounded-2xl border border-slate-200"><h3 className="font-bold mb-4">나의 할 일</h3>{issues.slice(0, 5).map((issue) => <div key={issue.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl mb-2"><span className="text-sm font-medium">{issue.title}</span><span className="text-xs">{issue.priority}</span></div>)}</div></div>;
+}
+
+function BoardView({ issues, moveIssue, setIsModalOpen, setNewTask, newTask }: { issues: Issue[]; moveIssue: (id: number, s: Status) => void; setIsModalOpen: (open: boolean) => void; setNewTask: (task: Omit<Issue, 'id' | 'dueDate'>) => void; newTask: Omit<Issue, 'id' | 'dueDate'>; }) {
+  return <div className="flex gap-4 overflow-x-auto pb-4 h-full snap-x">{COLUMNS.map((col) => <div key={col} className="min-w-[300px] bg-slate-100 rounded-2xl p-4"><div className="flex items-center justify-between mb-4"><h3 className="font-bold">{col} <span className="text-xs">{issues.filter((i) => i.status === col).length}</span></h3><MoreVertical size={16} className="text-slate-400" /></div>{issues.filter((i) => i.status === col).map((issue) => <div key={issue.id} className="bg-white p-4 rounded-xl mb-3 border"><h4 className="text-sm font-semibold mb-2">{issue.title}</h4><div className="flex gap-1">{COLUMNS.filter((c) => c !== col).map((c) => <button key={c} onClick={() => moveIssue(issue.id, c)} className="text-xs bg-indigo-50 px-2 py-1 rounded">{c}</button>)}</div><div className="flex items-center justify-between mt-3 text-xs text-slate-500"><span className="flex items-center gap-1"><Calendar size={12} />{issue.dueDate}</span><span>{issue.assignee}</span></div></div>)}<button onClick={() => { setNewTask({ ...newTask, status: col }); setIsModalOpen(true); }} className="w-full py-3 border-2 border-dashed border-slate-300 rounded-xl text-slate-400 text-sm">+ 추가하기</button></div>)}</div>;
+}
+
+function TimelineView({ issues }: { issues: Issue[] }) {
+  return <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden"><div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50"><div className="flex items-center gap-2 text-sm text-slate-600"><Filter size={16} />필터</div><div className="text-sm font-medium text-slate-600">2026년 5월</div></div><table className="w-full text-left min-w-[700px]"><thead><tr className="text-xs"><th className="px-4 py-3">이슈명</th><th className="px-4 py-3">담당자</th><th className="px-4 py-3">상태</th></tr></thead><tbody>{issues.map((issue) => <tr key={issue.id} className="border-t"><td className="px-4 py-3">{issue.title}</td><td className="px-4 py-3">{issue.assignee}</td><td className="px-4 py-3">{issue.status}</td></tr>)}</tbody></table></div>;
+}
+
+function StatCard({ title, value, icon }: { title: string; value: string | number; icon: React.ReactNode }) {
+  return <div className="bg-white p-5 rounded-2xl border border-slate-200"><div className="flex items-center justify-between mb-3"><span className="text-sm text-slate-500">{title}</span><div className="p-2 bg-slate-50 rounded-lg">{icon}</div></div><div className="text-2xl font-bold text-slate-800">{value}</div></div>;
 }
