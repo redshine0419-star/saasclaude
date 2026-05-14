@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import {
   BarChart3, Loader2, CheckCircle2, XCircle, AlertCircle, Zap,
   TrendingUp, TrendingDown, Users, Globe, Monitor, Smartphone, Tablet,
-  ChevronDown, ChevronUp, Eye, Clock,
+  Eye, Clock, Link2, Link2Off,
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -99,9 +100,9 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
   const [checkLoading, setCheckLoading] = useState(false);
   const [checkResult, setCheckResult] = useState<CheckResult | null>(null);
 
+  const { data: session } = useSession();
+
   const [propertyId, setPropertyId] = useState('');
-  const [serviceKey, setServiceKey] = useState('');
-  const [showKeyInput, setShowKeyInput] = useState(false);
   const [dataLoading, setDataLoading] = useState(false);
   const [ga4Data, setGa4Data] = useState<GA4Data | null>(null);
 
@@ -109,6 +110,39 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
   const [insight, setInsight] = useState<InsightResult | null>(null);
 
   const [error, setError] = useState('');
+
+  const [ga4Status, setGa4Status] = useState<{
+    connected: boolean;
+    email?: string;
+    properties?: { id: string; displayName: string; account: string }[];
+  } | null>(null);
+  const [statusLoading, setStatusLoading] = useState(true);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('ga4_connected') === '1') {
+      onToast('GA4 연결이 완료됐습니다.');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+    const errParam = params.get('ga4_error');
+    if (errParam) {
+      setError('GA4 연결 오류: ' + errParam);
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+
+    fetch('/api/ga4/status')
+      .then((r) => r.json())
+      .then((d) => { setGa4Status(d); setStatusLoading(false); })
+      .catch(() => setStatusLoading(false));
+  }, []);
+
+  const handleDisconnect = async () => {
+    await fetch('/api/ga4/disconnect', { method: 'POST' });
+    setGa4Status({ connected: false });
+    setGa4Data(null);
+    setInsight(null);
+    setPropertyId('');
+  };
 
   const checkInstall = async () => {
     if (!siteUrl.trim()) return;
@@ -133,7 +167,7 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
   };
 
   const fetchGA4Data = async () => {
-    if (!propertyId.trim() || !serviceKey.trim()) return;
+    if (!propertyId.trim()) return;
     setDataLoading(true);
     setGa4Data(null);
     setInsight(null);
@@ -142,7 +176,7 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
       const res = await fetch('/api/ga4/data', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ propertyId, serviceAccountKey: serviceKey }),
+        body: JSON.stringify({ propertyId }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || data?.message || `서버 오류 (${res.status})`);
@@ -252,51 +286,80 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
         <div className="mt-6 space-y-4">
           <div className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
             <span className="w-5 h-5 bg-indigo-600 text-white rounded-full flex items-center justify-center text-[10px]">2</span>
-            GA4 데이터 연동 (Data API)
+            GA4 데이터 연동 (Google 계정 연결)
           </div>
 
-          <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl text-xs text-blue-800 leading-relaxed">
-            <strong>연동 방법:</strong> Google Cloud Console → IAM → 서비스 계정 생성 → JSON 키 다운로드 →
-            GA4 속성 관리자에서 해당 계정 이메일에 <strong>뷰어</strong> 권한 부여
-          </div>
+          {statusLoading ? (
+            <div className="flex items-center gap-2 text-slate-400 text-sm py-2">
+              <Loader2 size={15} className="animate-spin" /> 연결 상태 확인 중...
+            </div>
+          ) : !session?.user ? (
+            <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl text-sm text-amber-800">
+              GA4 데이터 연동을 위해 먼저 우측 상단에서 Google 로그인을 해주세요.
+            </div>
+          ) : ga4Status?.connected ? (
+            <>
+              <div className="flex items-center gap-3 p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+                <Link2 size={16} className="text-emerald-600 shrink-0" />
+                <span className="text-sm text-emerald-800 flex-1">
+                  연결됨: <strong>{ga4Status.email}</strong>
+                </span>
+                <button
+                  onClick={handleDisconnect}
+                  className="flex items-center gap-1 text-xs text-slate-400 hover:text-rose-500 transition-colors"
+                >
+                  <Link2Off size={13} /> 연결 해제
+                </button>
+              </div>
 
-          <input
-            type="text"
-            placeholder="GA4 Property ID (예: 123456789)"
-            className="w-full pl-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm"
-            value={propertyId}
-            onChange={(e) => setPropertyId(e.target.value)}
-            disabled={dataLoading}
-          />
+              {ga4Status.properties && ga4Status.properties.length > 0 ? (
+                <select
+                  value={propertyId}
+                  onChange={(e) => setPropertyId(e.target.value)}
+                  disabled={dataLoading}
+                  className="w-full pl-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm"
+                >
+                  <option value="">속성 선택...</option>
+                  {ga4Status.properties.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.displayName} — {p.account} (ID: {p.id})
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  placeholder="GA4 Property ID (예: 123456789)"
+                  className="w-full pl-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm"
+                  value={propertyId}
+                  onChange={(e) => setPropertyId(e.target.value)}
+                  disabled={dataLoading}
+                />
+              )}
 
-          <div>
-            <button
-              onClick={() => setShowKeyInput(!showKeyInput)}
-              className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-indigo-600 transition-colors mb-2"
-            >
-              {showKeyInput ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-              서비스 계정 키 JSON {showKeyInput ? '접기' : '입력'}
-            </button>
-            {showKeyInput && (
-              <textarea
-                className="w-full h-32 p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-xs font-mono transition-all resize-none"
-                placeholder={'{\n  "type": "service_account",\n  "project_id": "...",\n  "private_key": "...",\n  "client_email": "..."\n}'}
-                value={serviceKey}
-                onChange={(e) => setServiceKey(e.target.value)}
-                disabled={dataLoading}
-              />
-            )}
-          </div>
-
-          <button
-            onClick={fetchGA4Data}
-            disabled={dataLoading || !propertyId.trim() || !serviceKey.trim()}
-            className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-bold rounded-2xl transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2"
-          >
-            {dataLoading
-              ? <><Loader2 size={18} className="animate-spin" /> 데이터 수집 중...</>
-              : <><Zap size={18} /> GA4 데이터 불러오기 + AI 분석</>}
-          </button>
+              <button
+                onClick={fetchGA4Data}
+                disabled={dataLoading || !propertyId.trim()}
+                className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-bold rounded-2xl transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2"
+              >
+                {dataLoading
+                  ? <><Loader2 size={18} className="animate-spin" /> 데이터 수집 중...</>
+                  : <><Zap size={18} /> GA4 데이터 불러오기 + AI 분석</>}
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl text-xs text-blue-800 leading-relaxed">
+                Google 계정으로 연결하면 서비스 계정 없이 GA4 데이터를 바로 분석할 수 있습니다.
+              </div>
+              <a
+                href="/api/ga4/connect"
+                className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2"
+              >
+                <Link2 size={18} /> Google Analytics 연결
+              </a>
+            </>
+          )}
 
           {error && (
             <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-700">{error}</div>
