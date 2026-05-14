@@ -49,13 +49,17 @@ interface GA4Data {
 
 interface InsightResult {
   healthScore: number;
-  summary: string;
-  strengths: string[];
-  risks: string[];
-  trafficInsight: string;
-  contentInsight: string;
-  quickWins: { action: string; expectedImpact: string; effort: string }[];
-  monthlyGoals: { goal: string; strategy: string }[];
+  executiveSummary: string;
+  keyFindings: string[];
+  trendDirection: 'growing' | 'declining' | 'stable';
+  trendNarrative: string;
+  channelInsight: string;
+  audienceInsight: string;
+  risks: { title: string; severity: 'high' | 'medium' | 'low'; detail: string; action: string }[];
+  strengths: { title: string; detail: string }[];
+  quickWins: { action: string; detail: string; kpi: string; effort: string }[];
+  monthlyGoals: { goal: string; strategy: string; kpi: string }[];
+  quarterlyVision: string;
 }
 
 interface PeriodTotals {
@@ -837,84 +841,14 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
 
           {/* ── AI Insights ── */}
           {(insightLoading || insight) && (
-            <div className="space-y-4">
+            <div className="space-y-5">
               {insightLoading && !insight ? (
-                <Card className="p-8 flex items-center justify-center gap-3 text-slate-500">
-                  <Loader2 size={20} className="animate-spin text-indigo-500" />
-                  <span className="text-sm">AI가 GA4 데이터를 분석하고 있습니다...</span>
+                <Card className="p-10 flex flex-col items-center justify-center gap-3 text-slate-500">
+                  <Loader2 size={24} className="animate-spin text-indigo-500" />
+                  <span className="text-sm font-medium">AI가 30일 데이터를 분석하고 있습니다...</span>
+                  <span className="text-xs text-slate-400">주차별 추이, 채널 리스크, 개선안을 도출 중</span>
                 </Card>
-              ) : insight && (() => {
-                const hc2 = healthColor(insight.healthScore);
-                return (
-                  <>
-                    <div className="flex items-stretch gap-4">
-                      <Card className={'p-6 flex flex-col items-center justify-center min-w-[140px] ' + hc2.bg}>
-                        <div className={'w-20 h-20 rounded-full border-4 flex items-center justify-center mb-2 ' + hc2.ring}>
-                          <span className={'text-2xl font-black ' + hc2.text}>{insight.healthScore}</span>
-                        </div>
-                        <span className={'text-xs font-black ' + hc2.text}>{hc2.label}</span>
-                        <span className="text-[10px] text-slate-400 mt-1">마케팅 건강도</span>
-                      </Card>
-                      <div className="flex-1 p-5 bg-indigo-950 text-white rounded-2xl">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Zap size={14} className="text-indigo-400" fill="currentColor" />
-                          <span className="text-[10px] font-black text-indigo-300 uppercase tracking-widest">AI 종합 진단</span>
-                        </div>
-                        <p className="text-sm text-slate-200 leading-relaxed mb-4">{insight.summary}</p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <div>
-                            <div className="text-[10px] font-black text-emerald-400 mb-1.5">강점</div>
-                            {insight.strengths.map((s, i) => (
-                              <div key={i} className="flex items-start gap-1.5 text-[11px] text-slate-300 mb-1">
-                                <CheckCircle2 size={11} className="text-emerald-400 shrink-0 mt-0.5" />{s}
-                              </div>
-                            ))}
-                          </div>
-                          <div>
-                            <div className="text-[10px] font-black text-rose-400 mb-1.5">위험 신호</div>
-                            {insight.risks.map((r, i) => (
-                              <div key={i} className="flex items-start gap-1.5 text-[11px] text-slate-300 mb-1">
-                                <AlertCircle size={11} className="text-rose-400 shrink-0 mt-0.5" />{r}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Card className="p-5"><div className="text-xs font-black text-indigo-600 uppercase tracking-wide mb-2">트래픽 인사이트</div><p className="text-sm text-slate-700 leading-relaxed">{insight.trafficInsight}</p></Card>
-                      <Card className="p-5"><div className="text-xs font-black text-purple-600 uppercase tracking-wide mb-2">콘텐츠 성과 인사이트</div><p className="text-sm text-slate-700 leading-relaxed">{insight.contentInsight}</p></Card>
-                    </div>
-                    <Card className="p-6">
-                      <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><Zap size={18} className="text-amber-500" /> 이번 주 Quick Win</h4>
-                      <div className="space-y-3">
-                        {insight.quickWins.map((w, i) => (
-                          <div key={i} className="flex items-start gap-4 p-4 bg-amber-50 border border-amber-100 rounded-xl">
-                            <div className="w-7 h-7 bg-amber-500 text-white rounded-xl flex items-center justify-center text-xs font-black shrink-0">{i + 1}</div>
-                            <div className="flex-1">
-                              <p className="text-sm font-bold text-slate-800 mb-1">{w.action}</p>
-                              <p className="text-xs text-slate-600">{w.expectedImpact}</p>
-                            </div>
-                            <span className={'text-[10px] font-black px-2 py-1 rounded-lg shrink-0 ' + (w.effort === '낮음' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700')}>{w.effort}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </Card>
-                    <Card className="p-6">
-                      <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><TrendingUp size={18} className="text-emerald-500" /> 이번 달 목표</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {insight.monthlyGoals.map((g, i) => (
-                          <div key={i} className="p-4 bg-gradient-to-br from-indigo-50 to-white border border-indigo-100 rounded-2xl">
-                            <div className="w-6 h-6 bg-indigo-600 text-white rounded-lg flex items-center justify-center text-xs font-black mb-3">{i + 1}</div>
-                            <p className="text-sm font-bold text-slate-800 mb-2">{g.goal}</p>
-                            <p className="text-xs text-slate-600 leading-relaxed">{g.strategy}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </Card>
-                  </>
-                );
-              })()}
+              ) : insight && <InsightReport insight={insight} />}
             </div>
           )}
         </div>
@@ -927,4 +861,204 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
 function pctDeltaFn(base: number, prev: number): number | null {
   if (prev === 0) return null;
   return Math.round(((base - prev) / prev) * 100);
+}
+
+// ── Insight Report Component ───────────────────────────────────────────────
+function InsightReport({ insight }: { insight: InsightResult }) {
+  const hc = healthColor(insight.healthScore);
+
+  const trendBadge = {
+    growing: { label: '성장 중 ↑', cls: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
+    declining: { label: '하락 중 ↓', cls: 'bg-rose-100 text-rose-700 border-rose-200' },
+    stable: { label: '보합 →', cls: 'bg-slate-100 text-slate-600 border-slate-200' },
+  }[insight.trendDirection ?? 'stable'];
+
+  const severityConfig = {
+    high: { label: '높음', cls: 'bg-rose-500 text-white' },
+    medium: { label: '중간', cls: 'bg-amber-400 text-white' },
+    low: { label: '낮음', cls: 'bg-slate-300 text-slate-700' },
+  };
+
+  return (
+    <>
+      {/* ── Executive Summary ── */}
+      <div className="rounded-2xl bg-indigo-950 text-white p-6 md:p-8">
+        <div className="flex items-start gap-6">
+          {/* Health score */}
+          <div className="shrink-0 flex flex-col items-center">
+            <div className={'w-20 h-20 rounded-full border-4 flex items-center justify-center ' + hc.ring + ' ' + hc.bg}>
+              <span className={'text-2xl font-black ' + hc.text}>{insight.healthScore}</span>
+            </div>
+            <span className={'text-[10px] font-black mt-1.5 ' + hc.text}>{hc.label}</span>
+            <span className="text-[10px] text-indigo-400 mt-0.5">마케팅 건강도</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-3">
+              <Zap size={13} className="text-indigo-400" fill="currentColor" />
+              <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Executive Summary</span>
+              <span className={'text-[10px] font-black px-2 py-0.5 rounded-full border ' + trendBadge.cls}>{trendBadge.label}</span>
+            </div>
+            <p className="text-sm text-slate-200 leading-relaxed">{insight.executiveSummary}</p>
+          </div>
+        </div>
+
+        {/* Key Findings */}
+        {insight.keyFindings?.length > 0 && (
+          <div className="mt-6 pt-5 border-t border-indigo-800">
+            <div className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3">핵심 발견 사항</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {insight.keyFindings.map((f, i) => (
+                <div key={i} className="flex items-start gap-2 text-xs text-slate-300 leading-relaxed">
+                  <span className="w-4 h-4 bg-indigo-700 text-indigo-200 rounded flex items-center justify-center text-[9px] font-black shrink-0 mt-0.5">{i + 1}</span>
+                  {f}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Trend · Channel · Audience ── */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="p-5">
+          <div className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+            <TrendingUp size={12} /> 트렌드 분석
+          </div>
+          <p className="text-sm text-slate-700 leading-relaxed">{insight.trendNarrative}</p>
+        </Card>
+        <Card className="p-5">
+          <div className="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+            <Globe size={12} /> 채널 인사이트
+          </div>
+          <p className="text-sm text-slate-700 leading-relaxed">{insight.channelInsight}</p>
+        </Card>
+        <Card className="p-5">
+          <div className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+            <Users size={12} /> 오디언스 분석
+          </div>
+          <p className="text-sm text-slate-700 leading-relaxed">{insight.audienceInsight}</p>
+        </Card>
+      </div>
+
+      {/* ── Strengths & Risks ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Strengths */}
+        <Card className="p-6">
+          <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2 text-sm">
+            <CheckCircle2 size={16} className="text-emerald-500" /> 현재 잘 되고 있는 것
+          </h4>
+          <div className="space-y-3">
+            {(insight.strengths ?? []).map((s, i) => (
+              <div key={i} className="p-3 bg-emerald-50 border border-emerald-100 rounded-xl">
+                <div className="text-sm font-bold text-emerald-800 mb-1">{s.title ?? s}</div>
+                {typeof s === 'object' && s.detail && (
+                  <p className="text-xs text-emerald-700 leading-relaxed">{s.detail}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        {/* Risks */}
+        <Card className="p-6">
+          <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2 text-sm">
+            <AlertCircle size={16} className="text-rose-500" /> 위험 신호 및 대응
+          </h4>
+          <div className="space-y-3">
+            {(insight.risks ?? []).map((r, i) => {
+              const sc = severityConfig[r.severity] ?? severityConfig.medium;
+              return (
+                <div key={i} className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className={'text-[9px] font-black px-1.5 py-0.5 rounded ' + sc.cls}>{sc.label}</span>
+                    <span className="text-sm font-bold text-slate-800">{typeof r === 'object' ? r.title : r}</span>
+                  </div>
+                  {typeof r === 'object' && (
+                    <>
+                      <p className="text-xs text-slate-600 leading-relaxed mb-1.5">{r.detail}</p>
+                      <div className="flex items-start gap-1 text-[11px] text-indigo-700 font-medium">
+                        <Zap size={10} className="shrink-0 mt-0.5" fill="currentColor" />
+                        {r.action}
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      </div>
+
+      {/* ── Quick Wins ── */}
+      <Card className="p-6">
+        <h4 className="font-bold text-slate-800 mb-1 flex items-center gap-2">
+          <Zap size={18} className="text-amber-500" fill="currentColor" /> 이번 주 Quick Win
+        </h4>
+        <p className="text-xs text-slate-400 mb-4">지금 바로 실행 가능한 고효율 액션</p>
+        <div className="space-y-3">
+          {(insight.quickWins ?? []).map((w, i) => (
+            <div key={i} className="flex items-start gap-4 p-4 bg-amber-50 border border-amber-100 rounded-xl">
+              <div className="w-7 h-7 bg-amber-500 text-white rounded-xl flex items-center justify-center text-xs font-black shrink-0">{i + 1}</div>
+              <div className="flex-1">
+                <p className="text-sm font-bold text-slate-800 mb-1">{typeof w === 'object' ? w.action : w}</p>
+                {typeof w === 'object' && (
+                  <>
+                    {w.detail && <p className="text-xs text-slate-600 mb-1.5">{w.detail}</p>}
+                    {w.kpi && (
+                      <div className="flex items-center gap-1 text-[11px] text-emerald-700 font-bold">
+                        <TrendingUp size={10} /> 예상 효과: {w.kpi}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+              <span className={'text-[10px] font-black px-2 py-1 rounded-lg shrink-0 ' +
+                ((typeof w === 'object' ? w.effort : '') === '낮음' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700')}>
+                {typeof w === 'object' ? w.effort : ''}
+              </span>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* ── Monthly Goals ── */}
+      <Card className="p-6">
+        <h4 className="font-bold text-slate-800 mb-1 flex items-center gap-2">
+          <TrendingUp size={18} className="text-emerald-500" /> 이번 달 목표 및 전략
+        </h4>
+        <p className="text-xs text-slate-400 mb-4">수치 기반 목표와 실행 로드맵</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {(insight.monthlyGoals ?? []).map((g, i) => (
+            <div key={i} className="p-4 bg-gradient-to-br from-indigo-50 to-white border border-indigo-100 rounded-2xl">
+              <div className="w-6 h-6 bg-indigo-600 text-white rounded-lg flex items-center justify-center text-xs font-black mb-3">{i + 1}</div>
+              <p className="text-sm font-bold text-slate-800 mb-2">{typeof g === 'object' ? g.goal : g}</p>
+              {typeof g === 'object' && (
+                <>
+                  <p className="text-xs text-slate-600 leading-relaxed mb-2">{g.strategy}</p>
+                  {g.kpi && (
+                    <div className="text-[11px] font-bold text-indigo-600 bg-indigo-50 rounded-lg px-2 py-1">
+                      📊 {g.kpi}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* ── Quarterly Vision ── */}
+      {insight.quarterlyVision && (
+        <div className="p-5 bg-slate-900 text-white rounded-2xl flex items-start gap-4">
+          <div className="p-2 bg-indigo-600 rounded-xl shrink-0">
+            <TrendingUp size={16} />
+          </div>
+          <div>
+            <div className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1.5">3개월 비전</div>
+            <p className="text-sm text-slate-300 leading-relaxed">{insight.quarterlyVision}</p>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }
