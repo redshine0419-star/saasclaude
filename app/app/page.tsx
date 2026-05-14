@@ -20,6 +20,7 @@ import LlmsTxtModule from '@/components/LlmsTxtModule';
 import GA4Module from '@/components/GA4Module';
 import SovModule from '@/components/SovModule';
 import BlogAdminModule from '@/components/BlogAdminModule';
+import GSCModule from '@/components/GSCModule';
 
 const TABS = {
   DIAGNOSIS: 'diagnosis',
@@ -29,6 +30,7 @@ const TABS = {
   KEYWORD: 'keyword',
   LLMSTXT: 'llmstxt',
   GA4: 'ga4',
+  GSC: 'gsc',
   SOV: 'sov',
   BLOG: 'blog',
   DASHBOARD: 'dashboard',
@@ -70,6 +72,7 @@ export default function App() {
     { id: TABS.KEYWORD, icon: <Tag size={16} />, label: 'Keyword Analysis', mobileLabel: '키워드', adminOnly: false },
     { id: TABS.LLMSTXT, icon: <Bot size={16} />, label: 'llms.txt', mobileLabel: 'LLMs', adminOnly: false },
     { id: TABS.GA4, icon: <BarChart3 size={16} />, label: 'GA4 Analytics', mobileLabel: 'GA4', adminOnly: false },
+    { id: TABS.GSC, icon: <Search size={16} />, label: 'SEO 인사이트', mobileLabel: 'SEO', adminOnly: false },
     { id: TABS.SOV, icon: <Megaphone size={16} />, label: 'AI Share of Voice', mobileLabel: 'SOV', adminOnly: false },
     { id: TABS.BLOG, icon: <Rss size={16} />, label: 'Blog 관리', mobileLabel: '블로그', adminOnly: true },
     { id: TABS.DASHBOARD, icon: <LayoutDashboard size={16} />, label: 'Ops Dashboard', mobileLabel: '대시보드', adminOnly: false },
@@ -183,6 +186,7 @@ export default function App() {
           {activeTab === TABS.KEYWORD && <KeywordModule onToast={showToast} />}
           {activeTab === TABS.LLMSTXT && <LlmsTxtModule onToast={showToast} />}
           {activeTab === TABS.GA4 && <GA4Module onToast={showToast} />}
+          {activeTab === TABS.GSC && <GSCModule onToast={showToast} />}
           {activeTab === TABS.SOV && <SovModule onToast={showToast} />}
           {activeTab === TABS.BLOG && <BlogAdminModule onToast={showToast} />}
           {activeTab === TABS.DASHBOARD && <DashboardModule />}
