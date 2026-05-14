@@ -250,9 +250,9 @@ export default function GSCModule({ onToast }: { onToast: (msg: string) => void 
             </div>
 
             {/* Site selector */}
-            {status.sites && status.sites.length > 0 && (
-              <div>
-                <label className="text-xs font-bold text-slate-500 mb-1.5 block">분석할 사이트</label>
+            <div>
+              <label className="text-xs font-bold text-slate-500 mb-1.5 block">분석할 사이트</label>
+              {status.sites && status.sites.length > 0 ? (
                 <select value={siteUrl} onChange={(e) => setSiteUrl(e.target.value)}
                   className="w-full pl-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-sm">
                   {status.sites.map((s) => (
@@ -261,8 +261,22 @@ export default function GSCModule({ onToast }: { onToast: (msg: string) => void 
                     </option>
                   ))}
                 </select>
-              </div>
-            )}
+              ) : (
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    value={siteUrl}
+                    onChange={(e) => setSiteUrl(e.target.value)}
+                    placeholder="예: https://example.com/ 또는 sc-domain:example.com"
+                    className="w-full pl-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-sm"
+                  />
+                  <p className="text-[11px] text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
+                    자동으로 사이트를 불러오지 못했습니다. Search Console에 등록된 사이트 URL을 직접 입력해 주세요.<br />
+                    <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer" className="underline">Search Console</a>에서 속성 URL을 확인할 수 있습니다.
+                  </p>
+                </div>
+              )}
+            </div>
 
             {/* Period presets */}
             <div>
@@ -307,11 +321,14 @@ export default function GSCModule({ onToast }: { onToast: (msg: string) => void 
             </div>
 
             <button onClick={fetchData} disabled={loading || !siteUrl}
-              className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-bold rounded-2xl transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-2">
+              className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-2xl transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-2">
               {loading
                 ? <><Loader2 size={18} className="animate-spin" /> 데이터 분석 중...</>
                 : <><Zap size={18} /> Search Console 분석 시작</>}
             </button>
+            {!siteUrl && !loading && (
+              <p className="text-xs text-center text-slate-400">사이트 URL을 입력하거나 선택해야 분석할 수 있습니다.</p>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
