@@ -122,7 +122,7 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
         body: JSON.stringify({ url: siteUrl }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(data?.error || data?.message || `서버 오류 (${res.status})`);
       setCheckResult(data);
       onToast('GA4 설치 확인이 완료됐습니다.');
     } catch (e) {
@@ -145,7 +145,7 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
         body: JSON.stringify({ propertyId, serviceAccountKey: serviceKey }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(data?.error || data?.message || `서버 오류 (${res.status})`);
       setGa4Data(data);
       onToast('GA4 데이터를 불러왔습니다.');
 
