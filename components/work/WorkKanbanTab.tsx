@@ -765,9 +765,14 @@ function OpsView({ tasks, members, onEdit, onDelete, onStatusChange, onAddClick 
                 {visibleCols.includes('담당') && <td className="px-3 py-2.5 text-xs text-[#57606a] dark:text-[#8b949e] whitespace-nowrap">{t.assignee?.name ?? t.assignee?.email.split('@')[0] ?? ''}</td>}
                 {visibleCols.includes('목표일') && <td className="px-3 py-2.5 text-xs text-[#57606a] dark:text-[#8b949e] whitespace-nowrap">{fmtDate(t.dueDate)}</td>}
                 {visibleCols.includes('구분') && <td className="px-3 py-2.5 text-xs text-[#57606a] dark:text-[#8b949e]">{t.category}</td>}
-                {visibleCols.includes('중요도') && <td className="px-3 py-2.5">
-                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded" style={{backgroundColor:(PRIORITY_COLORS[t.priority]??'#94a3b8')+'22',color:PRIORITY_COLORS[t.priority]??'#94a3b8'}}>{t.priority}</span>
-                </td>}
+                {visibleCols.includes('중요도') && (
+                  <td className="px-3 py-2.5">
+                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded whitespace-nowrap"
+                      style={{backgroundColor:(PRIORITY_COLORS[t.priority]??'#94a3b8')+'22',color:PRIORITY_COLORS[t.priority]??'#94a3b8'}}>
+                      {t.priority}
+                    </span>
+                  </td>
+                )}
                 {visibleCols.includes('기획') && <td className="px-3 py-2.5"><StageStatusBadge status={t.planningStatus} onChange={v=>onStatusChange(t.id,'planningStatus',v)}/></td>}
                 {visibleCols.includes('디자인') && <td className="px-3 py-2.5"><StageStatusBadge status={t.designStatus} onChange={v=>onStatusChange(t.id,'designStatus',v)}/></td>}
                 {visibleCols.includes('퍼블') && <td className="px-3 py-2.5"><StageStatusBadge status={t.publishStatus} onChange={v=>onStatusChange(t.id,'publishStatus',v)}/></td>}
@@ -890,7 +895,7 @@ export default function WorkKanbanTab({ projectId, onChangeProject }: {
   const VIEW_BTNS = [
     { mode: 'card' as ViewMode, icon: <LayoutGrid size={14}/>, label: '카드' },
     { mode: 'gantt' as ViewMode, icon: <GanttChartSquare size={14}/>, label: '간트' },
-    { mode: 'ops' as ViewMode, icon: <ClipboardList size={14}/>, label: '운영현황' },
+    { mode: 'ops' as ViewMode, icon: <ClipboardList size={14}/>, label: '목록' },
   ];
 
   return (

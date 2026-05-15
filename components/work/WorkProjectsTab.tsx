@@ -551,21 +551,24 @@ function GanttChart({
                       if (!taskDate) return null;
                       const frac = dateToFraction(taskDate, windowStart, totalWindowDays);
                       if (frac < 0 || frac > 1) return null;
+                      const isLate = due && taskDate > due;
+                      const diamondColor = isLate ? '#ef4444' : project.color;
                       return (
                         <div
                           key={task.id}
-                          className="absolute top-1/2 -translate-y-1/2 z-20 group/task"
-                          style={{ left: `${frac * 100}%` }}
+                          className="absolute z-20 group/task"
+                          style={{ left: `${frac * 100}%`, top: '5px' }}
                         >
                           <span
                             className="block w-3 h-3 rotate-45 -translate-x-1/2"
-                            style={{ backgroundColor: project.color, border: '2px solid white' }}
-                            title={task.title}
+                            style={{ backgroundColor: diamondColor, border: `2px solid white`, boxShadow: isLate ? '0 0 0 1px #ef4444' : undefined }}
                           />
                           {/* Tooltip */}
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/task:block z-30 pointer-events-none">
-                            <div className="bg-[#24292f] dark:bg-[#e6edf3] text-white dark:text-[#24292f] text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg">
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 hidden group-hover/task:block z-30 pointer-events-none">
+                            <div className="bg-[#24292f] dark:bg-[#e6edf3] text-white dark:text-[#24292f] text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg flex items-center gap-1">
+                              {isLate && <span className="text-red-400">⚠</span>}
                               {task.title}
+                              {isLate && <span className="text-red-400 text-[10px]">기한 초과</span>}
                             </div>
                           </div>
                         </div>
@@ -587,7 +590,7 @@ function GanttChart({
 export default function WorkProjectsTab({ onSelectProject }: { onSelectProject: (id: string) => void }) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<ViewMode>('card');
+  const [viewMode, setViewMode] = useState<ViewMode>('gantt');
   const [showCreate, setShowCreate] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { BarChart3, TrendingUp, Zap, Globe, FileText, Clock, AlertTriangle } from 'lucide-react';
+import { BarChart3, TrendingUp, Zap, Globe, FileText, Clock, AlertTriangle, CheckSquare, ListTodo } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   RadarChart, Radar, PolarGrid, PolarAngleAxis,
@@ -55,7 +55,37 @@ function ScoreBadge({ score }: { score: number }) {
   return <span className={'text-[10px] font-black px-2 py-0.5 rounded-full ' + color}>{score}</span>;
 }
 
+interface WorkTask {
+  id: string;
+  status: string;
+  dueDate: string | null;
+  priority: string;
+  isKeyTask: boolean;
+  project: { id: string; name: string; color: string } | null;
+}
+
+function useWorkStats() {
+  const [tasks, setTasks] = useState<WorkTask[]>([]);
+  useEffect(() => {
+    fetch('/api/work/tasks?assignedToMe=true')
+      .then(r => r.ok ? r.json() : [])
+      .then(data => { if (Array.isArray(data)) setTasks(data); })
+      .catch(() => {});
+  }, []);
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayStr = today.toISOString().slice(0,10);
+
+  const active = tasks.filter(t => t.status !== '완료');
+  const overdue = active.filter(t => t.dueDate && new Date(t.dueDate) < today);
+  const dueToday = active.filter(t => t.dueDate && t.dueDate.slice(0,10) === todayStr);
+  const keyTasks = active.filter(t => t.isKeyTask);
+
+  return { total: tasks.length, active: active.length, overdue: overdue.length, dueToday: dueToday.length, keyTasks: keyTasks.length };
+}
+
 export default function DashboardModule() {
+  const workStats = useWorkStats();
   const [diagnoses, setDiagnoses] = useState<DiagnosisRecord[]>([]);
   const [stats, setStats] = useState<UsageStats>({ diagnosisCount: 0, contentCount: 0 });
 
@@ -97,6 +127,32 @@ export default function DashboardModule() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
+      {/* Work KPIs */}
+      {(workStats.active > 0 || workStats.overdue > 0) && (
+        <div>
+          <h3 className="text-sm font-semibold text-slate-500 mb-3 flex items-center gap-2">
+            <CheckSquare size={14} className="text-indigo-500" />
+            오늘의 업무 현황
+          </h3>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {[
+              { label: '진행 중 업무', value: workStats.active, icon: <ListTodo size={16}/>, color: 'text-blue-600', bg: 'bg-blue-50' },
+              { label: '기한 초과', value: workStats.overdue, icon: <AlertTriangle size={16}/>, color: workStats.overdue > 0 ? 'text-red-600' : 'text-slate-400', bg: workStats.overdue > 0 ? 'bg-red-50' : 'bg-slate-50' },
+              { label: '오늘 마감', value: workStats.dueToday, icon: <CheckSquare size={16}/>, color: workStats.dueToday > 0 ? 'text-orange-600' : 'text-slate-400', bg: workStats.dueToday > 0 ? 'bg-orange-50' : 'bg-slate-50' },
+              { label: '주요 업무', value: workStats.keyTasks, icon: <Zap size={16}/>, color: 'text-amber-600', bg: 'bg-amber-50' },
+            ].map((m, i) => (
+              <Card key={i} className="p-4">
+                <div className={'inline-flex p-1.5 rounded-lg mb-2 ' + m.bg}>
+                  <span className={m.color}>{m.icon}</span>
+                </div>
+                <div className="text-2xl font-black text-slate-800">{m.value}</div>
+                <div className="text-[11px] text-slate-400 font-medium mt-0.5">{m.label}</div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[

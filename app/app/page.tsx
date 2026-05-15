@@ -4,6 +4,7 @@ import { useState } from 'react';
 import {
   LayoutDashboard, Globe, FileText, Tag,
   Bot, BarChart3, Megaphone, CheckCircle2,
+  FolderKanban, LayoutGrid, CheckSquare, Users, Rss,
 } from 'lucide-react';
 import SidebarLayout from '@/components/SidebarLayout';
 import OnboardingModal from '@/components/OnboardingModal';
@@ -15,6 +16,11 @@ import MarketingInsightModule from '@/components/MarketingInsightModule';
 import UnifiedContentModule from '@/components/UnifiedContentModule';
 import KeywordModule from '@/components/KeywordModule';
 import SovModule from '@/components/SovModule';
+import WorkProjectsTab from '@/components/work/WorkProjectsTab';
+import WorkKanbanTab from '@/components/work/WorkKanbanTab';
+import WorkMyTasksTab from '@/components/work/WorkMyTasksTab';
+import WorkTeamTab from '@/components/work/WorkTeamTab';
+import BlogAdminModule from '@/components/BlogAdminModule';
 
 const TABS = {
   DASHBOARD: 'dashboard',
@@ -24,26 +30,42 @@ const TABS = {
   CONTENT:   'content',
   KEYWORD:   'keyword',
   SOV:       'sov',
+  PROJECTS:  'projects',
+  KANBAN:    'kanban',
+  MY_TASKS:  'my-tasks',
+  TEAM:      'team',
+  BLOG:      'blog',
 } as const;
 type Tab = typeof TABS[keyof typeof TABS];
 
 const NAV_ITEMS = [
   { id: TABS.DASHBOARD, icon: <LayoutDashboard size={16} />, label: '대시보드' },
-  { id: TABS.WEB,       icon: <Globe size={16} />,           label: '웹 진단 & 분석',          sectionLabel: '웹' },
+  { id: TABS.WEB,       icon: <Globe size={16} />,           label: '웹 진단 & 분석',        sectionLabel: '웹' },
   { id: TABS.INSIGHT,   icon: <BarChart3 size={16} />,       label: '통합 마케팅 인사이트' },
   { id: TABS.LLMSTXT,   icon: <Bot size={16} />,             label: 'llms.txt' },
-  { id: TABS.CONTENT,   icon: <FileText size={16} />,        label: '콘텐츠 생성 & 리라이터',   sectionLabel: '콘텐츠' },
+  { id: TABS.CONTENT,   icon: <FileText size={16} />,        label: '콘텐츠 생성',           sectionLabel: '콘텐츠' },
   { id: TABS.KEYWORD,   icon: <Tag size={16} />,             label: '키워드 분석' },
   { id: TABS.SOV,       icon: <Megaphone size={16} />,       label: 'AI Share of Voice' },
+  { id: TABS.PROJECTS,  icon: <FolderKanban size={16} />,    label: '프로젝트',              sectionLabel: '업무' },
+  { id: TABS.KANBAN,    icon: <LayoutGrid size={16} />,      label: '칸반 보드' },
+  { id: TABS.MY_TASKS,  icon: <CheckSquare size={16} />,     label: '내 할일' },
+  { id: TABS.TEAM,      icon: <Users size={16} />,           label: '팀 관리' },
+  { id: TABS.BLOG,      icon: <Rss size={16} />,             label: '블로그 관리', adminOnly: true },
 ];
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>(TABS.DASHBOARD);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
   const showToast = (message: string) => {
     setToast(message);
     setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleSelectProject = (projectId: string) => {
+    setSelectedProjectId(projectId);
+    setActiveTab(TABS.KANBAN);
   };
 
   return (
@@ -56,6 +78,7 @@ export default function App() {
         activeTab={activeTab}
         onTabChange={(tab) => setActiveTab(tab as Tab)}
         product="marketing"
+        hideProductSwitcher
       >
         {activeTab === TABS.DASHBOARD && <DashboardModule />}
         {activeTab === TABS.WEB       && <WebModule onToast={showToast} />}
@@ -64,6 +87,11 @@ export default function App() {
         {activeTab === TABS.CONTENT   && <UnifiedContentModule onToast={showToast} />}
         {activeTab === TABS.KEYWORD   && <KeywordModule onToast={showToast} />}
         {activeTab === TABS.SOV       && <SovModule onToast={showToast} />}
+        {activeTab === TABS.PROJECTS  && <WorkProjectsTab onSelectProject={handleSelectProject} />}
+        {activeTab === TABS.KANBAN    && <WorkKanbanTab projectId={selectedProjectId} onChangeProject={setSelectedProjectId} />}
+        {activeTab === TABS.MY_TASKS  && <WorkMyTasksTab />}
+        {activeTab === TABS.TEAM      && <WorkTeamTab />}
+        {activeTab === TABS.BLOG      && <BlogAdminModule onToast={showToast} />}
       </SidebarLayout>
 
       {toast && (

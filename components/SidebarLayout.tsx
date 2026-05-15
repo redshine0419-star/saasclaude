@@ -25,10 +25,11 @@ interface SidebarLayoutProps {
   onTabChange: (tab: string) => void;
   children: React.ReactNode;
   product: 'marketing' | 'work';
+  hideProductSwitcher?: boolean;
 }
 
 export default function SidebarLayout({
-  navItems, activeTab, onTabChange, children, product,
+  navItems, activeTab, onTabChange, children, product, hideProductSwitcher,
 }: SidebarLayoutProps) {
   const { dark, toggle } = useDarkMode();
   const { data: session } = useSession();
@@ -67,12 +68,12 @@ export default function SidebarLayout({
       </div>
 
       {/* Product switcher */}
-      {(!collapsed || mobile) && (
+      {!hideProductSwitcher && (!collapsed || mobile) && (
         <div className="px-3 py-3 border-b border-[#21262d] shrink-0">
           <ProductSwitcher />
         </div>
       )}
-      {collapsed && !mobile && (
+      {!hideProductSwitcher && collapsed && !mobile && (
         <div className="py-3 border-b border-[#21262d] flex justify-center shrink-0">
           <div className="w-2 h-2 rounded-full" style={{ backgroundColor: product === 'marketing' ? '#6366f1' : '#22c55e' }} />
         </div>
