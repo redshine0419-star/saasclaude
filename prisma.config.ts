@@ -9,7 +9,7 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
-    shadowDatabaseUrl: process.env["DIRECT_URL"],
+    // DIRECT_URL for migrations (bypasses Neon connection pooling)
+    url: process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"],
   },
 });
