@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { name, description, color } = await req.json();
+  const { name, description, color, startDate, dueDate, isOngoing } = await req.json();
   if (!name?.trim()) return NextResponse.json({ error: '프로젝트 이름을 입력하세요.' }, { status: 400 });
 
   const workUser = await getOrCreateWorkUser(session.user.email, session.user.name, session.user.image);
@@ -45,6 +45,9 @@ export async function POST(req: NextRequest) {
       name: name.trim(),
       description: description?.trim() ?? null,
       color: color ?? '#6366f1',
+      startDate: startDate ? new Date(startDate) : null,
+      dueDate: dueDate ? new Date(dueDate) : null,
+      isOngoing: isOngoing ?? false,
       members: {
         create: { userId: workUser.id, role: 'owner' },
       },
@@ -58,17 +61,18 @@ export async function PATCH(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { id, name, description, color } = await req.json();
+  const { id, name, description, color, startDate, dueDate, isOngoing } = await req.json();
   if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 });
 
-  const project = await prisma.project.update({
-    where: { id },
-    data: {
-      ...(name !== undefined ? { name: name.trim() } : {}),
-      ...(description !== undefined ? { description: description?.trim() ?? null } : {}),
-      ...(color !== undefined ? { color } : {}),
-    },
-  });
+  const data: Record<string, unknown> = {};
+  if (name !== undefined) data.name = name.trim();
+  if (description !== undefined) data.description = description?.trim() ?? null;
+  if (color !== undefined) data.color = color;
+  if (startDate !== undefined) data.startDate = startDate ? new Date(startDate) : null;
+  if (dueDate !== undefined) data.dueDate = dueDate ? new Date(dueDate) : null;
+  if (isOngoing !== undefined) data.isOngoing = isOngoing;
+
+  const project = await prisma.project.update({ where: { id }, data });
 
   return NextResponse.json(project);
 }

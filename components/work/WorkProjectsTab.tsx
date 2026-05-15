@@ -1,7 +1,13 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { Plus, FolderKanban, Users, CheckSquare, Loader2, X, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  Plus, FolderKanban, Users, CheckSquare, Loader2, X,
+  MoreVertical, Pencil, Trash2, LayoutGrid, GanttChartSquare,
+  ChevronLeft, ChevronRight,
+} from 'lucide-react';
+
+// ─── Types ───────────────────────────────────────────────────────────────────
 
 interface Project {
   id: string;
@@ -9,15 +15,77 @@ interface Project {
   description: string | null;
   color: string;
   status: string;
+  startDate: string | null;
+  dueDate: string | null;
+  isOngoing: boolean;
   createdAt: string;
   role: string;
   _count: { tasks: number; members: number };
 }
 
+interface Task {
+  id: string;
+  title: string;
+  dueDate: string | null;
+  isKeyTask: boolean;
+}
+
+interface ProjectFormData {
+  name: string;
+  description: string;
+  color: string;
+  startDate: string;
+  dueDate: string;
+  isOngoing: boolean;
+}
+
+type ViewMode = 'card' | 'gantt';
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
 const COLOR_OPTIONS = [
   '#6366f1', '#8b5cf6', '#ec4899', '#ef4444',
   '#f97316', '#eab308', '#22c55e', '#14b8a6', '#3b82f6',
 ];
+
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function formatDateKR(dateStr: string | null): string {
+  if (!dateStr) return '';
+  return dateStr.replace(/-/g, '.').slice(0, 10);
+}
+
+function toDate(dateStr: string | null): Date | null {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function startOfMonth(year: number, month: number): Date {
+  return new Date(year, month, 1);
+}
+
+function endOfMonth(year: number, month: number): Date {
+  return new Date(year, month + 1, 0);
+}
+
+function daysInMonth(year: number, month: number): number {
+  return new Date(year, month + 1, 0).getDate();
+}
+
+// Fraction [0,1] of position within the month window
+function dateToFraction(
+  date: Date,
+  windowStart: Date,
+  totalDays: number,
+): number {
+  const diff = (date.getTime() - windowStart.getTime()) / 86400000;
+  return diff / totalDays;
+}
+
+// ─── ProjectFormModal ─────────────────────────────────────────────────────────
 
 function ProjectFormModal({
   title,
@@ -26,11 +94,13 @@ function ProjectFormModal({
   onSubmit,
 }: {
   title: string;
-  initial?: { name: string; description: string; color: string };
+  initial?: ProjectFormData;
   onClose: () => void;
-  onSubmit: (data: { name: string; description: string; color: string }) => Promise<void>;
+  onSubmit: (data: ProjectFormData) => Promise<void>;
 }) {
-  const [form, setForm] = useState(initial ?? { name: '', description: '', color: '#6366f1' });
+  const [form, setForm] = useState<ProjectFormData>(
+    initial ?? { name: '', description: '', color: '#6366f1', startDate: '', dueDate: '', isOngoing: false },
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -58,6 +128,7 @@ function ProjectFormModal({
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {/* Name */}
           <div>
             <label className="block text-sm font-medium text-[#24292f] dark:text-[#e6edf3] mb-1.5">프로젝트 이름 *</label>
             <input
@@ -68,6 +139,8 @@ function ProjectFormModal({
               className="w-full px-3 py-2 bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded-lg text-sm text-[#24292f] dark:text-[#e6edf3] placeholder-[#8c959f] focus:outline-none focus:ring-2 focus:ring-[#0969da]"
             />
           </div>
+
+          {/* Description */}
           <div>
             <label className="block text-sm font-medium text-[#24292f] dark:text-[#e6edf3] mb-1.5">설명 (선택)</label>
             <textarea
@@ -78,6 +151,8 @@ function ProjectFormModal({
               className="w-full px-3 py-2 bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded-lg text-sm text-[#24292f] dark:text-[#e6edf3] placeholder-[#8c959f] focus:outline-none focus:ring-2 focus:ring-[#0969da] resize-none"
             />
           </div>
+
+          {/* Color */}
           <div>
             <label className="block text-sm font-medium text-[#24292f] dark:text-[#e6edf3] mb-2">색상</label>
             <div className="flex gap-2 flex-wrap">
@@ -92,6 +167,45 @@ function ProjectFormModal({
               ))}
             </div>
           </div>
+
+          {/* Ongoing checkbox */}
+          <div>
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={form.isOngoing}
+                onChange={(e) => setForm((f) => ({ ...f, isOngoing: e.target.checked }))}
+                className="w-4 h-4 rounded border-[#d0d7de] dark:border-[#30363d] accent-[#0969da]"
+              />
+              <span className="text-sm font-medium text-[#24292f] dark:text-[#e6edf3]">상시 운영</span>
+              <span className="text-xs text-[#57606a] dark:text-[#8b949e]">(기간 없음)</span>
+            </label>
+          </div>
+
+          {/* Date fields — hidden when isOngoing */}
+          {!form.isOngoing && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-[#24292f] dark:text-[#e6edf3] mb-1.5">시작일</label>
+                <input
+                  type="date"
+                  value={form.startDate}
+                  onChange={(e) => setForm((f) => ({ ...f, startDate: e.target.value }))}
+                  className="w-full px-3 py-2 bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded-lg text-sm text-[#24292f] dark:text-[#e6edf3] focus:outline-none focus:ring-2 focus:ring-[#0969da]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#24292f] dark:text-[#e6edf3] mb-1.5">목표일</label>
+                <input
+                  type="date"
+                  value={form.dueDate}
+                  onChange={(e) => setForm((f) => ({ ...f, dueDate: e.target.value }))}
+                  className="w-full px-3 py-2 bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded-lg text-sm text-[#24292f] dark:text-[#e6edf3] focus:outline-none focus:ring-2 focus:ring-[#0969da]"
+                />
+              </div>
+            </div>
+          )}
+
           {error && <p className="text-sm text-red-500">{error}</p>}
           <div className="flex justify-end gap-3 pt-2">
             <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3]">취소</button>
@@ -109,6 +223,8 @@ function ProjectFormModal({
     </div>
   );
 }
+
+// ─── ProjectCard ──────────────────────────────────────────────────────────────
 
 function ProjectCard({
   project,
@@ -132,9 +248,14 @@ function ProjectCard({
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  const dateLabel = project.isOngoing
+    ? null
+    : project.startDate || project.dueDate
+      ? `${formatDateKR(project.startDate)} ~ ${formatDateKR(project.dueDate)}`
+      : null;
+
   return (
     <div className="relative bg-white dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-xl hover:border-[#0969da] dark:hover:border-[#388bfd] hover:shadow-sm transition-all group">
-      {/* Clickable area */}
       <button onClick={onSelect} className="w-full text-left p-5">
         <div className="flex items-start gap-3 mb-3">
           <div
@@ -147,6 +268,14 @@ function ProjectCard({
             <h3 className="font-semibold text-[#24292f] dark:text-[#e6edf3] truncate group-hover:text-[#0969da] dark:group-hover:text-[#388bfd] transition-colors">
               {project.name}
             </h3>
+            {project.isOngoing && (
+              <span className="inline-block mt-0.5 px-1.5 py-0 rounded text-[10px] font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
+                상시
+              </span>
+            )}
+            {!project.isOngoing && dateLabel && (
+              <p className="text-xs text-[#57606a] dark:text-[#8b949e] mt-0.5">{dateLabel}</p>
+            )}
             {project.description && (
               <p className="text-xs text-[#57606a] dark:text-[#8b949e] mt-0.5 line-clamp-2">{project.description}</p>
             )}
@@ -193,14 +322,277 @@ function ProjectCard({
   );
 }
 
+// ─── GanttChart ───────────────────────────────────────────────────────────────
+
+function GanttChart({
+  projects,
+  onSelectProject,
+}: {
+  projects: Project[];
+  onSelectProject: (id: string) => void;
+}) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Window anchor: index of the leftmost month (months offset from today's month)
+  const [offset, setOffset] = useState(-2); // default: show current month - 2 through +3
+
+  const MONTHS_SHOWN = 6;
+  const LEFT_COL_WIDTH = 180; // px for project name column
+  const ROW_HEIGHT = 44;
+
+  // Key tasks state: map from projectId -> Task[]
+  const [keyTasksMap, setKeyTasksMap] = useState<Record<string, Task[]>>({});
+
+  // Fetch key tasks for all projects
+  useEffect(() => {
+    if (projects.length === 0) return;
+    const controller = new AbortController();
+    const fetchAll = async () => {
+      const entries = await Promise.all(
+        projects.map(async (p) => {
+          try {
+            const res = await fetch(`/api/work/tasks?projectId=${p.id}`, { signal: controller.signal });
+            if (!res.ok) return [p.id, []] as [string, Task[]];
+            const tasks: Task[] = await res.json();
+            return [p.id, tasks.filter((t) => t.isKeyTask)] as [string, Task[]];
+          } catch {
+            return [p.id, []] as [string, Task[]];
+          }
+        }),
+      );
+      setKeyTasksMap(Object.fromEntries(entries));
+    };
+    fetchAll();
+    return () => controller.abort();
+  }, [projects]);
+
+  // Build the month columns
+  const months: { year: number; month: number }[] = [];
+  for (let i = 0; i < MONTHS_SHOWN; i++) {
+    const d = new Date(today.getFullYear(), today.getMonth() + offset + i, 1);
+    months.push({ year: d.getFullYear(), month: d.getMonth() });
+  }
+
+  // Window start/end dates (inclusive)
+  const windowStart = startOfMonth(months[0].year, months[0].month);
+  const lastM = months[months.length - 1];
+  const windowEnd = endOfMonth(lastM.year, lastM.month);
+  const totalWindowDays = (windowEnd.getTime() - windowStart.getTime()) / 86400000 + 1;
+
+  // Today line position
+  const todayFraction = dateToFraction(today, windowStart, totalWindowDays);
+  const todayInWindow = todayFraction >= 0 && todayFraction <= 1;
+
+  return (
+    <div className="bg-white dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-xl overflow-hidden">
+      {/* Navigation header */}
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-[#d0d7de] dark:border-[#30363d]">
+        <span className="text-sm font-semibold text-[#24292f] dark:text-[#e6edf3]">
+          {MONTH_NAMES[months[0].month]} {months[0].year} — {MONTH_NAMES[lastM.month]} {lastM.year}
+        </span>
+        <div className="ml-auto flex items-center gap-1">
+          <button
+            onClick={() => setOffset((o) => o - 1)}
+            className="p-1.5 rounded-md text-[#57606a] dark:text-[#8b949e] hover:bg-[#f6f8fa] dark:hover:bg-[#30363d] transition-colors"
+            title="이전"
+          >
+            <ChevronLeft size={16} />
+          </button>
+          <button
+            onClick={() => setOffset(-2)}
+            className="px-2 py-1 text-xs rounded-md text-[#57606a] dark:text-[#8b949e] hover:bg-[#f6f8fa] dark:hover:bg-[#30363d] transition-colors"
+          >
+            오늘
+          </button>
+          <button
+            onClick={() => setOffset((o) => o + 1)}
+            className="p-1.5 rounded-md text-[#57606a] dark:text-[#8b949e] hover:bg-[#f6f8fa] dark:hover:bg-[#30363d] transition-colors"
+            title="다음"
+          >
+            <ChevronRight size={16} />
+          </button>
+        </div>
+      </div>
+
+      {/* Chart */}
+      <div className="overflow-x-auto">
+        <div style={{ minWidth: LEFT_COL_WIDTH + 120 * MONTHS_SHOWN }}>
+          {/* Month header row */}
+          <div className="flex border-b border-[#d0d7de] dark:border-[#30363d] bg-[#f6f8fa] dark:bg-[#0d1117]">
+            <div
+              className="shrink-0 px-4 py-2 text-xs font-medium text-[#57606a] dark:text-[#8b949e] border-r border-[#d0d7de] dark:border-[#30363d]"
+              style={{ width: LEFT_COL_WIDTH }}
+            >
+              프로젝트
+            </div>
+            {months.map(({ year, month }) => (
+              <div
+                key={`${year}-${month}`}
+                className="flex-1 px-2 py-2 text-xs font-medium text-[#57606a] dark:text-[#8b949e] text-center border-r border-[#d0d7de] dark:border-[#30363d] last:border-r-0"
+              >
+                {MONTH_NAMES[month]} {year}
+              </div>
+            ))}
+          </div>
+
+          {/* Project rows */}
+          {projects.length === 0 ? (
+            <div className="px-6 py-10 text-center text-sm text-[#57606a] dark:text-[#8b949e]">
+              프로젝트가 없습니다.
+            </div>
+          ) : (
+            projects.map((project) => {
+              const keyTasks = keyTasksMap[project.id] ?? [];
+              const start = toDate(project.startDate);
+              const due = toDate(project.dueDate);
+
+              // Clamp to window
+              const barStart = start ? (start < windowStart ? windowStart : start) : null;
+              const barEnd = due ? (due > windowEnd ? windowEnd : due) : null;
+
+              let barLeft: number | null = null;
+              let barWidth: number | null = null;
+
+              if (!project.isOngoing) {
+                if (barStart && barEnd && barStart <= barEnd) {
+                  barLeft = dateToFraction(barStart, windowStart, totalWindowDays);
+                  const endFrac = dateToFraction(barEnd, windowStart, totalWindowDays) + (1 / totalWindowDays);
+                  barWidth = endFrac - barLeft;
+                } else if (!start && !due) {
+                  // No dates: dashed bar for current month
+                  const curMonthStart = startOfMonth(today.getFullYear(), today.getMonth());
+                  const curMonthEnd = endOfMonth(today.getFullYear(), today.getMonth());
+                  const clampedStart = curMonthStart < windowStart ? windowStart : curMonthStart;
+                  const clampedEnd = curMonthEnd > windowEnd ? windowEnd : curMonthEnd;
+                  if (clampedStart <= windowEnd && clampedEnd >= windowStart) {
+                    barLeft = dateToFraction(clampedStart, windowStart, totalWindowDays);
+                    const endFrac = dateToFraction(clampedEnd, windowStart, totalWindowDays) + (1 / totalWindowDays);
+                    barWidth = endFrac - barLeft;
+                  }
+                }
+              }
+
+              return (
+                <button
+                  key={project.id}
+                  onClick={() => onSelectProject(project.id)}
+                  className="flex w-full text-left hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] transition-colors border-b border-[#d0d7de] dark:border-[#30363d] last:border-b-0"
+                  style={{ height: ROW_HEIGHT }}
+                >
+                  {/* Name cell */}
+                  <div
+                    className="shrink-0 flex items-center gap-2 px-4 border-r border-[#d0d7de] dark:border-[#30363d] overflow-hidden"
+                    style={{ width: LEFT_COL_WIDTH }}
+                  >
+                    <span
+                      className="w-2.5 h-2.5 rounded-full shrink-0"
+                      style={{ backgroundColor: project.color }}
+                    />
+                    <span className="text-sm font-medium text-[#24292f] dark:text-[#e6edf3] truncate">
+                      {project.name}
+                    </span>
+                  </div>
+
+                  {/* Bar area */}
+                  <div className="flex-1 relative flex">
+                    {/* Month column dividers */}
+                    {months.map(({ year, month }, i) => (
+                      <div
+                        key={`${year}-${month}`}
+                        className="flex-1 border-r border-[#d0d7de]/40 dark:border-[#30363d]/40 last:border-r-0"
+                      />
+                    ))}
+
+                    {/* Today line */}
+                    {todayInWindow && (
+                      <div
+                        className="absolute top-0 bottom-0 w-px bg-red-500/70 z-20 pointer-events-none"
+                        style={{ left: `${todayFraction * 100}%` }}
+                      />
+                    )}
+
+                    {/* Bar or badge */}
+                    {project.isOngoing ? (
+                      <div className="absolute inset-0 flex items-center px-3 z-10 pointer-events-none">
+                        <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
+                          상시
+                        </span>
+                      </div>
+                    ) : barLeft !== null && barWidth !== null ? (
+                      <div
+                        className="absolute top-1/2 -translate-y-1/2 h-5 rounded-full z-10 pointer-events-none"
+                        style={{
+                          left: `${Math.max(0, barLeft) * 100}%`,
+                          width: `${Math.min(barWidth, 1 - Math.max(0, barLeft)) * 100}%`,
+                          backgroundColor: project.color,
+                          opacity: (!start && !due) ? 0 : 0.85,
+                          border: (!start && !due) ? `2px dashed ${project.color}` : 'none',
+                        }}
+                      />
+                    ) : null}
+
+                    {/* Dashed bar for no-date projects */}
+                    {!project.isOngoing && !start && !due && barLeft !== null && barWidth !== null && (
+                      <div
+                        className="absolute top-1/2 -translate-y-1/2 h-5 rounded-full z-10 pointer-events-none"
+                        style={{
+                          left: `${Math.max(0, barLeft) * 100}%`,
+                          width: `${Math.min(barWidth, 1 - Math.max(0, barLeft)) * 100}%`,
+                          backgroundColor: 'transparent',
+                          border: `2px dashed ${project.color}`,
+                        }}
+                      />
+                    )}
+
+                    {/* Key task markers */}
+                    {keyTasks.map((task) => {
+                      const taskDate = toDate(task.dueDate);
+                      if (!taskDate) return null;
+                      const frac = dateToFraction(taskDate, windowStart, totalWindowDays);
+                      if (frac < 0 || frac > 1) return null;
+                      return (
+                        <div
+                          key={task.id}
+                          className="absolute top-1/2 -translate-y-1/2 z-20 group/task"
+                          style={{ left: `${frac * 100}%` }}
+                        >
+                          <span
+                            className="block w-3 h-3 rotate-45 -translate-x-1/2"
+                            style={{ backgroundColor: project.color, border: '2px solid white' }}
+                            title={task.title}
+                          />
+                          {/* Tooltip */}
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/task:block z-30 pointer-events-none">
+                            <div className="bg-[#24292f] dark:bg-[#e6edf3] text-white dark:text-[#24292f] text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg">
+                              {task.title}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </button>
+              );
+            })
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
 export default function WorkProjectsTab({ onSelectProject }: { onSelectProject: (id: string) => void }) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<ViewMode>('card');
   const [showCreate, setShowCreate] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch('/api/work/projects');
@@ -208,11 +600,11 @@ export default function WorkProjectsTab({ onSelectProject }: { onSelectProject: 
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  useEffect(() => { fetchProjects(); }, []);
+  useEffect(() => { fetchProjects(); }, [fetchProjects]);
 
-  const handleCreate = async (form: { name: string; description: string; color: string }) => {
+  const handleCreate = async (form: ProjectFormData) => {
     const res = await fetch('/api/work/projects', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -223,7 +615,7 @@ export default function WorkProjectsTab({ onSelectProject }: { onSelectProject: 
     await fetchProjects();
   };
 
-  const handleEdit = async (form: { name: string; description: string; color: string }) => {
+  const handleEdit = async (form: ProjectFormData) => {
     if (!editingProject) return;
     const res = await fetch('/api/work/projects', {
       method: 'PATCH',
@@ -248,20 +640,51 @@ export default function WorkProjectsTab({ onSelectProject }: { onSelectProject: 
 
   return (
     <div className="max-w-5xl mx-auto">
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-bold text-[#24292f] dark:text-[#e6edf3]">프로젝트</h1>
           <p className="text-sm text-[#57606a] dark:text-[#8b949e] mt-0.5">팀의 프로젝트를 관리하세요</p>
         </div>
-        <button
-          onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#1f2328] dark:bg-[#f0f6fc] text-white dark:text-[#1f2328] text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
-        >
-          <Plus size={16} />
-          새 프로젝트
-        </button>
+        <div className="flex items-center gap-2">
+          {/* View toggle */}
+          <div className="flex items-center bg-[#f6f8fa] dark:bg-[#21262d] border border-[#d0d7de] dark:border-[#30363d] rounded-lg p-0.5">
+            <button
+              onClick={() => setViewMode('card')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                viewMode === 'card'
+                  ? 'bg-white dark:bg-[#30363d] text-[#24292f] dark:text-[#e6edf3] shadow-sm'
+                  : 'text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3]'
+              }`}
+            >
+              <LayoutGrid size={13} />
+              카드
+            </button>
+            <button
+              onClick={() => setViewMode('gantt')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                viewMode === 'gantt'
+                  ? 'bg-white dark:bg-[#30363d] text-[#24292f] dark:text-[#e6edf3] shadow-sm'
+                  : 'text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3]'
+              }`}
+            >
+              <GanttChartSquare size={13} />
+              간트
+            </button>
+          </div>
+
+          {/* New project button */}
+          <button
+            onClick={() => setShowCreate(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-[#1f2328] dark:bg-[#f0f6fc] text-white dark:text-[#1f2328] text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+          >
+            <Plus size={16} />
+            새 프로젝트
+          </button>
+        </div>
       </div>
 
+      {/* Content */}
       {loading ? (
         <div className="flex items-center justify-center h-48">
           <Loader2 size={24} className="animate-spin text-[#57606a] dark:text-[#8b949e]" />
@@ -278,7 +701,7 @@ export default function WorkProjectsTab({ onSelectProject }: { onSelectProject: 
             프로젝트 만들기
           </button>
         </div>
-      ) : (
+      ) : viewMode === 'card' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {projects.map((project) => (
             <div key={project.id} className={deletingId === project.id ? 'opacity-50 pointer-events-none' : ''}>
@@ -291,15 +714,25 @@ export default function WorkProjectsTab({ onSelectProject }: { onSelectProject: 
             </div>
           ))}
         </div>
+      ) : (
+        <GanttChart projects={projects} onSelectProject={onSelectProject} />
       )}
 
+      {/* Modals */}
       {showCreate && (
         <ProjectFormModal title="새 프로젝트" onClose={() => setShowCreate(false)} onSubmit={handleCreate} />
       )}
       {editingProject && (
         <ProjectFormModal
           title="프로젝트 편집"
-          initial={{ name: editingProject.name, description: editingProject.description ?? '', color: editingProject.color }}
+          initial={{
+            name: editingProject.name,
+            description: editingProject.description ?? '',
+            color: editingProject.color,
+            startDate: editingProject.startDate ?? '',
+            dueDate: editingProject.dueDate ?? '',
+            isOngoing: editingProject.isOngoing,
+          }}
           onClose={() => setEditingProject(null)}
           onSubmit={handleEdit}
         />

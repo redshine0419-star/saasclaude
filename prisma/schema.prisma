@@ -14,20 +14,24 @@ model WorkUser {
   avatarUrl String?
   createdAt DateTime @default(now())
 
-  projectMembers ProjectMember[]
-  assignedTasks  Task[]          @relation("assignee")
-  createdTasks   Task[]          @relation("creator")
-  comments       Comment[]
+  projectMembers  ProjectMember[]
+  assignedTasks   Task[]          @relation("assignee")
+  createdTasks    Task[]          @relation("creator")
+  comments        Comment[]
+  assignedSubTasks SubTask[]      @relation("subtaskAssignee")
 }
 
 model Project {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   name        String
   description String?
-  color       String   @default("#6366f1")
-  status      String   @default("active")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  color       String    @default("#6366f1")
+  status      String    @default("active")
+  startDate   DateTime?
+  dueDate     DateTime?
+  isOngoing   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   members ProjectMember[]
   tasks   Task[]
@@ -51,20 +55,32 @@ model Task {
   description String?
   status      String    @default("기획")
   priority    String    @default("보통")
+  startDate   DateTime?
   dueDate     DateTime?
   position    Float     @default(0)
+  isKeyTask   Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
   // 운영 현황 확장 필드
-  category       String @default("")
-  taskType       String @default("")
-  requester      String @default("")
-  externalLink   String @default("")
-  planningStatus String @default("미시작")
-  designStatus   String @default("미시작")
-  publishStatus  String @default("미시작")
-  devStatus      String @default("미시작")
+  category     String @default("")
+  taskType     String @default("")
+  requester    String @default("")
+  externalLink String @default("")
+
+  // 단계별 상태 + 날짜
+  planningStatus    String    @default("미시작")
+  planningStartDate DateTime?
+  planningDueDate   DateTime?
+  designStatus      String    @default("미시작")
+  designStartDate   DateTime?
+  designDueDate     DateTime?
+  publishStatus     String    @default("미시작")
+  publishStartDate  DateTime?
+  publishDueDate    DateTime?
+  devStatus         String    @default("미시작")
+  devStartDate      DateTime?
+  devDueDate        DateTime?
 
   projectId  String
   assigneeId String?
@@ -75,6 +91,22 @@ model Task {
   creator  WorkUser? @relation("creator", fields: [creatorId], references: [id])
   labels   TaskLabel[]
   comments Comment[]
+  subTasks SubTask[]
+}
+
+model SubTask {
+  id        String    @id @default(cuid())
+  title     String
+  startDate DateTime?
+  dueDate   DateTime?
+  status    String    @default("미시작")
+  createdAt DateTime  @default(now())
+
+  taskId     String
+  assigneeId String?
+
+  task     Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  assignee WorkUser? @relation("subtaskAssignee", fields: [assigneeId], references: [id])
 }
 
 model Label {
