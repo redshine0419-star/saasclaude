@@ -670,17 +670,78 @@ function GanttView({ tasks, stages, onEdit }: { tasks: Task[]; stages: Stage[]; 
 }
 
 // ── Ops View (운영현황) ────────────────────────────────────────────────────────
-function OpsView({ tasks, stages, members, onEdit, onDelete, onStatusChange, onAddClick }: {
+interface InlineRow {
+  title: string; status: string; priority: string;
+  startDate: string; dueDate: string; assigneeId: string;
+  category: string; taskType: string; requester: string; externalLink: string;
+  planningStatus: string; designStatus: string; publishStatus: string; devStatus: string;
+}
+const EMPTY_INLINE: InlineRow = {
+  title: '', status: '기획', priority: '보통',
+  startDate: '', dueDate: '', assigneeId: '',
+  category: '', taskType: '', requester: '', externalLink: '',
+  planningStatus: '미시작', designStatus: '미시작', publishStatus: '미시작', devStatus: '미시작',
+};
+
+function OpsView({ tasks, stages, members, onEdit, onDelete, onStatusChange, onAddTask }: {
   tasks: Task[]; stages: Stage[]; members: WorkUser[];
   onEdit: (t: Task) => void; onDelete: (id: string) => void;
   onStatusChange: (id: string, field: string, value: string) => void;
-  onAddClick: () => void;
+  onAddTask: (data: Record<string, unknown>) => Promise<void>;
 }) {
   const [search, setSearch] = useState('');
   const [visibleCols, setVisibleCols] = useState<string[]>(getOpsCols);
   const [colMenuOpen, setColMenuOpen] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [inlineRow, setInlineRow] = useState<InlineRow>(EMPTY_INLINE);
+  const [saving, setSaving] = useState(false);
+  const titleInputRef = useRef<HTMLInputElement>(null);
   const stageMap = Object.fromEntries(stages.map(s => [s.id, s]));
   const colMenuRef = useRef<HTMLDivElement>(null);
+
+  const categories = getCategories();
+  const taskTypes = getTaskTypes();
+
+  const startAdding = () => {
+    setInlineRow(EMPTY_INLINE);
+    setAdding(true);
+    setTimeout(() => titleInputRef.current?.focus(), 50);
+  };
+
+  const cancelAdding = () => { setAdding(false); setInlineRow(EMPTY_INLINE); };
+
+  const commitInlineRow = async () => {
+    if (!inlineRow.title.trim() || saving) return;
+    setSaving(true);
+    try {
+      await onAddTask({
+        title: inlineRow.title.trim(),
+        status: inlineRow.status,
+        priority: inlineRow.priority,
+        startDate: inlineRow.startDate || null,
+        dueDate: inlineRow.dueDate || null,
+        assigneeId: inlineRow.assigneeId || null,
+        category: inlineRow.category,
+        taskType: inlineRow.taskType,
+        requester: inlineRow.requester,
+        externalLink: inlineRow.externalLink,
+        planningStatus: inlineRow.planningStatus,
+        designStatus: inlineRow.designStatus,
+        publishStatus: inlineRow.publishStatus,
+        devStatus: inlineRow.devStatus,
+      });
+      setInlineRow(EMPTY_INLINE);
+      setTimeout(() => titleInputRef.current?.focus(), 50);
+    } finally { setSaving(false); }
+  };
+
+  const handleInlineKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') { e.preventDefault(); commitInlineRow(); }
+    if (e.key === 'Escape') cancelAdding();
+  };
+
+  const setField = (k: keyof InlineRow) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    setInlineRow(r => ({ ...r, [k]: e.target.value }));
 
   useEffect(() => {
     const h = (e: MouseEvent) => { if (colMenuRef.current && !colMenuRef.current.contains(e.target as Node)) setColMenuOpen(false); };
@@ -734,7 +795,7 @@ function OpsView({ tasks, stages, members, onEdit, onDelete, onStatusChange, onA
               </div>
             )}
           </div>
-          <button onClick={onAddClick}
+          <button onClick={startAdding}
             className="flex items-center gap-1.5 px-3 py-2 bg-[#1f2328] dark:bg-[#f0f6fc] text-white dark:text-[#1f2328] text-sm font-medium rounded-lg hover:opacity-90">
             <Plus size={14}/> 업무 추가
           </button>
@@ -826,9 +887,151 @@ function OpsView({ tasks, stages, members, onEdit, onDelete, onStatusChange, onA
                 </td>
               </tr>
             ))}
-            {filtered.length === 0 && (
+            {filtered.length === 0 && !adding && (
               <tr><td colSpan={15} className="text-center py-12 text-sm text-[#57606a] dark:text-[#8b949e]">{search ? '검색 결과가 없습니다' : '태스크가 없습니다'}</td></tr>
             )}
+
+            {/* ── Inline new-row ── */}
+            {adding && (
+              <tr className="bg-[#fffbeb] dark:bg-[#2d2a12] border-t-2 border-[#f59e0b]">
+                {/* 업무내용 - sticky */}
+                <td className="px-2 py-1.5 sticky left-0 bg-[#fffbeb] dark:bg-[#2d2a12] z-10 min-w-[200px]">
+                  <input ref={titleInputRef} value={inlineRow.title} onChange={setField('title')}
+                    onKeyDown={handleInlineKeyDown} placeholder="업무 제목 입력..."
+                    className="w-full px-2 py-1 text-sm bg-white dark:bg-[#0d1117] border border-[#0969da] rounded focus:outline-none focus:ring-1 focus:ring-[#0969da] text-[#24292f] dark:text-[#e6edf3]"/>
+                </td>
+                {visibleCols.includes('단계') && (
+                  <td className="px-2 py-1.5">
+                    <select value={inlineRow.status} onChange={setField('status')} onKeyDown={handleInlineKeyDown}
+                      className="w-full px-1 py-1 text-xs bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded focus:outline-none focus:ring-1 focus:ring-[#0969da] text-[#24292f] dark:text-[#e6edf3]">
+                      {stages.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+                    </select>
+                  </td>
+                )}
+                {visibleCols.includes('시작일') && (
+                  <td className="px-2 py-1.5">
+                    <input type="date" value={inlineRow.startDate} onChange={setField('startDate')} onKeyDown={handleInlineKeyDown}
+                      className="px-1 py-1 text-xs bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded focus:outline-none focus:ring-1 focus:ring-[#0969da] text-[#24292f] dark:text-[#e6edf3]"/>
+                  </td>
+                )}
+                {visibleCols.includes('목표일') && (
+                  <td className="px-2 py-1.5">
+                    <input type="date" value={inlineRow.dueDate} onChange={setField('dueDate')} onKeyDown={handleInlineKeyDown}
+                      className="px-1 py-1 text-xs bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded focus:outline-none focus:ring-1 focus:ring-[#0969da] text-[#24292f] dark:text-[#e6edf3]"/>
+                  </td>
+                )}
+                {visibleCols.includes('담당') && (
+                  <td className="px-2 py-1.5">
+                    <select value={inlineRow.assigneeId} onChange={setField('assigneeId')} onKeyDown={handleInlineKeyDown}
+                      className="w-full px-1 py-1 text-xs bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded focus:outline-none focus:ring-1 focus:ring-[#0969da] text-[#24292f] dark:text-[#e6edf3]">
+                      <option value="">-</option>
+                      {members.map(m => <option key={m.id} value={m.id}>{m.name ?? m.email.split('@')[0]}</option>)}
+                    </select>
+                  </td>
+                )}
+                {visibleCols.includes('구분') && (
+                  <td className="px-2 py-1.5">
+                    <select value={inlineRow.category} onChange={setField('category')} onKeyDown={handleInlineKeyDown}
+                      className="w-full px-1 py-1 text-xs bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded focus:outline-none focus:ring-1 focus:ring-[#0969da] text-[#24292f] dark:text-[#e6edf3]">
+                      <option value="">-</option>
+                      {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </td>
+                )}
+                {visibleCols.includes('작업종류') && (
+                  <td className="px-2 py-1.5">
+                    <select value={inlineRow.taskType} onChange={setField('taskType')} onKeyDown={handleInlineKeyDown}
+                      className="w-full px-1 py-1 text-xs bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded focus:outline-none focus:ring-1 focus:ring-[#0969da] text-[#24292f] dark:text-[#e6edf3]">
+                      <option value="">-</option>
+                      {taskTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </td>
+                )}
+                {visibleCols.includes('중요도') && (
+                  <td className="px-2 py-1.5">
+                    <select value={inlineRow.priority} onChange={setField('priority')} onKeyDown={handleInlineKeyDown}
+                      className="w-full px-1 py-1 text-xs bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded focus:outline-none focus:ring-1 focus:ring-[#0969da] text-[#24292f] dark:text-[#e6edf3]">
+                      {PRIORITY_VALUES.map(p => <option key={p} value={p}>{p}</option>)}
+                    </select>
+                  </td>
+                )}
+                {visibleCols.includes('기획') && (
+                  <td className="px-2 py-1.5">
+                    <select value={inlineRow.planningStatus} onChange={setField('planningStatus')} onKeyDown={handleInlineKeyDown}
+                      className="w-full px-1 py-1 text-xs bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded focus:outline-none focus:ring-1 focus:ring-[#0969da] text-[#24292f] dark:text-[#e6edf3]">
+                      {STAGE_STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </td>
+                )}
+                {visibleCols.includes('기획시작') && <td className="px-2 py-1.5"/>}
+                {visibleCols.includes('기획목표') && <td className="px-2 py-1.5"/>}
+                {visibleCols.includes('디자인') && (
+                  <td className="px-2 py-1.5">
+                    <select value={inlineRow.designStatus} onChange={setField('designStatus')} onKeyDown={handleInlineKeyDown}
+                      className="w-full px-1 py-1 text-xs bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded focus:outline-none focus:ring-1 focus:ring-[#0969da] text-[#24292f] dark:text-[#e6edf3]">
+                      {STAGE_STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </td>
+                )}
+                {visibleCols.includes('디자인시작') && <td className="px-2 py-1.5"/>}
+                {visibleCols.includes('디자인목표') && <td className="px-2 py-1.5"/>}
+                {visibleCols.includes('퍼블') && (
+                  <td className="px-2 py-1.5">
+                    <select value={inlineRow.publishStatus} onChange={setField('publishStatus')} onKeyDown={handleInlineKeyDown}
+                      className="w-full px-1 py-1 text-xs bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded focus:outline-none focus:ring-1 focus:ring-[#0969da] text-[#24292f] dark:text-[#e6edf3]">
+                      {STAGE_STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </td>
+                )}
+                {visibleCols.includes('퍼블시작') && <td className="px-2 py-1.5"/>}
+                {visibleCols.includes('퍼블목표') && <td className="px-2 py-1.5"/>}
+                {visibleCols.includes('개발') && (
+                  <td className="px-2 py-1.5">
+                    <select value={inlineRow.devStatus} onChange={setField('devStatus')} onKeyDown={handleInlineKeyDown}
+                      className="w-full px-1 py-1 text-xs bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded focus:outline-none focus:ring-1 focus:ring-[#0969da] text-[#24292f] dark:text-[#e6edf3]">
+                      {STAGE_STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </td>
+                )}
+                {visibleCols.includes('개발시작') && <td className="px-2 py-1.5"/>}
+                {visibleCols.includes('개발목표') && <td className="px-2 py-1.5"/>}
+                {visibleCols.includes('요청자') && (
+                  <td className="px-2 py-1.5">
+                    <input value={inlineRow.requester} onChange={setField('requester')} onKeyDown={handleInlineKeyDown}
+                      className="w-full px-1 py-1 text-xs bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded focus:outline-none focus:ring-1 focus:ring-[#0969da] text-[#24292f] dark:text-[#e6edf3]"/>
+                  </td>
+                )}
+                {visibleCols.includes('링크') && (
+                  <td className="px-2 py-1.5">
+                    <input value={inlineRow.externalLink} onChange={setField('externalLink')} onKeyDown={handleInlineKeyDown}
+                      placeholder="https://"
+                      className="w-full px-1 py-1 text-xs bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded focus:outline-none focus:ring-1 focus:ring-[#0969da] text-[#24292f] dark:text-[#e6edf3]"/>
+                  </td>
+                )}
+                {visibleCols.includes('설명') && <td className="px-2 py-1.5"/>}
+                <td className="px-2 py-1.5">
+                  <div className="flex gap-1">
+                    <button onClick={commitInlineRow} disabled={!inlineRow.title.trim() || saving}
+                      className="p-1 rounded bg-[#1a7f37] text-white hover:bg-[#2da44e] disabled:opacity-40">
+                      {saving ? <Loader2 size={11} className="animate-spin"/> : <Check size={11}/>}
+                    </button>
+                    <button onClick={cancelAdding} className="p-1 rounded bg-[#f6f8fa] dark:bg-[#30363d] text-[#57606a] hover:bg-red-50 hover:text-red-500">
+                      <X size={11}/>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            )}
+
+            {/* ── "+ 행 추가" footer row ── */}
+            <tr>
+              <td colSpan={visibleCols.length + 2} className="px-3 py-1.5 sticky left-0">
+                <button onClick={startAdding}
+                  className="flex items-center gap-1 text-xs text-[#57606a] dark:text-[#8b949e] hover:text-[#0969da] dark:hover:text-[#58a6ff] transition-colors">
+                  <Plus size={12}/> 행 추가
+                </button>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -970,12 +1173,10 @@ export default function WorkKanbanTab({ projectId, onChangeProject }: {
             className="p-2 text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#30363d] rounded-lg border border-[#d0d7de] dark:border-[#30363d] transition-colors">
             <Download size={15}/>
           </button>
-          {viewMode !== 'ops' && (
-            <button onClick={() => setEditingTask('new')}
-              className="flex items-center gap-1.5 px-3 py-2 bg-[#1f2328] dark:bg-[#f0f6fc] text-white dark:text-[#1f2328] text-sm font-medium rounded-lg hover:opacity-90">
-              <Plus size={15}/>업무 추가
-            </button>
-          )}
+          <button onClick={() => setEditingTask('new')}
+            className="flex items-center gap-1.5 px-3 py-2 bg-[#1f2328] dark:bg-[#f0f6fc] text-white dark:text-[#1f2328] text-sm font-medium rounded-lg hover:opacity-90">
+            <Plus size={15}/>업무 추가
+          </button>
         </div>
       </div>
 
@@ -1012,7 +1213,16 @@ export default function WorkKanbanTab({ projectId, onChangeProject }: {
           {viewMode === 'ops' && (
             <OpsView tasks={tasks} stages={stages} members={members}
               onEdit={t => setEditingTask(t)} onDelete={handleDelete}
-              onStatusChange={handleFieldChange} onAddClick={() => setEditingTask('new')}/>
+              onStatusChange={handleFieldChange}
+              onAddTask={async (data) => {
+                if (!projectId) return;
+                const lastTask = tasks[tasks.length - 1];
+                const r = await fetch('/api/work/tasks', {
+                  method: 'POST', headers: {'Content-Type':'application/json'},
+                  body: JSON.stringify({ projectId, position: (lastTask?.position ?? 0) + 1000, ...data }),
+                });
+                if (r.ok) await fetchTasks();
+              }}/>
           )}
         </div>
       )}
