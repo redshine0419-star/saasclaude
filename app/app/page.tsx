@@ -8,6 +8,7 @@ import {
   Tag, ArrowLeftRight, PenLine, Bot, BarChart3, Megaphone, Sun, Moon, Command, Rss, LogIn, LogOut,
 } from 'lucide-react';
 import { useDarkMode } from '@/components/DarkModeProvider';
+import ProductSwitcher from '@/components/ProductSwitcher';
 import OnboardingModal from '@/components/OnboardingModal';
 import CommandPalette from '@/components/CommandPalette';
 import DiagnosisModule from '@/components/DiagnosisModule';
@@ -86,10 +87,11 @@ export default function App() {
         {/* Brand bar */}
         <div className="flex items-center justify-between px-4 md:px-6 h-14">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 text-white font-black text-lg tracking-tight hover:opacity-80 transition-opacity">
+          <Link href="/" className="flex items-center gap-2 text-white font-black text-lg tracking-tight hover:opacity-80 transition-opacity mr-3">
             <Zap size={20} fill="currentColor" strokeWidth={0} />
-            <span className="font-bold">MarketerOps<span className="text-[#888888] font-normal">.ai</span></span>
+            <span className="hidden md:inline font-bold">MarketerOps<span className="text-[#888888] font-normal">.ai</span></span>
           </Link>
+          <ProductSwitcher />
 
           {/* Right controls */}
           <div className="flex items-center gap-1">
