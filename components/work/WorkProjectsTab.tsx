@@ -339,7 +339,7 @@ function GanttChart({
 
   const MONTHS_SHOWN = 6;
   const LEFT_COL_WIDTH = 180; // px for project name column
-  const ROW_HEIGHT = 44;
+  const ROW_HEIGHT = 56;
 
   // Key tasks state: map from projectId -> Task[]
   const [keyTasksMap, setKeyTasksMap] = useState<Record<string, Task[]>>({});
@@ -521,8 +521,10 @@ function GanttChart({
                       </div>
                     ) : barLeft !== null && barWidth !== null ? (
                       <div
-                        className="absolute top-1/2 -translate-y-1/2 h-5 rounded-full z-10 pointer-events-none"
+                        className="absolute rounded-full z-10 pointer-events-none"
                         style={{
+                          top: '10px',
+                          height: '18px',
                           left: `${Math.max(0, barLeft) * 100}%`,
                           width: `${Math.min(barWidth, 1 - Math.max(0, barLeft)) * 100}%`,
                           backgroundColor: project.color,
@@ -535,8 +537,10 @@ function GanttChart({
                     {/* Dashed bar for no-date projects */}
                     {!project.isOngoing && !start && !due && barLeft !== null && barWidth !== null && (
                       <div
-                        className="absolute top-1/2 -translate-y-1/2 h-5 rounded-full z-10 pointer-events-none"
+                        className="absolute rounded-full z-10 pointer-events-none"
                         style={{
+                          top: '10px',
+                          height: '18px',
                           left: `${Math.max(0, barLeft) * 100}%`,
                           width: `${Math.min(barWidth, 1 - Math.max(0, barLeft)) * 100}%`,
                           backgroundColor: 'transparent',
@@ -557,14 +561,14 @@ function GanttChart({
                         <div
                           key={task.id}
                           className="absolute z-20 group/task"
-                          style={{ left: `${frac * 100}%`, top: '5px' }}
+                          style={{ left: `${frac * 100}%`, bottom: '6px' }}
                         >
                           <span
                             className="block w-3 h-3 rotate-45 -translate-x-1/2"
                             style={{ backgroundColor: diamondColor, border: `2px solid white`, boxShadow: isLate ? '0 0 0 1px #ef4444' : undefined }}
                           />
                           {/* Tooltip */}
-                          <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 hidden group-hover/task:block z-30 pointer-events-none">
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover/task:block z-30 pointer-events-none">
                             <div className="bg-[#24292f] dark:bg-[#e6edf3] text-white dark:text-[#24292f] text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg flex items-center gap-1">
                               {isLate && <span className="text-red-400">⚠</span>}
                               {task.title}

@@ -665,8 +665,8 @@ function GanttView({ tasks, stages, onEdit }: { tasks: Task[]; stages: Stage[]; 
 }
 
 // ── Ops View (운영현황) ────────────────────────────────────────────────────────
-function OpsView({ tasks, members, onEdit, onDelete, onStatusChange, onAddClick }: {
-  tasks: Task[]; members: WorkUser[];
+function OpsView({ tasks, stages, members, onEdit, onDelete, onStatusChange, onAddClick }: {
+  tasks: Task[]; stages: Stage[]; members: WorkUser[];
   onEdit: (t: Task) => void; onDelete: (id: string) => void;
   onStatusChange: (id: string, field: string, value: string) => void;
   onAddClick: () => void;
@@ -674,6 +674,7 @@ function OpsView({ tasks, members, onEdit, onDelete, onStatusChange, onAddClick 
   const [search, setSearch] = useState('');
   const [visibleCols, setVisibleCols] = useState<string[]>(getOpsCols);
   const [colMenuOpen, setColMenuOpen] = useState(false);
+  const stageMap = Object.fromEntries(stages.map(s => [s.id, s]));
   const colMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -739,32 +740,54 @@ function OpsView({ tasks, members, onEdit, onDelete, onStatusChange, onAddClick 
         <table className="w-full min-w-[900px]">
           <thead className="bg-[#f6f8fa] dark:bg-[#161b22] border-b border-[#d0d7de] dark:border-[#30363d]">
             <tr>
-              <th className="text-left px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider min-w-[200px]">업무내용</th>
-              {visibleCols.includes('담당') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">담당</th>}
+              <th className="text-left px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider min-w-[200px] sticky left-0 bg-[#f6f8fa] dark:bg-[#161b22] z-10">업무내용</th>
+              {visibleCols.includes('단계') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">단계</th>}
+              {visibleCols.includes('시작일') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">시작일</th>}
               {visibleCols.includes('목표일') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">목표일</th>}
+              {visibleCols.includes('담당') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">담당</th>}
               {visibleCols.includes('구분') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">구분</th>}
+              {visibleCols.includes('작업종류') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">작업종류</th>}
               {visibleCols.includes('중요도') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">중요도</th>}
               {visibleCols.includes('기획') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">기획</th>}
+              {visibleCols.includes('기획시작') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">기획시작</th>}
+              {visibleCols.includes('기획목표') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">기획목표</th>}
               {visibleCols.includes('디자인') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">디자인</th>}
+              {visibleCols.includes('디자인시작') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">디자인시작</th>}
+              {visibleCols.includes('디자인목표') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">디자인목표</th>}
               {visibleCols.includes('퍼블') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">퍼블</th>}
+              {visibleCols.includes('퍼블시작') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">퍼블시작</th>}
+              {visibleCols.includes('퍼블목표') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">퍼블목표</th>}
               {visibleCols.includes('개발') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">개발</th>}
+              {visibleCols.includes('개발시작') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">개발시작</th>}
+              {visibleCols.includes('개발목표') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">개발목표</th>}
               {visibleCols.includes('요청자') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">요청자</th>}
               {visibleCols.includes('링크') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider whitespace-nowrap text-left">링크</th>}
+              {visibleCols.includes('설명') && <th className="px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider text-left min-w-[160px]">설명</th>}
               <th className="w-16"/>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#d0d7de] dark:divide-[#30363d]">
             {filtered.map(t => (
               <tr key={t.id} className="hover:bg-[#f6f8fa] dark:hover:bg-[#161b22]/50 group">
-                <td className="px-3 py-2.5">
+                <td className="px-3 py-2.5 sticky left-0 bg-white dark:bg-[#0d1117] group-hover:bg-[#f6f8fa] dark:group-hover:bg-[#161b22]/50 z-10">
                   <div className="flex items-center gap-1.5">
                     {t.isKeyTask && <Star size={11} className="text-yellow-500 fill-yellow-500 shrink-0"/>}
                     <button onClick={()=>onEdit(t)} className="text-sm text-[#24292f] dark:text-[#e6edf3] hover:text-[#0969da] text-left line-clamp-2">{t.title}</button>
                   </div>
                 </td>
-                {visibleCols.includes('담당') && <td className="px-3 py-2.5 text-xs text-[#57606a] dark:text-[#8b949e] whitespace-nowrap">{t.assignee?.name ?? t.assignee?.email.split('@')[0] ?? ''}</td>}
+                {visibleCols.includes('단계') && (
+                  <td className="px-3 py-2.5">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap"
+                      style={{backgroundColor:(stageMap[t.status]?.color??'#8c959f')+'22',color:stageMap[t.status]?.color??'#8c959f'}}>
+                      {t.status}
+                    </span>
+                  </td>
+                )}
+                {visibleCols.includes('시작일') && <td className="px-3 py-2.5 text-xs text-[#57606a] dark:text-[#8b949e] whitespace-nowrap">{fmtDate(t.startDate)}</td>}
                 {visibleCols.includes('목표일') && <td className="px-3 py-2.5 text-xs text-[#57606a] dark:text-[#8b949e] whitespace-nowrap">{fmtDate(t.dueDate)}</td>}
+                {visibleCols.includes('담당') && <td className="px-3 py-2.5 text-xs text-[#57606a] dark:text-[#8b949e] whitespace-nowrap">{t.assignee?.name ?? t.assignee?.email.split('@')[0] ?? ''}</td>}
                 {visibleCols.includes('구분') && <td className="px-3 py-2.5 text-xs text-[#57606a] dark:text-[#8b949e]">{t.category}</td>}
+                {visibleCols.includes('작업종류') && <td className="px-3 py-2.5 text-xs text-[#57606a] dark:text-[#8b949e]">{t.taskType}</td>}
                 {visibleCols.includes('중요도') && (
                   <td className="px-3 py-2.5">
                     <span className="text-[10px] font-medium px-1.5 py-0.5 rounded whitespace-nowrap"
@@ -774,13 +797,22 @@ function OpsView({ tasks, members, onEdit, onDelete, onStatusChange, onAddClick 
                   </td>
                 )}
                 {visibleCols.includes('기획') && <td className="px-3 py-2.5"><StageStatusBadge status={t.planningStatus} onChange={v=>onStatusChange(t.id,'planningStatus',v)}/></td>}
+                {visibleCols.includes('기획시작') && <td className="px-3 py-2.5 text-xs text-[#57606a] dark:text-[#8b949e] whitespace-nowrap">{fmtDate(t.planningStartDate)}</td>}
+                {visibleCols.includes('기획목표') && <td className="px-3 py-2.5 text-xs text-[#57606a] dark:text-[#8b949e] whitespace-nowrap">{fmtDate(t.planningDueDate)}</td>}
                 {visibleCols.includes('디자인') && <td className="px-3 py-2.5"><StageStatusBadge status={t.designStatus} onChange={v=>onStatusChange(t.id,'designStatus',v)}/></td>}
+                {visibleCols.includes('디자인시작') && <td className="px-3 py-2.5 text-xs text-[#57606a] dark:text-[#8b949e] whitespace-nowrap">{fmtDate(t.designStartDate)}</td>}
+                {visibleCols.includes('디자인목표') && <td className="px-3 py-2.5 text-xs text-[#57606a] dark:text-[#8b949e] whitespace-nowrap">{fmtDate(t.designDueDate)}</td>}
                 {visibleCols.includes('퍼블') && <td className="px-3 py-2.5"><StageStatusBadge status={t.publishStatus} onChange={v=>onStatusChange(t.id,'publishStatus',v)}/></td>}
+                {visibleCols.includes('퍼블시작') && <td className="px-3 py-2.5 text-xs text-[#57606a] dark:text-[#8b949e] whitespace-nowrap">{fmtDate(t.publishStartDate)}</td>}
+                {visibleCols.includes('퍼블목표') && <td className="px-3 py-2.5 text-xs text-[#57606a] dark:text-[#8b949e] whitespace-nowrap">{fmtDate(t.publishDueDate)}</td>}
                 {visibleCols.includes('개발') && <td className="px-3 py-2.5"><StageStatusBadge status={t.devStatus} onChange={v=>onStatusChange(t.id,'devStatus',v)}/></td>}
+                {visibleCols.includes('개발시작') && <td className="px-3 py-2.5 text-xs text-[#57606a] dark:text-[#8b949e] whitespace-nowrap">{fmtDate(t.devStartDate)}</td>}
+                {visibleCols.includes('개발목표') && <td className="px-3 py-2.5 text-xs text-[#57606a] dark:text-[#8b949e] whitespace-nowrap">{fmtDate(t.devDueDate)}</td>}
                 {visibleCols.includes('요청자') && <td className="px-3 py-2.5 text-xs text-[#57606a] dark:text-[#8b949e]">{t.requester}</td>}
                 {visibleCols.includes('링크') && <td className="px-3 py-2.5">
                   {t.externalLink && <a href={t.externalLink} target="_blank" rel="noreferrer" className="text-[#0969da] hover:underline"><Link size={12}/></a>}
                 </td>}
+                {visibleCols.includes('설명') && <td className="px-3 py-2.5 text-xs text-[#57606a] dark:text-[#8b949e] max-w-[200px] truncate">{t.description}</td>}
                 <td className="px-3 py-2.5">
                   <div className="flex gap-1.5 opacity-0 group-hover:opacity-100">
                     <button onClick={()=>onEdit(t)} className="text-[#57606a] hover:text-[#0969da]"><Pencil size={13}/></button>
@@ -973,7 +1005,7 @@ export default function WorkKanbanTab({ projectId, onChangeProject }: {
             <GanttView tasks={tasks} stages={stages} onEdit={t => setEditingTask(t)}/>
           )}
           {viewMode === 'ops' && (
-            <OpsView tasks={tasks} members={members}
+            <OpsView tasks={tasks} stages={stages} members={members}
               onEdit={t => setEditingTask(t)} onDelete={handleDelete}
               onStatusChange={handleFieldChange} onAddClick={() => setEditingTask('new')}/>
           )}
