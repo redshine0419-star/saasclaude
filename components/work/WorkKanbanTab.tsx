@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Plus, Loader2, AlertCircle, ChevronDown, Flag, Calendar, User2,
   GripVertical, X, Pencil, LayoutGrid, GanttChartSquare,
-  Settings2, Trash2, Check, Star, Link, Download, ClipboardList, Eye,
+  Settings2, Trash2, Check, Star, Link, Download, Upload, ClipboardList, Eye,
 } from 'lucide-react';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -1132,6 +1132,31 @@ export default function WorkKanbanTab({ projectId, onChangeProject }: {
     window.open(url, '_blank');
   };
 
+  const importInputRef = useRef<HTMLInputElement>(null);
+  const [importing, setImporting] = useState(false);
+
+  const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+    setImporting(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const r = await fetch('/api/work/excel', { method: 'POST', body: fd });
+      const data = await r.json();
+      if (r.ok) {
+        alert(`가져오기 완료: 프로젝트 ${data.projectsCreated}건, 업무 ${data.tasksCreated}건${data.errors?.length ? `\n오류: ${data.errors.slice(0,3).join('\n')}` : ''}`);
+        fetch('/api/work/projects').then(res=>res.json()).then(d=>{ if(Array.isArray(d)) setProjects(d); });
+        if (projectId) await fetchTasks();
+      } else {
+        alert('가져오기 실패: ' + (data.error ?? '알 수 없는 오류'));
+      }
+    } catch {
+      alert('가져오기 중 오류가 발생했습니다.');
+    } finally { setImporting(false); }
+  };
+
   const VIEW_BTNS = [
     { mode: 'card' as ViewMode, icon: <LayoutGrid size={14}/>, label: '카드' },
     { mode: 'gantt' as ViewMode, icon: <GanttChartSquare size={14}/>, label: '간트' },
@@ -1169,10 +1194,15 @@ export default function WorkKanbanTab({ projectId, onChangeProject }: {
             className="p-2 text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#30363d] rounded-lg border border-[#d0d7de] dark:border-[#30363d] transition-colors">
             <Settings2 size={15}/>
           </button>
-          <button onClick={downloadExcel} title="엑셀 다운로드"
+          <button onClick={downloadExcel} title="엑셀 내보내기"
             className="p-2 text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#30363d] rounded-lg border border-[#d0d7de] dark:border-[#30363d] transition-colors">
             <Download size={15}/>
           </button>
+          <button onClick={() => importInputRef.current?.click()} title="엑셀 가져오기" disabled={importing}
+            className="p-2 text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#30363d] rounded-lg border border-[#d0d7de] dark:border-[#30363d] transition-colors disabled:opacity-40">
+            {importing ? <Loader2 size={15} className="animate-spin"/> : <Upload size={15}/>}
+          </button>
+          <input ref={importInputRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={handleImportExcel}/>
           <button onClick={() => setEditingTask('new')}
             className="flex items-center gap-1.5 px-3 py-2 bg-[#1f2328] dark:bg-[#f0f6fc] text-white dark:text-[#1f2328] text-sm font-medium rounded-lg hover:opacity-90">
             <Plus size={15}/>업무 추가
