@@ -461,7 +461,7 @@ function TaskModal({ task, members, stages, onClose, onSave }: {
             {subTasks.length > 0 && (
               <div className="p-3 space-y-2">
                 {subTasks.map(st => (
-                  <div key={st.id} className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-2 items-center">
+                  <div key={st.id} className="grid grid-cols-[1fr_auto_auto_auto_auto_auto] gap-2 items-center">
                     <input value={st.title} onChange={e=>setSubTasks(s=>s.map(x=>x.id===st.id?{...x,title:e.target.value}:x))}
                       placeholder="하위 업무 제목"
                       className="px-2 py-1.5 bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded-lg text-xs text-[#24292f] dark:text-[#e6edf3] placeholder-[#8c959f] focus:outline-none focus:ring-1 focus:ring-[#0969da]"/>
@@ -472,6 +472,11 @@ function TaskModal({ task, members, stages, onClose, onSave }: {
                     <select value={st.status} onChange={e=>setSubTasks(s=>s.map(x=>x.id===st.id?{...x,status:e.target.value}:x))}
                       className="px-2 py-1.5 bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded-lg text-xs text-[#24292f] dark:text-[#e6edf3] focus:outline-none focus:ring-1 focus:ring-[#0969da]">
                       {STAGE_STATUS_OPTIONS.map(s=><option key={s} value={s}>{s}</option>)}
+                    </select>
+                    <select value={st.assigneeId} onChange={e=>setSubTasks(s=>s.map(x=>x.id===st.id?{...x,assigneeId:e.target.value}:x))}
+                      className="px-2 py-1.5 bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded-lg text-xs text-[#24292f] dark:text-[#e6edf3] focus:outline-none focus:ring-1 focus:ring-[#0969da]">
+                      <option value="">담당자</option>
+                      {members.map(m=><option key={m.id} value={m.id}>{m.name??m.email.split('@')[0]}</option>)}
                     </select>
                     <button onClick={()=>removeSubTask(st.id, st.isNew)} className="text-[#8c959f] hover:text-red-500"><X size={13}/></button>
                   </div>
