@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Plus, Loader2, AlertCircle, ChevronDown, Flag, Calendar, User2,
-  GripVertical, X, Pencil, LayoutGrid, Table2, GanttChartSquare,
+  GripVertical, X, Pencil, LayoutGrid, GanttChartSquare,
   Settings2, Trash2, Check, Star, Link, Download, ClipboardList, Eye,
 } from 'lucide-react';
 
@@ -34,7 +34,7 @@ interface Project { id: string; name: string; color: string }
 interface Member { id: string; role: string; user: WorkUser }
 interface Stage { id: string; label: string; color: string }
 
-type ViewMode = 'card' | 'table' | 'gantt' | 'ops';
+type ViewMode = 'card' | 'gantt' | 'ops';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const DEFAULT_STAGES: Stage[] = [
@@ -51,7 +51,7 @@ const STAGE_STATUS_OPTIONS = ['미시작','진행중','검토요청','피드백'
 const PRIORITY_VALUES = ['낮음','보통','높음','긴급'];
 const DEFAULT_CATEGORIES = ['어학연수','해외대학','조기유학/캠프','아트포폴','견적시스템','기타'];
 const DEFAULT_TASK_TYPES = ['기능개선','프로그램_신규','프로그램_수정','오류','기타 유지보수','검토요청','프로젝트'];
-const OPS_ALL_COLS = ['담당','목표일','구분','중요도','기획','디자인','퍼블','개발','요청자','링크'];
+const OPS_ALL_COLS = ['단계','시작일','목표일','담당','구분','작업종류','중요도','기획','기획시작','기획목표','디자인','디자인시작','디자인목표','퍼블','퍼블시작','퍼블목표','개발','개발시작','개발목표','요청자','링크','설명'];
 const STAGE_STATUS_COLORS: Record<string, string> = {
   '미시작': 'bg-[#f6f8fa] dark:bg-[#21262d] text-[#57606a] dark:text-[#8b949e]',
   '진행중': 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
@@ -522,25 +522,13 @@ function StageStatusBadge({ status, onChange }: { status: string; onChange: (v: 
 }
 
 // ── Card View ─────────────────────────────────────────────────────────────────
-function CardView({ tasks, stages, members, onEdit, onDelete, onStatusChange, onAddTask }: {
-  tasks: Task[]; stages: Stage[]; members: WorkUser[];
+function CardView({ tasks, stages, onEdit, onDelete, onStatusChange }: {
+  tasks: Task[]; stages: Stage[];
   onEdit: (t: Task) => void; onDelete: (id: string) => void;
   onStatusChange: (id: string, status: string) => void;
-  onAddTask: (status: string, title: string, assigneeId: string) => Promise<void>;
 }) {
   const [dragging, setDragging] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState<string | null>(null);
-  const [showAdd, setShowAdd] = useState<string | null>(null);
-  const [addTitle, setAddTitle] = useState('');
-  const [addAssigneeId, setAddAssigneeId] = useState('');
-  const [adding, setAdding] = useState(false);
-
-  const handleAdd = async (status: string) => {
-    if (!addTitle.trim()) return;
-    setAdding(true);
-    await onAddTask(status, addTitle, addAssigneeId);
-    setAddTitle(''); setAddAssigneeId(''); setShowAdd(null); setAdding(false);
-  };
 
   return (
     <div className="grid gap-4 pb-4 min-w-0" style={{ gridTemplateColumns: `repeat(${Math.min(stages.length, 5)}, minmax(220px, 1fr))` }}>
@@ -558,7 +546,7 @@ function CardView({ tasks, stages, members, onEdit, onDelete, onStatusChange, on
                 <span className="text-xs font-semibold text-[#24292f] dark:text-[#e6edf3]">{col.label}</span>
                 <span className="text-xs text-[#57606a] bg-[#eaeef2] dark:bg-[#30363d] px-1.5 py-0.5 rounded-full">{colTasks.length}</span>
               </div>
-              <button onClick={()=>{setShowAdd(col.id);setAddTitle('');setAddAssigneeId('');}} className="text-[#57606a] hover:text-[#24292f] dark:hover:text-[#e6edf3]"><Plus size={14}/></button>
+              <span />
             </div>
             <div className="flex-1 p-2 space-y-2">
               {colTasks.map(task => (
@@ -588,117 +576,10 @@ function CardView({ tasks, stages, members, onEdit, onDelete, onStatusChange, on
                   </div>
                 </div>
               ))}
-              {showAdd === col.id && (
-                <div className="bg-white dark:bg-[#0d1117] border border-[#0969da] rounded-lg p-3 space-y-2">
-                  <textarea autoFocus value={addTitle} onChange={e=>setAddTitle(e.target.value)}
-                    onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();handleAdd(col.id);}if(e.key==='Escape')setShowAdd(null);}}
-                    placeholder="태스크 제목..." rows={2}
-                    className="w-full text-sm bg-transparent text-[#24292f] dark:text-[#e6edf3] placeholder-[#8c959f] focus:outline-none resize-none"/>
-                  {members.length > 0 && (
-                    <div className="relative">
-                      <select value={addAssigneeId} onChange={e=>setAddAssigneeId(e.target.value)}
-                        className="w-full appearance-none pl-2 pr-6 py-1 text-xs bg-[#f6f8fa] dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded text-[#57606a] focus:outline-none cursor-pointer">
-                        <option value="">담당자 없음</option>
-                        {members.map(m=><option key={m.id} value={m.id}>{m.name??m.email.split('@')[0]}</option>)}
-                      </select>
-                      <ChevronDown size={11} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[#57606a] pointer-events-none"/>
-                    </div>
-                  )}
-                  <div className="flex justify-end gap-2">
-                    <button onClick={()=>setShowAdd(null)} className="text-xs text-[#57606a]">취소</button>
-                    <button onClick={()=>handleAdd(col.id)} disabled={adding||!addTitle.trim()}
-                      className="flex items-center gap-1 text-xs px-2 py-1 bg-[#0969da] text-white rounded disabled:opacity-50">
-                      {adding && <Loader2 size={10} className="animate-spin"/>}추가
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
-            {showAdd !== col.id && (
-              <button onClick={()=>{setShowAdd(col.id);setAddTitle('');setAddAssigneeId('');}}
-                className="flex items-center gap-1 text-xs text-[#57606a] hover:text-[#24292f] dark:hover:text-[#e6edf3] p-3 border-t border-[#d0d7de] dark:border-[#30363d] transition-colors">
-                <Plus size={13}/> 태스크 추가
-              </button>
-            )}
           </div>
         );
       })}
-    </div>
-  );
-}
-
-// ── Table View ────────────────────────────────────────────────────────────────
-function TableView({ tasks, stages, onEdit, onDelete }: {
-  tasks: Task[]; stages: Stage[];
-  onEdit: (t: Task) => void; onDelete: (id: string) => void;
-}) {
-  const [sortKey, setSortKey] = useState<keyof Task>('dueDate');
-  const [sortDir, setSortDir] = useState<1|-1>(1);
-  const sorted = [...tasks].sort((a,b) => {
-    const av = a[sortKey] as string|null ?? '';
-    const bv = b[sortKey] as string|null ?? '';
-    return av < bv ? -sortDir : av > bv ? sortDir : 0;
-  });
-
-  const stageMap = Object.fromEntries(stages.map(s=>[s.id, s]));
-  const header = (label: string, key: keyof Task) => (
-    <th onClick={()=>{ if(sortKey===key) setSortDir(d=>d==1?-1:1); else {setSortKey(key);setSortDir(1);} }}
-      className="text-left px-3 py-3 text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider cursor-pointer hover:text-[#24292f] dark:hover:text-[#e6edf3] select-none whitespace-nowrap">
-      {label} {sortKey===key ? (sortDir===1?'↑':'↓') : ''}
-    </th>
-  );
-
-  return (
-    <div className="overflow-x-auto rounded-xl border border-[#d0d7de] dark:border-[#30363d]">
-      <table className="w-full min-w-[700px]">
-        <thead className="bg-[#f6f8fa] dark:bg-[#161b22] border-b border-[#d0d7de] dark:border-[#30363d]">
-          <tr>
-            {header('제목','title')}{header('단계','status')}{header('중요도','priority')}
-            {header('시작일','startDate')}{header('목표일','dueDate')}{header('담당자','assignee' as keyof Task)}
-            {header('구분','category')}{header('작업종류','taskType')}
-            <th className="px-3 py-3"></th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-[#d0d7de] dark:divide-[#30363d]">
-          {sorted.map(t => {
-            const stage = stageMap[t.status];
-            return (
-              <tr key={t.id} className="hover:bg-[#f6f8fa] dark:hover:bg-[#161b22] group">
-                <td className="px-3 py-3">
-                  <div className="flex items-center gap-1.5">
-                    {t.isKeyTask && <Star size={11} className="text-yellow-500 fill-yellow-500 shrink-0"/>}
-                    <button onClick={()=>onEdit(t)} className="text-sm text-[#24292f] dark:text-[#e6edf3] hover:text-[#0969da] text-left line-clamp-1">{t.title}</button>
-                  </div>
-                </td>
-                <td className="px-3 py-3">
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-medium" style={{backgroundColor:(stage?.color??'#8c959f')+'22',color:stage?.color??'#8c959f'}}>
-                    {stage?.label ?? t.status}
-                  </span>
-                </td>
-                <td className="px-3 py-3">
-                  <span className="text-xs font-medium px-1.5 py-0.5 rounded" style={{backgroundColor:(PRIORITY_COLORS[t.priority]??'#94a3b8')+'22',color:PRIORITY_COLORS[t.priority]??'#94a3b8'}}>
-                    {t.priority}
-                  </span>
-                </td>
-                <td className="px-3 py-3 text-xs text-[#57606a] dark:text-[#8b949e] whitespace-nowrap">{fmtDate(t.startDate)}</td>
-                <td className="px-3 py-3 text-xs text-[#57606a] dark:text-[#8b949e] whitespace-nowrap">{fmtDate(t.dueDate)}</td>
-                <td className="px-3 py-3 text-xs text-[#57606a] dark:text-[#8b949e]">{t.assignee?.name ?? t.assignee?.email.split('@')[0] ?? '-'}</td>
-                <td className="px-3 py-3 text-xs text-[#57606a] dark:text-[#8b949e]">{t.category || '-'}</td>
-                <td className="px-3 py-3 text-xs text-[#57606a] dark:text-[#8b949e]">{t.taskType || '-'}</td>
-                <td className="px-3 py-3">
-                  <div className="flex gap-2 opacity-0 group-hover:opacity-100">
-                    <button onClick={()=>onEdit(t)} className="text-[#57606a] hover:text-[#0969da]"><Pencil size={13}/></button>
-                    <button onClick={()=>onDelete(t.id)} className="text-[#8c959f] hover:text-red-500"><Trash2 size={13}/></button>
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
-          {sorted.length === 0 && (
-            <tr><td colSpan={9} className="text-center py-12 text-sm text-[#57606a] dark:text-[#8b949e]">태스크가 없습니다</td></tr>
-          )}
-        </tbody>
-      </table>
     </div>
   );
 }
@@ -999,15 +880,6 @@ export default function WorkKanbanTab({ projectId, onChangeProject }: {
     await fetch('/api/work/tasks', { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ id, [field]: value }) });
   };
 
-  const handleAddTask = async (status: string, title: string, assigneeId: string) => {
-    if (!projectId) return;
-    const r = await fetch('/api/work/tasks', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ projectId, title, status, assigneeId: assigneeId || null }),
-    });
-    if (r.ok) { const t = await r.json(); setTasks(prev => [...prev, t]); }
-  };
-
   const handleSaveStages = (s: Stage[]) => { setStages(s); if (projectId) saveStages(projectId, s); };
 
   const downloadExcel = () => {
@@ -1017,7 +889,6 @@ export default function WorkKanbanTab({ projectId, onChangeProject }: {
 
   const VIEW_BTNS = [
     { mode: 'card' as ViewMode, icon: <LayoutGrid size={14}/>, label: '카드' },
-    { mode: 'table' as ViewMode, icon: <Table2 size={14}/>, label: '표' },
     { mode: 'gantt' as ViewMode, icon: <GanttChartSquare size={14}/>, label: '간트' },
     { mode: 'ops' as ViewMode, icon: <ClipboardList size={14}/>, label: '운영현황' },
   ];
@@ -1089,13 +960,9 @@ export default function WorkKanbanTab({ projectId, onChangeProject }: {
       ) : (
         <div className="flex-1 overflow-auto">
           {viewMode === 'card' && (
-            <CardView tasks={tasks} stages={stages} members={members}
+            <CardView tasks={tasks} stages={stages}
               onEdit={t => setEditingTask(t)} onDelete={handleDelete}
-              onStatusChange={handleStatusChange} onAddTask={handleAddTask}/>
-          )}
-          {viewMode === 'table' && (
-            <TableView tasks={tasks} stages={stages}
-              onEdit={t => setEditingTask(t)} onDelete={handleDelete}/>
+              onStatusChange={handleStatusChange}/>
           )}
           {viewMode === 'gantt' && (
             <GanttView tasks={tasks} stages={stages} onEdit={t => setEditingTask(t)}/>

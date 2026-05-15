@@ -16,6 +16,7 @@ interface NavItem {
   icon: React.ReactNode;
   label: string;
   adminOnly?: boolean;
+  sectionLabel?: string; // renders a section group header before this item
 }
 
 interface SidebarLayoutProps {
@@ -82,22 +83,31 @@ export default function SidebarLayout({
         {visibleItems.map((item) => {
           const active = activeTab === item.id;
           return (
-            <button
-              key={item.id}
-              onClick={() => onTabChange(item.id)}
-              title={collapsed && !mobile ? item.label : undefined}
-              className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm font-medium transition-all ${
-                active
-                  ? 'bg-white/10 text-white'
-                  : 'text-[#8b949e] hover:text-white hover:bg-white/5'
-              } ${collapsed && !mobile ? 'justify-center' : ''}`}
-            >
-              <span className="shrink-0">{item.icon}</span>
-              {(!collapsed || mobile) && <span className="truncate">{item.label}</span>}
-              {active && (!collapsed || mobile) && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white shrink-0" />
+            <div key={item.id}>
+              {item.sectionLabel && (!collapsed || mobile) && (
+                <div className="px-2.5 pt-4 pb-1">
+                  <span className="text-[10px] font-bold text-[#484f58] uppercase tracking-widest">{item.sectionLabel}</span>
+                </div>
               )}
-            </button>
+              {item.sectionLabel && (collapsed && !mobile) && (
+                <div className="my-2 mx-2 border-t border-[#21262d]" />
+              )}
+              <button
+                onClick={() => onTabChange(item.id)}
+                title={collapsed && !mobile ? item.label : undefined}
+                className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm font-medium transition-all ${
+                  active
+                    ? 'bg-white/10 text-white'
+                    : 'text-[#8b949e] hover:text-white hover:bg-white/5'
+                } ${collapsed && !mobile ? 'justify-center' : ''}`}
+              >
+                <span className="shrink-0">{item.icon}</span>
+                {(!collapsed || mobile) && <span className="truncate">{item.label}</span>}
+                {active && (!collapsed || mobile) && (
+                  <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white shrink-0" />
+                )}
+              </button>
+            </div>
           );
         })}
       </nav>

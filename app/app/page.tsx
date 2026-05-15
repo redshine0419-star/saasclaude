@@ -2,52 +2,43 @@
 
 import { useState } from 'react';
 import {
-  LayoutDashboard, Search, FileText, Tag, ArrowLeftRight,
-  PenLine, Bot, BarChart3, Megaphone, Rss, CheckCircle2,
+  LayoutDashboard, Globe, FileText, Tag,
+  Bot, BarChart3, Megaphone, CheckCircle2,
 } from 'lucide-react';
 import SidebarLayout from '@/components/SidebarLayout';
 import OnboardingModal from '@/components/OnboardingModal';
 import CommandPalette from '@/components/CommandPalette';
-import DiagnosisModule from '@/components/DiagnosisModule';
-import ContentHubModule from '@/components/ContentHubModule';
 import DashboardModule from '@/components/DashboardModule';
-import KeywordModule from '@/components/KeywordModule';
-import CompetitorModule from '@/components/CompetitorModule';
-import RewriterModule from '@/components/RewriterModule';
+import WebModule from '@/components/WebModule';
 import LlmsTxtModule from '@/components/LlmsTxtModule';
 import MarketingInsightModule from '@/components/MarketingInsightModule';
+import UnifiedContentModule from '@/components/UnifiedContentModule';
+import KeywordModule from '@/components/KeywordModule';
 import SovModule from '@/components/SovModule';
-import BlogAdminModule from '@/components/BlogAdminModule';
 
 const TABS = {
-  DIAGNOSIS:  'diagnosis',
-  COMPETITOR: 'competitor',
-  CONTENT:    'content',
-  REWRITER:   'rewriter',
-  KEYWORD:    'keyword',
-  LLMSTXT:    'llmstxt',
-  INSIGHT:    'insight',
-  SOV:        'sov',
-  BLOG:       'blog',
-  DASHBOARD:  'dashboard',
+  DASHBOARD: 'dashboard',
+  WEB:       'web',
+  INSIGHT:   'insight',
+  LLMSTXT:   'llmstxt',
+  CONTENT:   'content',
+  KEYWORD:   'keyword',
+  SOV:       'sov',
 } as const;
 type Tab = typeof TABS[keyof typeof TABS];
 
 const NAV_ITEMS = [
-  { id: TABS.DIAGNOSIS,  icon: <Search size={16} />,         label: 'Engine Diagnosis' },
-  { id: TABS.COMPETITOR, icon: <ArrowLeftRight size={16} />, label: 'Competitor Analysis' },
-  { id: TABS.CONTENT,    icon: <FileText size={16} />,        label: 'Content Orchestrator' },
-  { id: TABS.REWRITER,   icon: <PenLine size={16} />,         label: 'Content Rewriter' },
-  { id: TABS.KEYWORD,    icon: <Tag size={16} />,             label: 'Keyword Analysis' },
-  { id: TABS.LLMSTXT,    icon: <Bot size={16} />,             label: 'llms.txt' },
-  { id: TABS.INSIGHT,    icon: <BarChart3 size={16} />,       label: '마케팅 인사이트' },
-  { id: TABS.SOV,        icon: <Megaphone size={16} />,       label: 'AI Share of Voice' },
-  { id: TABS.BLOG,       icon: <Rss size={16} />,             label: 'Blog 관리', adminOnly: true },
-  { id: TABS.DASHBOARD,  icon: <LayoutDashboard size={16} />, label: 'Ops Dashboard' },
+  { id: TABS.DASHBOARD, icon: <LayoutDashboard size={16} />, label: '대시보드' },
+  { id: TABS.WEB,       icon: <Globe size={16} />,           label: '웹 진단 & 분석',          sectionLabel: '웹' },
+  { id: TABS.INSIGHT,   icon: <BarChart3 size={16} />,       label: '통합 마케팅 인사이트' },
+  { id: TABS.LLMSTXT,   icon: <Bot size={16} />,             label: 'llms.txt' },
+  { id: TABS.CONTENT,   icon: <FileText size={16} />,        label: '콘텐츠 생성 & 리라이터',   sectionLabel: '콘텐츠' },
+  { id: TABS.KEYWORD,   icon: <Tag size={16} />,             label: '키워드 분석' },
+  { id: TABS.SOV,       icon: <Megaphone size={16} />,       label: 'AI Share of Voice' },
 ];
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<Tab>(TABS.DIAGNOSIS);
+  const [activeTab, setActiveTab] = useState<Tab>(TABS.DASHBOARD);
   const [toast, setToast] = useState<string | null>(null);
 
   const showToast = (message: string) => {
@@ -66,16 +57,13 @@ export default function App() {
         onTabChange={(tab) => setActiveTab(tab as Tab)}
         product="marketing"
       >
-        {activeTab === TABS.DIAGNOSIS  && <DiagnosisModule onToast={showToast} />}
-        {activeTab === TABS.COMPETITOR && <CompetitorModule onToast={showToast} />}
-        {activeTab === TABS.CONTENT    && <ContentHubModule onToast={showToast} />}
-        {activeTab === TABS.REWRITER   && <RewriterModule onToast={showToast} />}
-        {activeTab === TABS.KEYWORD    && <KeywordModule onToast={showToast} />}
-        {activeTab === TABS.LLMSTXT    && <LlmsTxtModule onToast={showToast} />}
-        {activeTab === TABS.INSIGHT    && <MarketingInsightModule onToast={showToast} />}
-        {activeTab === TABS.SOV        && <SovModule onToast={showToast} />}
-        {activeTab === TABS.BLOG       && <BlogAdminModule onToast={showToast} />}
-        {activeTab === TABS.DASHBOARD  && <DashboardModule />}
+        {activeTab === TABS.DASHBOARD && <DashboardModule />}
+        {activeTab === TABS.WEB       && <WebModule onToast={showToast} />}
+        {activeTab === TABS.INSIGHT   && <MarketingInsightModule onToast={showToast} />}
+        {activeTab === TABS.LLMSTXT   && <LlmsTxtModule onToast={showToast} />}
+        {activeTab === TABS.CONTENT   && <UnifiedContentModule onToast={showToast} />}
+        {activeTab === TABS.KEYWORD   && <KeywordModule onToast={showToast} />}
+        {activeTab === TABS.SOV       && <SovModule onToast={showToast} />}
       </SidebarLayout>
 
       {toast && (
