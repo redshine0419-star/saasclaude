@@ -53,3 +53,34 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json(project, { status: 201 });
 }
+
+export async function PATCH(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const { id, name, description, color } = await req.json();
+  if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 });
+
+  const project = await prisma.project.update({
+    where: { id },
+    data: {
+      ...(name !== undefined ? { name: name.trim() } : {}),
+      ...(description !== undefined ? { description: description?.trim() ?? null } : {}),
+      ...(color !== undefined ? { color } : {}),
+    },
+  });
+
+  return NextResponse.json(project);
+}
+
+export async function DELETE(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get('id');
+  if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 });
+
+  await prisma.project.delete({ where: { id } });
+  return NextResponse.json({ ok: true });
+}
