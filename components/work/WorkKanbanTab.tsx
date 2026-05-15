@@ -23,10 +23,11 @@ type ViewMode = 'card' | 'table' | 'gantt';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const DEFAULT_STAGES: Stage[] = [
-  { id: 'todo', label: '할 일', color: '#8c959f' },
-  { id: 'in-progress', label: '진행 중', color: '#0969da' },
-  { id: 'review', label: '검토', color: '#bf8700' },
-  { id: 'done', label: '완료', color: '#1a7f37' },
+  { id: '기획', label: '기획', color: '#8b5cf6' },
+  { id: '디자인', label: '디자인', color: '#0969da' },
+  { id: '퍼블', label: '퍼블', color: '#f97316' },
+  { id: '개발', label: '개발', color: '#14b8a6' },
+  { id: '완료', label: '완료', color: '#1a7f37' },
 ];
 
 const STAGE_COLOR_OPTIONS = [
@@ -36,8 +37,12 @@ const STAGE_COLOR_OPTIONS = [
 
 const PRIORITY_COLORS: Record<string, string> = {
   urgent: '#ef4444', high: '#f97316', medium: '#eab308', low: '#94a3b8',
+  긴급: '#ef4444', 높음: '#f97316', 보통: '#eab308', 낮음: '#94a3b8',
 };
-const PRIORITY_LABELS: Record<string, string> = { urgent: '긴급', high: '높음', medium: '보통', low: '낮음' };
+const PRIORITY_LABELS: Record<string, string> = {
+  urgent: '긴급', high: '높음', medium: '보통', low: '낮음',
+  긴급: '긴급', 높음: '높음', 보통: '보통', 낮음: '낮음',
+};
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function getStages(projectId: string): Stage[] {

@@ -10,6 +10,12 @@ async function getWorkUser(email: string, name?: string | null, image?: string |
   });
 }
 
+const TASK_INCLUDE = {
+  assignee: { select: { id: true, name: true, email: true, avatarUrl: true } },
+  labels: { include: { label: true } },
+  _count: { select: { comments: true } },
+} as const;
+
 export async function GET(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -27,12 +33,8 @@ export async function GET(req: NextRequest) {
 
   const tasks = await prisma.task.findMany({
     where,
-    include: {
-      assignee: { select: { id: true, name: true, email: true, avatarUrl: true } },
-      labels: { include: { label: true } },
-      _count: { select: { comments: true } },
-    },
-    orderBy: [{ status: 'asc' }, { position: 'asc' }, { createdAt: 'asc' }],
+    include: TASK_INCLUDE,
+    orderBy: [{ dueDate: 'asc' }, { position: 'asc' }, { createdAt: 'asc' }],
   });
 
   return NextResponse.json(tasks);
@@ -42,7 +44,13 @@ export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { projectId, title, description, status, priority, dueDate, assigneeId } = await req.json();
+  const body = await req.json();
+  const {
+    projectId, title, description, status, priority, dueDate, assigneeId,
+    category, taskType, requester, externalLink,
+    planningStatus, designStatus, publishStatus, devStatus,
+  } = body;
+
   if (!projectId || !title?.trim()) {
     return NextResponse.json({ error: 'projectId와 title은 필수입니다.' }, { status: 400 });
   }
@@ -50,7 +58,7 @@ export async function POST(req: NextRequest) {
   const workUser = await getWorkUser(session.user.email, session.user.name, session.user.image);
 
   const lastTask = await prisma.task.findFirst({
-    where: { projectId, status: status ?? 'todo' },
+    where: { projectId, status: status ?? '기획' },
     orderBy: { position: 'desc' },
     select: { position: true },
   });
@@ -61,16 +69,22 @@ export async function POST(req: NextRequest) {
       projectId,
       title: title.trim(),
       description: description?.trim() ?? null,
-      status: status ?? 'todo',
-      priority: priority ?? 'medium',
+      status: status ?? '기획',
+      priority: priority ?? '보통',
       dueDate: dueDate ? new Date(dueDate) : null,
       assigneeId: assigneeId ?? null,
       creatorId: workUser.id,
       position,
+      category: category ?? '',
+      taskType: taskType ?? '',
+      requester: requester ?? '',
+      externalLink: externalLink ?? '',
+      planningStatus: planningStatus ?? '미시작',
+      designStatus: designStatus ?? '미시작',
+      publishStatus: publishStatus ?? '미시작',
+      devStatus: devStatus ?? '미시작',
     },
-    include: {
-      assignee: { select: { id: true, name: true, email: true, avatarUrl: true } },
-    },
+    include: TASK_INCLUDE,
   });
 
   return NextResponse.json(task, { status: 201 });
@@ -83,21 +97,25 @@ export async function PATCH(req: NextRequest) {
   const { id, ...updates } = await req.json();
   if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 });
 
+  const ALLOWED = [
+    'title', 'description', 'status', 'priority', 'dueDate', 'assigneeId', 'position',
+    'category', 'taskType', 'requester', 'externalLink',
+    'planningStatus', 'designStatus', 'publishStatus', 'devStatus',
+  ];
+
   const data: Record<string, unknown> = {};
-  if (updates.title !== undefined) data.title = updates.title;
-  if (updates.description !== undefined) data.description = updates.description;
-  if (updates.status !== undefined) data.status = updates.status;
-  if (updates.priority !== undefined) data.priority = updates.priority;
-  if (updates.dueDate !== undefined) data.dueDate = updates.dueDate ? new Date(updates.dueDate) : null;
-  if (updates.assigneeId !== undefined) data.assigneeId = updates.assigneeId;
-  if (updates.position !== undefined) data.position = updates.position;
+  for (const key of ALLOWED) {
+    if (updates[key] !== undefined) {
+      data[key] = key === 'dueDate'
+        ? (updates[key] ? new Date(updates[key]) : null)
+        : updates[key];
+    }
+  }
 
   const task = await prisma.task.update({
     where: { id },
     data,
-    include: {
-      assignee: { select: { id: true, name: true, email: true, avatarUrl: true } },
-    },
+    include: TASK_INCLUDE,
   });
 
   return NextResponse.json(task);
