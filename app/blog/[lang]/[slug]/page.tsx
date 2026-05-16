@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   if (!post) return { title: 'Not Found' };
 
   return {
-    title: `${post.title} | MarketerOps.ai`,
+    title: `${post.title} | GrowWeb.me`,
     description: post.metaDescription,
     keywords: post.tags.join(', '),
     alternates: {
@@ -59,7 +59,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       type: 'article',
       publishedTime: post.createdAt,
       tags: post.tags,
-      siteName: 'MarketerOps.ai',
+      siteName: 'GrowWeb.me',
     },
   };
 }
@@ -86,8 +86,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
     dateModified: post.createdAt,
     inLanguage: lang,
     keywords: post.tags.join(', '),
-    author: { '@type': 'Organization', name: 'MarketerOps.ai', url: SITE_URL },
-    publisher: { '@type': 'Organization', name: 'MarketerOps.ai', url: SITE_URL },
+    author: { '@type': 'Organization', name: 'GrowWeb.me', url: SITE_URL },
+    publisher: { '@type': 'Organization', name: 'GrowWeb.me', url: SITE_URL },
     mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}/blog/${lang}/${slug}` },
   };
 
@@ -156,7 +156,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
               {post.metaDescription}
             </p>
             <div className="flex items-center gap-4 text-sm text-[#57606a] dark:text-[#8b949e]">
-              <span className="font-medium text-[#24292f] dark:text-[#e6edf3]">MarketerOps.ai</span>
+              <span className="font-medium text-[#24292f] dark:text-[#e6edf3]">GrowWeb.me</span>
               <span>·</span>
               <time dateTime={post.createdAt}>
                 {new Date(post.createdAt).toLocaleDateString(isKo ? 'ko-KR' : isJa ? 'ja-JP' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}

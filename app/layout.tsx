@@ -17,8 +17,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MarketerOps.ai",
+  title: "GrowWeb.me",
   description: "AI 마케팅 SaaS — GEO & SEO 진단, 멀티채널 콘텐츠, 퍼포먼스 대시보드",
+  other: {
+    'naver-site-verification': '5a5f2d5a0e811f2fb0fc3d94d54a6a6a92b18eaa',
+  },
 };
 
 export default function RootLayout({

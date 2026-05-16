@@ -7,7 +7,7 @@ export default function SignInPage() {
       <div className="w-full max-w-sm">
         <div className="flex items-center justify-center gap-2 text-white font-black text-xl tracking-tight mb-8">
           <Zap size={22} fill="currentColor" />
-          <span>MarketerOps<span className="text-[#888] font-normal">.ai</span></span>
+          <span>GrowWeb<span className="text-[#888] font-normal">.me</span></span>
         </div>
 
         <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-8">

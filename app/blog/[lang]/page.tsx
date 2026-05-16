@@ -21,10 +21,10 @@ async function getPosts(lang: Lang): Promise<PostIndex[]> {
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
   const title = lang === 'ko'
-    ? 'AI 마케팅 블로그 | MarketerOps.ai'
+    ? 'AI 마케팅 블로그 | GrowWeb.me'
     : lang === 'ja'
-    ? 'AIマーケティングブログ | MarketerOps.ai'
-    : 'AI Marketing Blog | MarketerOps.ai';
+    ? 'AIマーケティングブログ | GrowWeb.me'
+    : 'AI Marketing Blog | GrowWeb.me';
   const description = lang === 'ko'
     ? 'AI 마케팅, SEO, GEO 최적화에 관한 전문 블로그'
     : lang === 'ja'
@@ -61,7 +61,7 @@ export default async function BlogListPage({ params, searchParams }: {
         <div className="max-w-5xl mx-auto px-4 md:px-6 py-10">
           <div className="flex items-center justify-between mb-4">
             <Link href="/" className="text-sm text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors">
-              ← MarketerOps.ai
+              ← GrowWeb.me
             </Link>
             {/* Language switcher */}
             <div className="flex items-center gap-1 text-sm border border-[#d0d7de] dark:border-[#30363d] rounded-md overflow-hidden">

@@ -69,7 +69,7 @@ async function safeFetch(url: string, timeout = 8000): Promise<Response | null> 
     const id = setTimeout(() => controller.abort(), timeout);
     const res = await fetch(url, {
       signal: controller.signal,
-      headers: { 'User-Agent': 'MarketerOps-Bot/1.0 (SEO Analyzer)' },
+      headers: { 'User-Agent': 'GrowWeb-Bot/1.0 (SEO Analyzer)' },
     });
     clearTimeout(id);
     return res;

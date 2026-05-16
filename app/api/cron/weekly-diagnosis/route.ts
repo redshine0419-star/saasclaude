@@ -26,7 +26,7 @@ async function buildReport(results: Awaited<ReturnType<typeof diagnoseUrl>>[]) {
     ', GEO ' + r.geo.score
   ).join('\n');
 
-  const prompt = '다음은 마케팅 도구 MarketerOps.ai의 주간 자동 진단 결과입니다.\n\n' +
+  const prompt = '다음은 마케팅 도구 GrowWeb.me의 주간 자동 진단 결과입니다.\n\n' +
     summaries + '\n\n' +
     '각 사이트의 주요 변화와 즉시 취할 수 있는 개선 액션을 3문장 이내로 요약하세요. 한국어로.';
 
@@ -75,7 +75,7 @@ export async function GET(req: NextRequest) {
   const report = await buildReport(results);
 
   const lines = [
-    '*📊 MarketerOps.ai 주간 자동 진단 리포트*',
+    '*📊 GrowWeb.me 주간 자동 진단 리포트*',
     '날짜: ' + new Date().toLocaleDateString('ko-KR'),
     '',
     '*진단 요약*',

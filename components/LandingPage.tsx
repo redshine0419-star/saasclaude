@@ -38,7 +38,7 @@ const T = {
       { num: '03', title: 'AI 점유율 측정', desc: 'ChatGPT·Gemini 내 브랜드 언급율을 경쟁사와 비교합니다.' },
     ],
 
-    why_title: '왜 MarketerOps.ai인가?',
+    why_title: '왜 GrowWeb.me인가?',
     why_items: [
       { title: '즉각적인 인사이트', desc: 'URL 하나로 PageSpeed, GEO, SEO를 동시에 분석. 결과까지 10초.' },
       { title: 'AI 시대 마케팅 전략', desc: 'ChatGPT·Gemini 시대의 GEO 최적화. LLM이 당신의 브랜드를 인용하게 만드세요.' },
@@ -56,7 +56,7 @@ const T = {
     faqs: [
       { q: 'GEO 최적화가 뭔가요?', a: 'GEO(Generative Engine Optimization)는 ChatGPT, Gemini, Perplexity 같은 AI 검색 엔진에 브랜드가 노출되도록 최적화하는 새로운 마케팅 전략입니다.' },
       { q: '정말 무료인가요?', a: '네, 완전 무료입니다. 9가지 AI 도구 모두 무제한으로 사용할 수 있습니다. 숨겨진 비용이나 크레딧 제한이 없습니다.' },
-      { q: 'API 키가 필요한가요?', a: '필요 없습니다. MarketerOps.ai가 AI 분석에 필요한 모든 인프라를 제공합니다. 바로 사용하세요.' },
+      { q: 'API 키가 필요한가요?', a: '필요 없습니다. GrowWeb.me가 AI 분석에 필요한 모든 인프라를 제공합니다. 바로 사용하세요.' },
       { q: '데이터는 저장되나요?', a: '진단 이력은 브라우저 로컬에만 저장되며, 서버에 전송되지 않습니다. 개인정보 걱정 없이 사용하세요.' },
       { q: 'GA4 연동은 어떻게 하나요?', a: 'GA4 Analytics 탭에서 Google Analytics Property ID를 입력하면 됩니다. OAuth 인증 후 30일 데이터를 AI가 분석합니다.' },
     ],
@@ -72,7 +72,7 @@ const T = {
     cta_btn: '무료로 시작하기',
 
     footer_privacy: 'Privacy Policy',
-    footer_copy: '© 2025 MarketerOps.ai · AI-Powered Marketing Intelligence',
+    footer_copy: '© 2025 GrowWeb.me · AI-Powered Marketing Intelligence',
   },
   en: {
     nav_features: 'Features', nav_faq: 'FAQ', nav_pricing: 'Pricing',
@@ -102,7 +102,7 @@ const T = {
       { num: '03', title: 'Measure AI Share of Voice', desc: 'Track your brand mentions in ChatGPT & Gemini vs. competitors.' },
     ],
 
-    why_title: 'Why MarketerOps.ai?',
+    why_title: 'Why GrowWeb.me?',
     why_items: [
       { title: 'Instant insights', desc: 'Analyze PageSpeed, GEO, and SEO simultaneously from a single URL. Results in 10 seconds.' },
       { title: 'AI-era marketing strategy', desc: 'GEO optimization for the ChatGPT & Gemini era. Make LLMs cite your brand.' },
@@ -120,7 +120,7 @@ const T = {
     faqs: [
       { q: 'What is GEO optimization?', a: 'GEO (Generative Engine Optimization) is a new marketing strategy for optimizing brand visibility in AI search engines like ChatGPT, Gemini, and Perplexity.' },
       { q: 'Is it really free?', a: 'Yes, completely free. All 9 AI tools are available with unlimited usage. No hidden fees or credit limits.' },
-      { q: 'Do I need an API key?', a: 'No. MarketerOps.ai provides all the AI infrastructure needed. Just start using it.' },
+      { q: 'Do I need an API key?', a: 'No. GrowWeb.me provides all the AI infrastructure needed. Just start using it.' },
       { q: 'Is my data stored?', a: 'Diagnosis history is stored locally in your browser only, never sent to a server. Use it without privacy concerns.' },
       { q: 'How do I connect GA4?', a: 'Enter your Google Analytics Property ID in the GA4 Analytics tab. After OAuth authentication, AI analyzes 30 days of data.' },
     ],
@@ -136,7 +136,7 @@ const T = {
     cta_btn: 'Start for Free',
 
     footer_privacy: 'Privacy Policy',
-    footer_copy: '© 2025 MarketerOps.ai · AI-Powered Marketing Intelligence',
+    footer_copy: '© 2025 GrowWeb.me · AI-Powered Marketing Intelligence',
   },
   ja: {
     nav_features: '機能', nav_faq: 'FAQ', nav_pricing: '料金プラン',
@@ -166,7 +166,7 @@ const T = {
       { num: '03', title: 'AI占有率測定', desc: 'ChatGPT・Gemini内のブランド言及率を競合他社と比較します。' },
     ],
 
-    why_title: 'なぜMarketerOps.aiなのか？',
+    why_title: 'なぜGrowWeb.meなのか？',
     why_items: [
       { title: '即時インサイト', desc: 'URLひとつでPageSpeed、GEO、SEOを同時分析。結果まで10秒。' },
       { title: 'AI時代のマーケティング戦略', desc: 'ChatGPT・Gemini時代のGEO最適化。LLMにあなたのブランドを引用させましょう。' },
@@ -184,7 +184,7 @@ const T = {
     faqs: [
       { q: 'GEO最適化とは何ですか？', a: 'GEO（Generative Engine Optimization）は、ChatGPT、Gemini、Perplexityなどに自社ブランドが引用されるよう最適化する新しいマーケティング戦略です。' },
       { q: '本当に無料ですか？', a: 'はい、完全無料です。9つのAIツールすべて無制限で使用できます。隠れた費用やクレジット制限はありません。' },
-      { q: 'APIキーは必要ですか？', a: '不要です。MarketerOps.aiがAI分析に必要なすべてのインフラを提供しています。すぐにご利用いただけます。' },
+      { q: 'APIキーは必要ですか？', a: '不要です。GrowWeb.meがAI分析に必要なすべてのインフラを提供しています。すぐにご利用いただけます。' },
       { q: 'データは保存されますか？', a: '診断履歴はブラウザのローカルにのみ保存され、サーバーには送信されません。プライバシーの心配なくご使用ください。' },
       { q: 'GA4連携はどうすればいいですか？', a: 'GA4 AnalyticsタブにGoogle Analytics Property IDを入力してください。OAuth認証後、30日間のデータをAIが分析します。' },
     ],
@@ -200,7 +200,7 @@ const T = {
     cta_btn: '無料で始める',
 
     footer_privacy: 'プライバシーポリシー',
-    footer_copy: '© 2025 MarketerOps.ai · AI搭載マーケティングインテリジェンス',
+    footer_copy: '© 2025 GrowWeb.me · AI搭載マーケティングインテリジェンス',
   },
 };
 
@@ -248,7 +248,7 @@ function LandingChat({ t }: { t: typeof T['ko'] }) {
         </div>
         <div>
           <p className="font-bold text-sm text-[#24292f] dark:text-[#e6edf3]">AI 마케팅 어시스턴트</p>
-          <p className="text-[11px] text-[#57606a] dark:text-[#8b949e]">MarketerOps.ai</p>
+          <p className="text-[11px] text-[#57606a] dark:text-[#8b949e]">GrowWeb.me</p>
         </div>
         <div className="ml-auto flex items-center gap-1.5">
           <span className="w-2 h-2 bg-[#2da44e] rounded-full" />
@@ -349,7 +349,7 @@ export default function LandingPage({ lang }: { lang: 'ko' | 'en' | 'ja' }) {
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href={lang === 'ko' ? '/' : lang === 'ja' ? '/ja' : '/en'} className="flex items-center gap-2 font-black text-xl tracking-tight text-[#24292f] dark:text-[#e6edf3]">
             <Zap size={22} fill="currentColor" />
-            <span>MarketerOps<span className="text-[#57606a] dark:text-[#8b949e] font-light">.ai</span></span>
+            <span>GrowWeb<span className="text-[#57606a] dark:text-[#8b949e] font-light">.me</span></span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-[#57606a] dark:text-[#8b949e]">
@@ -598,7 +598,7 @@ export default function LandingPage({ lang }: { lang: 'ko' | 'en' | 'ja' }) {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-6">
             <div className="flex items-center gap-2 font-black text-[#24292f] dark:text-[#e6edf3]">
               <Zap size={18} fill="currentColor" />
-              MarketerOps.ai
+              GrowWeb.me
             </div>
             <nav className="flex items-center gap-6 text-xs font-medium text-[#57606a] dark:text-[#8b949e]">
               <a href="#features" className="hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors">{t.nav_features}</a>

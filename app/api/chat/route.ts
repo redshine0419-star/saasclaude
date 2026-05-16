@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateChat } from '@/lib/ai';
 
-const SYSTEM_PROMPT = `당신은 MarketerOps.ai의 AI 마케팅 어시스턴트입니다.
-MarketerOps.ai는 다음 9가지 무료 AI 마케팅 도구를 제공합니다:
+const SYSTEM_PROMPT = `당신은 GrowWeb.me의 AI 마케팅 어시스턴트입니다.
+GrowWeb.me는 다음 9가지 무료 AI 마케팅 도구를 제공합니다:
 - Engine Diagnosis: URL 입력 시 PageSpeed + GEO 가시성(AI 검색엔진 크롤링 가능성) 즉시 분석
 - Competitor Analysis: 경쟁사 URL 비교 + AI 격차 분석
 - Content Orchestrator: 소스 하나로 블로그·SNS·뉴스레터·광고 4채널 콘텐츠 자동 생성

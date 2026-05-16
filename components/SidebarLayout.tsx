@@ -54,7 +54,7 @@ export default function SidebarLayout({
           <Zap size={18} fill="currentColor" strokeWidth={0} className="shrink-0" />
           {(!collapsed || mobile) && (
             <span className="font-bold text-sm tracking-tight">
-              MarketerOps<span className="text-[#555]  font-normal">.ai</span>
+              GrowWeb<span className="text-[#555]  font-normal">.me</span>
             </span>
           )}
         </Link>
@@ -192,7 +192,7 @@ export default function SidebarLayout({
           </button>
           <Link href="/" className="flex items-center gap-2 text-white font-bold text-sm">
             <Zap size={16} fill="currentColor" strokeWidth={0} />
-            MarketerOps.ai
+            GrowWeb.me
           </Link>
           <NotificationPanel iconSize={18} dark />
         </header>

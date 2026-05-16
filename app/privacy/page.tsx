@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy — MarketerOps.ai',
-  description: 'Privacy Policy for MarketerOps.ai — how we collect, use, and protect your data.',
+  title: 'Privacy Policy — GrowWeb.me',
+  description: 'Privacy Policy for GrowWeb.me — how we collect, use, and protect your data.',
 };
 
 export default function PrivacyPage() {
@@ -11,7 +11,7 @@ export default function PrivacyPage() {
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-3xl mx-auto px-6 py-16">
         <div className="mb-8">
-          <Link href="/" className="text-sm text-indigo-600 hover:underline">← MarketerOps.ai로 돌아가기</Link>
+          <Link href="/" className="text-sm text-indigo-600 hover:underline">← GrowWeb.me로 돌아가기</Link>
         </div>
 
         <h1 className="text-3xl font-black text-slate-900 mb-2">Privacy Policy</h1>
@@ -22,7 +22,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-bold text-slate-800 mb-3">1. Introduction</h2>
             <p>
-              MarketerOps.ai (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) operates this website and the tools available at this domain.
+              GrowWeb.me (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) operates this website and the tools available at this domain.
               This Privacy Policy explains what information we collect, how we use it, and your rights regarding your data.
               By using our service, you agree to the practices described here.
             </p>
@@ -163,7 +163,7 @@ export default function PrivacyPage() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-slate-200 text-center">
-          <Link href="/" className="text-sm text-indigo-600 hover:underline">← MarketerOps.ai로 돌아가기</Link>
+          <Link href="/" className="text-sm text-indigo-600 hover:underline">← GrowWeb.me로 돌아가기</Link>
         </div>
       </div>
     </div>

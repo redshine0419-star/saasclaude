@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
   }
 
   const lines = [
-    '*⚡ MarketerOps.ai 점수 변동 알림*',
+    '*⚡ GrowWeb.me 점수 변동 알림*',
     context ? `사이트: ${context}` : '',
     '',
     ...significant.map(formatAlert),
