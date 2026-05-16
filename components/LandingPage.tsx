@@ -335,7 +335,7 @@ function FAQ({ items }: { items: { q: string; a: string }[] }) {
   );
 }
 
-export default function LandingPage({ lang }: { lang: 'ko' | 'en' | 'ja' }) {
+export default function LandingPage({ lang, isLoggedIn = false }: { lang: 'ko' | 'en' | 'ja'; isLoggedIn?: boolean }) {
   const { dark, toggle } = useDarkMode();
   const t = T[lang];
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -378,9 +378,20 @@ export default function LandingPage({ lang }: { lang: 'ko' | 'en' | 'ja' }) {
               )}
             </div>
             {/* Desktop CTA */}
-            <Link href="/app" className="hidden md:flex items-center gap-1.5 bg-[#000] hover:bg-[#333] dark:bg-white dark:hover:bg-[#eee] dark:text-black text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors">
-              {t.nav_cta} <ChevronRight size={14} />
-            </Link>
+            {isLoggedIn ? (
+              <div className="hidden md:flex items-center gap-2">
+                <Link href="/app" className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-md border border-[#d0d7de] dark:border-[#30363d] text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] transition-colors">
+                  {lang === 'ja' ? 'マーケティング' : lang === 'en' ? 'Marketing' : '마케팅 도구'}
+                </Link>
+                <Link href="/app?tab=projects" className="flex items-center gap-1.5 bg-[#000] hover:bg-[#333] dark:bg-white dark:hover:bg-[#eee] dark:text-black text-white text-sm font-semibold px-3 py-2 rounded-md transition-colors">
+                  {lang === 'ja' ? '業務管理' : lang === 'en' ? 'Work' : '업무 관리'} <ChevronRight size={14} />
+                </Link>
+              </div>
+            ) : (
+              <Link href="/app" className="hidden md:flex items-center gap-1.5 bg-[#000] hover:bg-[#333] dark:bg-white dark:hover:bg-[#eee] dark:text-black text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors">
+                {t.nav_cta} <ChevronRight size={14} />
+              </Link>
+            )}
             {/* Mobile hamburger */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -398,10 +409,23 @@ export default function LandingPage({ lang }: { lang: 'ko' | 'en' | 'ja' }) {
               className="text-sm font-medium text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors py-1">
               {t.nav_blog}
             </Link>
-            <Link href="/app" onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-center gap-1.5 bg-[#000] hover:bg-[#333] dark:bg-white dark:hover:bg-[#eee] dark:text-black text-white text-sm font-semibold px-4 py-2.5 rounded-md transition-colors">
-              {t.nav_cta} <ChevronRight size={14} />
-            </Link>
+            {isLoggedIn ? (
+              <div className="flex flex-col gap-2">
+                <Link href="/app" onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-1.5 border border-[#d0d7de] dark:border-[#30363d] text-[#24292f] dark:text-[#e6edf3] text-sm font-semibold px-4 py-2.5 rounded-md transition-colors hover:bg-[#f6f8fa] dark:hover:bg-[#21262d]">
+                  {lang === 'ja' ? 'マーケティング' : lang === 'en' ? 'Marketing Tools' : '마케팅 도구'}
+                </Link>
+                <Link href="/app?tab=projects" onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-1.5 bg-[#000] hover:bg-[#333] dark:bg-white dark:hover:bg-[#eee] dark:text-black text-white text-sm font-semibold px-4 py-2.5 rounded-md transition-colors">
+                  {lang === 'ja' ? '業務管理' : lang === 'en' ? 'Work Management' : '업무 관리'} <ChevronRight size={14} />
+                </Link>
+              </div>
+            ) : (
+              <Link href="/app" onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-center gap-1.5 bg-[#000] hover:bg-[#333] dark:bg-white dark:hover:bg-[#eee] dark:text-black text-white text-sm font-semibold px-4 py-2.5 rounded-md transition-colors">
+                {t.nav_cta} <ChevronRight size={14} />
+              </Link>
+            )}
           </div>
         )}
       </header>

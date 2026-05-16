@@ -1,5 +1,7 @@
+import { auth } from '@/auth';
 import LandingPage from '@/components/LandingPage';
 
-export default function JaPage() {
-  return <LandingPage lang="ja" />;
+export default async function JaPage() {
+  const session = await auth();
+  return <LandingPage lang="ja" isLoggedIn={!!session?.user} />;
 }

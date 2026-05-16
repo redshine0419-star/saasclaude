@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Globe, FileText, Tag,
   Bot, BarChart3, Megaphone, CheckCircle2,
@@ -57,7 +58,11 @@ const NAV_ITEMS = [
 ];
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<Tab>(TABS.DASHBOARD);
+  const searchParams = useSearchParams();
+  const initialTab = (searchParams.get('tab') as Tab | null) ?? TABS.DASHBOARD;
+  const [activeTab, setActiveTab] = useState<Tab>(
+    Object.values(TABS).includes(initialTab as Tab) ? initialTab : TABS.DASHBOARD
+  );
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
