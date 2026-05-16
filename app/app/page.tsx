@@ -4,7 +4,7 @@ import { useState } from 'react';
 import {
   LayoutDashboard, Globe, FileText, Tag,
   Bot, BarChart3, Megaphone, CheckCircle2,
-  FolderKanban, LayoutGrid, CheckSquare, Users, Rss,
+  FolderKanban, LayoutGrid, CheckSquare, Users, Rss, Code2,
 } from 'lucide-react';
 import SidebarLayout from '@/components/SidebarLayout';
 import OnboardingModal from '@/components/OnboardingModal';
@@ -21,6 +21,7 @@ import WorkKanbanTab from '@/components/work/WorkKanbanTab';
 import WorkMyTasksTab from '@/components/work/WorkMyTasksTab';
 import WorkTeamTab from '@/components/work/WorkTeamTab';
 import BlogAdminModule from '@/components/BlogAdminModule';
+import SiteEditorModule from '@/components/SiteEditorModule';
 
 const TABS = {
   DASHBOARD: 'dashboard',
@@ -35,6 +36,7 @@ const TABS = {
   MY_TASKS:  'my-tasks',
   TEAM:      'team',
   BLOG:      'blog',
+  EDITOR:    'editor',
 } as const;
 type Tab = typeof TABS[keyof typeof TABS];
 
@@ -51,6 +53,7 @@ const NAV_ITEMS = [
   { id: TABS.MY_TASKS,  icon: <CheckSquare size={16} />,     label: '내 할일' },
   { id: TABS.TEAM,      icon: <Users size={16} />,           label: '팀 관리' },
   { id: TABS.BLOG,      icon: <Rss size={16} />,             label: '블로그 관리', adminOnly: true },
+  { id: TABS.EDITOR,    icon: <Code2 size={16} />,           label: '사이트 편집기', adminOnly: true },
 ];
 
 export default function App() {
@@ -92,6 +95,7 @@ export default function App() {
         {activeTab === TABS.MY_TASKS  && <WorkMyTasksTab />}
         {activeTab === TABS.TEAM      && <WorkTeamTab />}
         {activeTab === TABS.BLOG      && <BlogAdminModule onToast={showToast} />}
+        {activeTab === TABS.EDITOR    && <SiteEditorModule />}
       </SidebarLayout>
 
       {toast && (
