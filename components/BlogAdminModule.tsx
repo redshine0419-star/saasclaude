@@ -5,7 +5,7 @@ import { Loader2, Trash2, ExternalLink, RefreshCw, Plus, Globe, Pencil, X, Clock
 import type { PostIndex, BlogPost } from '@/app/api/blog/generate/route';
 import type { ScheduleConfig } from '@/app/api/blog/schedule/route';
 
-type Lang = 'ko' | 'en';
+type Lang = 'ko' | 'en' | 'ja';
 
 interface Props {
   onToast: (msg: string) => void;
@@ -83,6 +83,57 @@ AI 챗봇 마케팅 활용법
 스타트업 마케팅 전략 가이드
 마케팅 자동화 워크플로우 구축
 제품 마케팅 전략 완벽 가이드`;
+
+const JA_DEFAULT_KEYWORDS = `AIマーケティングとは何か
+AIコンテンツマーケティング戦略
+ChatGPTをビジネスに活用する方法
+SEO最適化完全ガイド
+データドリブンマーケティング戦略
+パーソナライズマーケティングの実践
+GEO最適化完全ガイド
+検索エンジン最適化の基礎
+ソーシャルメディアマーケティング戦略
+コンテンツマーケティングROI測定方法
+AI広告最適化の方法
+マーケティングオートメーションツール比較
+顧客セグメンテーション戦略
+メールマーケティング成果向上のコツ
+パフォーマンスマーケティング基礎ガイド
+ブランドマーケティング戦略の立て方
+インフルエンサーマーケティング実践ガイド
+B2Bマーケティング戦略完全解説
+マーケティングファネル最適化方法
+キーワードリサーチ完全ガイド
+ロングテールキーワード発掘戦略
+被リンク構築戦略ガイド
+オンページSEO最適化方法
+テクニカルSEOチェックリスト
+ローカルSEOマーケティング戦略
+音声検索SEO最適化方法
+モバイルSEO戦略ガイド
+AI検索最適化の方法
+ゼロクリック検索対策戦略
+検索意図分析方法
+顧客ジャーニーマップ作成ガイド
+CRMマーケティング活用戦略
+リターゲティング広告戦略ガイド
+コンバージョン率最適化の実践方法
+マーケティング予算配分戦略
+競合分析方法ガイド
+Google Analyticsのマーケティング活用
+マーケティングKPI設定方法
+A/Bテストのマーケティング活用
+消費者行動分析方法
+ブランドストーリーテリング戦略
+バイラルマーケティング成功戦略
+オムニチャネルマーケティング戦略ガイド
+コミュニティマーケティング実践方法
+レビューマーケティング活用戦略
+動画マーケティングSEO戦略
+AIチャットボットマーケティング活用
+スタートアップ向けマーケティング戦略
+マーケティングオートメーションワークフロー構築
+プロダクトマーケティング戦略完全ガイド`;
 
 const EN_DEFAULT_KEYWORDS = `What is AI marketing
 AI content marketing strategy guide
@@ -199,7 +250,9 @@ export default function BlogAdminModule({ onToast }: Props) {
   useEffect(() => { fetchPosts(lang); }, [lang]);
   useEffect(() => { if (scheduleOpen && !schedule) fetchSchedule(); }, [scheduleOpen]);
   useEffect(() => {
-    if (!bulkRunning) setBulkKeywordsText(bulkLang === 'ko' ? KO_DEFAULT_KEYWORDS : EN_DEFAULT_KEYWORDS);
+    if (!bulkRunning) {
+      setBulkKeywordsText(bulkLang === 'ko' ? KO_DEFAULT_KEYWORDS : bulkLang === 'ja' ? JA_DEFAULT_KEYWORDS : EN_DEFAULT_KEYWORDS);
+    }
   }, [bulkLang]);
 
   const handleGenerate = async () => {
@@ -326,8 +379,8 @@ export default function BlogAdminModule({ onToast }: Props) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             keyword: keywords[i],
-            targetAudience: bulkLang === 'ko' ? '마케터, 사업주' : 'marketers, business owners',
-            tone: bulkLang === 'ko' ? '전문적이고 실용적인' : 'professional and practical',
+            targetAudience: bulkLang === 'ko' ? '마케터, 사업주' : bulkLang === 'ja' ? 'マーケター、経営者' : 'marketers, business owners',
+            tone: bulkLang === 'ko' ? '전문적이고 실용적인' : bulkLang === 'ja' ? 'プロフェッショナルで実践的' : 'professional and practical',
             lang: bulkLang,
             createdAt: dates[i] + 'T00:00:00.000Z',
           }),
@@ -354,6 +407,8 @@ export default function BlogAdminModule({ onToast }: Props) {
 
   const toneOptions = lang === 'ko'
     ? ['전문적이고 실용적인', '친근하고 쉬운', '격식체', '캐주얼']
+    : lang === 'ja'
+    ? ['プロフェッショナルで実践的', '親しみやすく分かりやすい', '格式体', 'カジュアル']
     : ['Professional and practical', 'Friendly and accessible', 'Formal', 'Casual'];
 
   const bulkProgress = bulkTotal > 0 ? Math.round((bulkDone / bulkTotal) * 100) : 0;
@@ -369,12 +424,12 @@ export default function BlogAdminModule({ onToast }: Props) {
 
       {/* Lang tabs */}
       <div className="flex gap-0 border border-[#d0d7de] dark:border-[#30363d] rounded-lg overflow-hidden w-fit">
-        {(['ko', 'en'] as Lang[]).map((l) => (
+        {(['ko', 'en', 'ja'] as Lang[]).map((l) => (
           <button key={l} onClick={() => setLang(l)}
             className={`px-5 py-2 text-sm font-medium flex items-center gap-2 transition-colors ${lang === l ? 'bg-[#000000] text-white' : 'text-[#57606a] dark:text-[#8b949e] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d]'}`}
           >
             <Globe size={14} />
-            {l === 'ko' ? '국문 (KO)' : '영문 (EN)'}
+            {l === 'ko' ? '국문 (KO)' : l === 'ja' ? '일문 (JA)' : '영문 (EN)'}
           </button>
         ))}
       </div>
@@ -383,7 +438,7 @@ export default function BlogAdminModule({ onToast }: Props) {
       <div className="border border-[#d0d7de] dark:border-[#30363d] rounded-lg p-6 bg-white dark:bg-[#161b22]">
         <h3 className="font-semibold text-[#24292f] dark:text-[#e6edf3] mb-4 flex items-center gap-2">
           <Plus size={16} />
-          {lang === 'ko' ? '국문 포스트 생성' : 'Generate English Post'}
+          {lang === 'ko' ? '국문 포스트 생성' : lang === 'ja' ? '日本語記事を生成' : 'Generate English Post'}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
@@ -391,14 +446,14 @@ export default function BlogAdminModule({ onToast }: Props) {
               키워드 / Keyword <span className="text-red-500">*</span>
             </label>
             <input type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)}
-              placeholder={lang === 'ko' ? 'AI 마케팅 전략' : 'AI marketing strategy'} className={inputCls} />
+              placeholder={lang === 'ko' ? 'AI 마케팅 전략' : lang === 'ja' ? 'AIマーケティング戦略' : 'AI marketing strategy'} className={inputCls} />
           </div>
           <div>
             <label className="block text-xs font-medium text-[#57606a] dark:text-[#8b949e] mb-1">
               {lang === 'ko' ? '대상 독자' : 'Target Audience'}
             </label>
             <input type="text" value={targetAudience} onChange={(e) => setTargetAudience(e.target.value)}
-              placeholder={lang === 'ko' ? '스타트업 마케터' : 'Startup marketers'} className={inputCls} />
+              placeholder={lang === 'ko' ? '스타트업 마케터' : lang === 'ja' ? 'スタートアップマーケター' : 'Startup marketers'} className={inputCls} />
           </div>
           <div>
             <label className="block text-xs font-medium text-[#57606a] dark:text-[#8b949e] mb-1">

@@ -4,7 +4,7 @@ import { list, put } from '@vercel/blob';
 export interface ScheduleConfig {
   enabled: boolean;
   intervalHours: number;
-  lang: 'ko' | 'en';
+  lang: 'ko' | 'en' | 'ja';
   keywords: string[];
   targetAudience: string;
   tone: string;

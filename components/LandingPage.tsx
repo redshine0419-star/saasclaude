@@ -77,7 +77,7 @@ const T = {
   en: {
     nav_features: 'Features', nav_faq: 'FAQ', nav_pricing: 'Pricing',
     nav_blog: 'Blog', nav_blog_href: '/blog/en',
-    nav_cta: 'Start for Free', lang_toggle: '한국어', lang_href: '/',
+    nav_cta: 'Start for Free', lang_toggle: 'EN', lang_href: '/en',
 
     hero_badge: 'AI-Powered · Free Forever',
     hero_title: 'AI-Powered\nMarketing Intelligence',
@@ -138,18 +138,82 @@ const T = {
     footer_privacy: 'Privacy Policy',
     footer_copy: '© 2025 MarketerOps.ai · AI-Powered Marketing Intelligence',
   },
+  ja: {
+    nav_features: '機能', nav_faq: 'FAQ', nav_pricing: '料金プラン',
+    nav_blog: 'ブログ', nav_blog_href: '/blog/ja',
+    nav_cta: '無料で始める', lang_toggle: 'JA', lang_href: '/ja',
+
+    hero_badge: 'AI搭載 · 完全無料',
+    hero_title: 'AIマーケティング\n運営ツール',
+    hero_sub: 'GEO・SEO診断からAIシェアオブボイス測定まで、上級マーケターの直感をAIが補助します。',
+    hero_cta: '無料で始める',
+    hero_sub_cta: '機能を見る',
+
+    stats: [
+      { val: '9', label: 'AIマーケティングツール' },
+      { val: '無料', label: 'クレジットカード不要' },
+      { val: 'GEO', label: 'AI検索最適化' },
+      { val: 'KO·EN·JA', label: '多言語サポート' },
+    ],
+
+    features_title: 'マーケティングのすべてをAIで',
+    features_sub: '診断からコンテンツ生成、成果測定まで — 1つのプラットフォームで。',
+
+    how_title: '3ステップで始める',
+    how_steps: [
+      { num: '01', title: 'URLを入力', desc: 'AIが即座にGEO・SEOを分析し、改善点を提示します。' },
+      { num: '02', title: 'キーワード・コンテンツ自動化', desc: 'キーワード1つで4チャンネルのマーケティング素材を一括生成。' },
+      { num: '03', title: 'AI占有率測定', desc: 'ChatGPT・Gemini内のブランド言及率を競合他社と比較します。' },
+    ],
+
+    why_title: 'なぜMarketerOps.aiなのか？',
+    why_items: [
+      { title: '即時インサイト', desc: 'URLひとつでPageSpeed、GEO、SEOを同時分析。結果まで10秒。' },
+      { title: 'AI時代のマーケティング戦略', desc: 'ChatGPT・Gemini時代のGEO最適化。LLMにあなたのブランドを引用させましょう。' },
+      { title: '完全無料', desc: '月額料金なし。クレジットなし。9つのツールすべて永久無料。' },
+    ],
+
+    pricing_title: 'シンプルな料金プラン',
+    pricing_free_name: 'Free Forever',
+    pricing_free_price: '¥0',
+    pricing_free_sub: 'クレジットカード不要',
+    pricing_free_features: ['9つのAIツール全て無制限', 'エンジン診断 (GEO + SEO)', 'AIコンテンツ自動化（4チャンネル）', 'キーワード分析 + クラスタリング', 'AIシェアオブボイス測定', 'GA4アナリティクス連携'],
+    pricing_cta: '今すぐ始める',
+
+    faq_title: 'よくある質問',
+    faqs: [
+      { q: 'GEO最適化とは何ですか？', a: 'GEO（Generative Engine Optimization）は、ChatGPT、Gemini、Perplexityなどに自社ブランドが引用されるよう最適化する新しいマーケティング戦略です。' },
+      { q: '本当に無料ですか？', a: 'はい、完全無料です。9つのAIツールすべて無制限で使用できます。隠れた費用やクレジット制限はありません。' },
+      { q: 'APIキーは必要ですか？', a: '不要です。MarketerOps.aiがAI分析に必要なすべてのインフラを提供しています。すぐにご利用いただけます。' },
+      { q: 'データは保存されますか？', a: '診断履歴はブラウザのローカルにのみ保存され、サーバーには送信されません。プライバシーの心配なくご使用ください。' },
+      { q: 'GA4連携はどうすればいいですか？', a: 'GA4 AnalyticsタブにGoogle Analytics Property IDを入力してください。OAuth認証後、30日間のデータをAIが分析します。' },
+    ],
+
+    chat_title: 'AIマーケティング相談',
+    chat_sub: 'マーケティング戦略の疑問をお気軽にどうぞ。即座に回答します。',
+    chat_placeholder: 'マーケティングの質問を入力してください...',
+    chat_welcome: 'こんにちは！AIマーケティングアシスタントです。\nSEO、GEO、コンテンツ戦略などマーケティングに関するご質問をどうぞ。',
+    chat_suggestions: ['GEO最適化を始めるには？', 'AI時代のSEO戦略', 'llms.txtが重要な理由', 'スタートアップ向けおすすめチャンネル'],
+
+    cta_title: '今すぐ始めましょう',
+    cta_sub: 'クレジットカード不要 · 永久無料',
+    cta_btn: '無料で始める',
+
+    footer_privacy: 'プライバシーポリシー',
+    footer_copy: '© 2025 MarketerOps.ai · AI搭載マーケティングインテリジェンス',
+  },
 };
 
 const FEATURES = [
-  { icon: <Globe size={18} />, ko: { title: 'Engine Diagnosis', desc: 'PageSpeed + GEO 가시성을 AI가 즉시 분석' }, en: { title: 'Engine Diagnosis', desc: 'AI-instant PageSpeed & GEO visibility analysis' } },
-  { icon: <ArrowLeftRight size={18} />, ko: { title: 'Competitor Analysis', desc: '경쟁사 URL 비교 + AI 격차 분석' }, en: { title: 'Competitor Analysis', desc: 'Competitor URL comparison & AI gap analysis' } },
-  { icon: <FileText size={18} />, ko: { title: 'Content Orchestrator', desc: '소스 하나로 4채널 마케팅 소재 자동 생성' }, en: { title: 'Content Orchestrator', desc: 'One source → 4-channel marketing content' } },
-  { icon: <PenLine size={18} />, ko: { title: 'Content Rewriter', desc: 'SEO/GEO/가독성 목표별 AI 리라이팅' }, en: { title: 'Content Rewriter', desc: 'AI rewriting by SEO / GEO / readability goal' } },
-  { icon: <Tag size={18} />, ko: { title: 'Keyword Analysis', desc: '검색 의도·경쟁도·롱테일·클러스터링' }, en: { title: 'Keyword Analysis', desc: 'Search intent, competition, longtail & clustering' } },
-  { icon: <Bot size={18} />, ko: { title: 'llms.txt 생성기', desc: 'AI 검색엔진 크롤링용 llms.txt 자동 생성' }, en: { title: 'llms.txt Generator', desc: 'Auto-generate llms.txt for AI search crawlers' } },
-  { icon: <BarChart3 size={18} />, ko: { title: 'GA4 Analytics', desc: 'GA4 데이터 AI 분석 + 인사이트' }, en: { title: 'GA4 Analytics', desc: 'AI-powered GA4 data analysis & insights' } },
-  { icon: <Megaphone size={18} />, ko: { title: 'AI Share of Voice', desc: 'ChatGPT·Gemini 내 브랜드 언급율 측정' }, en: { title: 'AI Share of Voice', desc: 'Measure brand mentions in ChatGPT & Gemini' } },
-  { icon: <LayoutDashboard size={18} />, ko: { title: 'Ops Dashboard', desc: '진단 이력·콘텐츠 통계 종합 대시보드' }, en: { title: 'Ops Dashboard', desc: 'Unified dashboard for diagnostics & content stats' } },
+  { icon: <Globe size={18} />, ko: { title: 'Engine Diagnosis', desc: 'PageSpeed + GEO 가시성을 AI가 즉시 분석' }, en: { title: 'Engine Diagnosis', desc: 'AI-instant PageSpeed & GEO visibility analysis' }, ja: { title: 'エンジン診断', desc: 'PageSpeed・GEO可視性をAIが即時分析' } },
+  { icon: <ArrowLeftRight size={18} />, ko: { title: 'Competitor Analysis', desc: '경쟁사 URL 비교 + AI 격차 분석' }, en: { title: 'Competitor Analysis', desc: 'Competitor URL comparison & AI gap analysis' }, ja: { title: '競合分析', desc: '競合URL比較・AIギャップ分析' } },
+  { icon: <FileText size={18} />, ko: { title: 'Content Orchestrator', desc: '소스 하나로 4채널 마케팅 소재 자동 생성' }, en: { title: 'Content Orchestrator', desc: 'One source → 4-channel marketing content' }, ja: { title: 'コンテンツ自動化', desc: '1つのソースから4チャンネルのマーケティング素材を一括生成' } },
+  { icon: <PenLine size={18} />, ko: { title: 'Content Rewriter', desc: 'SEO/GEO/가독성 목표별 AI 리라이팅' }, en: { title: 'Content Rewriter', desc: 'AI rewriting by SEO / GEO / readability goal' }, ja: { title: 'コンテンツ書き直し', desc: 'SEO・GEO・可読性の目的別にAIがリライト' } },
+  { icon: <Tag size={18} />, ko: { title: 'Keyword Analysis', desc: '검색 의도·경쟁도·롱테일·클러스터링' }, en: { title: 'Keyword Analysis', desc: 'Search intent, competition, longtail & clustering' }, ja: { title: 'キーワード分析', desc: '検索意図・競合度・ロングテール・クラスタリング' } },
+  { icon: <Bot size={18} />, ko: { title: 'llms.txt 생성기', desc: 'AI 검색엔진 크롤링용 llms.txt 자동 생성' }, en: { title: 'llms.txt Generator', desc: 'Auto-generate llms.txt for AI search crawlers' }, ja: { title: 'llms.txt生成', desc: 'AI検索エンジン向けllms.txtを自動生成' } },
+  { icon: <BarChart3 size={18} />, ko: { title: 'GA4 Analytics', desc: 'GA4 데이터 AI 분석 + 인사이트' }, en: { title: 'GA4 Analytics', desc: 'AI-powered GA4 data analysis & insights' }, ja: { title: 'GA4アナリティクス', desc: 'GA4データをAIが分析してインサイトを提供' } },
+  { icon: <Megaphone size={18} />, ko: { title: 'AI Share of Voice', desc: 'ChatGPT·Gemini 내 브랜드 언급율 측정' }, en: { title: 'AI Share of Voice', desc: 'Measure brand mentions in ChatGPT & Gemini' }, ja: { title: 'AIシェアオブボイス', desc: 'ChatGPT・Gemini内のブランド言及率を測定' } },
+  { icon: <LayoutDashboard size={18} />, ko: { title: 'Ops Dashboard', desc: '진단 이력·콘텐츠 통계 종합 대시보드' }, en: { title: 'Ops Dashboard', desc: 'Unified dashboard for diagnostics & content stats' }, ja: { title: 'ダッシュボード', desc: '診断履歴・コンテンツ統計の総合ダッシュボード' } },
 ];
 
 interface Msg { role: 'user' | 'assistant'; content: string; }
@@ -271,10 +335,11 @@ function FAQ({ items }: { items: { q: string; a: string }[] }) {
   );
 }
 
-export default function LandingPage({ lang }: { lang: 'ko' | 'en' }) {
+export default function LandingPage({ lang }: { lang: 'ko' | 'en' | 'ja' }) {
   const { dark, toggle } = useDarkMode();
   const t = T[lang];
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0d1117] text-[#24292f] dark:text-[#e6edf3] font-sans">
@@ -282,7 +347,7 @@ export default function LandingPage({ lang }: { lang: 'ko' | 'en' }) {
       {/* ── Nav ── */}
       <header className="sticky top-0 z-50 bg-white/95 dark:bg-[#0d1117]/95 backdrop-blur-sm border-b border-[#d0d7de] dark:border-[#30363d]">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href={lang === 'ko' ? '/' : '/en'} className="flex items-center gap-2 font-black text-xl tracking-tight text-[#24292f] dark:text-[#e6edf3]">
+          <Link href={lang === 'ko' ? '/' : lang === 'ja' ? '/ja' : '/en'} className="flex items-center gap-2 font-black text-xl tracking-tight text-[#24292f] dark:text-[#e6edf3]">
             <Zap size={22} fill="currentColor" />
             <span>MarketerOps<span className="text-[#57606a] dark:text-[#8b949e] font-light">.ai</span></span>
           </Link>
@@ -298,9 +363,20 @@ export default function LandingPage({ lang }: { lang: 'ko' | 'en' }) {
             <button onClick={toggle} className="p-2 text-[#57606a] hover:bg-[#f6f8fa] dark:hover:bg-[#161b22] rounded-md transition-colors">
               {dark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-            <Link href={t.lang_href} className="text-xs font-medium text-[#57606a] hover:text-[#24292f] dark:hover:text-[#e6edf3] px-2 py-1 rounded transition-colors">
-              {t.lang_toggle}
-            </Link>
+            <div className="relative">
+              <button onClick={() => setLangOpen(!langOpen)}
+                className="text-xs font-medium text-[#57606a] hover:text-[#24292f] dark:hover:text-[#e6edf3] px-2 py-1 rounded transition-colors flex items-center gap-1">
+                {lang === 'ko' ? 'KO' : lang === 'ja' ? 'JA' : 'EN'}
+                <ChevronDown size={10} />
+              </button>
+              {langOpen && (
+                <div className="absolute right-0 top-full mt-1 bg-white dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-md shadow-lg overflow-hidden z-50 min-w-[120px]">
+                  <Link href="/" className={`block px-4 py-2 text-xs hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] transition-colors ${lang === 'ko' ? 'font-bold text-[#24292f] dark:text-[#e6edf3]' : 'text-[#57606a] dark:text-[#8b949e]'}`} onClick={() => setLangOpen(false)}>KO 한국어</Link>
+                  <Link href="/en" className={`block px-4 py-2 text-xs hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] transition-colors ${lang === 'en' ? 'font-bold text-[#24292f] dark:text-[#e6edf3]' : 'text-[#57606a] dark:text-[#8b949e]'}`} onClick={() => setLangOpen(false)}>EN English</Link>
+                  <Link href="/ja" className={`block px-4 py-2 text-xs hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] transition-colors ${lang === 'ja' ? 'font-bold text-[#24292f] dark:text-[#e6edf3]' : 'text-[#57606a] dark:text-[#8b949e]'}`} onClick={() => setLangOpen(false)}>JA 日本語</Link>
+                </div>
+              )}
+            </div>
             {/* Desktop CTA */}
             <Link href="/app" className="hidden md:flex items-center gap-1.5 bg-[#000] hover:bg-[#333] dark:bg-white dark:hover:bg-[#eee] dark:text-black text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors">
               {t.nav_cta} <ChevronRight size={14} />
@@ -404,7 +480,7 @@ export default function LandingPage({ lang }: { lang: 'ko' | 'en' }) {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {FEATURES.map((f, i) => {
-              const copy = lang === 'ko' ? f.ko : f.en;
+              const copy = lang === 'ko' ? f.ko : lang === 'ja' ? f.ja : f.en;
               return (
                 <Link key={i} href="/app"
                   className="group flex items-start gap-4 p-5 bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded-xl hover:border-[#000] dark:hover:border-white transition-colors">

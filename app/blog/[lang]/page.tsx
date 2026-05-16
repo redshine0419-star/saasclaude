@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { list } from '@vercel/blob';
 import type { PostIndex } from '@/app/api/blog/generate/route';
 
-type Lang = 'ko' | 'en';
+type Lang = 'ko' | 'en' | 'ja';
 
 async function getPosts(lang: Lang): Promise<PostIndex[]> {
   try {
@@ -20,17 +20,21 @@ async function getPosts(lang: Lang): Promise<PostIndex[]> {
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
-  const isKo = lang === 'ko';
+  const title = lang === 'ko'
+    ? 'AI 마케팅 블로그 | MarketerOps.ai'
+    : lang === 'ja'
+    ? 'AIマーケティングブログ | MarketerOps.ai'
+    : 'AI Marketing Blog | MarketerOps.ai';
+  const description = lang === 'ko'
+    ? 'AI 마케팅, SEO, GEO 최적화에 관한 전문 블로그'
+    : lang === 'ja'
+    ? 'AIマーケティング、SEO、GEO最適化に関する専門ブログ'
+    : 'Expert blog on AI marketing, SEO, and GEO optimization';
   return {
-    title: isKo ? 'AI 마케팅 블로그 | MarketerOps.ai' : 'AI Marketing Blog | MarketerOps.ai',
-    description: isKo
-      ? 'AI 마케팅, SEO, GEO 최적화에 관한 전문 블로그'
-      : 'Expert blog on AI marketing, SEO, and GEO optimization',
+    title,
+    description,
     alternates: {
-      languages: {
-        'ko': '/blog/ko',
-        'en': '/blog/en',
-      },
+      languages: { 'ko': '/blog/ko', 'en': '/blog/en', 'ja': '/blog/ja' },
     },
   };
 }
@@ -42,12 +46,13 @@ export default async function BlogListPage({ params, searchParams }: {
   const { lang } = await params;
   const { tag } = await searchParams;
 
-  if (lang !== 'ko' && lang !== 'en') notFound();
+  if (lang !== 'ko' && lang !== 'en' && lang !== 'ja') notFound();
 
   const posts = await getPosts(lang as Lang);
   const allTags = Array.from(new Set(posts.flatMap((p) => p.tags)));
   const filtered = tag ? posts.filter((p) => p.tags.includes(tag)) : posts;
   const isKo = lang === 'ko';
+  const isJa = lang === 'ja';
 
   return (
     <div className="min-h-screen bg-[#ffffff] dark:bg-[#0d1117]">
@@ -60,25 +65,16 @@ export default async function BlogListPage({ params, searchParams }: {
             </Link>
             {/* Language switcher */}
             <div className="flex items-center gap-1 text-sm border border-[#d0d7de] dark:border-[#30363d] rounded-md overflow-hidden">
-              <Link
-                href="/blog/ko"
-                className={`px-3 py-1 ${lang === 'ko' ? 'bg-[#000000] text-white' : 'text-[#57606a] dark:text-[#8b949e] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d]'} transition-colors`}
-              >
-                KO
-              </Link>
-              <Link
-                href="/blog/en"
-                className={`px-3 py-1 ${lang === 'en' ? 'bg-[#000000] text-white' : 'text-[#57606a] dark:text-[#8b949e] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d]'} transition-colors`}
-              >
-                EN
-              </Link>
+              <Link href="/blog/ko" className={`px-3 py-1 transition-colors ${lang === 'ko' ? 'bg-[#000000] text-white' : 'text-[#57606a] dark:text-[#8b949e] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d]'}`}>KO</Link>
+              <Link href="/blog/en" className={`px-3 py-1 transition-colors ${lang === 'en' ? 'bg-[#000000] text-white' : 'text-[#57606a] dark:text-[#8b949e] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d]'}`}>EN</Link>
+              <Link href="/blog/ja" className={`px-3 py-1 transition-colors ${lang === 'ja' ? 'bg-[#000000] text-white' : 'text-[#57606a] dark:text-[#8b949e] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d]'}`}>JA</Link>
             </div>
           </div>
           <h1 className="text-3xl font-bold text-[#24292f] dark:text-[#e6edf3]">
-            {isKo ? 'AI 마케팅 블로그' : 'AI Marketing Blog'}
+            {isKo ? 'AI 마케팅 블로그' : isJa ? 'AIマーケティングブログ' : 'AI Marketing Blog'}
           </h1>
           <p className="mt-2 text-[#57606a] dark:text-[#8b949e]">
-            {isKo ? 'AI, SEO, GEO 최적화에 관한 인사이트' : 'Insights on AI, SEO, and GEO optimization'}
+            {isKo ? 'AI, SEO, GEO 최적화에 관한 인사이트' : isJa ? 'AI、SEO、GEO最適化に関するインサイト' : 'Insights on AI, SEO, and GEO optimization'}
           </p>
         </div>
       </div>
@@ -95,7 +91,7 @@ export default async function BlogListPage({ params, searchParams }: {
                   : 'border-[#d0d7de] dark:border-[#30363d] text-[#57606a] dark:text-[#8b949e] hover:border-[#57606a]'
               }`}
             >
-              {isKo ? '전체' : 'All'}
+              {isKo ? '전체' : isJa ? 'すべて' : 'All'}
             </Link>
             {allTags.map((t) => (
               <Link
@@ -116,8 +112,8 @@ export default async function BlogListPage({ params, searchParams }: {
         {/* Post grid */}
         {filtered.length === 0 ? (
           <div className="text-center py-20 text-[#57606a] dark:text-[#8b949e]">
-            <p className="text-lg">{isKo ? '아직 게시글이 없습니다.' : 'No posts yet.'}</p>
-            <p className="text-sm mt-2">{isKo ? '관리자 페이지에서 AI로 첫 글을 생성해보세요.' : 'Generate your first post with AI from the admin panel.'}</p>
+            <p className="text-lg">{isKo ? '아직 게시글이 없습니다.' : isJa ? 'まだ投稿がありません。' : 'No posts yet.'}</p>
+            <p className="text-sm mt-2">{isKo ? '관리자 페이지에서 AI로 첫 글을 생성해보세요.' : isJa ? '管理画面からAIで最初の記事を生成してみてください。' : 'Generate your first post with AI from the admin panel.'}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -143,7 +139,7 @@ export default async function BlogListPage({ params, searchParams }: {
                   {post.metaDescription}
                 </p>
                 <div className="mt-4 text-xs text-[#8b949e]">
-                  {new Date(post.createdAt).toLocaleDateString(isKo ? 'ko-KR' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  {new Date(post.createdAt).toLocaleDateString(isKo ? 'ko-KR' : isJa ? 'ja-JP' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                 </div>
               </Link>
             ))}

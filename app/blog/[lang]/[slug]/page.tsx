@@ -36,7 +36,7 @@ async function getRelated(lang: string, currentSlug: string, tags: string[]): Pr
 
 function readingTime(content: string, lang: string): number {
   const len = content.replace(/[#*`>\-\[\]()]/g, '').length;
-  const wpm = lang === 'ko' ? 500 : 200;
+  const wpm = lang === 'ko' || lang === 'ja' ? 500 : 200;
   return Math.max(1, Math.round(len / wpm));
 }
 
@@ -51,7 +51,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     keywords: post.tags.join(', '),
     alternates: {
       canonical: `${SITE_URL}/blog/${lang}/${slug}`,
-      languages: { ko: `/blog/ko/${slug}`, en: `/blog/en/${slug}` },
+      languages: { ko: `/blog/ko/${slug}`, en: `/blog/en/${slug}`, ja: `/blog/ja/${slug}` },
     },
     openGraph: {
       title: post.title,
@@ -67,13 +67,14 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 export default async function BlogPostPage({ params }: { params: Promise<{ lang: string; slug: string }> }) {
   const { lang, slug } = await params;
 
-  if (lang !== 'ko' && lang !== 'en') notFound();
+  if (lang !== 'ko' && lang !== 'en' && lang !== 'ja') notFound();
 
   const post = await getPost(lang, slug);
   if (!post) notFound();
 
   const related = await getRelated(lang, slug, post.tags);
   const isKo = lang === 'ko';
+  const isJa = lang === 'ja';
   const minutes = readingTime(post.content, lang);
 
   const articleJsonLd = {
@@ -119,11 +120,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
         <div className="border-b border-[#d0d7de] dark:border-[#30363d] bg-[#f6f8fa] dark:bg-[#161b22]">
           <div className="max-w-4xl mx-auto px-4 md:px-8 py-3 flex items-center justify-between text-sm">
             <Link href={`/blog/${lang}`} className="text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors">
-              ← {isKo ? '블로그 목록' : 'All posts'}
+              ← {isKo ? '블로그 목록' : isJa ? '記事一覧' : 'All posts'}
             </Link>
             <div className="flex items-center gap-1 border border-[#d0d7de] dark:border-[#30363d] rounded-md overflow-hidden text-xs">
               <Link href={`/blog/ko/${slug}`} className={`px-3 py-1 transition-colors ${lang === 'ko' ? 'bg-[#000000] text-white' : 'text-[#57606a] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d]'}`}>KO</Link>
               <Link href={`/blog/en/${slug}`} className={`px-3 py-1 transition-colors ${lang === 'en' ? 'bg-[#000000] text-white' : 'text-[#57606a] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d]'}`}>EN</Link>
+              <Link href={`/blog/ja/${slug}`} className={`px-3 py-1 transition-colors ${lang === 'ja' ? 'bg-[#000000] text-white' : 'text-[#57606a] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d]'}`}>JA</Link>
             </div>
           </div>
         </div>
@@ -157,10 +159,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
               <span className="font-medium text-[#24292f] dark:text-[#e6edf3]">MarketerOps.ai</span>
               <span>·</span>
               <time dateTime={post.createdAt}>
-                {new Date(post.createdAt).toLocaleDateString(isKo ? 'ko-KR' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                {new Date(post.createdAt).toLocaleDateString(isKo ? 'ko-KR' : isJa ? 'ja-JP' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
               </time>
               <span>·</span>
-              <span>{isKo ? `${minutes}분 읽기` : `${minutes} min read`}</span>
+              <span>{isKo ? `${minutes}분 읽기` : isJa ? `${minutes}分で読める` : `${minutes} min read`}</span>
             </div>
           </div>
         </header>
@@ -269,7 +271,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
               <aside className="hidden lg:block">
                 <div className="sticky top-8">
                   <p className="text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider mb-3">
-                    {isKo ? '자주 묻는 질문' : 'FAQ'}
+                    {isKo ? '자주 묻는 질문' : isJa ? 'よくある質問' : 'FAQ'}
                   </p>
                   <ul className="space-y-3">
                     {faqItems.map((item, i) => (
@@ -289,7 +291,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
           {related.length > 0 && (
             <div className="mt-16 pt-10 border-t border-[#d0d7de] dark:border-[#30363d]">
               <h2 className="text-lg font-semibold text-[#24292f] dark:text-[#e6edf3] mb-6">
-                {isKo ? '관련 포스트' : 'Related Posts'}
+                {isKo ? '관련 포스트' : isJa ? '関連記事' : 'Related Posts'}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                 {related.map((p) => (
@@ -305,7 +307,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
                       {p.metaDescription}
                     </p>
                     <p className="text-xs text-[#8b949e] mt-3">
-                      {new Date(p.createdAt).toLocaleDateString(isKo ? 'ko-KR' : 'en-US')}
+                      {new Date(p.createdAt).toLocaleDateString(isKo ? 'ko-KR' : isJa ? 'ja-JP' : 'en-US')}
                     </p>
                   </Link>
                 ))}

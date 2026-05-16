@@ -4,7 +4,7 @@ import { generateText } from '@/lib/ai';
 
 export interface BlogPost {
   slug: string;
-  lang: 'ko' | 'en';
+  lang: 'ko' | 'en' | 'ja';
   title: string;
   metaDescription: string;
   tags: string[];
@@ -68,13 +68,50 @@ export async function POST(req: NextRequest) {
   if (!keyword?.trim()) {
     return NextResponse.json({ error: '키워드를 입력해주세요.' }, { status: 400 });
   }
-  if (lang !== 'ko' && lang !== 'en') {
-    return NextResponse.json({ error: '언어는 ko 또는 en이어야 합니다.' }, { status: 400 });
+  if (lang !== 'ko' && lang !== 'en' && lang !== 'ja') {
+    return NextResponse.json({ error: '언어는 ko, en, ja이어야 합니다.' }, { status: 400 });
   }
 
   const isKo = lang === 'ko';
+  const isJa = lang === 'ja';
 
-  const prompt = isKo
+  const prompt = isJa
+    ? `あなたはシニアコンテンツマーケターかつSEO/GEO専門家です。
+以下の情報をもとに、検索流入とAI引用に最適化された日本語ブログ記事を作成してください。
+
+キーワード: ${keyword}
+ターゲット読者: ${targetAudience || 'マーケター、経営者'}
+トーン: ${tone || 'プロフェッショナルで実践的'}
+
+コンテンツ構成（必ずこの順番で）:
+1. 導入部 — 読者の共感を得る問題提起（2〜3文）、この記事で学べること1行まとめ
+2. 要点まとめブロッククォート: > **重要ポイント**\\n> - ポイント1\\n> - ポイント2\\n> - ポイント3 (GEO最適化)
+3. H2本文セクション4〜5個（各セクションにH3小見出し1〜2個、段落2〜3個、必要に応じて箇条書き）
+4. ## よくある質問 セクション（H3で質問、本文に回答）
+5. ## まとめ（行動喚起を含む）
+
+SEO/GEO要件:
+- キーワードをタイトル・最初の段落・H2の1箇所に自然に含める
+- 各段落は3〜5文、1つのアイデアのみ
+- 数字・統計・具体的な事例を含める
+- AIアシスタントが引用できる明確な定義とリストを含める
+- 最低2500文字
+- 比較・まとめ・ランキングがある場合は必ずマークダウン表（| カラム | カラム |）を使用
+
+以下のJSON形式のみで回答してください（説明なしでJSONのみ）:
+{
+  "title": "SEO最適化されたタイトル（40〜60字、キーワード含む）",
+  "slug": "url-friendly-slug-in-english",
+  "metaDescription": "検索結果メタ説明（150〜160字、キーワード含む、クリック誘導）",
+  "tags": ["タグ1", "タグ2", "タグ3", "タグ4", "タグ5"],
+  "faq": [
+    {"q": "よくある質問1", "a": "簡潔で明確な回答（2〜3文）"},
+    {"q": "よくある質問2", "a": "簡潔で明確な回答"},
+    {"q": "よくある質問3", "a": "簡潔で明確な回答"}
+  ],
+  "content": "## 導入部見出し\\n\\n本文マークダウン..."
+}`
+    : isKo
     ? `당신은 시니어 콘텐츠 마케터이자 SEO/GEO 전문가입니다.
 다음 정보를 바탕으로 검색 유입과 AI 인용에 최적화된 한국어 블로그 포스트를 작성하세요.
 
