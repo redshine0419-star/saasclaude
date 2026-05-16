@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateText } from '@/lib/ai';
 
 const CRON_SECRET = process.env.CRON_SECRET;
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://marketerops.ai';
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://growweb.me';
 
 async function diagnoseUrl(url: string) {
   const base = APP_URL;

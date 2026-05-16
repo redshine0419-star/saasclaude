@@ -5,7 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import { list } from '@vercel/blob';
 import type { BlogPost, PostIndex } from '@/app/api/blog/generate/route';
 
-const SITE_URL = 'https://saasclaude.vercel.app';
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://growweb.me';
 
 async function getPost(lang: string, slug: string): Promise<BlogPost | null> {
   try {
