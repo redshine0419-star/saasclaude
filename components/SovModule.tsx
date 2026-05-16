@@ -38,6 +38,14 @@ interface SovResult {
   insights: string;
 }
 
+type Language = 'ko' | 'en' | 'ja';
+
+const LANGUAGE_OPTIONS: { value: Language; label: string }[] = [
+  { value: 'ko', label: '한국어' },
+  { value: 'en', label: 'English' },
+  { value: 'ja', label: '日本語' },
+];
+
 function MentionGauge({ rate, company }: { rate: number; company: string }) {
   const radius = 54;
   const circ = 2 * Math.PI * radius;
@@ -137,6 +145,7 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
   const [error, setError] = useState('');
   const [history, setHistory] = useState<SovRecord[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [language, setLanguage] = useState<Language>('ko');
 
   useEffect(() => {
     setHistory(getSovHistory());
@@ -188,7 +197,7 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
       const res = await fetch('/api/sov', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ company, industry, competitors, prompts: activePrompts }),
+        body: JSON.stringify({ company, industry, competitors, prompts: activePrompts, language }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? '분석 실패');
@@ -253,6 +262,19 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
               onChange={e => setIndustry(e.target.value)}
               disabled={isRunning}
             />
+          </div>
+          <div>
+            <label className="block text-xs font-black text-slate-500 uppercase tracking-wide mb-2">응답 언어</label>
+            <select
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-sm transition-all"
+              value={language}
+              onChange={e => setLanguage(e.target.value as Language)}
+              disabled={isRunning}
+            >
+              {LANGUAGE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
           </div>
         </div>
 
