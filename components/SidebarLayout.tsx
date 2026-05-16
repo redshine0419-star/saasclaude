@@ -5,11 +5,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import {
-  Zap, Sun, Moon, Bell, User, LogIn, LogOut,
+  Zap, Sun, Moon, User, LogIn, LogOut,
   LayoutDashboard, ChevronLeft, ChevronRight, Menu, X,
 } from 'lucide-react';
 import { useDarkMode } from '@/components/DarkModeProvider';
 import ProductSwitcher from '@/components/ProductSwitcher';
+import NotificationPanel from '@/components/NotificationPanel';
 
 interface NavItem {
   id: string;
@@ -193,9 +194,7 @@ export default function SidebarLayout({
             <Zap size={16} fill="currentColor" strokeWidth={0} />
             MarketerOps.ai
           </Link>
-          <button className="relative text-[#8b949e] hover:text-white">
-            <Bell size={18} />
-          </button>
+          <NotificationPanel iconSize={18} dark />
         </header>
 
         {/* Page title bar */}
@@ -204,10 +203,7 @@ export default function SidebarLayout({
             {visibleItems.find((i) => i.id === activeTab)?.label ?? ''}
           </h1>
           <div className="flex items-center gap-2">
-            <button className="relative p-1.5 text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-white rounded-md transition-colors">
-              <Bell size={16} />
-              <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-[#0969da] rounded-full" />
-            </button>
+            <NotificationPanel iconSize={16} />
           </div>
         </div>
 

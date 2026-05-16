@@ -7,6 +7,10 @@
     {
       "path": "/api/blog/cron",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/ai-pm",
+      "schedule": "0 0 * * 1"
     }
   ]
 }

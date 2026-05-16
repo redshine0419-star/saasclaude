@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   const members = await prisma.projectMember.findMany({
     where: { projectId },
     include: {
-      user: { select: { id: true, name: true, email: true, avatarUrl: true } },
+      user: { select: { id: true, name: true, email: true, avatarUrl: true, jobTitle: true, responsibilities: true, workStyle: true } },
     },
     orderBy: { role: 'asc' },
   });
@@ -51,6 +51,26 @@ export async function POST(req: NextRequest) {
   });
 
   return NextResponse.json(member, { status: 201 });
+}
+
+export async function PATCH(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const { userId, jobTitle, responsibilities, workStyle } = await req.json();
+  if (!userId) return NextResponse.json({ error: 'userId required' }, { status: 400 });
+
+  const updated = await prisma.workUser.update({
+    where: { id: userId },
+    data: {
+      ...(jobTitle !== undefined && { jobTitle }),
+      ...(responsibilities !== undefined && { responsibilities }),
+      ...(workStyle !== undefined && { workStyle }),
+    },
+    select: { id: true, name: true, email: true, avatarUrl: true, jobTitle: true, responsibilities: true, workStyle: true },
+  });
+
+  return NextResponse.json(updated);
 }
 
 export async function DELETE(req: NextRequest) {

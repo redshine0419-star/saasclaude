@@ -1,12 +1,21 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Users, Loader2, FolderKanban, User2, Crown, ShieldCheck, UserPlus, X, Trash2 } from 'lucide-react';
+import { Users, Loader2, FolderKanban, User2, Crown, ShieldCheck, UserPlus, X, Pencil, Check, Bot } from 'lucide-react';
 
 interface Member {
   id: string;
   role: string;
-  user: { id: string; name: string | null; email: string; avatarUrl: string | null };
+  user: {
+    id: string; name: string | null; email: string; avatarUrl: string | null;
+    jobTitle: string | null; responsibilities: string | null; workStyle: string | null;
+  };
+}
+
+interface ProfileEdit {
+  jobTitle: string;
+  responsibilities: string;
+  workStyle: string;
 }
 interface Project { id: string; name: string; color: string; members: Member[] }
 
@@ -25,6 +34,10 @@ export default function WorkTeamTab() {
   const [inviting, setInviting] = useState(false);
   const [inviteError, setInviteError] = useState('');
   const [inviteSuccess, setInviteSuccess] = useState('');
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [profileEdit, setProfileEdit] = useState<ProfileEdit>({ jobTitle: '', responsibilities: '', workStyle: '' });
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [runningAiPm, setRunningAiPm] = useState(false);
 
   const fetchProjects = async () => {
     setLoading(true);
@@ -70,6 +83,47 @@ export default function WorkTeamTab() {
     }
   };
 
+  const handleEditProfile = (m: Member) => {
+    setEditingUserId(m.user.id);
+    setProfileEdit({
+      jobTitle: m.user.jobTitle ?? '',
+      responsibilities: m.user.responsibilities ?? '',
+      workStyle: m.user.workStyle ?? '',
+    });
+  };
+
+  const handleSaveProfile = async (userId: string) => {
+    setSavingProfile(true);
+    try {
+      const res = await fetch('/api/work/members', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, ...profileEdit }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error);
+      setEditingUserId(null);
+      await fetchProjects();
+    } catch (e) {
+      alert('저장 실패: ' + (e as Error).message);
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const handleRunAiPm = async () => {
+    setRunningAiPm(true);
+    try {
+      const res = await fetch('/api/work/ai-pm', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      alert(`AI PM 분석 완료! 알림 ${data.notificationsCreated}건이 생성되었습니다.`);
+    } catch (e) {
+      alert('오류: ' + (e as Error).message);
+    } finally {
+      setRunningAiPm(false);
+    }
+  };
+
   const handleRemoveMember = async (userId: string) => {
     if (!selectedProject) return;
     if (!confirm('이 멤버를 프로젝트에서 제거할까요?')) return;
@@ -86,6 +140,14 @@ export default function WorkTeamTab() {
           <h1 className="text-xl font-bold text-[#24292f] dark:text-[#e6edf3]">팀 관리</h1>
           <p className="text-sm text-[#57606a] dark:text-[#8b949e] mt-0.5">프로젝트 멤버를 관리하세요</p>
         </div>
+        <button
+          onClick={handleRunAiPm}
+          disabled={runningAiPm}
+          className="flex items-center gap-2 px-3 py-2 bg-[#8250df] hover:bg-[#6e40c9] text-white text-sm font-medium rounded-lg disabled:opacity-50 transition-colors"
+        >
+          {runningAiPm ? <Loader2 size={14} className="animate-spin" /> : <Bot size={14} />}
+          AI PM 분석 실행
+        </button>
       </div>
 
       {loading ? (
@@ -165,36 +227,100 @@ export default function WorkTeamTab() {
                     <div className="py-12 text-center text-sm text-[#57606a] dark:text-[#8b949e]">멤버 없음</div>
                   ) : (
                     project.members.map((m) => (
-                      <div key={m.id} className="flex items-center gap-3 px-4 py-3 group">
-                        {m.user.avatarUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={m.user.avatarUrl} alt={m.user.name ?? ''} width={36} height={36} className="w-9 h-9 rounded-full border border-[#d0d7de] dark:border-[#30363d]" />
-                        ) : (
-                          <div className="w-9 h-9 rounded-full bg-[#eaeef2] dark:bg-[#30363d] flex items-center justify-center">
-                            <User2 size={16} className="text-[#57606a] dark:text-[#8b949e]" />
+                      <div key={m.id} className="px-4 py-3 group">
+                        <div className="flex items-center gap-3">
+                          {m.user.avatarUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={m.user.avatarUrl} alt={m.user.name ?? ''} width={36} height={36} className="w-9 h-9 rounded-full border border-[#d0d7de] dark:border-[#30363d] shrink-0" />
+                          ) : (
+                            <div className="w-9 h-9 rounded-full bg-[#eaeef2] dark:bg-[#30363d] flex items-center justify-center shrink-0">
+                              <User2 size={16} className="text-[#57606a] dark:text-[#8b949e]" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-[#24292f] dark:text-[#e6edf3] truncate">
+                              {m.user.name ?? m.user.email}
+                            </p>
+                            <p className="text-xs text-[#57606a] dark:text-[#8b949e] truncate">{m.user.email}</p>
+                            {m.user.jobTitle && (
+                              <p className="text-xs text-[#8250df] mt-0.5 truncate">{m.user.jobTitle}</p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <div className="flex items-center gap-1.5 px-2 py-1 bg-[#f6f8fa] dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded-full">
+                              {ROLE_ICONS[m.role]}
+                              <span className="text-[11px] text-[#57606a] dark:text-[#8b949e]">{ROLE_LABELS[m.role] ?? m.role}</span>
+                            </div>
+                            <button
+                              onClick={() => editingUserId === m.user.id ? setEditingUserId(null) : handleEditProfile(m)}
+                              className="text-[#8c959f] hover:text-[#8250df] transition-colors opacity-0 group-hover:opacity-100 p-1"
+                              title="프로필 편집"
+                            >
+                              <Pencil size={13} />
+                            </button>
+                            {m.role !== 'owner' && (
+                              <button
+                                onClick={() => handleRemoveMember(m.user.id)}
+                                className="text-[#8c959f] hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 p-1"
+                                title="멤버 제거"
+                              >
+                                <X size={14} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Inline profile edit form */}
+                        {editingUserId === m.user.id && (
+                          <div className="mt-3 ml-12 space-y-2 border-l-2 border-[#8250df]/30 pl-3">
+                            <div>
+                              <label className="block text-[10px] font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider mb-1">직책</label>
+                              <input
+                                type="text"
+                                value={profileEdit.jobTitle}
+                                onChange={(e) => setProfileEdit((p) => ({ ...p, jobTitle: e.target.value }))}
+                                placeholder="예: 프론트엔드 개발자, 기획 PM"
+                                className="w-full px-2.5 py-1.5 text-xs border border-[#d0d7de] dark:border-[#30363d] rounded-md bg-white dark:bg-[#0d1117] text-[#24292f] dark:text-[#e6edf3] focus:outline-none focus:border-[#8250df]"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider mb-1">담당 업무</label>
+                              <input
+                                type="text"
+                                value={profileEdit.responsibilities}
+                                onChange={(e) => setProfileEdit((p) => ({ ...p, responsibilities: e.target.value }))}
+                                placeholder="예: 결제 시스템, UI 컴포넌트 개발"
+                                className="w-full px-2.5 py-1.5 text-xs border border-[#d0d7de] dark:border-[#30363d] rounded-md bg-white dark:bg-[#0d1117] text-[#24292f] dark:text-[#e6edf3] focus:outline-none focus:border-[#8250df]"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider mb-1">업무 성향</label>
+                              <input
+                                type="text"
+                                value={profileEdit.workStyle}
+                                onChange={(e) => setProfileEdit((p) => ({ ...p, workStyle: e.target.value }))}
+                                placeholder="예: 꼼꼼함, 빠른 실행, 커뮤니케이션 선호"
+                                className="w-full px-2.5 py-1.5 text-xs border border-[#d0d7de] dark:border-[#30363d] rounded-md bg-white dark:bg-[#0d1117] text-[#24292f] dark:text-[#e6edf3] focus:outline-none focus:border-[#8250df]"
+                              />
+                            </div>
+                            <div className="flex gap-2 pt-1">
+                              <button
+                                onClick={() => handleSaveProfile(m.user.id)}
+                                disabled={savingProfile}
+                                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#8250df] hover:bg-[#6e40c9] text-white text-xs font-medium rounded-md disabled:opacity-50 transition-colors"
+                              >
+                                {savingProfile ? <Loader2 size={11} className="animate-spin" /> : <Check size={11} />}
+                                저장
+                              </button>
+                              <button
+                                onClick={() => setEditingUserId(null)}
+                                className="px-3 py-1.5 text-xs text-[#57606a] hover:text-[#24292f] dark:hover:text-[#e6edf3] border border-[#d0d7de] dark:border-[#30363d] rounded-md transition-colors"
+                              >
+                                취소
+                              </button>
+                            </div>
                           </div>
                         )}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-[#24292f] dark:text-[#e6edf3] truncate">
-                            {m.user.name ?? m.user.email}
-                          </p>
-                          <p className="text-xs text-[#57606a] dark:text-[#8b949e] truncate">{m.user.email}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-1.5 px-2 py-1 bg-[#f6f8fa] dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded-full">
-                            {ROLE_ICONS[m.role]}
-                            <span className="text-[11px] text-[#57606a] dark:text-[#8b949e]">{ROLE_LABELS[m.role] ?? m.role}</span>
-                          </div>
-                          {m.role !== 'owner' && (
-                            <button
-                              onClick={() => handleRemoveMember(m.user.id)}
-                              className="text-[#8c959f] hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 p-1"
-                              title="멤버 제거"
-                            >
-                              <X size={14} />
-                            </button>
-                          )}
-                        </div>
                       </div>
                     ))
                   )}

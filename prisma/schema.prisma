@@ -8,17 +8,33 @@ datasource db {
 }
 
 model WorkUser {
+  id               String   @id @default(cuid())
+  email            String   @unique
+  name             String?
+  avatarUrl        String?
+  jobTitle         String?
+  responsibilities String?
+  workStyle        String?
+  createdAt        DateTime @default(now())
+
+  projectMembers   ProjectMember[]
+  assignedTasks    Task[]          @relation("assignee")
+  createdTasks     Task[]          @relation("creator")
+  comments         Comment[]
+  assignedSubTasks SubTask[]       @relation("subtaskAssignee")
+  notifications    Notification[]
+}
+
+model Notification {
   id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  avatarUrl String?
+  userId    String
+  title     String
+  body      String
+  type      String   @default("ai-pm")
+  read      Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  projectMembers  ProjectMember[]
-  assignedTasks   Task[]          @relation("assignee")
-  createdTasks    Task[]          @relation("creator")
-  comments        Comment[]
-  assignedSubTasks SubTask[]      @relation("subtaskAssignee")
+  user WorkUser @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Project {
