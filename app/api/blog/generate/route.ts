@@ -23,6 +23,15 @@ export interface PostIndex {
   keyword: string;
 }
 
+function sanitizeSlug(raw: string): string {
+  return String(raw)
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 100) || 'post';
+}
+
 function extractJson(text: string): Record<string, unknown> | null {
   // balanced-brace extraction — more reliable than greedy regex
   let depth = 0;
@@ -205,7 +214,7 @@ Respond ONLY with this JSON (no explanation):
     if (!title || !slug || !content) throw new Error('필수 필드 누락');
 
     const post: BlogPost = {
-      slug: String(slug),
+      slug: sanitizeSlug(String(slug)),
       lang,
       title: String(title),
       metaDescription: metaDescription ? String(metaDescription) : '',

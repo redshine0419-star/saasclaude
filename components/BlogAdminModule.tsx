@@ -21,16 +21,17 @@ const INTERVAL_OPTIONS = [
 const BULK_START = '2025-01-10';
 const BULK_END = '2026-05-10';
 
-// 100 evenly-spaced slots; KO = even indices, EN = odd indices
+// 150 evenly-spaced slots; KO = i%3===0, EN = i%3===1, JA = i%3===2 (50 each, no overlap)
 function assignBulkDates(lang: Lang): string[] {
   const startMs = new Date(BULK_START).getTime();
   const endMs = new Date(BULK_END).getTime();
   const totalDays = Math.floor((endMs - startMs) / 86400000);
-  const slots = Array.from({ length: 100 }, (_, i) => {
-    const d = new Date(startMs + Math.round(i * totalDays / 99) * 86400000);
+  const slots = Array.from({ length: 150 }, (_, i) => {
+    const d = new Date(startMs + Math.round(i * totalDays / 149) * 86400000);
     return d.toISOString().split('T')[0];
   });
-  return slots.filter((_, i) => lang === 'ko' ? i % 2 === 0 : i % 2 !== 0);
+  const mod = lang === 'ko' ? 0 : lang === 'en' ? 1 : 2;
+  return slots.filter((_, i) => i % 3 === mod);
 }
 
 const KO_DEFAULT_KEYWORDS = `AI 마케팅이란 무엇인가
@@ -533,7 +534,7 @@ export default function BlogAdminModule({ onToast }: Props) {
           <span className="flex items-center gap-2">
             <Zap size={16} />
             대량 생성 (백데이팅)
-            <span className="text-xs font-normal text-[#57606a] dark:text-[#8b949e]">국문 50개 / 영문 50개, 2025.01~2026.05</span>
+            <span className="text-xs font-normal text-[#57606a] dark:text-[#8b949e]">국문·영문·일문 각 50개, 2025.01~2026.05</span>
           </span>
           {bulkOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
@@ -542,12 +543,12 @@ export default function BlogAdminModule({ onToast }: Props) {
           <div className="px-6 pb-6 border-t border-[#d0d7de] dark:border-[#30363d] pt-5 space-y-4">
             {/* Bulk lang tabs */}
             <div className="flex gap-0 border border-[#d0d7de] dark:border-[#30363d] rounded-lg overflow-hidden w-fit">
-              {(['ko', 'en'] as Lang[]).map((l) => (
+              {(['ko', 'en', 'ja'] as Lang[]).map((l) => (
                 <button key={l} onClick={() => !bulkRunning && setBulkLang(l)} disabled={bulkRunning}
                   className={`px-5 py-2 text-sm font-medium flex items-center gap-2 transition-colors disabled:cursor-not-allowed ${bulkLang === l ? 'bg-[#000000] text-white' : 'text-[#57606a] dark:text-[#8b949e] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d]'}`}
                 >
                   <Globe size={14} />
-                  {l === 'ko' ? '국문 50개' : '영문 50개'}
+                  {l === 'ko' ? '국문 50개' : l === 'ja' ? '일문 50개' : '영문 50개'}
                 </button>
               ))}
             </div>
@@ -570,7 +571,7 @@ export default function BlogAdminModule({ onToast }: Props) {
             <div className="text-xs text-[#57606a] dark:text-[#8b949e] bg-[#f6f8fa] dark:bg-[#21262d] rounded-md p-3">
               <p className="font-medium mb-1">날짜 배분 미리보기 (균등 배분, 중복 없음)</p>
               <p>첫 번째 글: <strong>{bulkDates[0]}</strong> &nbsp;|&nbsp; 마지막 글: <strong>{bulkDates[Math.min(bulkKeywords.length - 1, 49)]}</strong></p>
-              <p>간격: 약 {bulkLang === 'ko' ? '10일' : '10일'} (국문·영문 날짜 겹침 없음)</p>
+              <p>간격: 약 10일 (국문·영문·일문 날짜 겹침 없음)</p>
             </div>
 
             {/* Progress */}
@@ -663,6 +664,7 @@ export default function BlogAdminModule({ onToast }: Props) {
                     <select value={schedule.lang} onChange={(e) => setSchedule({ ...schedule, lang: e.target.value as Lang })} className={inputCls}>
                       <option value="ko">국문 (KO)</option>
                       <option value="en">영문 (EN)</option>
+                      <option value="ja">일문 (JA)</option>
                     </select>
                   </div>
                   <div>
@@ -704,7 +706,7 @@ export default function BlogAdminModule({ onToast }: Props) {
       <div className="border border-[#d0d7de] dark:border-[#30363d] rounded-lg overflow-hidden bg-white dark:bg-[#161b22]">
         <div className="flex items-center justify-between px-5 py-3 border-b border-[#d0d7de] dark:border-[#30363d] bg-[#f6f8fa] dark:bg-[#21262d]">
           <span className="text-sm font-medium text-[#24292f] dark:text-[#e6edf3]">
-            {lang === 'ko' ? `국문 포스트 (${posts.length})` : `English Posts (${posts.length})`}
+            {lang === 'ko' ? `국문 포스트 (${posts.length})` : lang === 'ja' ? `日本語記事 (${posts.length})` : `English Posts (${posts.length})`}
           </span>
           <button onClick={() => fetchPosts(lang)} className="p-1.5 text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] transition-colors">
             <RefreshCw size={14} className={loadingPosts ? 'animate-spin' : ''} />

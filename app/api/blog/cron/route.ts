@@ -4,6 +4,15 @@ import { generateText } from '@/lib/ai';
 import { getScheduleConfig, saveScheduleConfig } from '../schedule/route';
 import type { BlogPost, PostIndex } from '../generate/route';
 
+function sanitizeSlug(raw: string): string {
+  return String(raw)
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 100) || 'post';
+}
+
 function extractJson(text: string): Record<string, unknown> | null {
   let depth = 0;
   let start = -1;
@@ -62,8 +71,31 @@ export async function GET(req: NextRequest) {
   const { lang, keywords, targetAudience, tone, currentKeywordIndex } = config;
   const keyword = keywords[currentKeywordIndex % keywords.length];
   const isKo = lang === 'ko';
+  const isJa = lang === 'ja';
 
-  const prompt = isKo
+  const prompt = isJa
+    ? `あなたはシニアコンテンツマーケターかつSEO/GEO専門家です。
+キーワード: ${keyword}
+ターゲット読者: ${targetAudience || 'マーケター、経営者'}
+トーン: ${tone || 'プロフェッショナルで実践的'}
+
+構成: 導入部 → 要点まとめブロッククォート → H2本文4〜5個(H3・表含む) → FAQ → まとめ
+SEO/GEO: キーワード自然配置、統計・事例、明確な定義、マークダウン表必須（比較・まとめ）、最低2500文字
+
+以下のJSON形式のみで回答してください（説明なしでJSONのみ）:
+{
+  "title": "SEO最適化されたタイトル（40〜60字、キーワード含む）",
+  "slug": "url-friendly-slug-in-english",
+  "metaDescription": "検索結果メタ説明（150〜160字、キーワード含む、クリック誘導）",
+  "tags": ["タグ1", "タグ2", "タグ3", "タグ4", "タグ5"],
+  "faq": [
+    {"q": "よくある質問1", "a": "簡潔で明確な回答（2〜3文）"},
+    {"q": "よくある質問2", "a": "簡潔で明確な回答"},
+    {"q": "よくある質問3", "a": "簡潔で明確な回答"}
+  ],
+  "content": "## 導入部見出し\\n\\n本文マークダウン..."
+}`
+    : isKo
     ? `당신은 시니어 콘텐츠 마케터이자 SEO/GEO 전문가입니다.
 키워드: ${keyword}
 대상 독자: ${targetAudience || '마케터, 사업주'}
@@ -129,7 +161,7 @@ Respond ONLY with this JSON (no explanation):
     if (!title || !slug || !content) throw new Error('필수 필드 누락');
 
     const post: BlogPost = {
-      slug: String(slug), lang, title: String(title),
+      slug: sanitizeSlug(String(slug)), lang, title: String(title),
       metaDescription: metaDescription ? String(metaDescription) : '',
       tags: Array.isArray(tags) ? (tags as string[]) : [],
       faq: Array.isArray(faq) ? (faq as { q: string; a: string }[]) : [],
