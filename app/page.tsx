@@ -1,210 +1,198 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
 import {
-  LayoutDashboard, Search, FileText, Zap, ChevronRight, Bell, User, CheckCircle2,
-  Tag, ArrowLeftRight, PenLine, Bot, BarChart3, Megaphone, Sun, Moon,
+  AlertCircle,
+  Bell,
+  Calendar,
+  CheckCircle2,
+  ChevronRight,
+  Clock,
+  FileText,
+  Filter,
+  GanttChartSquare,
+  LayoutDashboard,
+  Menu,
+  MoreVertical,
+  Plus,
+  Search,
+  Settings,
+  Trello,
+  User,
+  X,
 } from 'lucide-react';
-import { useDarkMode } from '@/components/DarkModeProvider';
-import OnboardingModal from '@/components/OnboardingModal';
-import DiagnosisModule from '@/components/DiagnosisModule';
-import ContentHubModule from '@/components/ContentHubModule';
-import DashboardModule from '@/components/DashboardModule';
-import KeywordModule from '@/components/KeywordModule';
-import CompetitorModule from '@/components/CompetitorModule';
-import RewriterModule from '@/components/RewriterModule';
-import LlmsTxtModule from '@/components/LlmsTxtModule';
-import GA4Module from '@/components/GA4Module';
-import SovModule from '@/components/SovModule';
 
-const TABS = {
-  DIAGNOSIS: 'diagnosis',
-  COMPETITOR: 'competitor',
-  CONTENT: 'content',
-  REWRITER: 'rewriter',
-  KEYWORD: 'keyword',
-  LLMSTXT: 'llmstxt',
-  GA4: 'ga4',
-  SOV: 'sov',
-  DASHBOARD: 'dashboard',
-} as const;
-type Tab = typeof TABS[keyof typeof TABS];
+type Status = 'To Do' | 'In Progress' | 'Done';
+type Priority = 'Low' | 'Medium' | 'High';
+type View = 'dashboard' | 'board' | 'timeline' | 'docs' | 'settings';
 
-const TAB_ORDER = Object.values(TABS) as Tab[];
+type Issue = {
+  id: number;
+  title: string;
+  status: Status;
+  priority: Priority;
+  assignee: string;
+  dueDate: string;
+};
+
+const STORAGE_KEY = 'project-flow-issues-v1';
+const COLUMNS: Status[] = ['To Do', 'In Progress', 'Done'];
+const TEAM_MEMBERS = ['나', '김철수', '이영희', '박지민'];
+
+const INITIAL_ISSUES: Issue[] = [
+  { id: 1, title: '로그인 API 개발', status: 'To Do', priority: 'High', assignee: '김철수', dueDate: '2026-05-20' },
+  { id: 2, title: '메인 대시보드 UI 디자인', status: 'In Progress', priority: 'Medium', assignee: '이영희', dueDate: '2026-05-22' },
+  { id: 3, title: '데이터베이스 스키마 설계', status: 'Done', priority: 'High', assignee: '박지민', dueDate: '2026-05-15' },
+];
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<Tab>(TABS.DIAGNOSIS);
-  const [toast, setToast] = useState<string | null>(null);
-  const { dark, toggle } = useDarkMode();
-  const touchStartX = useRef(0);
+  const [activeView, setActiveView] = useState<View>('board');
+  const [issues, setIssues] = useState<Issue[]>(INITIAL_ISSUES);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [myOnly, setMyOnly] = useState(false);
+  const [urgentOnly, setUrgentOnly] = useState(false);
+  const [newTask, setNewTask] = useState<Omit<Issue, 'id'>>({
+    title: '', status: 'To Do', priority: 'Medium', assignee: '나', dueDate: new Date().toISOString().slice(0, 10),
+  });
 
-  const showToast = (message: string) => {
-    setToast(message);
-    setTimeout(() => setToast(null), 3000);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) setIssues(JSON.parse(saved));
+    } catch {
+      setIssues(INITIAL_ISSUES);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(issues));
+  }, [issues]);
+
+  useEffect(() => {
+    const onResize = () => window.innerWidth >= 1024 && setIsSidebarOpen(false);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const filteredIssues = useMemo(() => {
+    let data = [...issues];
+    if (myOnly) data = data.filter((i) => i.assignee === '나');
+    if (urgentOnly) data = data.filter((i) => i.priority === 'High' && i.status !== 'Done');
+    return data;
+  }, [issues, myOnly, urgentOnly]);
+
+  const kpi = useMemo(() => ({
+    todo: issues.filter((i) => i.status !== 'Done').length,
+    urgent: issues.filter((i) => i.priority === 'High' && i.status !== 'Done').length,
+    mine: issues.filter((i) => i.assignee === '나' && i.status !== 'Done').length,
+  }), [issues]);
+
+  const handleAddIssue = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTask.title.trim()) return;
+    setIssues((prev) => [...prev, { ...newTask, id: Date.now() }]);
+    setNewTask({ title: '', status: 'To Do', priority: 'Medium', assignee: '나', dueDate: new Date().toISOString().slice(0, 10) });
+    setIsModalOpen(false);
   };
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
+  const moveIssue = (id: number, newStatus: Status) => {
+    setIssues((prev) => prev.map((issue) => (issue.id === id ? { ...issue, status: newStatus } : issue)));
   };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    if (Math.abs(dx) < 60) return;
-    const idx = TAB_ORDER.indexOf(activeTab);
-    if (dx < 0 && idx < TAB_ORDER.length - 1) setActiveTab(TAB_ORDER[idx + 1]);
-    if (dx > 0 && idx > 0) setActiveTab(TAB_ORDER[idx - 1]);
-  };
-
-  const menuItems = [
-    { id: TABS.DIAGNOSIS, icon: <Search size={20} />, label: 'Engine Diagnosis', mobileLabel: '진단' },
-    { id: TABS.COMPETITOR, icon: <ArrowLeftRight size={20} />, label: 'Competitor Analysis', mobileLabel: '경쟁사' },
-    { id: TABS.CONTENT, icon: <FileText size={20} />, label: 'Content Orchestrator', mobileLabel: '콘텐츠' },
-    { id: TABS.REWRITER, icon: <PenLine size={20} />, label: 'Content Rewriter', mobileLabel: '리라이터' },
-    { id: TABS.KEYWORD, icon: <Tag size={20} />, label: 'Keyword Analysis', mobileLabel: '키워드' },
-    { id: TABS.LLMSTXT, icon: <Bot size={20} />, label: 'llms.txt 생성기', mobileLabel: 'LLMs' },
-    { id: TABS.GA4, icon: <BarChart3 size={20} />, label: 'GA4 Analytics', mobileLabel: 'GA4' },
-    { id: TABS.SOV, icon: <Megaphone size={20} />, label: 'AI Share of Voice', mobileLabel: 'SOV' },
-    { id: TABS.DASHBOARD, icon: <LayoutDashboard size={20} />, label: 'Ops Dashboard', mobileLabel: '대시보드' },
-  ];
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 overflow-hidden select-none">
-      <OnboardingModal />
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden">
+      <Sidebar activeView={activeView} isSidebarOpen={isSidebarOpen} setActiveView={setActiveView} setIsSidebarOpen={setIsSidebarOpen} />
+      <Header setIsSidebarOpen={setIsSidebarOpen} setIsModalOpen={setIsModalOpen} />
 
-      {/* Sidebar (Desktop) */}
-      <aside className="hidden md:flex w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 flex-col z-20">
-        <div className="p-8 pb-4">
-          <div className="flex items-center gap-2.5 text-indigo-600 font-black text-2xl tracking-tighter">
-            <Zap size={32} fill="currentColor" strokeWidth={2.5} />
-            <span>MarketerOps<span className="text-slate-400 dark:text-slate-500 font-light">.ai</span></span>
-          </div>
-        </div>
-
-        <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
-          {menuItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-2xl transition-all duration-200 group ${
-                activeTab === item.id
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 translate-x-1'
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-200'
-              }`}
-            >
-              <span className={activeTab === item.id ? 'text-white' : 'group-hover:text-indigo-500'}>{item.icon}</span>
-              <span className="font-bold text-sm">{item.label}</span>
-              {activeTab === item.id && <ChevronRight className="ml-auto opacity-50" size={16} />}
-            </button>
-          ))}
-        </nav>
-
-        <div className="p-6 mt-auto shrink-0">
-          <div className="p-5 bg-gradient-to-br from-slate-900 to-indigo-900 text-white rounded-2xl relative overflow-hidden mb-4">
-            <div className="relative z-10">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                <span className="text-[10px] font-black uppercase tracking-[2px]">Enterprise Tier</span>
-              </div>
-              <p className="text-sm font-bold mb-1">Senior Marketer Mode</p>
-              <p className="text-[10px] text-slate-300">10년차 이상의 직관을 AI가 보조합니다.</p>
+      <main className="pt-20 lg:pt-24 p-4 lg:p-8 min-h-screen transition-all duration-300 lg:ml-64">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-2 text-sm text-slate-400">
+              <span>프로젝트</span><ChevronRight size={14} /><span className="text-indigo-600 font-medium">{activeView}</span>
             </div>
-            <Zap className="absolute -right-4 -bottom-4 text-white/5 w-24 h-24 rotate-12" />
-          </div>
-
-          {/* Dark mode toggle */}
-          <button
-            onClick={toggle}
-            className="w-full flex items-center justify-center gap-2 py-2.5 mb-3 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold transition-colors"
-          >
-            {dark ? <Sun size={14} /> : <Moon size={14} />}
-            {dark ? '라이트 모드' : '다크 모드'}
-          </button>
-
-          <div className="text-center">
-            <Link href="/privacy" className="text-[10px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-              Privacy Policy
-            </Link>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main */}
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-6 md:px-10 shrink-0 z-10">
-          <div className="flex items-center gap-4">
-            <div className="md:hidden p-2 bg-indigo-600 text-white rounded-xl">
-              <Zap size={20} fill="currentColor" />
-            </div>
-            <h2 className="text-lg md:text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
-              {menuItems.find((m) => m.id === activeTab)?.label}
-            </h2>
-          </div>
-          <div className="flex items-center gap-2 md:gap-4">
-            <button
-              onClick={toggle}
-              className="p-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors"
-              title={dark ? '라이트 모드' : '다크 모드'}
-            >
-              {dark ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-            <button className="relative p-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors">
-              <Bell size={22} />
-              <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-rose-500 border-2 border-white dark:border-slate-900 rounded-full" />
-            </button>
-            <div className="h-10 w-10 md:h-11 md:w-11 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800 flex items-center justify-center text-indigo-600 cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors">
-              <User size={22} strokeWidth={2.5} />
+            <div className="flex items-center gap-2 text-xs">
+              <button onClick={() => setMyOnly((v) => !v)} className={`px-3 py-1 rounded-full border ${myOnly ? 'bg-indigo-600 text-white' : 'bg-white'}`}>내 할 일</button>
+              <button onClick={() => setUrgentOnly((v) => !v)} className={`px-3 py-1 rounded-full border ${urgentOnly ? 'bg-rose-600 text-white' : 'bg-white'}`}>긴급만</button>
             </div>
           </div>
-        </header>
 
-        {/* Content with swipe gesture */}
-        <div
-          className="flex-1 overflow-y-auto p-4 md:p-10 pb-24 md:pb-10 scroll-smooth"
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-        >
-          {activeTab === TABS.DIAGNOSIS && <DiagnosisModule onToast={showToast} />}
-          {activeTab === TABS.COMPETITOR && <CompetitorModule onToast={showToast} />}
-          {activeTab === TABS.CONTENT && <ContentHubModule onToast={showToast} />}
-          {activeTab === TABS.REWRITER && <RewriterModule onToast={showToast} />}
-          {activeTab === TABS.KEYWORD && <KeywordModule onToast={showToast} />}
-          {activeTab === TABS.LLMSTXT && <LlmsTxtModule onToast={showToast} />}
-          {activeTab === TABS.GA4 && <GA4Module onToast={showToast} />}
-          {activeTab === TABS.SOV && <SovModule onToast={showToast} />}
-          {activeTab === TABS.DASHBOARD && <DashboardModule />}
+          {activeView === 'dashboard' && <DashboardView issues={filteredIssues} kpi={kpi} />}
+          {activeView === 'board' && <BoardView issues={filteredIssues} moveIssue={moveIssue} setIsModalOpen={setIsModalOpen} />}
+          {activeView === 'timeline' && <TimelineView issues={filteredIssues} />}
+          {(activeView === 'docs' || activeView === 'settings') && <Placeholder setActiveView={setActiveView} />}
         </div>
-
-        {/* Bottom Nav (Mobile) */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-700 flex items-center px-2 gap-1 overflow-x-auto z-30 scrollbar-hide">
-          {menuItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={'flex flex-col items-center gap-1 transition-all duration-300 px-2 shrink-0 ' + (
-                activeTab === item.id
-                  ? 'text-indigo-600 dark:text-indigo-400'
-                  : 'text-slate-400 dark:text-slate-500'
-              )}
-            >
-              <div className={'p-1.5 rounded-xl transition-colors ' + (activeTab === item.id ? 'bg-indigo-50 dark:bg-indigo-900/30' : '')}>
-                {item.icon}
-              </div>
-              <span className="text-[9px] font-black uppercase tracking-widest whitespace-nowrap">{item.mobileLabel}</span>
-            </button>
-          ))}
-        </nav>
       </main>
 
-      {/* Toast */}
-      {toast && (
-        <div className="fixed bottom-24 md:bottom-10 left-1/2 -translate-x-1/2 z-50">
-          <div className="bg-slate-900 dark:bg-slate-800 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700">
-            <CheckCircle2 size={18} className="text-emerald-400" />
-            <span className="text-sm font-bold tracking-tight">{toast}</span>
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">
+            <form onSubmit={handleAddIssue} className="p-5 space-y-3">
+              <div className="flex justify-between items-center"><h3 className="font-bold">신규 이슈 생성</h3><button type="button" onClick={() => setIsModalOpen(false)}><X size={18} /></button></div>
+              <input value={newTask.title} onChange={(e) => setNewTask({ ...newTask, title: e.target.value })} placeholder="제목" className="w-full px-3 py-2 border rounded" />
+              <div className="grid grid-cols-2 gap-2">
+                <select value={newTask.status} onChange={(e) => setNewTask({ ...newTask, status: e.target.value as Status })} className="px-3 py-2 border rounded">{COLUMNS.map((c) => <option key={c} value={c}>{c}</option>)}</select>
+                <select value={newTask.priority} onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as Priority })} className="px-3 py-2 border rounded"><option>Low</option><option>Medium</option><option>High</option></select>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <select value={newTask.assignee} onChange={(e) => setNewTask({ ...newTask, assignee: e.target.value })} className="px-3 py-2 border rounded">{TEAM_MEMBERS.map((m) => <option key={m}>{m}</option>)}</select>
+                <input type="date" value={newTask.dueDate} onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })} className="px-3 py-2 border rounded" />
+              </div>
+              <button className="w-full bg-indigo-600 text-white py-2 rounded">생성하기</button>
+            </form>
           </div>
         </div>
       )}
     </div>
   );
+}
+
+function Sidebar({ activeView, isSidebarOpen, setActiveView, setIsSidebarOpen }: { activeView: View; isSidebarOpen: boolean; setActiveView: (v: View) => void; setIsSidebarOpen: (v: boolean) => void; }) {
+  const nav: { id: View; icon: React.ReactNode; label: string }[] = [
+    { id: 'dashboard', icon: <LayoutDashboard size={18} />, label: '대시보드' },
+    { id: 'board', icon: <Trello size={18} />, label: '칸반' },
+    { id: 'timeline', icon: <GanttChartSquare size={18} />, label: '타임라인' },
+    { id: 'docs', icon: <FileText size={18} />, label: '문서함' },
+    { id: 'settings', icon: <Settings size={18} />, label: '설정' },
+  ];
+  return <>
+    {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)} />}
+    <div className={`fixed left-0 top-0 h-screen bg-slate-900 text-white z-50 w-64 p-4 transition-transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+      <div className="text-xl font-bold mb-4">Project Flow</div>
+      <nav className="space-y-1">{nav.map((n) => <button key={n.id} onClick={() => { setActiveView(n.id); setIsSidebarOpen(false); }} className={`w-full text-left px-3 py-2 rounded flex items-center gap-2 ${activeView === n.id ? 'bg-indigo-600' : 'text-slate-300 hover:bg-slate-800'}`}>{n.icon}{n.label}</button>)}</nav>
+    </div>
+  </>;
+}
+
+function Header({ setIsSidebarOpen, setIsModalOpen }: { setIsSidebarOpen: (v: boolean) => void; setIsModalOpen: (v: boolean) => void; }) {
+  return <header className="h-16 bg-white border-b fixed top-0 right-0 left-0 lg:left-64 z-30 flex items-center justify-between px-4 lg:px-8">
+    <div className="flex items-center gap-2"><button onClick={() => setIsSidebarOpen(true)} className="lg:hidden"><Menu size={20} /></button><h2 className="font-bold">협업 프로젝트 관리</h2></div>
+    <div className="flex items-center gap-3"><Search size={18} className="text-slate-400" /><Bell size={18} className="text-slate-400" /><button onClick={() => setIsModalOpen(true)} className="bg-indigo-600 text-white px-3 py-1.5 rounded flex items-center gap-1"><Plus size={16} />신규 이슈</button></div>
+  </header>;
+}
+
+function DashboardView({ issues, kpi }: { issues: Issue[]; kpi: { todo: number; urgent: number; mine: number } }) {
+  return <div className="space-y-4"><div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <StatCard title="미완료" value={kpi.todo} icon={<Clock size={16} />} />
+    <StatCard title="긴급" value={kpi.urgent} icon={<AlertCircle size={16} />} />
+    <StatCard title="내 할 일" value={kpi.mine} icon={<User size={16} />} />
+    <StatCard title="완료율" value={`${issues.length ? Math.round((issues.filter((i) => i.status === 'Done').length / issues.length) * 100) : 0}%`} icon={<CheckCircle2 size={16} />} />
+  </div>
+  <div className="bg-white rounded-xl border p-4"><h3 className="font-bold mb-2">오늘 확인할 일</h3>{issues.slice(0, 5).map((i) => <div key={i.id} className="flex justify-between text-sm py-2 border-b last:border-0"><span>{i.title}</span><span>{i.assignee}</span></div>)}</div></div>;
+}
+
+function BoardView({ issues, moveIssue, setIsModalOpen }: { issues: Issue[]; moveIssue: (id: number, s: Status) => void; setIsModalOpen: (v: boolean) => void }) {
+  return <div className="flex gap-4 overflow-x-auto">{COLUMNS.map((col) => <div key={col} className="min-w-[280px] bg-slate-100 rounded-xl p-3"><div className="flex justify-between mb-3"><h3 className="font-semibold">{col}</h3><MoreVertical size={14} /></div>{issues.filter((i) => i.status === col).map((i) => <div key={i.id} className="bg-white rounded-lg p-3 mb-2 border"><div className="text-sm font-medium">{i.title}</div><div className="text-xs text-slate-500 mt-1">{i.assignee} · {i.dueDate}</div><div className="flex gap-1 mt-2">{COLUMNS.filter((c) => c !== col).map((c) => <button key={c} onClick={() => moveIssue(i.id, c)} className="text-[10px] px-2 py-1 bg-indigo-50 rounded">{c}</button>)}</div></div>)}<button onClick={() => setIsModalOpen(true)} className="w-full border-2 border-dashed rounded py-2 text-sm text-slate-500">+ 추가하기</button></div>)}</div>;
+}
+
+function TimelineView({ issues }: { issues: Issue[] }) {
+  return <div className="bg-white rounded-xl border overflow-hidden"><div className="p-3 bg-slate-50 border-b flex items-center gap-2 text-sm"><Filter size={14} />마감일 기준</div><table className="w-full text-sm"><thead><tr className="text-left"><th className="p-3">이슈</th><th>담당자</th><th>마감일</th><th>상태</th></tr></thead><tbody>{[...issues].sort((a, b) => a.dueDate.localeCompare(b.dueDate)).map((i) => <tr key={i.id} className="border-t"><td className="p-3">{i.title}</td><td>{i.assignee}</td><td>{i.dueDate}</td><td>{i.status}</td></tr>)}</tbody></table></div>;
+}
+
+function Placeholder({ setActiveView }: { setActiveView: (v: View) => void }) {
+  return <div className="h-[40vh] flex flex-col items-center justify-center text-slate-500"><Clock /><p className="mt-2">준비 중인 기능입니다.</p><button onClick={() => setActiveView('board')} className="mt-2 text-indigo-600">보드로 이동</button></div>;
+}
+
+function StatCard({ title, value, icon }: { title: string; value: string | number; icon: React.ReactNode }) {
+  return <div className="bg-white rounded-xl border p-4"><div className="flex justify-between"><span className="text-sm text-slate-500">{title}</span>{icon}</div><div className="text-2xl font-bold mt-2">{value}</div></div>;
 }
