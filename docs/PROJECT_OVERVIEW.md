@@ -533,19 +533,33 @@ vercel logs --follow
 
 | 서비스 | 플랜 | 월 비용 | 한도/참고 |
 |--------|------|---------|-----------|
-| **Vercel** | Hobby / Pro | $0 / $20 | Hobby: 개인용, Cron 제한 있음 |
+| **Vercel** | **Pro** (현재) | **$20/월** | $20 included credit 포함, 초과분 On-Demand |
 | **Neon PostgreSQL** | Free / Launch | $0 / $19 | Free: 0.5GB, 자동 슬립 |
-| **Vercel Blob** | 사용량 기반 | ~$0.15/GB | 토큰 파일만 저장 시 거의 $0 |
+| **Vercel Blob** | Pro 포함 | (Vercel Pro 크레딧에 포함) | Blob Advanced/Simple Operations 사용량 기반 |
 | **Google Gemini** | Pay-as-you-go | ~$0.075/1M tokens | 2.5 Flash 기준 |
 | **Anthropic Claude** | Pay-as-you-go | ~$3/1M tokens | Sonnet 4.6 기준, 폴백만 사용 시 소량 |
 | **Google APIs** | 무료 할당량 | $0 (할당량 내) | PageSpeed: 25,000회/일 무료 |
 | **GitHub** | Free | $0 | 공개 저장소 무제한 |
+
+### 실제 Vercel Pro 사용 현황 (2026-05 기준)
+
+| 항목 | 월 사용액 |
+|------|----------|
+| Function Invocations | $0.60 |
+| Fluid Provisioned Memory | $0.03 |
+| Observability Events | $0.02 |
+| Blob Advanced Operations | $0.01 |
+| Fluid Active CPU | $0.01 |
+| **합계** | **~$0.68 / $20 크레딧** |
+
+> On-Demand Charges: $0 → 현재 트래픽 수준에서 $20 크레딧 내 충분히 여유 있음
 
 ### 비용 최적화 포인트
 
 1. **Gemini 우선 사용**: Claude 대비 40배 저렴 (0.075 vs $3/1M 토큰)
 2. **PageSpeed API**: 비인증 요청 시 낮은 할당량 → `PAGESPEED_API_KEY` 설정 권장
 3. **Neon 슬립 모드**: 무료 플랜은 5분 비활성 후 슬립 → 첫 요청 2-3초 지연 발생
+4. **Function Invocations**: 현재 비용의 88%를 차지 → 트래픽 급증 시 가장 먼저 모니터링
 
 ### 수익 구조 (AdSense 예측)
 
