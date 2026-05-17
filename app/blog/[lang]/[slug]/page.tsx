@@ -26,9 +26,14 @@ async function getRelated(lang: string, currentSlug: string, tags: string[]): Pr
     const res = await fetch(blobs[0].url, { next: { revalidate: 60 } });
     if (!res.ok) return [];
     const index: PostIndex[] = await res.json();
-    return index
-      .filter((p) => p.slug !== currentSlug && p.tags.some((t) => tags.includes(t)))
-      .slice(0, 3);
+    const others = index.filter((p) => p.slug !== currentSlug);
+    const byTag = others.filter((p) => p.tags.some((t) => tags.includes(t))).slice(0, 3);
+    // fallback to latest posts if not enough tag matches
+    if (byTag.length >= 3) return byTag;
+    const slugsInByTag = new Set(byTag.map((p) => p.slug));
+    const recent = others.filter((p) => !slugsInByTag.has(p.slug));
+    const sorted = [...recent].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return [...byTag, ...sorted].slice(0, 3);
   } catch {
     return [];
   }

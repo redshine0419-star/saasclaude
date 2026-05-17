@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import { list } from '@vercel/blob';
 import type { PostIndex } from '@/app/api/blog/generate/route';
 
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://growweb.me';
+
 type Lang = 'ko' | 'en' | 'ja';
 
 async function getPosts(lang: Lang): Promise<PostIndex[]> {
@@ -34,7 +36,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     title,
     description,
     alternates: {
-      languages: { 'ko': '/blog/ko', 'en': '/blog/en', 'ja': '/blog/ja' },
+      canonical: `${SITE_URL}/blog/${lang}`,
+      languages: { 'ko': `${SITE_URL}/blog/ko`, 'en': `${SITE_URL}/blog/en`, 'ja': `${SITE_URL}/blog/ja` },
     },
   };
 }
