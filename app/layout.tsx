@@ -4,6 +4,7 @@ import Script from "next/script";
 import { headers } from "next/headers";
 import { DarkModeProvider } from "@/components/DarkModeProvider";
 import AuthProvider from "@/components/AuthProvider";
+import { AppLangProvider } from "@/components/AppLangContext";
 import ChatWidget from "@/components/ChatWidget";
 import "./globals.css";
 
@@ -59,8 +60,10 @@ export default async function RootLayout({
         />
         <AuthProvider>
           <DarkModeProvider>
-            {children}
-            <ChatWidget />
+            <AppLangProvider>
+              {children}
+              <ChatWidget />
+            </AppLangProvider>
           </DarkModeProvider>
         </AuthProvider>
       </body>

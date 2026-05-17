@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
+import { useAppLang } from '@/components/AppLangContext';
+import { t } from '@/lib/app-i18n';
 import {
   Search, Link2, Link2Off, Loader2, AlertTriangle, TrendingUp, TrendingDown,
   Target, Zap, ExternalLink, ChevronDown, ChevronUp, Info,
@@ -130,6 +132,7 @@ function KpiCard({ label, value, delta, deltaUnit, invertDelta, sub }: {
 // ── Main component ─────────────────────────────────────────────────────────
 export default function GSCModule({ onToast }: { onToast: (msg: string) => void }) {
   const { data: session } = useSession();
+  const { lang } = useAppLang();
 
   const [status, setStatus] = useState<GSCStatus | null>(null);
   const [statusLoading, setStatusLoading] = useState(true);
@@ -154,12 +157,12 @@ export default function GSCModule({ onToast }: { onToast: (msg: string) => void 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('gsc_connected') === '1') {
-      onToast('Search Console 연결이 완료됐습니다.');
+      onToast(t('gsc', 'connected_toast', lang));
       window.history.replaceState({}, '', window.location.pathname);
     }
     const errParam = params.get('gsc_error');
     if (errParam) {
-      setError('연결 오류: ' + errParam);
+      setError(t('common', 'error', lang) + ': ' + errParam);
       window.history.replaceState({}, '', window.location.pathname);
     }
     fetch('/api/gsc/status')
@@ -198,7 +201,7 @@ export default function GSCModule({ onToast }: { onToast: (msg: string) => void 
       const d = await res.json();
       if (!res.ok) throw new Error(d?.error || `오류 (${res.status})`);
       setData(d);
-      onToast('Search Console 데이터를 불러왔습니다.');
+      onToast(t('gsc', 'data_loaded', lang));
     } catch (e) { setError(e instanceof Error ? e.message : '오류'); }
     finally { setLoading(false); }
   };
@@ -226,26 +229,26 @@ export default function GSCModule({ onToast }: { onToast: (msg: string) => void 
             <Search size={24} />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-slate-800">SEO 인사이트</h3>
-            <p className="text-sm text-slate-500">Google Search Console 데이터로 검색 성과를 분석합니다.</p>
+            <h3 className="text-xl font-bold text-slate-800">{t('gsc', 'title', lang)}</h3>
+            <p className="text-sm text-slate-500">{t('gsc', 'subtitle', lang)}</p>
           </div>
         </div>
 
         {/* Connection panel */}
         {statusLoading ? (
-          <div className="flex items-center gap-2 text-slate-400 text-sm"><Loader2 size={15} className="animate-spin" /> 연결 상태 확인 중...</div>
+          <div className="flex items-center gap-2 text-slate-400 text-sm"><Loader2 size={15} className="animate-spin" /> {t('gsc', 'connecting', lang)}</div>
         ) : !session?.user ? (
           <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl text-sm text-amber-800">
-            Search Console 연동을 위해 먼저 우측 상단에서 Google 로그인을 해주세요.
+            {t('gsc', 'loginRequired', lang)}
           </div>
         ) : status?.connected ? (
           <div className="space-y-4">
             {/* Connected badge */}
             <div className="flex items-center gap-3 p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
               <Link2 size={16} className="text-emerald-600 shrink-0" />
-              <span className="text-sm text-emerald-800 flex-1">연결됨: <strong>{status.email}</strong></span>
+              <span className="text-sm text-emerald-800 flex-1">{t('gsc', 'connected', lang)}: <strong>{status.email}</strong></span>
               <button onClick={handleDisconnect} className="flex items-center gap-1 text-xs text-slate-400 hover:text-rose-500 transition-colors">
-                <Link2Off size={13} /> 연결 해제
+                <Link2Off size={13} /> {t('gsc', 'disconnect', lang)}
               </button>
             </div>
 
@@ -323,8 +326,8 @@ export default function GSCModule({ onToast }: { onToast: (msg: string) => void 
             <button onClick={fetchData} disabled={loading || !siteUrl}
               className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-2xl transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-2">
               {loading
-                ? <><Loader2 size={18} className="animate-spin" /> 데이터 분석 중...</>
-                : <><Zap size={18} /> Search Console 분석 시작</>}
+                ? <><Loader2 size={18} className="animate-spin" /> {t('gsc', 'loading', lang)}</>
+                : <><Zap size={18} /> {t('gsc', 'fetchBtn', lang)}</>}
             </button>
             {!siteUrl && !loading && (
               <p className="text-xs text-center text-slate-400">사이트 URL을 입력하거나 선택해야 분석할 수 있습니다.</p>
@@ -338,7 +341,7 @@ export default function GSCModule({ onToast }: { onToast: (msg: string) => void 
             </div>
             <a href="/api/gsc/connect"
               className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-2">
-              <Link2 size={18} /> Google Search Console 연결
+              <Link2 size={18} /> {t('gsc', 'connectBtn', lang)}
             </a>
           </div>
         )}

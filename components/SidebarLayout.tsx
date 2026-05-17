@@ -11,6 +11,8 @@ import {
 import { useDarkMode } from '@/components/DarkModeProvider';
 import ProductSwitcher from '@/components/ProductSwitcher';
 import NotificationPanel from '@/components/NotificationPanel';
+import { useAppLang } from '@/components/AppLangContext';
+import { t } from '@/lib/app-i18n';
 
 interface NavItem {
   id: string;
@@ -34,6 +36,7 @@ export default function SidebarLayout({
 }: SidebarLayoutProps) {
   const { dark, toggle } = useDarkMode();
   const { data: session } = useSession();
+  const { lang, setLang } = useAppLang();
   const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'admin';
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -116,6 +119,24 @@ export default function SidebarLayout({
 
       {/* User section */}
       <div className={`shrink-0 border-t border-[#21262d] py-3 px-2 space-y-1`}>
+        {/* Language switcher */}
+        {(!collapsed || mobile) ? (
+          <div className="flex items-center gap-1 px-2.5 py-1.5">
+            {(['ko', 'en', 'ja'] as const).map((l) => (
+              <button
+                key={l}
+                onClick={() => setLang(l)}
+                className={`flex-1 text-xs font-bold py-1 rounded transition-colors ${lang === l ? 'bg-white/15 text-white' : 'text-[#555] hover:text-[#8b949e]'}`}
+              >
+                {l.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="flex justify-center py-1">
+            <span className="text-[10px] font-bold text-[#555]">{lang.toUpperCase()}</span>
+          </div>
+        )}
         {/* Dark mode */}
         <button
           onClick={toggle}
@@ -123,7 +144,7 @@ export default function SidebarLayout({
           title={dark ? 'Light mode' : 'Dark mode'}
         >
           {dark ? <Sun size={16} className="shrink-0" /> : <Moon size={16} className="shrink-0" />}
-          {(!collapsed || mobile) && <span>{dark ? '라이트 모드' : '다크 모드'}</span>}
+          {(!collapsed || mobile) && <span>{dark ? t('nav', 'lightMode', lang) : t('nav', 'darkMode', lang)}</span>}
         </button>
 
         {/* Auth */}
@@ -146,7 +167,7 @@ export default function SidebarLayout({
                 <button
                   onClick={() => signOut({ callbackUrl: product === 'work' ? '/work' : '/app' })}
                   className="text-[#8b949e] hover:text-white transition-colors"
-                  title="로그아웃"
+                  title={t('nav', 'logout', lang)}
                 >
                   <LogOut size={14} />
                 </button>
@@ -159,7 +180,7 @@ export default function SidebarLayout({
             className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-lg text-[#8b949e] hover:text-white hover:bg-white/5 transition-colors text-sm ${collapsed && !mobile ? 'justify-center' : ''}`}
           >
             <LogIn size={16} className="shrink-0" />
-            {(!collapsed || mobile) && <span>로그인</span>}
+            {(!collapsed || mobile) && <span>{t('nav', 'login', lang)}</span>}
           </button>
         )}
       </div>

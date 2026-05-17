@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Loader2, MousePointer2, Code2, GitCommit, X, ChevronDown, RotateCcw, CheckCircle2, AlertCircle, Maximize2, Minimize2 } from 'lucide-react';
 import { computeDiff, type DiffLine } from '@/lib/diff';
+import { useAppLang } from '@/components/AppLangContext';
+import { t } from '@/lib/app-i18n';
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? '';
 
@@ -91,6 +93,7 @@ const PICKER_SCRIPT = `
 `;
 
 export default function SiteEditorModule() {
+  const { lang } = useAppLang();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [iframeReady, setIframeReady] = useState(false);
   const [pickerActive, setPickerActive] = useState(false);
@@ -243,17 +246,17 @@ export default function SiteEditorModule() {
             {APP_URL || 'http://localhost:3000'}
           </div>
           <button onClick={() => { if (iframeRef.current) iframeRef.current.src = iframeRef.current.src; setIframeReady(false); }}
-            className="p-1 text-[#57606a] hover:text-[#24292f] dark:text-[#8b949e] dark:hover:text-[#e6edf3]" title="새로고침">
+            className="p-1 text-[#57606a] hover:text-[#24292f] dark:text-[#8b949e] dark:hover:text-[#e6edf3]" title={t('common', 'refresh', lang)}>
             <RotateCcw size={13}/>
           </button>
           {!pickerActive ? (
             <button onClick={injectPicker} disabled={!iframeReady}
               className="flex items-center gap-1 px-2 py-1 bg-[#0969da] text-white text-xs rounded hover:bg-[#0860ca] disabled:opacity-40">
-              <MousePointer2 size={12}/> 요소 선택 시작
+              <MousePointer2 size={12}/> {t('siteEditor', 'startSelect', lang)}
             </button>
           ) : (
             <span className="flex items-center gap-1 px-2 py-1 bg-[#1a7f37] text-white text-xs rounded">
-              <MousePointer2 size={12}/> 선택 중…
+              <MousePointer2 size={12}/> {t('siteEditor', 'selecting', lang)}
             </span>
           )}
           <button onClick={() => setIframeExpanded(v => !v)}
@@ -274,7 +277,7 @@ export default function SiteEditorModule() {
             src={APP_URL || '/app'}
             onLoad={handleIframeLoad}
             className="w-full h-full border-0"
-            title="사이트 미리보기"
+            title={t('siteEditor', 'sitePreview', lang)}
           />
         </div>
       </div>
@@ -287,7 +290,7 @@ export default function SiteEditorModule() {
           <div className="p-4 border-b border-[#d0d7de] dark:border-[#30363d]">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider flex items-center gap-1.5">
-                <MousePointer2 size={12}/> 선택된 요소
+                <MousePointer2 size={12}/> {t('siteEditor', 'selectedElem', lang)}
               </span>
               {selected && (
                 <button onClick={resetSelection} className="text-[#8c959f] hover:text-red-500 transition-colors">
@@ -309,7 +312,7 @@ export default function SiteEditorModule() {
               </div>
             ) : (
               <p className="text-xs text-[#8c959f]">
-                {pickerActive ? '← iframe에서 수정할 요소를 클릭하세요' : '"요소 선택 시작" 버튼을 눌러주세요'}
+                {pickerActive ? t('siteEditor', 'clickInIframe', lang) : t('siteEditor', 'pressStart', lang)}
               </p>
             )}
           </div>
@@ -317,14 +320,14 @@ export default function SiteEditorModule() {
           {/* File selector */}
           <div className="p-4 border-b border-[#d0d7de] dark:border-[#30363d]">
             <label className="block text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <Code2 size={12}/> 수정할 파일
+              <Code2 size={12}/> {t('siteEditor', 'editFile', lang)}
             </label>
-            <input value={fileSearch} onChange={e => setFileSearch(e.target.value)} placeholder="파일 검색..."
+            <input value={fileSearch} onChange={e => setFileSearch(e.target.value)} placeholder={t('siteEditor', 'searchFiles', lang)}
               className="w-full px-3 py-1.5 mb-2 text-xs bg-white dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-lg text-[#24292f] dark:text-[#e6edf3] placeholder-[#8c959f] focus:outline-none focus:ring-1 focus:ring-[#0969da]"/>
             <div className="relative">
               <select value={selectedFile} onChange={e => setSelectedFile(e.target.value)}
                 className="w-full appearance-none px-3 py-2 pr-8 text-xs bg-white dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-lg text-[#24292f] dark:text-[#e6edf3] focus:outline-none focus:ring-1 focus:ring-[#0969da] cursor-pointer">
-                <option value="">파일 선택...</option>
+                <option value="">{t('siteEditor', 'selectFile', lang)}</option>
                 {filteredFiles.map(f => (
                   <option key={f} value={f}>{f}</option>
                 ))}
@@ -333,27 +336,27 @@ export default function SiteEditorModule() {
             </div>
             {loadingFile && (
               <div className="mt-2 flex items-center gap-1.5 text-xs text-[#57606a]">
-                <Loader2 size={11} className="animate-spin"/> 파일 로드 중...
+                <Loader2 size={11} className="animate-spin"/> {t('siteEditor', 'loadingFile', lang)}
               </div>
             )}
             {fileContent && !loadingFile && (
-              <p className="mt-1.5 text-[10px] text-[#8c959f]">{fileContent.split('\n').length}줄 로드됨</p>
+              <p className="mt-1.5 text-[10px] text-[#8c959f]">{fileContent.split('\n').length} {t('siteEditor', 'linesLoaded', lang)}</p>
             )}
           </div>
 
           {/* Prompt */}
           <div className="p-4 border-b border-[#d0d7de] dark:border-[#30363d]">
             <label className="block text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider mb-2">
-              수정 요청
+              {t('siteEditor', 'editRequest', lang)}
             </label>
             <textarea value={prompt} onChange={e => setPrompt(e.target.value)}
-              placeholder="예: 헤더 배경색을 짙은 남색으로 변경하고 글자 크기를 키워줘"
+              placeholder={t('siteEditor', 'editPh', lang)}
               rows={4}
               className="w-full px-3 py-2 text-sm bg-white dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-lg text-[#24292f] dark:text-[#e6edf3] placeholder-[#8c959f] focus:outline-none focus:ring-1 focus:ring-[#0969da] resize-none"/>
             <button onClick={handleGenerate}
               disabled={generating || !prompt.trim() || !fileContent}
               className="mt-2 w-full flex items-center justify-center gap-2 px-4 py-2 bg-[#0969da] text-white text-sm font-medium rounded-lg hover:bg-[#0860ca] disabled:opacity-40 transition-colors">
-              {generating ? <><Loader2 size={14} className="animate-spin"/> AI 생성 중...</> : '✨ AI 수정 코드 생성'}
+              {generating ? <><Loader2 size={14} className="animate-spin"/> {t('common', 'generating', lang)}</> : t('siteEditor', 'aiGenerate', lang)}
             </button>
           </div>
 
@@ -362,13 +365,13 @@ export default function SiteEditorModule() {
             <div className="p-4 border-b border-[#d0d7de] dark:border-[#30363d]">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wider">
-                  변경 미리보기
+                  {t('siteEditor', 'changePreview', lang)}
                 </span>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] text-green-600 dark:text-green-400 font-mono">+{diffStats.added}</span>
                   <span className="text-[10px] text-red-600 dark:text-red-400 font-mono">-{diffStats.removed}</span>
                   <button onClick={() => setShowDiffOnly(v => !v)} className="text-[10px] text-[#0969da] hover:underline">
-                    {showDiffOnly ? '전체 보기' : '변경만'}
+                    {showDiffOnly ? t('siteEditor', 'viewAll', lang) : t('siteEditor', 'changesOnly', lang)}
                   </button>
                 </div>
               </div>
@@ -392,11 +395,11 @@ export default function SiteEditorModule() {
               <div className="flex gap-2 mt-3">
                 <button onClick={() => { setGeneratedCode(null); setDiffLines([]); }}
                   className="flex-1 px-3 py-2 border border-[#d0d7de] dark:border-[#30363d] text-[#57606a] dark:text-[#8b949e] text-sm rounded-lg hover:bg-[#f6f8fa] dark:hover:bg-[#161b22] transition-colors">
-                  취소
+                  {t('common', 'cancel', lang)}
                 </button>
                 <button onClick={handleCommit} disabled={committing}
                   className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-[#1a7f37] text-white text-sm font-medium rounded-lg hover:bg-[#1a6b2e] disabled:opacity-40 transition-colors">
-                  {committing ? <><Loader2 size={13} className="animate-spin"/> 커밋 중...</> : <><GitCommit size={13}/> 승인 & 커밋</>}
+                  {committing ? <><Loader2 size={13} className="animate-spin"/> {t('siteEditor', 'committing', lang)}</> : <><GitCommit size={13}/> {t('siteEditor', 'approve', lang)}</>}
                 </button>
               </div>
             </div>
@@ -409,7 +412,7 @@ export default function SiteEditorModule() {
                 <div className="flex items-start gap-2 p-3 bg-[#dafbe1] dark:bg-[#1a4a29] border border-green-300 dark:border-green-800 rounded-lg">
                   <CheckCircle2 size={16} className="text-[#1a7f37] dark:text-[#56d364] mt-0.5 shrink-0"/>
                   <div>
-                    <p className="text-sm font-medium text-[#1a7f37] dark:text-[#56d364]">커밋 완료!</p>
+                    <p className="text-sm font-medium text-[#1a7f37] dark:text-[#56d364]">{t('siteEditor', 'committed', lang)}</p>
                     <a href={commitResult.url} target="_blank" rel="noreferrer"
                       className="text-xs text-[#0969da] hover:underline break-all">{commitResult.url}</a>
                   </div>
@@ -428,8 +431,8 @@ export default function SiteEditorModule() {
             <div className="flex-1 flex items-center justify-center p-8">
               <div className="text-center">
                 <Code2 size={36} className="mx-auto text-[#d0d7de] dark:text-[#30363d] mb-3"/>
-                <p className="text-sm text-[#57606a] dark:text-[#8b949e] font-medium">사이트 편집기</p>
-                <p className="text-xs text-[#8c959f] mt-1">요소 선택 → 파일 지정 → 프롬프트 작성</p>
+                <p className="text-sm text-[#57606a] dark:text-[#8b949e] font-medium">{t('siteEditor', 'title', lang)}</p>
+                <p className="text-xs text-[#8c959f] mt-1">{t('siteEditor', 'pressStart', lang)}</p>
               </div>
             </div>
           )}

@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { Search, Loader2, TrendingUp, Target, Lightbulb, FileText, BarChart2, Tag, Layers } from 'lucide-react';
 import AdUnit from '@/components/AdUnit';
+import { useAppLang } from '@/components/AppLangContext';
+import { t } from '@/lib/app-i18n';
 
 const Card = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
   <div className={'bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden ' + className}>
@@ -52,14 +54,15 @@ function intentCardColor(intent: string) {
   return 'border-l-slate-400';
 }
 
-function difficultyColor(d: string) {
-  if (d === 'Low') return { bar: 'bg-emerald-500', text: 'text-emerald-600', label: '낮음' };
-  if (d === 'High') return { bar: 'bg-rose-500', text: 'text-rose-600', label: '높음' };
-  return { bar: 'bg-amber-500', text: 'text-amber-600', label: '중간' };
+function difficultyColor(d: string, lang: import('@/lib/app-i18n').AppLang = 'ko') {
+  if (d === 'Low') return { bar: 'bg-emerald-500', text: 'text-emerald-600', label: t('common', 'low', lang) };
+  if (d === 'High') return { bar: 'bg-rose-500', text: 'text-rose-600', label: t('common', 'high', lang) };
+  return { bar: 'bg-amber-500', text: 'text-amber-600', label: t('common', 'medium', lang) };
 }
 
 // ── 단일 키워드 분석 모드 ──
 function SingleMode({ onToast }: { onToast: (msg: string) => void }) {
+  const { lang } = useAppLang();
   const [keyword, setKeyword] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<KeywordResult | null>(null);
@@ -79,15 +82,15 @@ function SingleMode({ onToast }: { onToast: (msg: string) => void }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? '분석 실패');
       setResult(data);
-      onToast('키워드 분석이 완료되었습니다.');
+      onToast(t('keyword', 'analyzeComplete', lang));
     } catch (e) {
-      setError(e instanceof Error ? e.message : '오류가 발생했습니다.');
+      setError(e instanceof Error ? e.message : t('common', 'error', lang));
     } finally {
       setLoading(false);
     }
   };
 
-  const diff = result ? difficultyColor(result.difficulty) : null;
+  const diff = result ? difficultyColor(result.difficulty, lang) : null;
 
   return (
     <>
@@ -95,7 +98,7 @@ function SingleMode({ onToast }: { onToast: (msg: string) => void }) {
         <div className="flex flex-col md:flex-row gap-3">
           <input
             type="text"
-            placeholder="분석할 키워드 입력 (예: AI 마케팅 도구)"
+            placeholder={t('keyword', 'inputLabel', lang)}
             className="flex-1 pl-5 pr-4 py-4 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all shadow-sm text-sm"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
@@ -107,7 +110,7 @@ function SingleMode({ onToast }: { onToast: (msg: string) => void }) {
             disabled={loading || !keyword.trim()}
             className="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-bold rounded-2xl transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 whitespace-nowrap"
           >
-            {loading ? <><Loader2 size={18} className="animate-spin" /> 분석 중...</> : <><Search size={18} /> 키워드 분석</>}
+            {loading ? <><Loader2 size={18} className="animate-spin" /> {t('common', 'analyzing', lang)}</> : <><Search size={18} /> {t('keyword', 'analyzeBtn', lang)}</>}
           </button>
         </div>
         {error && <div className="mt-4 p-4 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-700">{error}</div>}
@@ -119,7 +122,7 @@ function SingleMode({ onToast }: { onToast: (msg: string) => void }) {
             <Card className="p-5">
               <div className="flex items-center gap-2 mb-3">
                 <Target size={18} className="text-indigo-600" />
-                <span className="text-xs font-black text-slate-500 uppercase tracking-wide">검색 의도</span>
+                {t('keyword', 'intent', lang)}
               </div>
               <div className="mb-2">
                 <span className={'px-3 py-1 rounded-full text-sm font-black border ' + intentColor(result.intent)}>
@@ -132,7 +135,7 @@ function SingleMode({ onToast }: { onToast: (msg: string) => void }) {
             <Card className="p-5">
               <div className="flex items-center gap-2 mb-3">
                 <BarChart2 size={18} className="text-indigo-600" />
-                <span className="text-xs font-black text-slate-500 uppercase tracking-wide">경쟁도</span>
+                {t('keyword', 'competition', lang)}
               </div>
               <div className={'text-2xl font-black mb-2 ' + diff!.text}>{diff!.label}</div>
               <div className="w-full bg-slate-100 rounded-full h-2 mb-3">
@@ -144,7 +147,7 @@ function SingleMode({ onToast }: { onToast: (msg: string) => void }) {
             <Card className="p-5">
               <div className="flex items-center gap-2 mb-3">
                 <TrendingUp size={18} className="text-indigo-600" />
-                <span className="text-xs font-black text-slate-500 uppercase tracking-wide">예상 월 검색량</span>
+                {t('keyword', 'monthlyVol', lang)}
               </div>
               <div className="text-2xl font-black text-slate-800 mb-2">{result.monthlyVolume}</div>
               <p className="text-xs text-slate-400">AI 추정치 (실제 값과 다를 수 있음)</p>
@@ -155,12 +158,12 @@ function SingleMode({ onToast }: { onToast: (msg: string) => void }) {
             <Card className="p-6">
               <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
                 <Tag size={18} className="text-indigo-600" />
-                연관 키워드
+                {t('keyword', 'related', lang)}
               </h4>
               <div className="flex flex-wrap gap-2">
                 {result.relatedKeywords.map((kw, i) => (
                   <span key={i} className="px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl text-xs font-semibold cursor-pointer hover:bg-indigo-100 transition-colors"
-                    onClick={() => { setKeyword(kw); onToast(kw + ' 키워드로 변경됐습니다.'); }}>
+                    onClick={() => { setKeyword(kw); onToast(kw + ' ' + t('keyword', 'analyzedKeyword', lang)); }}>
                     {kw}
                   </span>
                 ))}
@@ -170,12 +173,12 @@ function SingleMode({ onToast }: { onToast: (msg: string) => void }) {
             <Card className="p-6">
               <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
                 <Search size={18} className="text-indigo-600" />
-                롱테일 키워드
+                {t('keyword', 'longTail', lang)}
               </h4>
               <div className="space-y-2">
                 {result.longTailKeywords.map((kw, i) => (
                   <div key={i} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl hover:bg-indigo-50 transition-colors cursor-pointer group"
-                    onClick={() => { setKeyword(kw); onToast(kw + ' 키워드로 변경됐습니다.'); }}>
+                    onClick={() => { setKeyword(kw); onToast(kw + ' ' + t('keyword', 'analyzedKeyword', lang)); }}>
                     <span className="w-5 h-5 bg-slate-200 group-hover:bg-indigo-200 rounded-full flex items-center justify-center text-[10px] font-black text-slate-500 group-hover:text-indigo-700 shrink-0">
                       {i + 1}
                     </span>
@@ -189,7 +192,7 @@ function SingleMode({ onToast }: { onToast: (msg: string) => void }) {
           <Card className="p-6">
             <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
               <Lightbulb size={18} className="text-indigo-600" />
-              콘텐츠 방향 제안
+              {t('keyword', 'contentDir', lang)}
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {result.contentAngles.map((angle, i) => (
@@ -207,7 +210,7 @@ function SingleMode({ onToast }: { onToast: (msg: string) => void }) {
           <Card className="p-6">
             <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
               <FileText size={18} className="text-indigo-600" />
-              SEO 최적화 제목 & 메타 설명
+              {t('keyword', 'seoTitle', lang)}
             </h4>
             <div className="space-y-3 mb-4">
               {result.seoTitles.map((title, i) => (
@@ -230,6 +233,7 @@ function SingleMode({ onToast }: { onToast: (msg: string) => void }) {
 
 // ── 키워드 클러스터링 모드 ──
 function ClusterMode({ onToast }: { onToast: (msg: string) => void }) {
+  const { lang } = useAppLang();
   const [raw, setRaw] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ClusterResult | null>(null);
@@ -239,7 +243,7 @@ function ClusterMode({ onToast }: { onToast: (msg: string) => void }) {
 
   const analyze = async () => {
     if (keywords.length < 2) {
-      setError('키워드를 2개 이상 입력해주세요.');
+      setError(t('common', 'error', lang));
       return;
     }
     setLoading(true);
@@ -252,11 +256,11 @@ function ClusterMode({ onToast }: { onToast: (msg: string) => void }) {
         body: JSON.stringify({ keywords }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? '분석 실패');
+      if (!res.ok) throw new Error(data.error ?? t('common', 'error', lang));
       setResult(data);
-      onToast('키워드 클러스터링 완료!');
+      onToast(t('keyword', 'analyzeComplete', lang));
     } catch (e) {
-      setError(e instanceof Error ? e.message : '오류가 발생했습니다.');
+      setError(e instanceof Error ? e.message : t('common', 'error', lang));
     } finally {
       setLoading(false);
     }
@@ -265,7 +269,7 @@ function ClusterMode({ onToast }: { onToast: (msg: string) => void }) {
   return (
     <>
       <Card className="p-6 md:p-8 border-indigo-100 bg-gradient-to-br from-white to-indigo-50/30">
-        <p className="text-xs text-slate-500 mb-3">키워드를 한 줄에 하나씩 입력하세요 (2~30개)</p>
+        <p className="text-xs text-slate-500 mb-3">{t('keyword', 'inputLabel', lang)}</p>
         <textarea
           className="w-full h-44 pl-5 pr-4 py-4 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm text-sm resize-none mb-3"
           placeholder={'AI 마케팅 도구\nSEO 자동화\nGEO 최적화\n마케팅 AI 솔루션\n콘텐츠 자동 생성'}
@@ -280,7 +284,7 @@ function ClusterMode({ onToast }: { onToast: (msg: string) => void }) {
             disabled={loading || keywords.length < 2}
             className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-bold rounded-2xl transition-all shadow-lg shadow-indigo-100 flex items-center gap-2"
           >
-            {loading ? <><Loader2 size={18} className="animate-spin" /> 클러스터링 중...</> : <><Layers size={18} /> 의도별 클러스터링</>}
+            {loading ? <><Loader2 size={18} className="animate-spin" /> {t('keyword', 'clustering', lang)}</> : <><Layers size={18} /> {t('keyword', 'clusterBtn', lang)}</>}
           </button>
         </div>
         {error && <div className="mt-4 p-4 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-700">{error}</div>}
@@ -292,7 +296,7 @@ function ClusterMode({ onToast }: { onToast: (msg: string) => void }) {
           <Card className="p-6">
             <h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
               <Lightbulb size={18} className="text-indigo-600" />
-              전략 요약
+              {t('keyword', 'strategySummary', lang)}
             </h4>
             <p className="text-sm text-slate-700 leading-relaxed bg-indigo-50 border border-indigo-100 rounded-xl p-4">{result.summary}</p>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -314,7 +318,7 @@ function ClusterMode({ onToast }: { onToast: (msg: string) => void }) {
                       {cluster.intent}
                     </span>
                     <h4 className="font-bold text-slate-800 mt-2 text-lg">
-                      대표: <span className="text-indigo-700">{cluster.pillar}</span>
+                      {t('keyword', 'representative', lang)} <span className="text-indigo-700">{cluster.pillar}</span>
                     </h4>
                   </div>
                   <span className="text-2xl font-black text-slate-300">{cluster.keywords.length}</span>
@@ -330,11 +334,11 @@ function ClusterMode({ onToast }: { onToast: (msg: string) => void }) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="bg-white/70 rounded-xl p-3">
-                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-wide mb-1">그룹 특징</div>
+                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-wide mb-1">{t('keyword', 'groupFeature', lang)}</div>
                     <p className="text-xs text-slate-600 leading-relaxed">{cluster.description}</p>
                   </div>
                   <div className="bg-white/70 rounded-xl p-3">
-                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-wide mb-1">추천 콘텐츠</div>
+                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-wide mb-1">{t('keyword', 'recommendedContent', lang)}</div>
                     <p className="text-xs text-slate-600 leading-relaxed">{cluster.contentIdea}</p>
                   </div>
                 </div>
@@ -349,6 +353,7 @@ function ClusterMode({ onToast }: { onToast: (msg: string) => void }) {
 
 // ── 메인 컴포넌트 ──
 export default function KeywordModule({ onToast }: { onToast: (msg: string) => void }) {
+  const { lang } = useAppLang();
   const [mode, setMode] = useState<'single' | 'cluster'>('single');
 
   return (
@@ -360,8 +365,8 @@ export default function KeywordModule({ onToast }: { onToast: (msg: string) => v
             <Search size={24} />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-slate-800">AI 키워드 분석</h3>
-            <p className="text-sm text-slate-500">검색 의도, 경쟁도, 클러스터링을 AI가 즉시 분석합니다.</p>
+            <h3 className="text-xl font-bold text-slate-800">{t('keyword', 'title', lang)}</h3>
+            <p className="text-sm text-slate-500">{t('keyword', 'subtitle', lang)}</p>
           </div>
         </div>
         <div className="flex bg-slate-100 rounded-2xl p-1 gap-1 self-start md:self-auto">
@@ -370,14 +375,14 @@ export default function KeywordModule({ onToast }: { onToast: (msg: string) => v
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${mode === 'single' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
           >
             <Search size={15} />
-            단일 분석
+            {t('keyword', 'single', lang)}
           </button>
           <button
             onClick={() => setMode('cluster')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${mode === 'cluster' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
           >
             <Layers size={15} />
-            클러스터링
+            {t('keyword', 'cluster', lang)}
           </button>
         </div>
       </div>

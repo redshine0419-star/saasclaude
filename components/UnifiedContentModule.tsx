@@ -3,26 +3,22 @@
 import { useState } from 'react';
 import { Sparkles, Zap, Loader2, Copy, ChevronDown, ChevronUp } from 'lucide-react';
 import RewriterModule from '@/components/RewriterModule';
+import { useAppLang } from '@/components/AppLangContext';
+import { t } from '@/lib/app-i18n';
 
 type Tab = 'generate' | 'rewriter';
 
 type ChannelKey = 'blog' | 'social' | 'newsletter' | 'ads';
 
-const CHANNELS: { key: ChannelKey; label: string; icon: string; color: string; title: string }[] = [
-  { key: 'blog', label: '블로그', icon: '📝', color: 'indigo', title: 'SEO 최적화 블로그 본문' },
-  { key: 'social', label: '인스타그램', icon: '📸', color: 'pink', title: '인스타그램 카드뉴스 기획' },
-  { key: 'newsletter', label: '뉴스레터', icon: '✉️', color: 'blue', title: '고객 맞춤 이메일 뉴스레터' },
-  { key: 'ads', label: '광고카피', icon: '📣', color: 'purple', title: '퍼포먼스 광고 카피 (A/B)' },
+const CHANNELS: { key: ChannelKey; labelKey: string; icon: string; color: string; titleKey: string }[] = [
+  { key: 'blog', labelKey: 'blog', icon: '📝', color: 'indigo', titleKey: 'blogTitle' },
+  { key: 'social', labelKey: 'instagram', icon: '📸', color: 'pink', titleKey: 'igTitle' },
+  { key: 'newsletter', labelKey: 'newsletter', icon: '✉️', color: 'blue', titleKey: 'nlTitle' },
+  { key: 'ads', labelKey: 'adCopy', icon: '📣', color: 'purple', titleKey: 'adTitle' },
 ];
 
-const TONES = [
-  { key: '친근한', label: '친근한' },
-  { key: '전문적', label: '전문적' },
-  { key: '유머러스', label: '유머러스' },
-  { key: '감성적', label: '감성적' },
-] as const;
-
-type Tone = typeof TONES[number]['key'];
+const TONE_KEYS = ['friendly', 'professional', 'humorous', 'emotional'] as const;
+type Tone = typeof TONE_KEYS[number];
 
 interface ContentResult {
   blog: string;
@@ -63,11 +59,13 @@ function ContentCard({
   content,
   isGenerating,
   onCopy,
+  lang,
 }: {
   channel: typeof CHANNELS[0];
   content: string | undefined;
   isGenerating: boolean;
   onCopy: (text: string) => void;
+  lang: import('@/lib/app-i18n').AppLang;
 }) {
   const [expanded, setExpanded] = useState(false);
 
@@ -78,7 +76,7 @@ function ContentCard({
         <div className="flex justify-between items-center mb-4">
           <span className="flex items-center gap-1.5 text-xs font-bold text-slate-600 uppercase tracking-wider">
             <span>{channel.icon}</span>
-            {channel.label}
+            {t('content', channel.labelKey, lang)}
           </span>
           {content && (
             <button onClick={() => onCopy(content)} className="text-slate-300 hover:text-indigo-600 transition-colors">
@@ -86,7 +84,7 @@ function ContentCard({
             </button>
           )}
         </div>
-        <h5 className="font-bold text-slate-800 mb-4">{channel.title}</h5>
+        <h5 className="font-bold text-slate-800 mb-4">{t('content', channel.titleKey, lang)}</h5>
 
         {isGenerating && !content ? (
           <div className="space-y-2">
@@ -104,7 +102,7 @@ function ContentCard({
                 onClick={() => setExpanded(!expanded)}
                 className="mt-2 flex items-center gap-1 text-xs font-bold text-indigo-600 hover:underline"
               >
-                {expanded ? <><ChevronUp size={12} /> 접기</> : <><ChevronDown size={12} /> 전체 보기</>}
+                {expanded ? <><ChevronUp size={12} /> {t('common', 'collapse', lang)}</> : <><ChevronDown size={12} /> {t('common', 'viewAll', lang)}</>}
               </button>
             )}
           </div>
@@ -118,7 +116,7 @@ function ContentCard({
 
         <div className="mt-6 pt-4 border-t border-slate-100">
           <span className="text-[10px] text-slate-400 font-medium tracking-tight">
-            {content ? 'AI 생성 완료' : 'AI 대기 중'}
+            {content ? t('content', 'generated', lang) : t('content', 'waiting', lang)}
           </span>
         </div>
       </div>
@@ -127,11 +125,12 @@ function ContentCard({
 }
 
 function ContentGenerateTab({ onToast }: { onToast: (msg: string) => void }) {
+  const { lang } = useAppLang();
   const [selectedChannels, setSelectedChannels] = useState<Set<ChannelKey>>(
     new Set(['blog', 'social', 'newsletter', 'ads'])
   );
   const [topic, setTopic] = useState('');
-  const [tone, setTone] = useState<Tone>('친근한');
+  const [tone, setTone] = useState<Tone>('friendly');
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<ContentResult | null>(null);
   const [error, setError] = useState('');
@@ -164,7 +163,7 @@ function ContentGenerateTab({ onToast }: { onToast: (msg: string) => void }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? '생성 실패');
       setResult(data);
-      onToast('선택한 채널별 콘텐츠 생성이 완료되었습니다.');
+      onToast(t('content', 'complete', lang));
     } catch (e) {
       setError(e instanceof Error ? e.message : '오류가 발생했습니다.');
     } finally {
@@ -174,7 +173,7 @@ function ContentGenerateTab({ onToast }: { onToast: (msg: string) => void }) {
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
-    onToast('클립보드에 복사되었습니다.');
+    onToast(t('common', 'copiedToClipboard', lang));
   };
 
   const visibleChannels = CHANNELS.filter((ch) => selectedChannels.has(ch.key));
@@ -185,15 +184,15 @@ function ContentGenerateTab({ onToast }: { onToast: (msg: string) => void }) {
       <Card className="p-6 md:p-8">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h3 className="text-xl font-bold text-slate-800">Multi-Channel 콘텐츠 생성</h3>
-            <p className="text-sm text-slate-500">주제와 채널을 선택하면 AI가 각 채널에 맞는 콘텐츠를 자동 생성합니다.</p>
+            <h3 className="text-xl font-bold text-slate-800">{t('content', 'title', lang)}</h3>
+            <p className="text-sm text-slate-500">{t('content', 'subtitle', lang)}</p>
           </div>
           <Sparkles className="text-indigo-500 animate-pulse" size={28} />
         </div>
 
         {/* Channel checkboxes */}
         <div className="mb-5">
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">생성할 채널 선택</p>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">{t('content', 'channelLabel', lang)}</p>
           <div className="flex flex-wrap gap-2">
             {CHANNELS.map((ch) => {
               const active = selectedChannels.has(ch.key);
@@ -213,7 +212,7 @@ function ContentGenerateTab({ onToast }: { onToast: (msg: string) => void }) {
                     {active && '✓'}
                   </span>
                   <span>{ch.icon}</span>
-                  {ch.label}
+                  {t('content', ch.labelKey, lang)}
                 </button>
               );
             })}
@@ -224,7 +223,7 @@ function ContentGenerateTab({ onToast }: { onToast: (msg: string) => void }) {
         <input
           type="text"
           className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm transition-all mb-4"
-          placeholder="주제나 키워드를 입력하세요 (예: 봄 신제품 출시, 건강한 아침 루틴)"
+          placeholder={t('content', 'topicPlaceholder', lang)}
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
           disabled={isGenerating}
@@ -233,19 +232,19 @@ function ContentGenerateTab({ onToast }: { onToast: (msg: string) => void }) {
 
         {/* Tone selector */}
         <div className="mb-5">
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">톤 선택</p>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">{t('content', 'toneLabel', lang)}</p>
           <div className="flex flex-wrap gap-2">
-            {TONES.map((t) => (
+            {TONE_KEYS.map((tk) => (
               <button
-                key={t.key}
-                onClick={() => setTone(t.key)}
+                key={tk}
+                onClick={() => setTone(tk)}
                 className={`px-4 py-2 rounded-xl border-2 text-sm font-semibold transition-all ${
-                  tone === t.key
+                  tone === tk
                     ? 'border-slate-800 bg-slate-800 text-white'
                     : 'border-slate-200 text-slate-600 hover:border-slate-400 bg-white'
                 }`}
               >
-                {t.label}
+                {t('content', tk, lang)}
               </button>
             ))}
           </div>
@@ -263,9 +262,9 @@ function ContentGenerateTab({ onToast }: { onToast: (msg: string) => void }) {
           className="w-full py-3 bg-slate-900 text-white font-bold rounded-xl text-sm hover:bg-slate-800 disabled:bg-slate-300 flex items-center justify-center gap-2 transition-all"
         >
           {isGenerating ? (
-            <><Loader2 size={16} className="animate-spin" /> AI 생성 중...</>
+            <><Loader2 size={16} className="animate-spin" /> {t('common', 'generating', lang)}</>
           ) : (
-            <><Zap size={16} fill="currentColor" /> AI 콘텐츠 생성</>
+            <><Zap size={16} fill="currentColor" /> {t('content', 'generateBtn', lang)}</>
           )}
         </button>
       </Card>
@@ -280,6 +279,7 @@ function ContentGenerateTab({ onToast }: { onToast: (msg: string) => void }) {
               content={result?.[channel.key]}
               isGenerating={isGenerating}
               onCopy={handleCopy}
+              lang={lang}
             />
           ))}
         </div>
@@ -289,6 +289,7 @@ function ContentGenerateTab({ onToast }: { onToast: (msg: string) => void }) {
 }
 
 export default function UnifiedContentModule({ onToast }: { onToast: (msg: string) => void }) {
+  const { lang } = useAppLang();
   const [tab, setTab] = useState<Tab>('generate');
 
   return (
@@ -303,7 +304,7 @@ export default function UnifiedContentModule({ onToast }: { onToast: (msg: strin
               : 'border-transparent text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3]'
           }`}
         >
-          ✨ 콘텐츠 생성
+          {t('content', 'generateTab', lang)}
         </button>
         <button
           onClick={() => setTab('rewriter')}
@@ -313,7 +314,7 @@ export default function UnifiedContentModule({ onToast }: { onToast: (msg: strin
               : 'border-transparent text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3]'
           }`}
         >
-          ✏️ 콘텐츠 리라이터
+          {t('content', 'rewriteTab', lang)}
         </button>
       </div>
 

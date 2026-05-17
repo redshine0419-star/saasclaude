@@ -10,6 +10,8 @@ import {
 import SidebarLayout from '@/components/SidebarLayout';
 import OnboardingModal from '@/components/OnboardingModal';
 import CommandPalette from '@/components/CommandPalette';
+import { useAppLang } from '@/components/AppLangContext';
+import { t } from '@/lib/app-i18n';
 import DashboardModule from '@/components/DashboardModule';
 import WebModule from '@/components/WebModule';
 import LlmsTxtModule from '@/components/LlmsTxtModule';
@@ -41,21 +43,23 @@ const TABS = {
 } as const;
 type Tab = typeof TABS[keyof typeof TABS];
 
-const NAV_ITEMS = [
-  { id: TABS.DASHBOARD, icon: <LayoutDashboard size={16} />, label: '대시보드' },
-  { id: TABS.WEB,       icon: <Globe size={16} />,           label: '웹 진단 & 분석',        sectionLabel: '웹' },
-  { id: TABS.INSIGHT,   icon: <BarChart3 size={16} />,       label: '통합 마케팅 인사이트' },
-  { id: TABS.LLMSTXT,   icon: <Bot size={16} />,             label: 'llms.txt' },
-  { id: TABS.CONTENT,   icon: <FileText size={16} />,        label: '콘텐츠 생성',           sectionLabel: '콘텐츠' },
-  { id: TABS.KEYWORD,   icon: <Tag size={16} />,             label: '키워드 분석' },
-  { id: TABS.SOV,       icon: <Megaphone size={16} />,       label: 'AI Share of Voice' },
-  { id: TABS.PROJECTS,  icon: <FolderKanban size={16} />,    label: '프로젝트',              sectionLabel: '업무' },
-  { id: TABS.KANBAN,    icon: <LayoutGrid size={16} />,      label: '칸반 보드' },
-  { id: TABS.MY_TASKS,  icon: <CheckSquare size={16} />,     label: '내 할일' },
-  { id: TABS.TEAM,      icon: <Users size={16} />,           label: '팀 관리' },
-  { id: TABS.BLOG,      icon: <Rss size={16} />,             label: '블로그 관리', adminOnly: true },
-  { id: TABS.EDITOR,    icon: <Code2 size={16} />,           label: '사이트 편집기', adminOnly: true },
-];
+function buildNavItems(lang: Parameters<typeof t>[2]) {
+  return [
+    { id: TABS.DASHBOARD, icon: <LayoutDashboard size={16} />, label: t('nav', 'dashboard', lang) },
+    { id: TABS.WEB,       icon: <Globe size={16} />,           label: t('nav', 'web', lang),       sectionLabel: t('nav', 'sectionWeb', lang) },
+    { id: TABS.INSIGHT,   icon: <BarChart3 size={16} />,       label: t('nav', 'insight', lang) },
+    { id: TABS.LLMSTXT,   icon: <Bot size={16} />,             label: 'llms.txt' },
+    { id: TABS.CONTENT,   icon: <FileText size={16} />,        label: t('nav', 'content', lang),   sectionLabel: t('nav', 'sectionContent', lang) },
+    { id: TABS.KEYWORD,   icon: <Tag size={16} />,             label: t('nav', 'keyword', lang) },
+    { id: TABS.SOV,       icon: <Megaphone size={16} />,       label: 'AI Share of Voice' },
+    { id: TABS.PROJECTS,  icon: <FolderKanban size={16} />,    label: t('nav', 'projects', lang),  sectionLabel: t('nav', 'sectionWork', lang) },
+    { id: TABS.KANBAN,    icon: <LayoutGrid size={16} />,      label: t('nav', 'kanban', lang) },
+    { id: TABS.MY_TASKS,  icon: <CheckSquare size={16} />,     label: t('nav', 'myTasks', lang) },
+    { id: TABS.TEAM,      icon: <Users size={16} />,           label: t('nav', 'team', lang) },
+    { id: TABS.BLOG,      icon: <Rss size={16} />,             label: t('nav', 'blog', lang), adminOnly: true },
+    { id: TABS.EDITOR,    icon: <Code2 size={16} />,           label: t('nav', 'editor', lang), adminOnly: true },
+  ];
+}
 
 export default function App() {
   const searchParams = useSearchParams();
@@ -65,6 +69,8 @@ export default function App() {
   );
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const { lang } = useAppLang();
+  const NAV_ITEMS = buildNavItems(lang);
 
   const showToast = (message: string) => {
     setToast(message);

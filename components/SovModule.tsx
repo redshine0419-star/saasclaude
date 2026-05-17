@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Megaphone, Loader2, Plus, X, CheckCircle2, XCircle, ChevronDown, ChevronUp, Clock, Lightbulb, BarChart2, Sparkles, RefreshCw, Edit2, Check } from 'lucide-react';
 import { saveSovRecord, getSovHistory, SovRecord } from '@/lib/storage';
+import { useAppLang } from '@/components/AppLangContext';
+import { t } from '@/lib/app-i18n';
 
 const Card = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
   <div className={'bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden ' + className}>
@@ -29,12 +31,12 @@ interface SovResult {
   insights: string;
 }
 
-function MentionGauge({ rate, company }: { rate: number; company: string }) {
+function MentionGauge({ rate, company, lang }: { rate: number; company: string; lang: import('@/lib/app-i18n').AppLang }) {
   const radius = 54;
   const circ = 2 * Math.PI * radius;
   const offset = circ - (rate / 100) * circ;
   const color = rate >= 70 ? '#10b981' : rate >= 40 ? '#f59e0b' : '#ef4444';
-  const label = rate >= 70 ? '높음' : rate >= 40 ? '보통' : '낮음';
+  const label = rate >= 70 ? t('common', 'high', lang) : rate >= 40 ? t('common', 'medium', lang) : t('common', 'low', lang);
   return (
     <div className="flex flex-col items-center gap-2">
       <svg width="148" height="148" viewBox="0 0 148 148">
@@ -43,7 +45,7 @@ function MentionGauge({ rate, company }: { rate: number; company: string }) {
           strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
           transform="rotate(-90 74 74)" style={{ transition: 'stroke-dashoffset 1.2s ease' }} />
         <text x="74" y="68" textAnchor="middle" fontSize="30" fontWeight="800" fill="#0f172a">{rate}%</text>
-        <text x="74" y="86" textAnchor="middle" fontSize="11" fill="#94a3b8">AI 언급율</text>
+        <text x="74" y="86" textAnchor="middle" fontSize="11" fill="#94a3b8">{t('sov', 'aiMentionRate', lang)}</text>
       </svg>
       <div className="text-center">
         <span className="text-xs font-black px-3 py-1 rounded-full" style={{ background: color + '20', color }}>{label}</span>
@@ -53,7 +55,7 @@ function MentionGauge({ rate, company }: { rate: number; company: string }) {
   );
 }
 
-function PromptRow({ r, index }: { r: PromptResult; index: number }) {
+function PromptRow({ r, index, lang }: { r: PromptResult; index: number; lang: import('@/lib/app-i18n').AppLang }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="border border-slate-100 rounded-xl overflow-hidden">
@@ -68,20 +70,20 @@ function PromptRow({ r, index }: { r: PromptResult; index: number }) {
         <div className="px-4 pb-4 space-y-3 border-t border-slate-100 pt-3">
           {r.mentioned && r.context && (
             <div>
-              <div className="text-[10px] font-black text-emerald-600 uppercase tracking-wide mb-1">언급 문맥</div>
+              <div className="text-[10px] font-black text-emerald-600 uppercase tracking-wide mb-1">{t('sov', 'mentionContext', lang)}</div>
               <p className="text-xs text-slate-600 bg-emerald-50 border border-emerald-100 rounded-lg p-3 leading-relaxed">{r.context}</p>
             </div>
           )}
-          {!r.mentioned && <p className="text-xs text-slate-400 italic">이 응답에서 회사가 언급되지 않았습니다.</p>}
+          {!r.mentioned && <p className="text-xs text-slate-400 italic">{t('sov', 'notMentioned', lang)}</p>}
           {r.aiResponse && (
             <div>
-              <div className="text-[10px] font-black text-slate-400 uppercase tracking-wide mb-1">AI 응답 (일부)</div>
+              <div className="text-[10px] font-black text-slate-400 uppercase tracking-wide mb-1">{t('sov', 'aiResponse', lang)}</div>
               <p className="text-xs text-slate-500 bg-slate-50 rounded-lg p-3 leading-relaxed">{r.aiResponse}</p>
             </div>
           )}
           {r.competitorMentions.filter(c => c.mentioned).length > 0 && (
             <div>
-              <div className="text-[10px] font-black text-amber-600 uppercase tracking-wide mb-1">경쟁사 언급</div>
+              <div className="text-[10px] font-black text-amber-600 uppercase tracking-wide mb-1">{t('sov', 'competitorMention', lang)}</div>
               <div className="space-y-1">
                 {r.competitorMentions.filter(c => c.mentioned).map(c => (
                   <div key={c.name} className="text-xs text-slate-600 bg-amber-50 border border-amber-100 rounded-lg p-2">
@@ -129,6 +131,7 @@ function EditablePrompt({ value, onChange, onDelete, index }: { value: string; o
 }
 
 export default function SovModule({ onToast }: { onToast: (msg: string) => void }) {
+  const { lang } = useAppLang();
   const [company, setCompany] = useState('');
   const [industry, setIndustry] = useState('');
   const [competitors, setCompetitors] = useState<string[]>([]);
@@ -226,7 +229,7 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
             <Megaphone size={22} />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-slate-800">AI Share of Voice</h3>
+            <h3 className="text-xl font-bold text-slate-800">{t('sov', 'title', lang)}</h3>
             <p className="text-sm text-slate-500">AI가 특정 질문에 답할 때 우리 브랜드를 얼마나 언급하는지 측정합니다.</p>
           </div>
         </div>
@@ -235,17 +238,17 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3">
             <span className="w-5 h-5 rounded-full bg-slate-900 text-white text-[10px] font-black flex items-center justify-center">1</span>
-            <span className="text-xs font-black text-slate-500 uppercase tracking-wide">기본 정보 입력</span>
+            <span className="text-xs font-black text-slate-500 uppercase tracking-wide">{t('sov', 'basicInfo', lang)}</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1.5">회사명 *</label>
+              <label className="block text-xs font-bold text-slate-500 mb-1.5">{t('sov', 'companyName', lang)} *</label>
               <input type="text" placeholder="예: MarketerOps"
                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none text-sm transition-all"
                 value={company} onChange={e => setCompany(e.target.value)} disabled={isRunning} />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1.5">업종 / 카테고리 *</label>
+              <label className="block text-xs font-bold text-slate-500 mb-1.5">{t('sov', 'industry', lang)} *</label>
               <input type="text" placeholder="예: AI 마케팅 SaaS, SEO 도구"
                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none text-sm transition-all"
                 value={industry} onChange={e => setIndustry(e.target.value)} disabled={isRunning} />
@@ -257,10 +260,10 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3">
             <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-500 text-[10px] font-black flex items-center justify-center">2</span>
-            <span className="text-xs font-black text-slate-500 uppercase tracking-wide">경쟁사 (선택)</span>
+            <span className="text-xs font-black text-slate-500 uppercase tracking-wide">{t('sov', 'competitors', lang)}</span>
           </div>
           <div className="flex gap-2 mb-2">
-            <input type="text" placeholder="경쟁사명 입력 후 Enter"
+            <input type="text" placeholder={t('sov', 'competitorPh', lang)}
               className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none text-sm"
               value={newCompetitor} onChange={e => setNewCompetitor(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCompetitor())} disabled={isRunning} />
@@ -285,7 +288,7 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3">
             <span className={`w-5 h-5 rounded-full text-[10px] font-black flex items-center justify-center ${promptsGenerated ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-500'}`}>3</span>
-            <span className="text-xs font-black text-slate-500 uppercase tracking-wide">AI 측정 프롬프트 생성</span>
+            <span className="text-xs font-black text-slate-500 uppercase tracking-wide">{t('sov', 'generatePrompts', lang)}</span>
           </div>
 
           {!promptsGenerated ? (
@@ -295,9 +298,9 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
               className="w-full py-4 border-2 border-dashed border-slate-200 hover:border-slate-900 disabled:border-slate-100 rounded-xl flex items-center justify-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-900 disabled:text-slate-300 transition-all group"
             >
               {generatingPrompts ? (
-                <><Loader2 size={16} className="animate-spin" /> 업종에 맞는 프롬프트 생성 중…</>
+                <><Loader2 size={16} className="animate-spin" /> {t('sov', 'generatingPrompts', lang)}</>
               ) : (
-                <><Sparkles size={16} className="group-hover:text-slate-900" /> 업종 기반 측정 프롬프트 6개 자동 생성</>
+                <><Sparkles size={16} className="group-hover:text-slate-900" /> {t('sov', 'autoGenerate', lang)}</>
               )}
             </button>
           ) : (
@@ -307,7 +310,7 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
                 <button onClick={generatePrompts} disabled={generatingPrompts || isRunning}
                   className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-700 font-bold transition-colors disabled:opacity-30">
                   <RefreshCw size={12} className={generatingPrompts ? 'animate-spin' : ''} />
-                  재생성
+                  {t('sov', 'regenerate', lang)}
                 </button>
               </div>
               {prompts.map((p, i) => (
@@ -317,7 +320,7 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
               ))}
               {prompts.length < 6 && (
                 <div className="flex gap-2">
-                  <input type="text" placeholder="프롬프트 직접 추가"
+                  <input type="text" placeholder={t('sov', 'addPrompt', lang)}
                     className="flex-1 px-3 py-2 bg-slate-50 border border-dashed border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none text-sm"
                     value={newPrompt} onChange={e => setNewPrompt(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addPrompt())} />
@@ -337,9 +340,9 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
           disabled={isRunning || !company.trim() || !industry.trim() || prompts.length === 0}
           className="w-full py-3.5 bg-slate-900 hover:bg-slate-700 disabled:bg-slate-200 text-white font-black rounded-xl transition-all flex items-center justify-center gap-2 text-sm">
           {isRunning ? (
-            <><Loader2 size={18} className="animate-spin" /> {prompts.length}개 프롬프트 분석 중…</>
+            <><Loader2 size={18} className="animate-spin" /> {t('sov', 'analyzing', lang)}</>
           ) : (
-            <><Megaphone size={18} /> AI Share of Voice 측정 시작</>
+            <><Megaphone size={18} /> {t('sov', 'startMeasure', lang)}</>
           )}
         </button>
         {isRunning && <p className="text-center text-xs text-slate-400 mt-2">Gemini에 프롬프트를 병렬로 전송 중입니다. 약 10~20초 소요됩니다.</p>}
@@ -350,11 +353,11 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
         <div className="space-y-6">
           <Card className="p-6">
             <div className="flex flex-col md:flex-row items-center gap-8">
-              <MentionGauge rate={result.mentionRate} company={result.company} />
+              <MentionGauge rate={result.mentionRate} company={result.company} lang={lang} />
               <div className="flex-1 w-full">
                 <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
                   <BarChart2 size={18} className="text-slate-600" />
-                  브랜드별 AI 언급율 비교
+                  {t('sov', 'brandComparison', lang)}
                 </h4>
                 <div className="space-y-3">
                   {allBrands.map((b, i) => (
@@ -378,15 +381,15 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
                 <div className="mt-4 grid grid-cols-3 gap-3">
                   <div className="text-center p-3 bg-slate-50 rounded-xl">
                     <div className="text-xl font-black text-slate-800">{result.mentionCount}<span className="text-sm text-slate-400">/{result.totalPrompts}</span></div>
-                    <div className="text-[10px] text-slate-400 font-medium mt-0.5">언급 횟수</div>
+                    <div className="text-[10px] text-slate-400 font-medium mt-0.5">{t('sov', 'mentionCount', lang)}</div>
                   </div>
                   <div className="text-center p-3 bg-slate-900 rounded-xl">
                     <div className="text-xl font-black text-white">{result.mentionRate}%</div>
-                    <div className="text-[10px] text-slate-400 font-medium mt-0.5">AI 언급율</div>
+                    <div className="text-[10px] text-slate-400 font-medium mt-0.5">{t('sov', 'mentionRate', lang)}</div>
                   </div>
                   <div className="text-center p-3 bg-slate-50 rounded-xl">
                     <div className="text-xl font-black text-slate-800">{result.competitorSummary.length}</div>
-                    <div className="text-[10px] text-slate-400 font-medium mt-0.5">비교 경쟁사</div>
+                    <div className="text-[10px] text-slate-400 font-medium mt-0.5">{t('sov', 'compareComp', lang)}</div>
                   </div>
                 </div>
               </div>
@@ -394,9 +397,9 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
           </Card>
 
           <Card className="p-6">
-            <h4 className="font-bold text-slate-800 mb-4">프롬프트별 언급 결과</h4>
+            <h4 className="font-bold text-slate-800 mb-4">{t('sov', 'promptResults', lang)}</h4>
             <div className="space-y-2">
-              {result.results.map((r, i) => <PromptRow key={i} r={r} index={i} />)}
+              {result.results.map((r, i) => <PromptRow key={i} r={r} index={i} lang={lang} />)}
             </div>
           </Card>
 
@@ -404,7 +407,7 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
             <Card className="p-6">
               <h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
                 <Lightbulb size={18} className="text-slate-600" />
-                AI 가시성 개선 인사이트
+                {t('sov', 'insights', lang)}
               </h4>
               <p className="text-sm text-slate-700 leading-relaxed bg-slate-50 border border-slate-200 rounded-xl p-4">
                 {result.insights}
@@ -420,7 +423,7 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
           <button onClick={() => setShowHistory(o => !o)} className="w-full flex items-center justify-between">
             <h4 className="font-bold text-slate-800 flex items-center gap-2">
               <Clock size={18} className="text-slate-400" />
-              측정 이력 ({history.length}건)
+              {t('sov', 'history', lang)} ({history.length}건)
             </h4>
             {showHistory ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
           </button>

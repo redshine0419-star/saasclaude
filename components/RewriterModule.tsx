@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { PenLine, Loader2, Copy, CheckCircle2, Sparkles, ArrowRight } from 'lucide-react';
+import { useAppLang } from '@/components/AppLangContext';
+import { t } from '@/lib/app-i18n';
 
 const Card = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
   <div className={'bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden ' + className}>
@@ -17,10 +19,10 @@ interface RewriteResult {
 }
 
 const GOALS = [
-  { key: 'seo', label: 'SEO 최적화', desc: '검색 노출을 높이는 키워드·구조 개선', color: 'indigo' },
-  { key: 'geo', label: 'GEO 최적화', desc: 'AI 언어모델 인용·학습에 최적화', color: 'purple' },
-  { key: 'readability', label: '가독성 개선', desc: '문장을 짧고 명확하게 재구성', color: 'emerald' },
-  { key: 'concise', label: '간결하게', desc: '핵심만 남기고 분량 30~50% 절감', color: 'amber' },
+  { key: 'seo', labelKey: 'rewriteSeo', desc: '검색 노출을 높이는 키워드·구조 개선', color: 'indigo' },
+  { key: 'geo', labelKey: 'rewriteGeo', desc: 'AI 언어모델 인용·학습에 최적화', color: 'purple' },
+  { key: 'readability', labelKey: 'rewriteRead', desc: '문장을 짧고 명확하게 재구성', color: 'emerald' },
+  { key: 'concise', labelKey: 'rewriteConcise', desc: '핵심만 남기고 분량 30~50% 절감', color: 'amber' },
 ] as const;
 
 type Goal = typeof GOALS[number]['key'];
@@ -40,6 +42,7 @@ const GOAL_OUTLINE: Record<string, string> = {
 };
 
 export default function RewriterModule({ onToast }: { onToast: (msg: string) => void }) {
+  const { lang } = useAppLang();
   const [original, setOriginal] = useState('');
   const [goal, setGoal] = useState<Goal>('seo');
   const [loading, setLoading] = useState(false);
@@ -63,7 +66,7 @@ export default function RewriterModule({ onToast }: { onToast: (msg: string) => 
       if (!res.ok) throw new Error(data.error ?? '리라이팅 실패');
       setResult(data);
       setView('split');
-      onToast('콘텐츠 리라이팅이 완료되었습니다.');
+      onToast(t('content', 'rewriteComplete', lang));
     } catch (e) {
       setError(e instanceof Error ? e.message : '오류가 발생했습니다.');
     } finally {
@@ -81,8 +84,8 @@ export default function RewriterModule({ onToast }: { onToast: (msg: string) => 
             <PenLine size={24} />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-slate-800">AI 콘텐츠 리라이터</h3>
-            <p className="text-sm text-slate-500">기존 콘텐츠를 목표에 맞게 AI가 즉시 리라이팅합니다.</p>
+            <h3 className="text-xl font-bold text-slate-800">{t('content', 'rewriteTitle', lang)}</h3>
+            <p className="text-sm text-slate-500">{t('content', 'rewriteGeo', lang)}</p>
           </div>
         </div>
 
@@ -94,7 +97,7 @@ export default function RewriterModule({ onToast }: { onToast: (msg: string) => 
               onClick={() => setGoal(g.key)}
               className={'p-3 rounded-2xl border-2 text-left transition-all ' + (goal === g.key ? GOAL_COLORS[g.color] : 'bg-white text-slate-700 ' + GOAL_OUTLINE[g.color])}
             >
-              <div className={'text-xs font-black mb-1 ' + (goal === g.key ? 'text-white' : 'text-slate-800')}>{g.label}</div>
+              <div className={'text-xs font-black mb-1 ' + (goal === g.key ? 'text-white' : 'text-slate-800')}>{t('content', g.labelKey, lang)}</div>
               <div className={'text-[10px] leading-relaxed ' + (goal === g.key ? 'text-white/80' : 'text-slate-400')}>{g.desc}</div>
             </button>
           ))}
@@ -102,7 +105,7 @@ export default function RewriterModule({ onToast }: { onToast: (msg: string) => 
 
         <textarea
           className="w-full h-40 p-5 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all shadow-sm text-sm resize-none mb-4"
-          placeholder="리라이팅할 원본 텍스트를 붙여넣으세요 (블로그 본문, 제품 설명, 광고 카피 등)..."
+          placeholder={t('content', 'pastePlaceholder', lang)}
           value={original}
           onChange={(e) => setOriginal(e.target.value)}
           disabled={loading}
@@ -118,8 +121,8 @@ export default function RewriterModule({ onToast }: { onToast: (msg: string) => 
           className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-bold rounded-2xl transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2"
         >
           {loading
-            ? <><Loader2 size={18} className="animate-spin" /> AI 리라이팅 중...</>
-            : <><Sparkles size={18} /> {selectedGoal.label}로 리라이팅</>}
+            ? <><Loader2 size={18} className="animate-spin" /> {t('content', 'rewriting', lang)}</>
+            : <><Sparkles size={18} /> {t('content', selectedGoal.labelKey, lang)}</>}
         </button>
       </Card>
 
@@ -128,7 +131,7 @@ export default function RewriterModule({ onToast }: { onToast: (msg: string) => 
           {/* Key changes */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-2 p-5 bg-indigo-950 text-white rounded-2xl">
-              <div className="text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-3">주요 변경 사항</div>
+              <div className="text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-3">{t('content', 'keyChanges', lang)}</div>
               <ul className="space-y-1.5">
                 {result.keyChanges.map((c, i) => (
                   <li key={i} className="flex items-start gap-2 text-xs text-slate-200">
@@ -140,11 +143,11 @@ export default function RewriterModule({ onToast }: { onToast: (msg: string) => 
             </div>
             <div className="flex flex-col gap-3">
               <div className="flex-1 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl">
-                <div className="text-[10px] font-black text-emerald-600 uppercase tracking-wide mb-1">SEO 효과</div>
+                <div className="text-[10px] font-black text-emerald-600 uppercase tracking-wide mb-1">{t('content', 'seoEffect', lang)}</div>
                 <p className="text-xs text-emerald-800 leading-relaxed">{result.seoScore}</p>
               </div>
               <div className="flex-1 p-4 bg-blue-50 border border-blue-100 rounded-2xl">
-                <div className="text-[10px] font-black text-blue-600 uppercase tracking-wide mb-1">가독성</div>
+                <div className="text-[10px] font-black text-blue-600 uppercase tracking-wide mb-1">{t('content', 'readability', lang)}</div>
                 <p className="text-xs text-blue-800 leading-relaxed">{result.readabilityNote}</p>
               </div>
             </div>
@@ -158,7 +161,7 @@ export default function RewriterModule({ onToast }: { onToast: (msg: string) => 
                 onClick={() => setView(v)}
                 className={'px-4 py-2 text-xs font-bold rounded-xl transition-all ' + (view === v ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-200 text-slate-500')}
               >
-                {v === 'split' ? '원본·결과 비교' : '결과만 보기'}
+                {v === 'split' ? t('content', 'compareView', lang) : t('content', 'resultOnly', lang)}
               </button>
             ))}
           </div>
@@ -167,19 +170,20 @@ export default function RewriterModule({ onToast }: { onToast: (msg: string) => 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card className="p-5">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-black text-slate-400 uppercase tracking-wide">원본</span>
-                  <span className="text-[10px] text-slate-300">{original.length}자</span>
+                  <span className="text-xs font-black text-slate-400 uppercase tracking-wide">{t('content', 'original', lang)}</span>
+                  <span className="text-[10px] text-slate-300">{original.length}</span>
                 </div>
                 <p className="text-xs text-slate-500 leading-relaxed whitespace-pre-wrap">{original}</p>
               </Card>
               <Card className="p-5 border-indigo-200 bg-indigo-50/30">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-black text-indigo-600 uppercase tracking-wide">리라이팅 결과</span>
+                  <span className="text-xs font-black text-indigo-600 uppercase tracking-wide">{t('content', 'rewriteResult', lang)}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-slate-400">{result.rewritten.length}자</span>
+                    <span className="text-[10px] text-slate-400">{result.rewritten.length}</span>
                     <button
-                      onClick={() => { navigator.clipboard.writeText(result.rewritten); onToast('클립보드에 복사되었습니다.'); }}
+                      onClick={() => { navigator.clipboard.writeText(result.rewritten); onToast(t('common', 'copiedToClipboard', lang)); }}
                       className="text-indigo-400 hover:text-indigo-600 transition-colors"
+                      title={t('common', 'copy', lang)}
                     >
                       <Copy size={14} />
                     </button>
@@ -193,13 +197,13 @@ export default function RewriterModule({ onToast }: { onToast: (msg: string) => 
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 size={16} className="text-indigo-600" />
-                  <span className="text-sm font-bold text-slate-800">리라이팅 완료</span>
+                  <span className="text-sm font-bold text-slate-800">{t('content', 'rewriteComplete', lang)}</span>
                 </div>
                 <button
-                  onClick={() => { navigator.clipboard.writeText(result.rewritten); onToast('클립보드에 복사되었습니다.'); }}
+                  onClick={() => { navigator.clipboard.writeText(result.rewritten); onToast(t('common', 'copiedToClipboard', lang)); }}
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl transition-colors"
                 >
-                  <Copy size={12} /> 전체 복사
+                  <Copy size={12} /> {t('content', 'copyAll', lang)}
                 </button>
               </div>
               <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{result.rewritten}</p>

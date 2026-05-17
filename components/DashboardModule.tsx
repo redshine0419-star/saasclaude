@@ -7,6 +7,8 @@ import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis,
 } from 'recharts';
 import { getDiagnoses, getStats, DiagnosisRecord, UsageStats } from '@/lib/storage';
+import { useAppLang } from '@/components/AppLangContext';
+import { t, AppLang } from '@/lib/app-i18n';
 
 const Card = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
   <div className={`bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden ${className}`}>
@@ -14,14 +16,18 @@ const Card = ({ children, className = '' }: { children: React.ReactNode; classNa
   </div>
 );
 
-function timeAgo(ts: number): string {
+function timeAgo(ts: number, lang: AppLang): string {
   const diff = Date.now() - ts;
   const m = Math.floor(diff / 60000);
-  if (m < 1) return '방금 전';
-  if (m < 60) return m + '분 전';
+  if (m < 1) return t('dashboard', 'justNow', lang);
+  const minSuffix = t('dashboard', 'minutesAgo', lang);
+  if (m < 60) return lang === 'en' ? `${m} ${minSuffix}` : `${m}${minSuffix}`;
   const h = Math.floor(m / 60);
-  if (h < 24) return h + '시간 전';
-  return Math.floor(h / 24) + '일 전';
+  const hrSuffix = t('dashboard', 'hoursAgo', lang);
+  if (h < 24) return lang === 'en' ? `${h} ${hrSuffix}` : `${h}${hrSuffix}`;
+  const days = Math.floor(h / 24);
+  const daySuffix = t('dashboard', 'daysAgo', lang);
+  return lang === 'en' ? `${days} ${daySuffix}` : `${days}${daySuffix}`;
 }
 
 function buildChartData(diagnoses: DiagnosisRecord[]) {
@@ -85,6 +91,7 @@ function useWorkStats() {
 }
 
 export default function DashboardModule() {
+  const { lang } = useAppLang();
   const workStats = useWorkStats();
   const [diagnoses, setDiagnoses] = useState<DiagnosisRecord[]>([]);
   const [stats, setStats] = useState<UsageStats>({ diagnosisCount: 0, contentCount: 0 });
@@ -116,9 +123,9 @@ export default function DashboardModule() {
           <div className="p-4 bg-indigo-100 rounded-2xl mb-4">
             <BarChart3 size={32} className="text-indigo-600" />
           </div>
-          <h3 className="text-xl font-bold text-slate-800 mb-2">아직 분석 데이터가 없습니다</h3>
+          <h3 className="text-xl font-bold text-slate-800 mb-2">{t('dashboard', 'noData', lang)}</h3>
           <p className="text-sm text-slate-500 max-w-sm">
-            진단 탭에서 URL을 분석하면 여기에 실제 성과 데이터가 표시됩니다.
+            {t('dashboard', 'noDataSub', lang)}
           </p>
         </Card>
       </div>
@@ -132,14 +139,14 @@ export default function DashboardModule() {
         <div>
           <h3 className="text-sm font-semibold text-slate-500 mb-3 flex items-center gap-2">
             <CheckSquare size={14} className="text-indigo-500" />
-            오늘의 업무 현황
+            {t('dashboard', 'todayWork', lang)}
           </h3>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {[
-              { label: '진행 중 업무', value: workStats.active, icon: <ListTodo size={16}/>, color: 'text-blue-600', bg: 'bg-blue-50' },
-              { label: '기한 초과', value: workStats.overdue, icon: <AlertTriangle size={16}/>, color: workStats.overdue > 0 ? 'text-red-600' : 'text-slate-400', bg: workStats.overdue > 0 ? 'bg-red-50' : 'bg-slate-50' },
-              { label: '오늘 마감', value: workStats.dueToday, icon: <CheckSquare size={16}/>, color: workStats.dueToday > 0 ? 'text-orange-600' : 'text-slate-400', bg: workStats.dueToday > 0 ? 'bg-orange-50' : 'bg-slate-50' },
-              { label: '주요 업무', value: workStats.keyTasks, icon: <Zap size={16}/>, color: 'text-amber-600', bg: 'bg-amber-50' },
+              { label: t('dashboard', 'inProgress', lang), value: workStats.active, icon: <ListTodo size={16}/>, color: 'text-blue-600', bg: 'bg-blue-50' },
+              { label: t('dashboard', 'overdue', lang), value: workStats.overdue, icon: <AlertTriangle size={16}/>, color: workStats.overdue > 0 ? 'text-red-600' : 'text-slate-400', bg: workStats.overdue > 0 ? 'bg-red-50' : 'bg-slate-50' },
+              { label: t('dashboard', 'dueTodayKo', lang), value: workStats.dueToday, icon: <CheckSquare size={16}/>, color: workStats.dueToday > 0 ? 'text-orange-600' : 'text-slate-400', bg: workStats.dueToday > 0 ? 'bg-orange-50' : 'bg-slate-50' },
+              { label: t('dashboard', 'keyTask', lang), value: workStats.keyTasks, icon: <Zap size={16}/>, color: 'text-amber-600', bg: 'bg-amber-50' },
             ].map((m, i) => (
               <Card key={i} className="p-4">
                 <div className={'inline-flex p-1.5 rounded-lg mb-2 ' + m.bg}>
@@ -156,10 +163,10 @@ export default function DashboardModule() {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: '총 진단 횟수', value: stats.diagnosisCount + '회', icon: <Globe size={18} />, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-          { label: '콘텐츠 생성', value: stats.contentCount + '세트', icon: <FileText size={18} />, color: 'text-purple-600', bg: 'bg-purple-50' },
-          { label: '최고 SEO 점수', value: bestSeo + '점', icon: <TrendingUp size={18} />, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-          { label: '최고 GEO 점수', value: bestGeo + '점', icon: <Zap size={18} />, color: 'text-amber-600', bg: 'bg-amber-50' },
+          { label: t('dashboard', 'totalDiagnoses', lang), value: lang === 'en' ? String(stats.diagnosisCount) : stats.diagnosisCount + t('dashboard', 'sessions', lang), icon: <Globe size={18} />, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+          { label: t('dashboard', 'contentGenerated', lang), value: lang === 'en' ? String(stats.contentCount) : stats.contentCount + t('dashboard', 'sets', lang), icon: <FileText size={18} />, color: 'text-purple-600', bg: 'bg-purple-50' },
+          { label: t('dashboard', 'bestSeo', lang), value: lang === 'en' ? bestSeo + ' ' + t('dashboard', 'points', lang) : bestSeo + t('dashboard', 'points', lang), icon: <TrendingUp size={18} />, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+          { label: t('dashboard', 'bestGeo', lang), value: lang === 'en' ? bestGeo + ' ' + t('dashboard', 'points', lang) : bestGeo + t('dashboard', 'points', lang), icon: <Zap size={18} />, color: 'text-amber-600', bg: 'bg-amber-50' },
         ].map((m, i) => (
           <Card key={i} className="p-5">
             <div className={'inline-flex p-2 rounded-xl mb-3 ' + m.bg}>
@@ -176,7 +183,7 @@ export default function DashboardModule() {
         <Card className="lg:col-span-2 p-6">
           <h4 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
             <BarChart3 size={18} className="text-indigo-600" />
-            점수 추이 (최근 7일)
+            {t('dashboard', 'scoreTrend', lang)}
           </h4>
           {chartData.length > 1 ? (
             <div className="h-56">
@@ -203,7 +210,7 @@ export default function DashboardModule() {
             </div>
           ) : (
             <div className="h-56 flex items-center justify-center text-sm text-slate-400">
-              추이 차트는 2일 이상 데이터가 필요합니다
+              {t('dashboard', 'needMoreData', lang)}
             </div>
           )}
         </Card>
@@ -212,7 +219,7 @@ export default function DashboardModule() {
         <Card className="p-6">
           <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
             <TrendingUp size={18} className="text-indigo-600" />
-            최근 진단 종합
+            {t('dashboard', 'recentDiagnosis', lang)}
           </h4>
           {latest && (
             <>
@@ -243,7 +250,7 @@ export default function DashboardModule() {
       <Card className="p-6">
         <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
           <Clock size={18} className="text-indigo-600" />
-          최근 진단 기록
+          {t('dashboard', 'recentRecords', lang)}
         </h4>
         <div className="space-y-2">
           {diagnoses.slice(0, 8).map((d, i) => (
@@ -255,7 +262,7 @@ export default function DashboardModule() {
                 <ScoreBadge score={d.scores.seo} />
                 <ScoreBadge score={d.scores.geo} />
               </div>
-              <span className="text-[10px] text-slate-400 shrink-0">{timeAgo(d.timestamp)}</span>
+              <span className="text-[10px] text-slate-400 shrink-0">{timeAgo(d.timestamp, lang)}</span>
             </div>
           ))}
         </div>

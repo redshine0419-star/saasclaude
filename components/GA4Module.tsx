@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
+import { useAppLang } from '@/components/AppLangContext';
+import { t } from '@/lib/app-i18n';
 import {
   BarChart3, Loader2, CheckCircle2, XCircle, AlertCircle, Zap,
   TrendingUp, TrendingDown, Users, Globe, Monitor, Smartphone, Tablet,
@@ -224,6 +226,7 @@ function StatCard({ label, value, sub, icon, color }: { label: string; value: st
 // ── Main component ─────────────────────────────────────────────────────────
 export default function GA4Module({ onToast }: { onToast: (msg: string) => void }) {
   const { data: session } = useSession();
+  const { lang } = useAppLang();
 
   // GA4 connection
   const [ga4Status, setGa4Status] = useState<{
@@ -271,12 +274,12 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('ga4_connected') === '1') {
-      onToast('GA4 연결이 완료됐습니다.');
+      onToast(t('ga4', 'connected_toast', lang));
       window.history.replaceState({}, '', window.location.pathname);
     }
     const errParam = params.get('ga4_error');
     if (errParam) {
-      setError('GA4 연결 오류: ' + errParam);
+      setError(t('ga4', 'title', lang) + ' ' + t('common', 'error', lang) + ': ' + errParam);
       window.history.replaceState({}, '', window.location.pathname);
     }
     fetch('/api/ga4/status')
@@ -299,7 +302,7 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || `서버 오류 (${res.status})`);
       setCheckResult(data);
-      onToast('GA4 설치 확인이 완료됐습니다.');
+      onToast(t('ga4', 'check_done', lang));
     } catch (e) { setError(e instanceof Error ? e.message : '오류'); }
     finally { setCheckLoading(false); }
   };
@@ -312,11 +315,11 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || `서버 오류 (${res.status})`);
       setGa4Data(data);
-      onToast('GA4 데이터를 불러왔습니다.');
+      onToast(t('ga4', 'data_loaded', lang));
       setInsightLoading(true);
       const aRes = await fetch('/api/ga4/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data, siteUrl }) });
       const aData = await aRes.json();
-      if (aRes.ok) { setInsight(aData); onToast('AI 인사이트 분석이 완료됐습니다.'); }
+      if (aRes.ok) { setInsight(aData); onToast(t('ga4', 'insight_done', lang)); }
     } catch (e) { setError(e instanceof Error ? e.message : '오류'); }
     finally { setDataLoading(false); setInsightLoading(false); }
   };
@@ -329,7 +332,7 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || `서버 오류 (${res.status})`);
       setCompareData(data);
-      onToast('기간 비교 분석이 완료됐습니다.');
+      onToast(t('ga4', 'compare_done', lang));
     } catch (e) { setError(e instanceof Error ? e.message : '오류'); }
     finally { setCompareLoading(false); }
   };
@@ -385,8 +388,8 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
         <div className="flex items-center gap-3 mb-6">
           <div className="p-3 bg-indigo-600 text-white rounded-xl shadow-indigo-200 shadow-lg"><BarChart3 size={24} /></div>
           <div>
-            <h3 className="text-xl font-bold text-slate-800">GA4 인사이트 분석</h3>
-            <p className="text-sm text-slate-500">GA4 설치 확인부터 기간 비교·페이지 개선까지 한 번에.</p>
+            <h3 className="text-xl font-bold text-slate-800">{t('ga4', 'title', lang)}</h3>
+            <p className="text-sm text-slate-500">{t('ga4', 'subtitle', lang)}</p>
           </div>
         </div>
 
@@ -394,7 +397,7 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
         <div className="space-y-4">
           <div className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
             <span className="w-5 h-5 bg-indigo-600 text-white rounded-full flex items-center justify-center text-[10px]">1</span>
-            GA4 설치 확인
+            {t('ga4', 'checkInstall', lang)}
           </div>
           <div className="flex flex-col md:flex-row gap-3">
             <input type="url" placeholder="https://yoursite.com"
@@ -403,7 +406,7 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
               onKeyDown={(e) => e.key === 'Enter' && checkInstall()} disabled={checkLoading} />
             <button onClick={checkInstall} disabled={checkLoading || !siteUrl.trim()}
               className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-bold rounded-2xl transition-all flex items-center gap-2 whitespace-nowrap">
-              {checkLoading ? <><Loader2 size={16} className="animate-spin" /> 확인 중...</> : '설치 확인'}
+              {checkLoading ? <><Loader2 size={16} className="animate-spin" /> {t('common', 'loading', lang)}</> : t('ga4', 'checkInstall', lang)}
             </button>
           </div>
           {checkResult && (
@@ -411,7 +414,7 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
               <div className="flex items-center gap-2 mb-3">
                 {checkResult.installed ? <CheckCircle2 size={18} className="text-emerald-600" /> : <XCircle size={18} className="text-rose-500" />}
                 <span className={'font-bold text-sm ' + (checkResult.installed ? 'text-emerald-800' : 'text-rose-800')}>
-                  {checkResult.installed ? 'GA4 설치 확인됨' : 'GA4 미설치'}
+                  {checkResult.installed ? t('ga4', 'check_done', lang) : 'GA4 ' + t('common', 'error', lang)}
                 </span>
               </div>
               {checkResult.measurementIds.length > 0 && (
@@ -435,21 +438,21 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
         <div className="mt-6 space-y-4">
           <div className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
             <span className="w-5 h-5 bg-indigo-600 text-white rounded-full flex items-center justify-center text-[10px]">2</span>
-            GA4 데이터 연동 · 분석
+            {t('ga4', 'title', lang)}
           </div>
 
           {statusLoading ? (
-            <div className="flex items-center gap-2 text-slate-400 text-sm py-2"><Loader2 size={15} className="animate-spin" /> 연결 상태 확인 중...</div>
+            <div className="flex items-center gap-2 text-slate-400 text-sm py-2"><Loader2 size={15} className="animate-spin" /> {t('ga4', 'connecting', lang)}</div>
           ) : !session?.user ? (
-            <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl text-sm text-amber-800">GA4 데이터 연동을 위해 먼저 우측 상단에서 Google 로그인을 해주세요.</div>
+            <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl text-sm text-amber-800">{t('ga4', 'loginRequired', lang)}</div>
           ) : ga4Status?.connected ? (
             <>
               {/* Connected header */}
               <div className="flex items-center gap-3 p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
                 <Link2 size={16} className="text-emerald-600 shrink-0" />
-                <span className="text-sm text-emerald-800 flex-1">연결됨: <strong>{ga4Status.email}</strong></span>
+                <span className="text-sm text-emerald-800 flex-1">{t('ga4', 'connected', lang)}: <strong>{ga4Status.email}</strong></span>
                 <button onClick={handleDisconnect} className="flex items-center gap-1 text-xs text-slate-400 hover:text-rose-500 transition-colors">
-                  <Link2Off size={13} /> 연결 해제
+                  <Link2Off size={13} /> {t('ga4', 'disconnect', lang)}
                 </button>
               </div>
 
@@ -474,7 +477,7 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
                   <button key={m} onClick={() => setAnalysisMode(m)}
                     className={'flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all ' +
                       (analysisMode === m ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200')}>
-                    {m === 'single' ? <><BarChart3 size={14} /> 단일 분석</> : <><GitCompare size={14} /> 기간 비교</>}
+                    {m === 'single' ? <><BarChart3 size={14} /> {t('ga4', 'singleMode', lang)}</> : <><GitCompare size={14} /> {t('ga4', 'compareMode', lang)}</>}
                   </button>
                 ))}
               </div>
@@ -483,7 +486,7 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
               {analysisMode === 'single' && (
                 <button onClick={fetchGA4Data} disabled={dataLoading || !propertyId.trim()}
                   className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-bold rounded-2xl transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2">
-                  {dataLoading ? <><Loader2 size={18} className="animate-spin" /> 데이터 수집 중...</> : <><Zap size={18} /> GA4 데이터 불러오기 + AI 분석</>}
+                  {dataLoading ? <><Loader2 size={18} className="animate-spin" /> {t('ga4', 'loading', lang)}</> : <><Zap size={18} /> {t('ga4', 'loadData', lang)} + AI</>}
                 </button>
               )}
 
