@@ -26,7 +26,8 @@ async function saveIndex(lang: string, index: PostIndex[]) {
 export async function GET(req: NextRequest) {
   const lang = req.nextUrl.searchParams.get('lang') || 'ko';
   const index = await getIndex(lang);
-  return NextResponse.json({ posts: index });
+  const sorted = [...index].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  return NextResponse.json({ posts: sorted });
 }
 
 export async function PUT(req: NextRequest) {
