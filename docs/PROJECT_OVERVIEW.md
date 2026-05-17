@@ -533,13 +533,14 @@ vercel logs --follow
 
 | 서비스 | 플랜 | 월 비용 | 한도/참고 |
 |--------|------|---------|-----------|
-| **Vercel** | **Pro** (현재) | **$20/월** | $20 included credit 포함, 초과분 On-Demand |
-| **Neon PostgreSQL** | Free / Launch | $0 / $19 | Free: 0.5GB, 자동 슬립 |
-| **Vercel Blob** | Pro 포함 | (Vercel Pro 크레딧에 포함) | Blob Advanced/Simple Operations 사용량 기반 |
-| **Google Gemini** | Pay-as-you-go | ~$0.075/1M tokens | 2.5 Flash 기준 |
-| **Anthropic Claude** | Pay-as-you-go | ~$3/1M tokens | Sonnet 4.6 기준, 폴백만 사용 시 소량 |
-| **Google APIs** | 무료 할당량 | $0 (할당량 내) | PageSpeed: 25,000회/일 무료 |
+| **Vercel** | **Pro** (현재) | **$20** | $20 included credit 포함, 초과분 On-Demand |
+| **Neon PostgreSQL** | Free (현재) | $0 | 0.5GB, 자동 슬립 (트래픽 증가 시 $19 Launch 고려) |
+| **Vercel Blob** | Pro 포함 | (크레딧에 포함) | Blob Operations 사용량 기반, 별도 청구 없음 |
+| **Google Gemini** | Pay-as-you-go | ~$1 미만 | 2.5 Flash, 현 트래픽 기준 추정 |
+| **Anthropic Claude** | Pay-as-you-go | ~$0 | Sonnet 4.6, 폴백만 사용 시 거의 $0 |
+| **Google APIs** | 무료 할당량 | $0 | PageSpeed: 25,000회/일 무료 |
 | **GitHub** | Free | $0 | 공개 저장소 무제한 |
+| **합계** | | **~$21/월** | Vercel Pro 고정 + AI API 변동 |
 
 ### 실제 Vercel Pro 사용 현황 (2026-05 기준)
 
