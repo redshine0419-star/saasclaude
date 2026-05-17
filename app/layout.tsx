@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
+import { headers } from "next/headers";
 import { DarkModeProvider } from "@/components/DarkModeProvider";
 import AuthProvider from "@/components/AuthProvider";
 import ChatWidget from "@/components/ChatWidget";
@@ -24,14 +25,17 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers();
+  const lang = headersList.get('x-lang') ?? 'ko';
+
   return (
     <html
-      lang="en"
+      lang={lang}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
