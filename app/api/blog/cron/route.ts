@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { put, list } from '@vercel/blob';
 import { generateText } from '@/lib/ai';
-import { getScheduleConfig, saveScheduleConfig } from '../schedule/route';
+import { getScheduleConfig, saveScheduleConfig, ScheduleConfig } from '../schedule/route';
 import type { BlogPost, PostIndex } from '../generate/route';
 
 function sanitizeSlug(raw: string): string {
@@ -51,30 +51,9 @@ async function saveIndex(lang: string, index: PostIndex[]) {
   });
 }
 
-export async function GET(req: NextRequest) {
-  const cronSecret = process.env.CRON_SECRET;
-  const auth = req.headers.get('authorization');
-  if (cronSecret && auth !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  const config = await getScheduleConfig();
-
-  if (!config.enabled) return NextResponse.json({ skipped: 'disabled' });
-  if (config.keywords.length === 0) return NextResponse.json({ skipped: 'no keywords' });
-
-  const now = Date.now();
-  if (config.nextRunAt && new Date(config.nextRunAt).getTime() > now) {
-    return NextResponse.json({ skipped: 'not yet', nextRunAt: config.nextRunAt });
-  }
-
-  const { lang, keywords, targetAudience, tone, currentKeywordIndex } = config;
-  const keyword = keywords[currentKeywordIndex % keywords.length];
-  const isKo = lang === 'ko';
-  const isJa = lang === 'ja';
-
-  const prompt = isJa
-    ? `あなたはシニアコンテンツマーケターかつSEO/GEO専門家です。
+function buildPrompt(keyword: string, lang: 'ko' | 'en' | 'ja', targetAudience: string, tone: string): string {
+  if (lang === 'ja') {
+    return `あなたはシニアコンテンツマーケターかつSEO/GEO専門家です。
 キーワード: ${keyword}
 ターゲット読者: ${targetAudience || 'マーケター、経営者'}
 トーン: ${tone || 'プロフェッショナルで実践的'}
@@ -94,9 +73,10 @@ SEO/GEO: キーワード自然配置、統計・事例、明確な定義、マ�
     {"q": "よくある質問3", "a": "簡潔で明確な回答"}
   ],
   "content": "## 導入部見出し\\n\\n本文マークダウン..."
-}`
-    : isKo
-    ? `당신은 시니어 콘텐츠 마케터이자 SEO/GEO 전문가입니다.
+}`;
+  }
+  if (lang === 'ko') {
+    return `당신은 시니어 콘텐츠 마케터이자 SEO/GEO 전문가입니다.
 키워드: ${keyword}
 대상 독자: ${targetAudience || '마케터, 사업주'}
 톤앤매너: ${tone || '전문적이고 실용적인'}
@@ -116,8 +96,9 @@ SEO/GEO: 키워드 자연 포함, 통계/사례, 명확한 정의, 마크다운 
     {"q": "자주 묻는 질문3", "a": "간결하고 명확한 답변"}
   ],
   "content": "## 도입부 제목\\n\\n본문 마크다운..."
-}`
-    : `You are a senior content marketer and SEO/GEO specialist.
+}`;
+  }
+  return `You are a senior content marketer and SEO/GEO specialist.
 Keyword: ${keyword}
 Target audience: ${targetAudience || 'marketers, business owners'}
 Tone: ${tone || 'professional and practical'}
@@ -138,8 +119,20 @@ Respond ONLY with this JSON (no explanation):
   ],
   "content": "## Introduction heading\\n\\nBody in markdown..."
 }`;
+}
 
-  // 3회 재시도
+async function runOneLang(config: ScheduleConfig, now: number, testMode = false): Promise<{ slug?: string; skipped?: string; error?: string }> {
+  const { lang, keywords, targetAudience, tone, currentKeywordIndex } = config;
+
+  if (!config.enabled && !testMode) return { skipped: 'disabled' };
+  if (keywords.length === 0) return { skipped: 'no keywords' };
+  if (!testMode && config.nextRunAt && new Date(config.nextRunAt).getTime() > now) {
+    return { skipped: 'not yet' };
+  }
+
+  const keyword = keywords[currentKeywordIndex % keywords.length];
+  const prompt = buildPrompt(keyword, lang, targetAudience, tone);
+
   let parsed: Record<string, unknown> | null = null;
   let lastErr = '';
   for (let attempt = 0; attempt < 3; attempt++) {
@@ -155,40 +148,74 @@ Respond ONLY with this JSON (no explanation):
     if (attempt < 2) await new Promise((r) => setTimeout(r, 2000));
   }
 
-  try {
-    if (!parsed) throw new Error(lastErr || 'AI 응답 파싱 실패 (3회 시도)');
-    const { title, slug, metaDescription, tags, faq, content } = parsed as Record<string, unknown>;
-    if (!title || !slug || !content) throw new Error('필수 필드 누락');
+  if (!parsed) return { error: lastErr || 'AI 응답 파싱 실패 (3회 시도)' };
 
-    const post: BlogPost = {
-      slug: sanitizeSlug(String(slug)), lang, title: String(title),
-      metaDescription: metaDescription ? String(metaDescription) : '',
-      tags: Array.isArray(tags) ? (tags as string[]) : [],
-      faq: Array.isArray(faq) ? (faq as { q: string; a: string }[]) : [],
-      content: String(content),
-      createdAt: new Date().toISOString(),
-      keyword,
-    };
+  const { title, slug, metaDescription, tags, faq, content } = parsed as Record<string, unknown>;
+  if (!title || !slug || !content) return { error: '필수 필드 누락' };
 
-    await put(`posts/${lang}/${post.slug}.json`, JSON.stringify(post), {
-      access: 'public', contentType: 'application/json', addRandomSuffix: false, allowOverwrite: true,
-    });
+  const post: BlogPost = {
+    slug: sanitizeSlug(String(slug)), lang, title: String(title),
+    metaDescription: metaDescription ? String(metaDescription) : '',
+    tags: Array.isArray(tags) ? (tags as string[]) : [],
+    faq: Array.isArray(faq) ? (faq as { q: string; a: string }[]) : [],
+    content: String(content),
+    createdAt: new Date().toISOString(),
+    keyword,
+  };
 
-    const index = await getIndex(lang);
-    const existingIdx = index.findIndex((p) => p.slug === post.slug);
-    const entry: PostIndex = { slug: post.slug, title: post.title, metaDescription: post.metaDescription, tags: post.tags, createdAt: post.createdAt, keyword };
-    if (existingIdx >= 0) index[existingIdx] = entry;
-    else index.unshift(entry);
-    await saveIndex(lang, index);
+  await put(`posts/${lang}/${post.slug}.json`, JSON.stringify(post), {
+    access: 'public', contentType: 'application/json', addRandomSuffix: false, allowOverwrite: true,
+  });
 
-    await saveScheduleConfig({
+  const index = await getIndex(lang);
+  const existingIdx = index.findIndex((p) => p.slug === post.slug);
+  const entry: PostIndex = { slug: post.slug, title: post.title, metaDescription: post.metaDescription, tags: post.tags, createdAt: post.createdAt, keyword };
+  if (existingIdx >= 0) index[existingIdx] = entry;
+  else index.unshift(entry);
+  await saveIndex(lang, index);
+
+  if (!testMode) {
+    await saveScheduleConfig(lang, {
       ...config,
       lastRunAt: new Date().toISOString(),
       nextRunAt: new Date(now + config.intervalHours * 3600 * 1000).toISOString(),
       currentKeywordIndex: (currentKeywordIndex + 1) % keywords.length,
     });
+  }
 
-    return NextResponse.json({ generated: post.slug });
+  return { slug: post.slug };
+}
+
+export async function GET(req: NextRequest) {
+  const cronSecret = process.env.CRON_SECRET;
+  const auth = req.headers.get('authorization');
+  if (cronSecret && auth !== `Bearer ${cronSecret}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const now = Date.now();
+  const langs = ['ko', 'en', 'ja'] as const;
+  const results: Record<string, unknown> = {};
+
+  for (const lang of langs) {
+    const config = await getScheduleConfig(lang);
+    results[lang] = await runOneLang(config, now);
+  }
+
+  return NextResponse.json({ results });
+}
+
+// POST: test publish for a single lang (no CRON_SECRET needed — protected by app session in the frontend)
+export async function POST(req: NextRequest) {
+  const lang = (req.nextUrl.searchParams.get('lang') ?? 'ko') as 'ko' | 'en' | 'ja';
+  try {
+    const config = await getScheduleConfig(lang);
+    if (config.keywords.length === 0) {
+      return NextResponse.json({ error: '키워드를 먼저 등록하고 저장해주세요.' }, { status: 400 });
+    }
+    const result = await runOneLang(config, Date.now(), true);
+    if (result.error) return NextResponse.json({ error: result.error }, { status: 500 });
+    return NextResponse.json(result);
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 500 });
   }

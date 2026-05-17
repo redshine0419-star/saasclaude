@@ -206,12 +206,14 @@ export default function BlogAdminModule({ onToast }: Props) {
   const [editLoading, setEditLoading] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
 
-  // Schedule state
+  // Schedule state — per-lang
   const [scheduleOpen, setScheduleOpen] = useState(false);
-  const [schedule, setSchedule] = useState<ScheduleConfig | null>(null);
+  const [scheduleLang, setScheduleLang] = useState<Lang>('ko');
+  const [schedules, setSchedules] = useState<Partial<Record<Lang, ScheduleConfig>>>({});
   const [scheduleLoading, setScheduleLoading] = useState(false);
   const [savingSchedule, setSavingSchedule] = useState(false);
-  const [keywordsText, setKeywordsText] = useState('');
+  const [keywordsTexts, setKeywordsTexts] = useState<Record<Lang, string>>({ ko: '', en: '', ja: '' });
+  const [testPublishing, setTestPublishing] = useState(false);
 
   // Bulk state
   const [bulkOpen, setBulkOpen] = useState(false);
@@ -236,20 +238,27 @@ export default function BlogAdminModule({ onToast }: Props) {
     }
   };
 
-  const fetchSchedule = async () => {
+  const fetchSchedule = async (l: Lang) => {
     setScheduleLoading(true);
     try {
-      const res = await fetch('/api/blog/schedule');
+      const res = await fetch(`/api/blog/schedule?lang=${l}`);
       const data: ScheduleConfig = await res.json();
-      setSchedule(data);
-      setKeywordsText(data.keywords.join('\n'));
+      setSchedules((prev) => ({ ...prev, [l]: data }));
+      setKeywordsTexts((prev) => ({ ...prev, [l]: data.keywords.join('\n') }));
     } finally {
       setScheduleLoading(false);
     }
   };
 
   useEffect(() => { fetchPosts(lang); }, [lang]);
-  useEffect(() => { if (scheduleOpen && !schedule) fetchSchedule(); }, [scheduleOpen]);
+  useEffect(() => {
+    if (scheduleOpen && !schedules.ko) {
+      fetchSchedule('ko');
+      fetchSchedule('en');
+      fetchSchedule('ja');
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scheduleOpen]);
   useEffect(() => {
     if (!bulkRunning) {
       setBulkKeywordsText(bulkLang === 'ko' ? KO_DEFAULT_KEYWORDS : bulkLang === 'ja' ? JA_DEFAULT_KEYWORDS : EN_DEFAULT_KEYWORDS);
@@ -339,23 +348,40 @@ export default function BlogAdminModule({ onToast }: Props) {
   };
 
   const handleScheduleSave = async () => {
+    const schedule = schedules[scheduleLang];
     if (!schedule) return;
     setSavingSchedule(true);
     try {
-      const keywords = keywordsText.split('\n').map((k) => k.trim()).filter(Boolean);
-      const res = await fetch('/api/blog/schedule', {
+      const keywords = keywordsTexts[scheduleLang].split('\n').map((k) => k.trim()).filter(Boolean);
+      const res = await fetch(`/api/blog/schedule?lang=${scheduleLang}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...schedule, keywords }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setSchedule(data);
+      setSchedules((prev) => ({ ...prev, [scheduleLang]: data }));
       onToast('자동 발행 설정이 저장되었습니다.');
     } catch (e) {
       onToast('저장 오류: ' + (e as Error).message);
     } finally {
       setSavingSchedule(false);
+    }
+  };
+
+  const handleTestPublish = async () => {
+    setTestPublishing(true);
+    try {
+      const res = await fetch(`/api/blog/cron?lang=${scheduleLang}`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      onToast(`테스트 발행 완료! 포스트: ${data.slug}`);
+      fetchPosts(scheduleLang);
+      fetchSchedule(scheduleLang);
+    } catch (e) {
+      onToast('테스트 발행 오류: ' + (e as Error).message);
+    } finally {
+      setTestPublishing(false);
     }
   };
 
@@ -630,74 +656,122 @@ export default function BlogAdminModule({ onToast }: Props) {
           <span className="flex items-center gap-2">
             <Clock size={16} />
             자동 발행 설정
-            {schedule?.enabled && <span className="px-2 py-0.5 bg-[#000000] text-white text-xs rounded-full">ON</span>}
+            {(['ko', 'en', 'ja'] as Lang[]).filter((l) => schedules[l]?.enabled).map((l) => (
+              <span key={l} className="px-2 py-0.5 bg-[#000000] text-white text-xs rounded-full">
+                {l.toUpperCase()} ON
+              </span>
+            ))}
           </span>
           {scheduleOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
 
         {scheduleOpen && (
-          <div className="px-6 pb-6 border-t border-[#d0d7de] dark:border-[#30363d] pt-5">
-            {scheduleLoading || !schedule ? (
-              <div className="flex justify-center py-6"><Loader2 size={20} className="animate-spin text-[#57606a]" /></div>
-            ) : (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-[#24292f] dark:text-[#e6edf3]">자동 발행 활성화</p>
-                    <p className="text-xs text-[#57606a] dark:text-[#8b949e] mt-0.5">매일 자정(UTC)에 실행 — 설정한 주기 도달 시 발행</p>
-                  </div>
-                  <button onClick={() => setSchedule({ ...schedule, enabled: !schedule.enabled })}
-                    className={`relative w-11 h-6 rounded-full transition-colors ${schedule.enabled ? 'bg-[#000000]' : 'bg-[#d0d7de] dark:bg-[#30363d]'}`}
-                  >
-                    <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${schedule.enabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
-                  </button>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-medium text-[#57606a] dark:text-[#8b949e] mb-1">발행 주기</label>
-                    <select value={schedule.intervalHours} onChange={(e) => setSchedule({ ...schedule, intervalHours: Number(e.target.value) })} className={inputCls}>
-                      {INTERVAL_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-[#57606a] dark:text-[#8b949e] mb-1">발행 언어</label>
-                    <select value={schedule.lang} onChange={(e) => setSchedule({ ...schedule, lang: e.target.value as Lang })} className={inputCls}>
-                      <option value="ko">국문 (KO)</option>
-                      <option value="en">영문 (EN)</option>
-                      <option value="ja">일문 (JA)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-[#57606a] dark:text-[#8b949e] mb-1">대상 독자</label>
-                    <input type="text" value={schedule.targetAudience} onChange={(e) => setSchedule({ ...schedule, targetAudience: e.target.value })} placeholder="마케터, 사업주" className={inputCls} />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-[#57606a] dark:text-[#8b949e] mb-1">톤앤매너</label>
-                    <input type="text" value={schedule.tone} onChange={(e) => setSchedule({ ...schedule, tone: e.target.value })} placeholder="전문적이고 실용적인" className={inputCls} />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-[#57606a] dark:text-[#8b949e] mb-1">키워드 목록 (한 줄에 하나)</label>
-                  <textarea value={keywordsText} onChange={(e) => setKeywordsText(e.target.value)} rows={6}
-                    placeholder={'AI 마케팅 전략\nSEO 최적화 방법\nGEO 최적화란'}
-                    className={`${inputCls} resize-none font-mono`} />
-                  <p className="text-xs text-[#57606a] dark:text-[#8b949e] mt-1">{keywordsText.split('\n').filter((k) => k.trim()).length}개 키워드 등록</p>
-                </div>
-                {schedule.lastRunAt && (
-                  <div className="text-xs text-[#57606a] dark:text-[#8b949e] bg-[#f6f8fa] dark:bg-[#21262d] rounded-md p-3 space-y-1">
-                    <p>마지막 발행: {new Date(schedule.lastRunAt).toLocaleString('ko-KR')}</p>
-                    {schedule.nextRunAt && <p>다음 발행 예정: {new Date(schedule.nextRunAt).toLocaleString('ko-KR')}</p>}
-                    <p>다음 키워드: {schedule.keywords[schedule.currentKeywordIndex % Math.max(schedule.keywords.length, 1)] || '—'}</p>
-                  </div>
-                )}
-                <button onClick={handleScheduleSave} disabled={savingSchedule}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#000000] hover:bg-[#333333] disabled:opacity-50 text-white text-sm font-medium rounded-md transition-colors"
+          <div className="border-t border-[#d0d7de] dark:border-[#30363d]">
+            {/* Language tabs */}
+            <div className="flex border-b border-[#d0d7de] dark:border-[#30363d]">
+              {(['ko', 'en', 'ja'] as Lang[]).map((l) => (
+                <button key={l} onClick={() => setScheduleLang(l)}
+                  className={`flex-1 py-3 text-sm font-medium flex items-center justify-center gap-2 transition-colors border-b-2 ${scheduleLang === l ? 'border-[#000000] text-[#24292f] dark:text-[#e6edf3]' : 'border-transparent text-[#57606a] dark:text-[#8b949e] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d]'}`}
                 >
-                  {savingSchedule ? <Loader2 size={14} className="animate-spin" /> : null}
-                  설정 저장
+                  <Globe size={13} />
+                  {l === 'ko' ? '국문' : l === 'en' ? '영문' : '일문'}
+                  {schedules[l]?.enabled && <span className="w-1.5 h-1.5 rounded-full bg-green-500" />}
                 </button>
-              </div>
-            )}
+              ))}
+            </div>
+
+            <div className="px-6 pb-6 pt-5">
+              {scheduleLoading && !schedules[scheduleLang] ? (
+                <div className="flex justify-center py-6"><Loader2 size={20} className="animate-spin text-[#57606a]" /></div>
+              ) : (() => {
+                const schedule = schedules[scheduleLang];
+                if (!schedule) return <div className="flex justify-center py-6"><Loader2 size={20} className="animate-spin text-[#57606a]" /></div>;
+                return (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-[#24292f] dark:text-[#e6edf3]">
+                          {scheduleLang === 'ko' ? '국문' : scheduleLang === 'en' ? '영문' : '일문'} 자동 발행 활성화
+                        </p>
+                        <p className="text-xs text-[#57606a] dark:text-[#8b949e] mt-0.5">매일 자정(UTC)에 실행 — 설정한 주기 도달 시 발행</p>
+                      </div>
+                      <button
+                        onClick={() => setSchedules((prev) => ({ ...prev, [scheduleLang]: { ...schedule, enabled: !schedule.enabled } }))}
+                        className={`relative w-11 h-6 rounded-full transition-colors ${schedule.enabled ? 'bg-[#000000]' : 'bg-[#d0d7de] dark:bg-[#30363d]'}`}
+                      >
+                        <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${schedule.enabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-medium text-[#57606a] dark:text-[#8b949e] mb-1">발행 주기</label>
+                        <select
+                          value={schedule.intervalHours}
+                          onChange={(e) => setSchedules((prev) => ({ ...prev, [scheduleLang]: { ...schedule, intervalHours: Number(e.target.value) } }))}
+                          className={inputCls}
+                        >
+                          {INTERVAL_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-[#57606a] dark:text-[#8b949e] mb-1">대상 독자</label>
+                        <input type="text"
+                          value={schedule.targetAudience}
+                          onChange={(e) => setSchedules((prev) => ({ ...prev, [scheduleLang]: { ...schedule, targetAudience: e.target.value } }))}
+                          placeholder={scheduleLang === 'ko' ? '마케터, 사업주' : scheduleLang === 'ja' ? 'マーケター、経営者' : 'marketers, business owners'}
+                          className={inputCls}
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-xs font-medium text-[#57606a] dark:text-[#8b949e] mb-1">톤앤매너</label>
+                        <input type="text"
+                          value={schedule.tone}
+                          onChange={(e) => setSchedules((prev) => ({ ...prev, [scheduleLang]: { ...schedule, tone: e.target.value } }))}
+                          placeholder={scheduleLang === 'ko' ? '전문적이고 실용적인' : scheduleLang === 'ja' ? 'プロフェッショナルで実践的' : 'professional and practical'}
+                          className={inputCls}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-[#57606a] dark:text-[#8b949e] mb-1">
+                        키워드 목록 (한 줄에 하나) — {keywordsTexts[scheduleLang].split('\n').filter((k) => k.trim()).length}개
+                      </label>
+                      <textarea
+                        value={keywordsTexts[scheduleLang]}
+                        onChange={(e) => setKeywordsTexts((prev) => ({ ...prev, [scheduleLang]: e.target.value }))}
+                        rows={6}
+                        placeholder={scheduleLang === 'ko' ? 'AI 마케팅 전략\nSEO 최적화 방법\nGEO 최적화란' : scheduleLang === 'ja' ? 'AIマーケティング戦略\nSEO最適化方法' : 'AI marketing strategy\nSEO optimization guide'}
+                        className={`${inputCls} resize-none font-mono`}
+                      />
+                    </div>
+                    {schedule.lastRunAt && (
+                      <div className="text-xs text-[#57606a] dark:text-[#8b949e] bg-[#f6f8fa] dark:bg-[#21262d] rounded-md p-3 space-y-1">
+                        <p>마지막 발행: {new Date(schedule.lastRunAt).toLocaleString('ko-KR')}</p>
+                        {schedule.nextRunAt && <p>다음 발행 예정: {new Date(schedule.nextRunAt).toLocaleString('ko-KR')}</p>}
+                        <p>다음 키워드: {schedule.keywords[schedule.currentKeywordIndex % Math.max(schedule.keywords.length, 1)] || '—'}</p>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-3">
+                      <button onClick={handleScheduleSave} disabled={savingSchedule}
+                        className="flex items-center gap-2 px-4 py-2 bg-[#000000] hover:bg-[#333333] disabled:opacity-50 text-white text-sm font-medium rounded-md transition-colors"
+                      >
+                        {savingSchedule ? <Loader2 size={14} className="animate-spin" /> : null}
+                        설정 저장
+                      </button>
+                      <button onClick={handleTestPublish} disabled={testPublishing || savingSchedule}
+                        className="flex items-center gap-2 px-4 py-2 border border-[#d0d7de] dark:border-[#30363d] hover:border-[#000000] dark:hover:border-[#e6edf3] text-[#24292f] dark:text-[#e6edf3] disabled:opacity-50 text-sm font-medium rounded-md transition-colors"
+                      >
+                        {testPublishing ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
+                        테스트 발행 (즉시 1건)
+                      </button>
+                    </div>
+                    <p className="text-xs text-[#57606a] dark:text-[#8b949e]">
+                      테스트 발행은 설정을 저장한 뒤 키워드 목록의 다음 순서 키워드로 즉시 글을 생성합니다.
+                    </p>
+                  </div>
+                );
+              })()}
+            </div>
           </div>
         )}
       </div>
