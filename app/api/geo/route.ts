@@ -1,6 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
 
+const LLM_BOTS = ['gptbot', 'claudebot', 'anthropic-ai', 'chatgpt-user', 'google-extended', 'perplexitybot', 'ccbot'];
+
+function isLlmBlocked(robotsTxt: string): boolean {
+  const lines = robotsTxt.split('\n').map((l) => l.trim());
+  let currentAgents: string[] = [];
+  let wildcardDisallowAll = false;
+
+  for (const line of lines) {
+    const lower = line.toLowerCase();
+    if (lower.startsWith('user-agent:')) {
+      currentAgents = [lower.replace('user-agent:', '').trim()];
+    } else if (lower === '') {
+      currentAgents = [];
+    } else if (lower.startsWith('disallow:')) {
+      const path = lower.replace('disallow:', '').trim();
+      if (path === '/') {
+        if (currentAgents.includes('*')) wildcardDisallowAll = true;
+        if (currentAgents.some((a) => LLM_BOTS.some((b) => a.includes(b)))) return true;
+      }
+    } else if (lower.startsWith('allow:')) {
+      const path = lower.replace('allow:', '').trim();
+      if (path === '/' && currentAgents.some((a) => LLM_BOTS.some((b) => a.includes(b)))) {
+        return false;
+      }
+    }
+  }
+  return wildcardDisallowAll;
+}
+
 interface GeoResult {
   meta: {
     title: string | null;
@@ -124,8 +153,8 @@ export async function POST(req: NextRequest) {
     const txt = await robotsRes.text();
     result.robotsTxt.exists = true;
     const lower = txt.toLowerCase();
-    result.robotsTxt.llmBlocked = lower.includes('gptbot') || lower.includes('claudebot') || lower.includes('anthropic') || lower.includes('chatgpt');
     result.robotsTxt.hasSitemap = lower.includes('sitemap:');
+    result.robotsTxt.llmBlocked = isLlmBlocked(txt);
   }
 
   // HTML 파싱

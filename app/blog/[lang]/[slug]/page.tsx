@@ -60,6 +60,21 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       publishedTime: post.createdAt,
       tags: post.tags,
       siteName: 'GrowWeb.me',
+      locale: lang === 'ko' ? 'ko_KR' : lang === 'ja' ? 'ja_JP' : 'en_US',
+      images: [
+        {
+          url: `${SITE_URL}/api/og?title=${encodeURIComponent(post.title)}&tag=${encodeURIComponent(post.tags[0] ?? 'GrowWeb.me')}`,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.metaDescription,
+      images: [`${SITE_URL}/api/og?title=${encodeURIComponent(post.title)}&tag=${encodeURIComponent(post.tags[0] ?? 'GrowWeb.me')}`],
     },
   };
 }
