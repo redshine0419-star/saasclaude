@@ -53,7 +53,7 @@ export default function SidebarLayout({
     `}>
       {/* Logo */}
       <div className={`flex items-center h-14 border-b border-[#21262d] shrink-0 ${collapsed && !mobile ? 'justify-center px-2' : 'px-4 gap-2'}`}>
-        <Link href="/" className="flex items-center gap-2 text-white hover:opacity-80 transition-opacity">
+        <Link href={lang === 'en' ? '/en' : lang === 'ja' ? '/ja' : '/'} className="flex items-center gap-2 text-white hover:opacity-80 transition-opacity">
           <Zap size={18} fill="currentColor" strokeWidth={0} className="shrink-0" />
           {(!collapsed || mobile) && (
             <span className="font-bold text-sm tracking-tight">
@@ -211,7 +211,7 @@ export default function SidebarLayout({
           <button onClick={() => setMobileOpen(true)} className="text-[#8b949e] hover:text-white">
             <Menu size={20} />
           </button>
-          <Link href="/" className="flex items-center gap-2 text-white font-bold text-sm">
+          <Link href={lang === 'en' ? '/en' : lang === 'ja' ? '/ja' : '/'} className="flex items-center gap-2 text-white font-bold text-sm">
             <Zap size={16} fill="currentColor" strokeWidth={0} />
             GrowWeb.me
           </Link>

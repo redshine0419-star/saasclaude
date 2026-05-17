@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Zap, Globe, ArrowLeftRight, FileText, PenLine, Tag, Bot, BarChart3,
@@ -340,6 +340,11 @@ export default function LandingPage({ lang, isLoggedIn = false }: { lang: 'ko' |
   const t = T[lang];
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
+
+  // Sync homepage language to app dashboard localStorage
+  useEffect(() => {
+    localStorage.setItem('app-ui-lang', lang);
+  }, [lang]);
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0d1117] text-[#24292f] dark:text-[#e6edf3] font-sans">
