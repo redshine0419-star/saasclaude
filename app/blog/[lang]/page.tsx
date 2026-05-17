@@ -28,10 +28,10 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     ? 'AIマーケティングブログ | GrowWeb.me'
     : 'AI Marketing Blog | GrowWeb.me';
   const description = lang === 'ko'
-    ? 'AI 마케팅, SEO, GEO 최적화에 관한 전문 블로그'
+    ? 'AI 마케팅, SEO, GEO(AI 검색 최적화), 콘텐츠 전략까지 — 스타트업 마케터와 1인 마케터를 위한 실전 가이드를 무료로 제공합니다. 키워드 분석부터 퍼포먼스 마케팅까지 매주 새 글이 올라옵니다.'
     : lang === 'ja'
-    ? 'AIマーケティング、SEO、GEO最適化に関する専門ブログ'
-    : 'Expert blog on AI marketing, SEO, and GEO optimization';
+    ? 'AIマーケティング・SEO・GEO最適化・コンテンツ戦略まで — スタートアップマーケターと個人マーケター向けの実践ガイドを無料提供。キーワード分析からパフォーマンスマーケティングまで、毎週新記事を公開中。'
+    : 'Practical guides on AI marketing, SEO, GEO optimization, and content strategy — free for startup marketers and solo marketers. From keyword research to performance marketing, new articles every week.';
   return {
     title,
     description,
@@ -76,8 +76,12 @@ export default async function BlogListPage({ params, searchParams }: {
           <h1 className="text-3xl font-bold text-[#24292f] dark:text-[#e6edf3]">
             {isKo ? 'AI 마케팅 블로그' : isJa ? 'AIマーケティングブログ' : 'AI Marketing Blog'}
           </h1>
-          <p className="mt-2 text-[#57606a] dark:text-[#8b949e]">
-            {isKo ? 'AI, SEO, GEO 최적화에 관한 인사이트' : isJa ? 'AI、SEO、GEO最適化に関するインサイト' : 'Insights on AI, SEO, and GEO optimization'}
+          <p className="mt-2 text-[#57606a] dark:text-[#8b949e] max-w-xl">
+            {isKo
+              ? 'AI 마케팅·SEO·GEO 최적화·콘텐츠 전략 — 1인 마케터와 스타트업을 위한 실전 가이드'
+              : isJa
+              ? 'AIマーケティング・SEO・GEO最適化・コンテンツ戦略 — 個人マーケターとスタートアップのための実践ガイド'
+              : 'AI marketing · SEO · GEO optimization · content strategy — practical guides for solo marketers and startups'}
           </p>
         </div>
       </div>

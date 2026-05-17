@@ -358,6 +358,41 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
               </div>
             </div>
           )}
+
+          {/* CTA Banner */}
+          <div className="mt-16 rounded-2xl bg-gradient-to-br from-[#000000] to-[#1a1a2e] dark:from-[#161b22] dark:to-[#0d1117] border border-[#30363d] p-8 md:p-10 text-center">
+            <p className="text-xs font-semibold tracking-widest uppercase text-indigo-400 mb-3">
+              {isKo ? '무료 AI 마케팅 도구' : isJa ? '無料AIマーケティングツール' : 'Free AI Marketing Tools'}
+            </p>
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">
+              {isKo
+                ? '내 사이트 SEO·GEO 점수, 지금 바로 확인하세요'
+                : isJa
+                ? '自分のサイトのSEO・GEOスコアを今すぐ確認'
+                : "Check Your Site's SEO & GEO Score — Free"}
+            </h2>
+            <p className="text-[#8b949e] text-sm md:text-base mb-8 max-w-xl mx-auto leading-relaxed">
+              {isKo
+                ? 'URL 하나만 입력하면 PageSpeed, GEO 가시성, AI 검색 노출 가능성까지 30초 만에 진단합니다. 가입 없이 무료로 사용하세요.'
+                : isJa
+                ? 'URLを入力するだけで、PageSpeed・GEO可視性・AI検索での露出可能性を30秒で診断。登録不要・完全無料。'
+                : 'Just enter a URL to diagnose your PageSpeed, GEO visibility, and AI search exposure in 30 seconds. No sign-up required.'}
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black text-sm font-bold rounded-xl hover:bg-gray-100 transition-colors shadow-lg"
+              >
+                {isKo ? '무료로 진단받기 →' : isJa ? '無料で診断する →' : 'Diagnose for Free →'}
+              </Link>
+              <Link
+                href={`/blog/${lang}`}
+                className="inline-flex items-center gap-2 px-6 py-3 border border-[#30363d] text-[#8b949e] text-sm font-medium rounded-xl hover:border-[#57606a] hover:text-white transition-colors"
+              >
+                {isKo ? '블로그 더 보기' : isJa ? 'ブログをもっと見る' : 'More Articles'}
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </>
