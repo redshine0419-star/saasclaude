@@ -42,8 +42,18 @@ function readingTime(content: string, lang: string): number {
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }): Promise<Metadata> {
   const { lang, slug } = await params;
-  const post = await getPost(lang, slug);
+  const [post, koExists, enExists, jaExists] = await Promise.all([
+    getPost(lang, slug),
+    getPost('ko', slug).then(Boolean),
+    getPost('en', slug).then(Boolean),
+    getPost('ja', slug).then(Boolean),
+  ]);
   if (!post) return { title: 'Not Found' };
+
+  const availableLangs: Record<string, string> = {};
+  if (koExists) availableLangs['ko'] = `/blog/ko/${slug}`;
+  if (enExists) availableLangs['en'] = `/blog/en/${slug}`;
+  if (jaExists) availableLangs['ja'] = `/blog/ja/${slug}`;
 
   return {
     title: `${post.title} | GrowWeb.me`,
@@ -51,7 +61,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     keywords: post.tags.join(', '),
     alternates: {
       canonical: `${SITE_URL}/blog/${lang}/${slug}`,
-      languages: { ko: `/blog/ko/${slug}`, en: `/blog/en/${slug}`, ja: `/blog/ja/${slug}` },
+      languages: availableLangs,
     },
     openGraph: {
       title: post.title,
@@ -87,7 +97,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
   const post = await getPost(lang, slug);
   if (!post) notFound();
 
-  const related = await getRelated(lang, slug, post.tags);
+  const [related, hasKo, hasEn, hasJa] = await Promise.all([
+    getRelated(lang, slug, post.tags),
+    lang === 'ko' ? Promise.resolve(true) : getPost('ko', slug).then(Boolean),
+    lang === 'en' ? Promise.resolve(true) : getPost('en', slug).then(Boolean),
+    lang === 'ja' ? Promise.resolve(true) : getPost('ja', slug).then(Boolean),
+  ]);
   const isKo = lang === 'ko';
   const isJa = lang === 'ja';
   const minutes = readingTime(post.content, lang);
@@ -138,9 +153,18 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
               ← {isKo ? '블로그 목록' : isJa ? '記事一覧' : 'All posts'}
             </Link>
             <div className="flex items-center gap-1 border border-[#d0d7de] dark:border-[#30363d] rounded-md overflow-hidden text-xs">
-              <Link href={`/blog/ko/${slug}`} className={`px-3 py-1 transition-colors ${lang === 'ko' ? 'bg-[#000000] text-white' : 'text-[#57606a] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d]'}`}>KO</Link>
-              <Link href={`/blog/en/${slug}`} className={`px-3 py-1 transition-colors ${lang === 'en' ? 'bg-[#000000] text-white' : 'text-[#57606a] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d]'}`}>EN</Link>
-              <Link href={`/blog/ja/${slug}`} className={`px-3 py-1 transition-colors ${lang === 'ja' ? 'bg-[#000000] text-white' : 'text-[#57606a] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d]'}`}>JA</Link>
+              {hasKo
+                ? <Link href={`/blog/ko/${slug}`} className={`px-3 py-1 transition-colors ${lang === 'ko' ? 'bg-[#000000] text-white' : 'text-[#57606a] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d]'}`}>KO</Link>
+                : <span className="px-3 py-1 text-[#d0d7de] dark:text-[#30363d] cursor-not-allowed" title="번역 준비 중">KO</span>
+              }
+              {hasEn
+                ? <Link href={`/blog/en/${slug}`} className={`px-3 py-1 transition-colors ${lang === 'en' ? 'bg-[#000000] text-white' : 'text-[#57606a] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d]'}`}>EN</Link>
+                : <span className="px-3 py-1 text-[#d0d7de] dark:text-[#30363d] cursor-not-allowed" title="Translation coming soon">EN</span>
+              }
+              {hasJa
+                ? <Link href={`/blog/ja/${slug}`} className={`px-3 py-1 transition-colors ${lang === 'ja' ? 'bg-[#000000] text-white' : 'text-[#57606a] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d]'}`}>JA</Link>
+                : <span className="px-3 py-1 text-[#d0d7de] dark:text-[#30363d] cursor-not-allowed" title="翻訳準備中">JA</span>
+              }
             </div>
           </div>
         </div>
