@@ -19,6 +19,7 @@ interface NavItem {
   icon: React.ReactNode;
   label: string;
   adminOnly?: boolean;
+  restrictedToMembers?: boolean; // hidden unless admin or invited WorkUser
   sectionLabel?: string; // renders a section group header before this item
 }
 
@@ -29,10 +30,11 @@ interface SidebarLayoutProps {
   children: React.ReactNode;
   product: 'marketing' | 'work';
   hideProductSwitcher?: boolean;
+  isMember?: boolean; // true if user is admin or invited WorkUser
 }
 
 export default function SidebarLayout({
-  navItems, activeTab, onTabChange, children, product, hideProductSwitcher,
+  navItems, activeTab, onTabChange, children, product, hideProductSwitcher, isMember = false,
 }: SidebarLayoutProps) {
   const { dark, toggle } = useDarkMode();
   const { data: session } = useSession();
@@ -41,7 +43,11 @@ export default function SidebarLayout({
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const visibleItems = navItems.filter((item) => !item.adminOnly || isAdmin);
+  const visibleItems = navItems.filter((item) => {
+    if (item.adminOnly && !isAdmin) return false;
+    if (item.restrictedToMembers && !isMember) return false;
+    return true;
+  });
 
   // Close mobile sidebar on tab change
   useEffect(() => { setMobileOpen(false); }, [activeTab]);

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { list, put } from '@vercel/blob';
+import { auth } from '@/auth';
 
 export interface ScheduleConfig {
   lang: 'ko' | 'en' | 'ja';
@@ -59,12 +60,24 @@ export async function saveScheduleConfig(lang: 'ko' | 'en' | 'ja', config: Sched
 }
 
 export async function GET(req: NextRequest) {
+  const session = await auth();
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  if (!session?.user || role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const lang = (req.nextUrl.searchParams.get('lang') ?? 'ko') as 'ko' | 'en' | 'ja';
   const config = await getScheduleConfig(lang);
   return NextResponse.json(config);
 }
 
 export async function POST(req: NextRequest) {
+  const session = await auth();
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  if (!session?.user || role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const lang = (req.nextUrl.searchParams.get('lang') ?? 'ko') as 'ko' | 'en' | 'ja';
   try {
     const body = await req.json();

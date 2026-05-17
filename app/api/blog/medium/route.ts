@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { list } from '@vercel/blob';
 import { publishToMedium } from '@/lib/medium';
+import { auth } from '@/auth';
 import type { BlogPost } from '../generate/route';
 
 export async function POST(req: NextRequest) {
+  const session = await auth();
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  if (!session?.user || role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { slug, lang = 'ko' } = await req.json();
   if (!slug) return NextResponse.json({ error: 'slug 필요' }, { status: 400 });
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { put, list } from '@vercel/blob';
 import { generateText } from '@/lib/ai';
+import { auth as getSession } from '@/auth';
 import { getScheduleConfig, saveScheduleConfig, ScheduleConfig } from '../schedule/route';
 import type { BlogPost, PostIndex } from '../generate/route';
 
@@ -205,8 +206,14 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ results });
 }
 
-// POST: test publish for a single lang (no CRON_SECRET needed — protected by app session in the frontend)
+// POST: test publish for a single lang — protected by admin session
 export async function POST(req: NextRequest) {
+  const session = await getSession();
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  if (!session?.user || role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const lang = (req.nextUrl.searchParams.get('lang') ?? 'ko') as 'ko' | 'en' | 'ja';
   try {
     const config = await getScheduleConfig(lang);

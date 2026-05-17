@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { put, list } from '@vercel/blob';
 import { generateText } from '@/lib/ai';
+import { auth } from '@/auth';
 
 export interface BlogPost {
   slug: string;
@@ -72,6 +73,12 @@ async function saveIndex(lang: string, index: PostIndex[]) {
 }
 
 export async function POST(req: NextRequest) {
+  const session = await auth();
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  if (!session?.user || role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { keyword, targetAudience, tone, lang = 'ko', createdAt } = await req.json();
 
   if (!keyword?.trim()) {

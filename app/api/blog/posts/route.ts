@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { del, list, put } from '@vercel/blob';
+import { auth } from '@/auth';
 import type { PostIndex, BlogPost } from '../generate/route';
 
 async function getIndex(lang: string): Promise<PostIndex[]> {
@@ -31,6 +32,12 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  const session = await auth();
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  if (!session?.user || role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { slug, lang = 'ko', title, metaDescription, tags, content, faq } = await req.json();
   if (!slug) return NextResponse.json({ error: 'slug 필요' }, { status: 400 });
 
@@ -69,6 +76,12 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const session = await auth();
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  if (!session?.user || role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { slug, lang = 'ko' } = await req.json();
   if (!slug) return NextResponse.json({ error: 'slug 필요' }, { status: 400 });
 
