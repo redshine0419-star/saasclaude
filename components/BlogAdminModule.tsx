@@ -19,7 +19,7 @@ const INTERVAL_OPTIONS = [
 ];
 
 const BULK_START = '2025-01-10';
-const BULK_END = '2026-05-10';
+const BULK_END = new Date().toISOString().split('T')[0];
 
 // 150 evenly-spaced slots; KO = i%3===0, EN = i%3===1, JA = i%3===2 (50 each, no overlap)
 function assignBulkDates(lang: Lang): string[] {
