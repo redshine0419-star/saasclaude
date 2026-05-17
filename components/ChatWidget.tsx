@@ -1,33 +1,72 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot, Loader2, Sparkles } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { MessageCircle, X, Send, Bot, Loader2 } from 'lucide-react';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
 }
 
-const WELCOME: Message = {
-  role: 'assistant',
-  content: '안녕하세요! AI 마케팅 어시스턴트입니다.\nSEO, GEO, 콘텐츠 전략 등 마케팅 관련 질문을 해주세요.',
+type Lang = 'ko' | 'en' | 'ja';
+
+function detectLang(pathname: string): Lang {
+  if (pathname.startsWith('/en') || pathname.startsWith('/blog/en')) return 'en';
+  if (pathname.startsWith('/ja') || pathname.startsWith('/blog/ja')) return 'ja';
+  return 'ko';
+}
+
+const I18N = {
+  ko: {
+    title: 'AI 마케팅 어시스턴트',
+    online: '온라인 · 즉시 응답',
+    welcome: '안녕하세요! AI 마케팅 어시스턴트입니다.\nSEO, GEO, 콘텐츠 전략 등 마케팅 관련 질문을 해주세요.',
+    quickPrompts: ['GEO 최적화란?', 'llms.txt 작성법', 'AI SOV 높이는 방법', '콘텐츠 전략 추천'],
+    placeholder: '마케팅 질문을 입력하세요...',
+    thinking: '답변 생성 중...',
+    ariaLabel: 'AI 채팅 상담',
+  },
+  en: {
+    title: 'AI Marketing Assistant',
+    online: 'Online · Instant replies',
+    welcome: "Hi! I'm your AI Marketing Assistant.\nAsk me anything about SEO, GEO, or content strategy.",
+    quickPrompts: ['What is GEO?', 'How to write llms.txt', 'How to boost AI SOV', 'Content strategy tips'],
+    placeholder: 'Ask a marketing question...',
+    thinking: 'Generating reply...',
+    ariaLabel: 'AI chat support',
+  },
+  ja: {
+    title: 'AIマーケティングアシスタント',
+    online: 'オンライン · 即時回答',
+    welcome: 'こんにちは！AIマーケティングアシスタントです。\nSEO、GEO、コンテンツ戦略などについてお気軽にどうぞ。',
+    quickPrompts: ['GEOとは？', 'llms.txtの書き方', 'AI SOVを高める方法', 'コンテンツ戦略のアドバイス'],
+    placeholder: 'マーケティングの質問を入力...',
+    thinking: '回答を生成中...',
+    ariaLabel: 'AIチャットサポート',
+  },
 };
 
-const QUICK_PROMPTS = [
-  'GEO 최적화란?',
-  'llms.txt 작성법',
-  'AI SOV 높이는 방법',
-  '콘텐츠 전략 추천',
-];
-
 export default function ChatWidget() {
+  const pathname = usePathname();
+  const lang = detectLang(pathname ?? '');
+  const t = I18N[lang];
+
+  const welcome: Message = { role: 'assistant', content: t.welcome };
+
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([WELCOME]);
+  const [messages, setMessages] = useState<Message[]>([welcome]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [unread, setUnread] = useState(0);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Reset messages when language changes
+  useEffect(() => {
+    setMessages([{ role: 'assistant', content: t.welcome }]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang]);
 
   useEffect(() => {
     if (open) {
@@ -52,14 +91,15 @@ export default function ChatWidget() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: next }),
+        body: JSON.stringify({ messages: next, lang }),
       });
       const data = await res.json();
-      const reply = data.reply || data.error || '오류가 발생했습니다.';
+      const reply = data.reply || data.error || (lang === 'ja' ? 'エラーが発生しました。' : lang === 'en' ? 'An error occurred.' : '오류가 발생했습니다.');
       setMessages((prev) => [...prev, { role: 'assistant', content: reply }]);
       if (!open) setUnread((n) => n + 1);
     } catch {
-      setMessages((prev) => [...prev, { role: 'assistant', content: '네트워크 오류가 발생했습니다.' }]);
+      const errMsg = lang === 'ja' ? 'ネットワークエラーが発生しました。' : lang === 'en' ? 'A network error occurred.' : '네트워크 오류가 발생했습니다.';
+      setMessages((prev) => [...prev, { role: 'assistant', content: errMsg }]);
     } finally {
       setLoading(false);
     }
@@ -85,10 +125,10 @@ export default function ChatWidget() {
               <Bot size={18} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-black text-sm leading-none">AI 마케팅 어시스턴트</p>
+              <p className="font-black text-sm leading-none">{t.title}</p>
               <div className="flex items-center gap-1.5 mt-1">
                 <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                <p className="text-[10px] text-indigo-200">온라인 · 즉시 응답</p>
+                <p className="text-[10px] text-indigo-200">{t.online}</p>
               </div>
             </div>
             <button onClick={() => setOpen(false)} className="p-1.5 hover:bg-white/20 rounded-xl transition-colors">
@@ -121,7 +161,7 @@ export default function ChatWidget() {
                 </div>
                 <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 px-3.5 py-2.5 rounded-2xl rounded-bl-sm flex items-center gap-2 shadow-sm">
                   <Loader2 size={13} className="animate-spin text-indigo-500" />
-                  <span className="text-xs text-slate-500">답변 생성 중...</span>
+                  <span className="text-xs text-slate-500">{t.thinking}</span>
                 </div>
               </div>
             )}
@@ -131,7 +171,7 @@ export default function ChatWidget() {
           {/* Quick prompts */}
           {showQuickPrompts && (
             <div className="px-4 py-2.5 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-1.5">
-              {QUICK_PROMPTS.map((p) => (
+              {t.quickPrompts.map((p) => (
                 <button
                   key={p}
                   onClick={() => send(p)}
@@ -150,7 +190,7 @@ export default function ChatWidget() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKey}
-              placeholder="마케팅 질문을 입력하세요..."
+              placeholder={t.placeholder}
               className="flex-1 text-sm px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:border-indigo-400 dark:focus:border-indigo-600 text-slate-800 dark:text-slate-100 placeholder-slate-400 transition-colors"
               disabled={loading}
             />
@@ -169,7 +209,7 @@ export default function ChatWidget() {
       <button
         onClick={() => setOpen((o) => !o)}
         className="fixed bottom-24 md:bottom-8 right-4 md:right-6 z-50 w-14 h-14 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-xl shadow-indigo-200 dark:shadow-indigo-900/40 flex items-center justify-center transition-all hover:scale-110 active:scale-95"
-        aria-label="AI 채팅 상담"
+        aria-label={t.ariaLabel}
       >
         {open ? <X size={22} /> : <MessageCircle size={22} />}
         {!open && unread > 0 && (
