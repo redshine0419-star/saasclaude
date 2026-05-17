@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Loader2, Trash2, ExternalLink, RefreshCw, Plus, Globe, Pencil, X, Clock, ChevronDown, ChevronUp, Zap } from 'lucide-react';
+import { Loader2, Trash2, ExternalLink, RefreshCw, Plus, Globe, Pencil, X, Clock, ChevronDown, ChevronUp, Zap, Share2, Copy, Check } from 'lucide-react';
 import type { PostIndex, BlogPost } from '@/app/api/blog/generate/route';
 import type { ScheduleConfig } from '@/app/api/blog/schedule/route';
 
@@ -215,6 +215,11 @@ export default function BlogAdminModule({ onToast }: Props) {
   const [keywordsTexts, setKeywordsTexts] = useState<Record<Lang, string>>({ ko: '', en: '', ja: '' });
   const [testPublishing, setTestPublishing] = useState(false);
 
+  // Export state
+  const [exportMenuSlug, setExportMenuSlug] = useState<string | null>(null);
+  const [publishingMedium, setPublishingMedium] = useState<string | null>(null);
+  const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
+
   // Bulk state
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkLang, setBulkLang] = useState<Lang>('ko');
@@ -251,6 +256,13 @@ export default function BlogAdminModule({ onToast }: Props) {
   };
 
   useEffect(() => { fetchPosts(lang); }, [lang]);
+
+  useEffect(() => {
+    if (!exportMenuSlug) return;
+    const close = () => setExportMenuSlug(null);
+    document.addEventListener('click', close);
+    return () => document.removeEventListener('click', close);
+  }, [exportMenuSlug]);
   useEffect(() => {
     if (scheduleOpen && !schedules.ko) {
       fetchSchedule('ko');
@@ -382,6 +394,56 @@ export default function BlogAdminModule({ onToast }: Props) {
       onToast('테스트 발행 오류: ' + (e as Error).message);
     } finally {
       setTestPublishing(false);
+    }
+  };
+
+  const handleMediumPublish = async (slug: string) => {
+    setPublishingMedium(slug);
+    setExportMenuSlug(null);
+    try {
+      const res = await fetch('/api/blog/medium', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, lang }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      onToast(`Medium 발행 완료! ${data.url}`);
+      window.open(data.url, '_blank');
+    } catch (e) {
+      onToast('Medium 발행 오류: ' + (e as Error).message);
+    } finally {
+      setPublishingMedium(null);
+    }
+  };
+
+  const handleCopyExport = async (slug: string, platform: 'note' | 'brunch') => {
+    setExportMenuSlug(null);
+    try {
+      const res = await fetch(`/api/blog/posts/${slug}?lang=${lang}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      const post = data.post;
+      const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://growweb.me';
+      const canonicalUrl = `${SITE_URL}/blog/${lang}/${slug}`;
+      let text = '';
+      if (platform === 'note') {
+        const footer = lang === 'ja'
+          ? `\n\n---\n\n原文: ${canonicalUrl}\nGrowWeb.me — 無料AIマーケティング診断ツール`
+          : `\n\n---\n\n원문: ${canonicalUrl}\nGrowWeb.me — AI 마케팅 무료 진단 도구`;
+        text = `# ${post.title}\n\n${post.content}${footer}`;
+      } else {
+        const footer = lang === 'en'
+          ? `\n\n---\n\n원문: ${canonicalUrl}\nGrowWeb.me — AI 마케팅 무료 진단 도구`
+          : `\n\n---\n\n원문: ${canonicalUrl}\nGrowWeb.me — AI 마케팅 무료 진단 도구`;
+        text = `# ${post.title}\n\n${post.content}${footer}`;
+      }
+      await navigator.clipboard.writeText(text);
+      setCopiedSlug(slug);
+      setTimeout(() => setCopiedSlug(null), 2000);
+      onToast(`${platform === 'note' ? 'note.com' : '브런치'} 내보내기 복사 완료!`);
+    } catch (e) {
+      onToast('복사 오류: ' + (e as Error).message);
     }
   };
 
@@ -821,7 +883,7 @@ export default function BlogAdminModule({ onToast }: Props) {
                     {new Date(post.createdAt).toLocaleDateString(lang === 'ko' ? 'ko-KR' : 'en-US')}
                   </td>
                   <td className="px-3 py-3">
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 relative">
                       <button onClick={() => handleEditOpen(post.slug)} disabled={editLoading}
                         className="p-1.5 text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors disabled:opacity-50" title="수정"
                       >
@@ -832,6 +894,39 @@ export default function BlogAdminModule({ onToast }: Props) {
                       >
                         {deletingSlug === post.slug ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
                       </button>
+                      {/* Export dropdown trigger */}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setExportMenuSlug(exportMenuSlug === post.slug ? null : post.slug); }}
+                        className="p-1.5 text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors"
+                        title="내보내기"
+                      >
+                        {publishingMedium === post.slug ? <Loader2 size={14} className="animate-spin" /> : copiedSlug === post.slug ? <Check size={14} className="text-green-500" /> : <Share2 size={14} />}
+                      </button>
+                      {exportMenuSlug === post.slug && (
+                        <div onClick={(e) => e.stopPropagation()} className="absolute right-0 top-8 z-20 w-44 bg-white dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-lg shadow-lg overflow-hidden">
+                          <button
+                            onClick={() => handleMediumPublish(post.slug)}
+                            className="w-full text-left px-4 py-2.5 text-xs text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] flex items-center gap-2"
+                          >
+                            <ExternalLink size={12} />
+                            Medium에 자동 발행
+                          </button>
+                          <button
+                            onClick={() => handleCopyExport(post.slug, 'note')}
+                            className="w-full text-left px-4 py-2.5 text-xs text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] flex items-center gap-2 border-t border-[#d0d7de] dark:border-[#30363d]"
+                          >
+                            <Copy size={12} />
+                            note.com용 복사
+                          </button>
+                          <button
+                            onClick={() => handleCopyExport(post.slug, 'brunch')}
+                            className="w-full text-left px-4 py-2.5 text-xs text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] flex items-center gap-2 border-t border-[#d0d7de] dark:border-[#30363d]"
+                          >
+                            <Copy size={12} />
+                            브런치용 복사
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </td>
                 </tr>
