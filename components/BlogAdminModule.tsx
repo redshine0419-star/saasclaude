@@ -806,8 +806,8 @@ export default function BlogAdminModule({ onToast }: Props) {
       </div>
 
       {/* Post list */}
-      <div className="border border-[#d0d7de] dark:border-[#30363d] rounded-lg overflow-hidden bg-white dark:bg-[#161b22]">
-        <div className="flex items-center justify-between px-5 py-3 border-b border-[#d0d7de] dark:border-[#30363d] bg-[#f6f8fa] dark:bg-[#21262d]">
+      <div className="border border-[#d0d7de] dark:border-[#30363d] rounded-lg overflow-visible bg-white dark:bg-[#161b22]">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-[#d0d7de] dark:border-[#30363d] bg-[#f6f8fa] dark:bg-[#21262d] rounded-t-lg">
           <span className="text-sm font-medium text-[#24292f] dark:text-[#e6edf3]">
             {lang === 'ko' ? `국문 포스트 (${posts.length})` : lang === 'ja' ? `日本語記事 (${posts.length})` : `English Posts (${posts.length})`}
           </span>
