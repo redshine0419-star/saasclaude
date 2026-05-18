@@ -305,6 +305,25 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
   const [pageReport, setPageReport] = useState<PageReport | null>(null);
   const [showPageReport, setShowPageReport] = useState(false);
 
+  // ── Keyword Opportunities ──
+  const [oppLoading, setOppLoading] = useState(false);
+  const [oppData, setOppData] = useState<{
+    opportunities: {
+      type: 'near-miss' | 'ctr-fix' | 'quick-win';
+      query: string;
+      currentPosition: number;
+      impressions: number;
+      currentCtr: number;
+      currentClicks: number;
+      potentialClicks: number;
+      upliftClicks: number;
+      aiAction: string;
+    }[];
+    totalUplift: number;
+    analysisDate: string;
+  } | null>(null);
+  const [oppError, setOppError] = useState('');
+
   // ── UI expansion ──
   const [expandedAI, setExpandedAI] = useState(false);
   const [expandedNearMiss, setExpandedNearMiss] = useState(false);
@@ -411,6 +430,30 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
       setError(e instanceof Error ? e.message : '데이터를 불러오는 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // ── Keyword Opportunities ──
+  const runOpportunities = async () => {
+    if (!gscSiteUrl) return;
+    setOppLoading(true);
+    setOppError('');
+    try {
+      const end = fmt(ago(1));
+      const start = fmt(ago(90));
+      const res = await fetch('/api/gsc/opportunities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ siteUrl: gscSiteUrl, startDate: start, endDate: end }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || `오류 (${res.status})`);
+      setOppData(data);
+      onToast('키워드 기회 분석이 완료됐습니다.');
+    } catch (e) {
+      setOppError(e instanceof Error ? e.message : '오류');
+    } finally {
+      setOppLoading(false);
     }
   };
 
@@ -941,6 +984,108 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
                     </div>
                   ))}
                 </div>
+              </div>
+            </Card>
+          )}
+
+          {/* ── Keyword Opportunity Finder ── */}
+          {gscData && (
+            <Card>
+              <div className="p-6">
+                <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 bg-indigo-100 rounded-xl"><Target size={18} className="text-indigo-600" /></div>
+                    <div>
+                      <h4 className="font-bold text-slate-800">AI 키워드 기회 진단</h4>
+                      <p className="text-xs text-slate-500 mt-0.5">순위·CTR 데이터 기반 즉시 실행 가능한 AI 액션 플랜</p>
+                    </div>
+                  </div>
+                  {!oppData && (
+                    <button
+                      onClick={runOpportunities}
+                      disabled={oppLoading}
+                      className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white text-sm font-bold rounded-xl flex items-center gap-2 whitespace-nowrap"
+                    >
+                      {oppLoading ? <><Loader2 size={14} className="animate-spin" /> AI 분석 중…</> : <><Zap size={14} /> 기회 분석 시작</>}
+                    </button>
+                  )}
+                  {oppData && (
+                    <button
+                      onClick={runOpportunities}
+                      disabled={oppLoading}
+                      className="px-3 py-1.5 text-xs text-indigo-600 hover:text-indigo-800 border border-indigo-200 rounded-xl flex items-center gap-1"
+                    >
+                      {oppLoading ? <Loader2 size={12} className="animate-spin" /> : '↻'} 재분석
+                    </button>
+                  )}
+                </div>
+
+                {oppError && (
+                  <div className="p-3 bg-rose-50 rounded-xl text-xs text-rose-700 flex items-center gap-2">
+                    <AlertCircle size={14} className="shrink-0" /> {oppError}
+                  </div>
+                )}
+
+                {oppLoading && !oppData && (
+                  <div className="py-8 flex flex-col items-center gap-3 text-slate-400">
+                    <Loader2 size={28} className="animate-spin text-indigo-400" />
+                    <p className="text-sm">200개 키워드 분석 + AI 액션 생성 중…</p>
+                  </div>
+                )}
+
+                {oppData && (
+                  <div>
+                    <div className="flex items-center gap-4 mb-4 p-3 bg-indigo-50 rounded-xl">
+                      <div>
+                        <div className="text-[10px] font-black text-indigo-400 uppercase">예상 월 추가 클릭</div>
+                        <div className="text-2xl font-black text-indigo-700">+{oppData.totalUplift.toLocaleString()}</div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-[10px] font-black text-slate-400 uppercase mb-1">기회 유형</div>
+                        <div className="flex gap-2 flex-wrap">
+                          {(['near-miss', 'ctr-fix', 'quick-win'] as const).map((t) => {
+                            const cnt = oppData.opportunities.filter((o) => o.type === t).length;
+                            const label = t === 'near-miss' ? '순위 향상' : t === 'ctr-fix' ? 'CTR 개선' : '퀵 윈';
+                            const color = t === 'near-miss' ? 'bg-emerald-100 text-emerald-700' : t === 'ctr-fix' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700';
+                            return cnt > 0 ? (
+                              <span key={t} className={`px-2 py-0.5 rounded-full text-[10px] font-black ${color}`}>{label} {cnt}개</span>
+                            ) : null;
+                          })}
+                        </div>
+                      </div>
+                      <div className="text-[10px] text-slate-400">분석일: {oppData.analysisDate}</div>
+                    </div>
+
+                    <div className="space-y-3">
+                      {oppData.opportunities.map((opp, i) => {
+                        const typeLabel = opp.type === 'near-miss' ? '순위 향상' : opp.type === 'ctr-fix' ? 'CTR 개선' : '퀵 윈';
+                        const typeBg = opp.type === 'near-miss' ? 'bg-emerald-100 text-emerald-700' : opp.type === 'ctr-fix' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700';
+                        return (
+                          <div key={i} className="border border-slate-100 rounded-xl p-4">
+                            <div className="flex items-start gap-3">
+                              <span className="text-xs text-slate-400 w-5 shrink-0 pt-0.5">{i + 1}</span>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                  <span className="font-bold text-sm text-slate-800">{opp.query}</span>
+                                  <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-black ${typeBg}`}>{typeLabel}</span>
+                                </div>
+                                <div className="flex gap-3 text-[10px] text-slate-500 mb-2 flex-wrap">
+                                  <span>현재 <b className="text-slate-700">{opp.currentPosition}위</b></span>
+                                  <span>노출 <b className="text-slate-700">{formatNumber(opp.impressions)}</b></span>
+                                  <span>CTR <b className={opp.currentCtr < 0.02 ? 'text-rose-600' : 'text-slate-700'}>{fmtCtr(opp.currentCtr)}</b></span>
+                                  <span className="text-indigo-600 font-bold">예상 +{opp.upliftClicks} 클릭/월</span>
+                                </div>
+                                <div className="text-xs text-slate-600 bg-slate-50 rounded-lg px-3 py-2 leading-relaxed">
+                                  <span className="font-bold text-indigo-600">AI 액션: </span>{opp.aiAction}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             </Card>
           )}
