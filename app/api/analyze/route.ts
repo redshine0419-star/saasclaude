@@ -20,6 +20,9 @@ async function fetchPageSpeed(url: string, strategy: 'mobile' | 'desktop', apiKe
     if (!res.ok) {
       const errBody = await res.json().catch(() => ({}));
       const msg = errBody?.error?.message ?? `PageSpeed API 오류 (${res.status})`;
+      const isTransient = TRANSIENT_ERRORS.some((code) => msg.includes(code));
+      if (attempt < 2 && isTransient) continue;
+      if (isTransient) throw new Error('페이지 분석 실패: 페이지가 응답하지 않았습니다. 잠시 후 다시 시도해 주세요.');
       if (attempt < 2) continue;
       throw new Error(msg);
     }
