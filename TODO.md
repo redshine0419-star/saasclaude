@@ -9,18 +9,17 @@
 ## 🔴 Phase 1 — 기반 정비 (이번 주)
 
 ### 검색 노출
-- [ ] **GSC sitemap 제출** — Google Search Console에서 `https://growweb.me/sitemap.xml` 직접 등록
-- [ ] **robots.txt Sitemap 경로 명시** — `Sitemap: https://growweb.me/sitemap.xml` 한 줄 추가
-- [ ] **인덱싱 현황 확인** — GSC에서 `site:growweb.me/blog` 색인 수 확인
+- [x] **GSC sitemap 제출** — Google Search Console에서 `https://growweb.me/sitemap.xml` 등록 완료
+- [x] **robots.txt Sitemap 경로 명시** — robots.ts에 sitemap 경로 포함 확인
+- [ ] **인덱싱 현황 모니터링** — 1~2주 후 GSC에서 색인 수 확인
 
 ### 콘텐츠 현황 점검
-- [ ] **발행 포스트 수 확인** — KO/EN/JA 각각 몇 개 발행됐는지 Blob API로 확인
+- [x] **발행 포스트 수 확인** — 완료
 - [ ] **자동발행 정상 동작 확인** — `/api/blog/cron` 마지막 실행 시간 및 nextRunAt 확인
 - [ ] **포스트 품질 샘플 검토** — 최근 발행 5개 글 직접 읽고 2,500자 이상인지 확인
 
 ### AdSense
-- [ ] **AdSense 승인 상태 확인** — 대시보드에서 ads.txt 인식 여부 및 광고 활성화 확인
-- [ ] **미승인 시** — 포스트 최소 20개 확보 후 재신청
+- [ ] **AdSense 승인** — 트래픽 확보 후 진행 (보류)
 
 ---
 
