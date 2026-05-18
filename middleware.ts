@@ -11,13 +11,14 @@ export function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
   const country = req.headers.get('x-vercel-ip-country') ?? '';
 
-  // 국가 기반 리다이렉트
-  if (country === 'JP') {
+  // 국가 기반 리다이렉트 — 이미 해당 로케일 경로에 있으면 skip
+  if (country === 'JP' && !pathname.startsWith('/ja')) {
     const url = req.nextUrl.clone();
     url.pathname = '/ja';
     return NextResponse.redirect(url);
   }
-  if (country !== '' && country !== 'KR') {
+  if (country !== '' && country !== 'KR' && country !== 'JP'
+      && !pathname.startsWith('/en') && !pathname.startsWith('/ja')) {
     const url = req.nextUrl.clone();
     url.pathname = '/en';
     return NextResponse.redirect(url);
