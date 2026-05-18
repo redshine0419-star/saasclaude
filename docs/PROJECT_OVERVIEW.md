@@ -1,6 +1,6 @@
 # MarketerOps.ai — 프로젝트 전체 문서
 
-> 최종 업데이트: 2026-05-16
+> 최종 업데이트: 2026-05-18
 
 ---
 
@@ -19,6 +19,7 @@
 11. [운영 관리 가이드](#11-운영-관리-가이드)
 12. [비용 구조](#12-비용-구조)
 13. [개발 이어받기 가이드 (Next Session)](#13-개발-이어받기-가이드)
+14. [블로그 관리 가이드](#14-블로그-관리-가이드)
 
 ---
 
@@ -631,6 +632,93 @@ npm run dev  # http://localhost:3000
 - Phase 2: PDF/Markdown 리포트 내보내기
 - Phase 2: 경쟁사 벤치마크 강화
 - Phase 3: AdSense 수익 최적화
+
+---
+
+## 14. 블로그 관리 가이드
+
+> 이 섹션만 읽으면 블로그 관련 모든 작업을 독립적으로 수행할 수 있습니다.
+
+### 콘텐츠 저장 구조
+
+블로그 포스트는 **Vercel Blob**에만 저장됩니다 (로컬 파일시스템 아님).
+
+```
+posts-index-ko.json      ← KO 포스트 목록 (slug, title, tags, createdAt)
+posts-index-en.json      ← EN 포스트 목록
+posts-index-ja.json      ← JA 포스트 목록
+posts/ko/{slug}.json     ← KO 개별 포스트 전체 데이터
+posts/en/{slug}.json
+posts/ja/{slug}.json
+blog-schedule-ko.json    ← KO 자동발행 설정
+blog-schedule-en.json
+blog-schedule-ja.json
+```
+
+### 블로그 API 엔드포인트
+
+| 엔드포인트 | 메서드 | 용도 | 인증 |
+|-----------|--------|------|------|
+| `/api/blog/posts?lang=ko` | GET | 포스트 목록 조회 | 불필요 |
+| `/api/blog/posts` | PUT | 새 포스트 저장 | **admin** |
+| `/api/blog/posts?lang=ko&slug=xxx` | DELETE | 포스트 삭제 | **admin** |
+| `/api/blog/posts/[slug]?lang=ko` | GET | 단일 포스트 조회 | 불필요 |
+| `/api/blog/generate` | POST | AI로 포스트 생성 | **admin** |
+| `/api/blog/schedule?lang=ko` | GET | 자동발행 설정 조회 | **admin** |
+| `/api/blog/schedule` | POST | 자동발행 설정 저장 | **admin** |
+| `/api/blog/cron` | GET | 크론 실행 (Vercel Cron) | CRON_SECRET |
+| `/api/blog/cron` | POST | 즉시 테스트 발행 | **admin** |
+
+### 포스트 생성 요청 형식
+
+```typescript
+// POST /api/blog/generate
+{
+  "lang": "ko",                    // "ko" | "en" | "ja"
+  "keyword": "GA4 이탈률 낮추는 법",
+  "targetAudience": "1인 마케터",
+  "tone": "친근하고 실용적인",
+  "postDate": "2026-05-18"         // 선택
+}
+```
+
+### 자동발행 흐름
+
+```
+매일 00:00 UTC → Vercel Cron → GET /api/blog/cron
+  └─ ['ko','en','ja'] 루프
+        └─ enabled && nextRunAt < now
+              └─ AI 생성 → Blob 저장 → 인덱스 업데이트 → nextRunAt 갱신
+```
+
+### 현황 확인 방법
+
+```
+GET https://growweb.me/api/blog/posts?lang=ko   → 발행된 KO 포스트 목록
+GET https://growweb.me/api/blog/posts?lang=en   → EN
+GET https://growweb.me/api/blog/schedule?lang=ko → 자동발행 설정 (nextRunAt 등)
+```
+
+### 코드 수정 시 필수 주의사항
+
+- 인덱스 파일(`posts-index-{lang}.json`)과 개별 포스트 파일 **둘 다** 업데이트해야 함
+- admin 권한 체크 패턴: `const role = (session?.user as { role?: string })?.role; if (role !== 'admin') return 401`
+- AI 생성 프롬프트에 페르소나 선언 절대 금지 ("저는 시니어 마케터입니다" 등 — 사용자 기만)
+- 포스트 조회 시 항상 `cache: 'no-store'` 사용
+
+### 관련 소스 파일
+
+| 파일 | 설명 |
+|------|------|
+| `components/BlogAdminModule.tsx` | 관리 UI (키워드 풀, 스케줄 설정, 즉시발행) |
+| `app/blog/[lang]/page.tsx` | 블로그 목록 페이지 |
+| `app/blog/[lang]/[slug]/page.tsx` | 상세 페이지 (JSON-LD, hreflang) |
+| `app/api/blog/generate/route.ts` | AI 생성 프롬프트 (KO/EN/JA 각각) |
+| `app/api/blog/schedule/route.ts` | 자동발행 설정 CRUD |
+| `app/api/blog/cron/route.ts` | Vercel Cron 핸들러 |
+| `app/api/blog/posts/route.ts` | 포스트 CRUD |
+| `app/api/admin/cleanup-blog-personas/route.ts` | 기존 포스트 페르소나 문구 일괄 제거 |
+| `TODO.md` | 블로그 활성화 체크리스트 (Phase 1~3) |
 
 ---
 

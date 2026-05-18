@@ -1,4 +1,2 @@
 @AGENTS.md
 @docs/PROJECT_OVERVIEW.md
-@docs/BLOG_MANAGEMENT.md
-@TODO.md
