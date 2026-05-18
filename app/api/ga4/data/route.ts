@@ -44,19 +44,39 @@ export async function POST(req: NextRequest) {
   const property = 'properties/' + cleanPropertyId;
 
   try {
-    const [trendRes, channelRes, pagesRes, deviceRes] = await Promise.all([
+    const [
+      trendRes,
+      channelRes,
+      sourceMediumRes,
+      pagesRes,
+      landingPageRes,
+      deviceRes,
+      prevTotalsRes,
+      prevChannelRes,
+    ] = await Promise.all([
+      // Daily trend — current 30 days
       runReport(accessToken, property, {
         dateRanges: [{ startDate: '30daysAgo', endDate: 'today' }],
         dimensions: [{ name: 'date' }],
         metrics: ['sessions', 'activeUsers', 'newUsers', 'screenPageViews', 'averageSessionDuration', 'bounceRate'].map((name) => ({ name })),
         orderBys: [{ dimension: { dimensionName: 'date' } }],
       }),
+      // Channel group (kept for color-coding & backward compat)
       runReport(accessToken, property, {
         dateRanges: [{ startDate: '30daysAgo', endDate: 'today' }],
         dimensions: [{ name: 'sessionDefaultChannelGrouping' }],
         metrics: ['sessions', 'activeUsers', 'conversions'].map((name) => ({ name })),
         orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
       }),
+      // Source / Medium breakdown
+      runReport(accessToken, property, {
+        dateRanges: [{ startDate: '30daysAgo', endDate: 'today' }],
+        dimensions: [{ name: 'sessionSourceMedium' }],
+        metrics: ['sessions', 'activeUsers', 'bounceRate', 'conversions', 'averageSessionDuration'].map((name) => ({ name })),
+        orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
+        limit: 20,
+      }),
+      // Top pages by pageview
       runReport(accessToken, property, {
         dateRanges: [{ startDate: '30daysAgo', endDate: 'today' }],
         dimensions: [{ name: 'pagePath' }, { name: 'pageTitle' }],
@@ -64,14 +84,37 @@ export async function POST(req: NextRequest) {
         orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }],
         limit: 10,
       }),
+      // Landing pages — entry point bounce & conversion
+      runReport(accessToken, property, {
+        dateRanges: [{ startDate: '30daysAgo', endDate: 'today' }],
+        dimensions: [{ name: 'landingPage' }],
+        metrics: ['sessions', 'bounceRate', 'conversions', 'activeUsers'].map((name) => ({ name })),
+        orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
+        limit: 10,
+      }),
+      // Device category
       runReport(accessToken, property, {
         dateRanges: [{ startDate: '30daysAgo', endDate: 'today' }],
         dimensions: [{ name: 'deviceCategory' }],
         metrics: ['sessions', 'activeUsers'].map((name) => ({ name })),
         orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
       }),
+      // Previous 30 days totals for comparison
+      runReport(accessToken, property, {
+        dateRanges: [{ startDate: '60daysAgo', endDate: '31daysAgo' }],
+        metrics: ['sessions', 'activeUsers', 'newUsers', 'screenPageViews', 'averageSessionDuration', 'bounceRate'].map((name) => ({ name })),
+      }),
+      // Previous 30 days source/medium
+      runReport(accessToken, property, {
+        dateRanges: [{ startDate: '60daysAgo', endDate: '31daysAgo' }],
+        dimensions: [{ name: 'sessionSourceMedium' }],
+        metrics: ['sessions', 'conversions'].map((name) => ({ name })),
+        orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
+        limit: 20,
+      }),
     ]);
 
+    // ── Current period ──────────────────────────────────────────────────
     const trend = parseRows(trendRes).map((r) => ({
       date: r.dimensions[0],
       sessions: parseInt(r.metrics[0]),
@@ -93,18 +136,59 @@ export async function POST(req: NextRequest) {
       channel: r.dimensions[0], sessions: parseInt(r.metrics[0]), activeUsers: parseInt(r.metrics[1]), conversions: parseInt(r.metrics[2]),
     }));
 
+    const sourceMediums = parseRows(sourceMediumRes).map((r) => ({
+      sourceMedium: r.dimensions[0],
+      sessions: parseInt(r.metrics[0]),
+      activeUsers: parseInt(r.metrics[1]),
+      bounceRate: Math.round(parseFloat(r.metrics[2]) * 100),
+      conversions: parseInt(r.metrics[3]),
+      avgSessionDuration: Math.round(parseFloat(r.metrics[4])),
+    }));
+
     const topPages = parseRows(pagesRes).map((r) => ({
       path: r.dimensions[0], title: r.dimensions[1], pageViews: parseInt(r.metrics[0]),
       avgDuration: parseFloat(r.metrics[1]), bounceRate: parseFloat(r.metrics[2]), activeUsers: parseInt(r.metrics[3]),
+    }));
+
+    const landingPages = parseRows(landingPageRes).map((r) => ({
+      path: r.dimensions[0],
+      sessions: parseInt(r.metrics[0]),
+      bounceRate: Math.round(parseFloat(r.metrics[1]) * 100),
+      conversions: parseInt(r.metrics[2]),
+      activeUsers: parseInt(r.metrics[3]),
     }));
 
     const devices = parseRows(deviceRes).map((r) => ({
       device: r.dimensions[0], sessions: parseInt(r.metrics[0]), activeUsers: parseInt(r.metrics[1]),
     }));
 
+    // ── Previous period ─────────────────────────────────────────────────
+    const prevRow = prevTotalsRes.rows?.[0];
+    const prevTotals = prevRow ? {
+      sessions: parseInt(prevRow.metricValues?.[0]?.value ?? '0'),
+      activeUsers: parseInt(prevRow.metricValues?.[1]?.value ?? '0'),
+      newUsers: parseInt(prevRow.metricValues?.[2]?.value ?? '0'),
+      pageViews: parseInt(prevRow.metricValues?.[3]?.value ?? '0'),
+      avgSessionDuration: Math.round(parseFloat(prevRow.metricValues?.[4]?.value ?? '0')),
+      avgBounceRate: Math.round(parseFloat(prevRow.metricValues?.[5]?.value ?? '0') * 100),
+    } : null;
+
+    const prevSourceMediums = parseRows(prevChannelRes).map((r) => ({
+      sourceMedium: r.dimensions[0],
+      sessions: parseInt(r.metrics[0]),
+      conversions: parseInt(r.metrics[1]),
+    }));
+
     return NextResponse.json({
       totals: { ...totals, avgBounceRate: Math.round(avgBounceRate * 100), avgSessionDuration: Math.round(avgSessionDuration) },
-      trend, channels, topPages, devices,
+      prevTotals,
+      trend,
+      channels,
+      sourceMediums,
+      prevSourceMediums,
+      topPages,
+      landingPages,
+      devices,
     });
   } catch (e) {
     const msg = (e as Error).message || '알 수 없는 오류';

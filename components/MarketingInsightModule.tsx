@@ -56,11 +56,32 @@ interface TopPage {
   activeUsers: number;
 }
 
+interface SourceMedium {
+  sourceMedium: string;
+  sessions: number;
+  activeUsers: number;
+  bounceRate: number;
+  conversions: number;
+  avgSessionDuration: number;
+}
+
+interface LandingPage {
+  path: string;
+  sessions: number;
+  bounceRate: number;
+  conversions: number;
+  activeUsers: number;
+}
+
 interface GA4Data {
   totals: { sessions: number; activeUsers: number; newUsers: number; pageViews: number; avgBounceRate: number; avgSessionDuration: number };
+  prevTotals: { sessions: number; activeUsers: number; newUsers: number; pageViews: number; avgBounceRate: number; avgSessionDuration: number } | null;
   trend: { date: string; sessions: number; activeUsers: number; newUsers: number; pageViews: number; bounceRate: number }[];
   channels: { channel: string; sessions: number; activeUsers: number; conversions: number }[];
+  sourceMediums: SourceMedium[];
+  prevSourceMediums: { sourceMedium: string; sessions: number; conversions: number }[];
   topPages: TopPage[];
+  landingPages: LandingPage[];
   devices: { device: string; sessions: number; activeUsers: number }[];
 }
 
@@ -120,12 +141,15 @@ interface InsightResult {
   keyFindings: string[];
   trendDirection: 'growing' | 'declining' | 'stable';
   trendNarrative: string;
+  acquisitionInsight: string;
+  bounceInsight: string;
+  conversionInsight: string;
   channelInsight: string;
   audienceInsight: string;
   risks: { title: string; severity: 'high' | 'medium' | 'low'; detail: string; action: string }[];
   strengths: { title: string; detail: string }[];
-  quickWins: { action: string; detail: string; kpi: string; effort: string }[];
-  monthlyGoals: { goal: string; strategy: string; kpi: string }[];
+  quickWins: { category: string; action: string; detail: string; kpi: string; effort: string }[];
+  monthlyGoals: { category: string; goal: string; strategy: string; kpi: string }[];
   quarterlyVision: string;
 }
 
@@ -655,10 +679,14 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
             {/* GA4 KPIs — indigo */}
             {ga4Data ? (
               <>
-                <KpiMiniCard label="세션" value={formatNumber(ga4Data.totals.sessions)} color="indigo" />
-                <KpiMiniCard label="활성사용자" value={formatNumber(ga4Data.totals.activeUsers)} color="indigo" />
-                <KpiMiniCard label="이탈률" value={ga4Data.totals.avgBounceRate + '%'} color="indigo" warn={ga4Data.totals.avgBounceRate > 60} />
-                <KpiMiniCard label="세션시간" value={formatDuration(ga4Data.totals.avgSessionDuration)} color="indigo" />
+                <KpiMiniCard label="세션" value={formatNumber(ga4Data.totals.sessions)} color="indigo"
+                  delta={ga4Data.prevTotals ? pct(ga4Data.totals.sessions, ga4Data.prevTotals.sessions) : null} />
+                <KpiMiniCard label="활성사용자" value={formatNumber(ga4Data.totals.activeUsers)} color="indigo"
+                  delta={ga4Data.prevTotals ? pct(ga4Data.totals.activeUsers, ga4Data.prevTotals.activeUsers) : null} />
+                <KpiMiniCard label="이탈률" value={ga4Data.totals.avgBounceRate + '%'} color="indigo" warn={ga4Data.totals.avgBounceRate > 60}
+                  delta={ga4Data.prevTotals ? (ga4Data.totals.avgBounceRate - ga4Data.prevTotals.avgBounceRate) : null} deltaUnit="pp" invertDelta />
+                <KpiMiniCard label="세션시간" value={formatDuration(ga4Data.totals.avgSessionDuration)} color="indigo"
+                  delta={ga4Data.prevTotals ? pct(ga4Data.totals.avgSessionDuration, ga4Data.prevTotals.avgSessionDuration) : null} />
               </>
             ) : (
               <>
@@ -951,32 +979,40 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
             </Card>
           )}
 
-          {/* ── Channel + Device breakdown (GA4) ── */}
+          {/* ── Source/Medium + Device breakdown (GA4) ── */}
           {ga4Data && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card className="p-6">
-                <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><Globe size={18} className="text-indigo-600" /> 채널별 트래픽</h4>
-                <div className="h-40 mb-4">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={ga4Data.channels} layout="vertical">
-                      <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
-                      <YAxis type="category" dataKey="channel" width={90} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
-                      <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', fontSize: '12px' }} />
-                      <Bar dataKey="sessions" name="세션" radius={[0, 4, 4, 0]}>
-                        {ga4Data.channels.map((c, i) => <Cell key={i} fill={CHANNEL_COLORS[c.channel] ?? PIE_COLORS[i % PIE_COLORS.length]} />)}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="space-y-2">
-                  {ga4Data.channels.slice(0, 4).map((c) => (
-                    <div key={c.channel} className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full shrink-0" style={{ background: CHANNEL_COLORS[c.channel] ?? '#94a3b8' }} />
-                      <span className="text-xs text-slate-600 flex-1">{c.channel}</span>
-                      <span className="text-xs font-bold text-slate-800">{Math.round((c.sessions / totalSessions) * 100)}%</span>
-                      {c.conversions > 0 && <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded-lg">{c.conversions} 전환</span>}
-                    </div>
-                  ))}
+                <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><Globe size={18} className="text-indigo-600" /> 세션 소스/매체</h4>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-100">
+                        <th className="text-left py-2 text-[10px] font-black text-slate-400 uppercase">소스/매체</th>
+                        <th className="text-right py-2 text-[10px] font-black text-slate-400 uppercase">세션</th>
+                        <th className="text-right py-2 text-[10px] font-black text-rose-400 uppercase">이탈률</th>
+                        <th className="text-right py-2 text-[10px] font-black text-emerald-500 uppercase">전환</th>
+                        <th className="text-right py-2 text-[10px] font-black text-slate-400 uppercase">전월</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(ga4Data.sourceMediums ?? []).slice(0, 10).map((s, i) => {
+                        const prev = (ga4Data.prevSourceMediums ?? []).find((p) => p.sourceMedium === s.sourceMedium);
+                        const delta = prev ? pct(s.sessions, prev.sessions) : null;
+                        return (
+                          <tr key={i} className="border-b border-slate-50 hover:bg-slate-50">
+                            <td className="py-2 font-medium text-slate-700 max-w-[130px] truncate" title={s.sourceMedium}>{s.sourceMedium}</td>
+                            <td className="py-2 text-right font-bold text-slate-800">{formatNumber(s.sessions)}</td>
+                            <td className={'py-2 text-right font-bold ' + (s.bounceRate > 70 ? 'text-rose-600' : s.bounceRate > 55 ? 'text-amber-600' : 'text-emerald-600')}>{s.bounceRate}%</td>
+                            <td className="py-2 text-right text-emerald-600 font-bold">{s.conversions > 0 ? s.conversions : '—'}</td>
+                            <td className="py-2 text-right">
+                              {delta !== null ? <DeltaBadge value={delta} /> : <span className="text-slate-300 text-[10px]">신규</span>}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               </Card>
 
@@ -1226,13 +1262,30 @@ function InsightReport({ insight }: { insight: InsightResult }) {
       </div>
 
       {/* ── Trend · Channel · Audience ── */}
+      {/* ── Acquisition / Bounce / Conversion insights ── */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="p-5 border-l-4 border-indigo-400">
+          <div className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-2 flex items-center gap-1.5"><TrendingUp size={12} /> 유입 인사이트</div>
+          <p className="text-sm text-slate-700 leading-relaxed">{insight.acquisitionInsight ?? insight.channelInsight}</p>
+        </Card>
+        <Card className="p-5 border-l-4 border-rose-400">
+          <div className="text-[10px] font-black text-rose-600 uppercase tracking-widest mb-2 flex items-center gap-1.5"><TrendingDown size={12} /> 이탈 인사이트</div>
+          <p className="text-sm text-slate-700 leading-relaxed">{insight.bounceInsight ?? insight.trendNarrative}</p>
+        </Card>
+        <Card className="p-5 border-l-4 border-emerald-400">
+          <div className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-2 flex items-center gap-1.5"><Target size={12} /> 전환 인사이트</div>
+          <p className="text-sm text-slate-700 leading-relaxed">{insight.conversionInsight ?? insight.audienceInsight}</p>
+        </Card>
+      </div>
+
+      {/* ── Trend / Channel / Audience ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="p-5">
-          <div className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-2 flex items-center gap-1.5"><TrendingUp size={12} /> 트렌드 분석</div>
+          <div className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-2 flex items-center gap-1.5"><TrendingUp size={12} /> 트렌드 (전월 비교)</div>
           <p className="text-sm text-slate-700 leading-relaxed">{insight.trendNarrative}</p>
         </Card>
         <Card className="p-5">
-          <div className="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-2 flex items-center gap-1.5"><Globe size={12} /> 채널 인사이트</div>
+          <div className="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-2 flex items-center gap-1.5"><Globe size={12} /> 채널 의존도</div>
           <p className="text-sm text-slate-700 leading-relaxed">{insight.channelInsight}</p>
         </Card>
         <Card className="p-5">
@@ -1291,28 +1344,38 @@ function InsightReport({ insight }: { insight: InsightResult }) {
         </h4>
         <p className="text-xs text-slate-400 mb-4">지금 바로 실행 가능한 고효율 액션</p>
         <div className="space-y-3">
-          {(insight.quickWins ?? []).map((w, i) => (
-            <div key={i} className="flex items-start gap-4 p-4 bg-amber-50 border border-amber-100 rounded-xl">
-              <div className="w-7 h-7 bg-amber-500 text-white rounded-xl flex items-center justify-center text-xs font-black shrink-0">{i + 1}</div>
-              <div className="flex-1">
-                <p className="text-sm font-bold text-slate-800 mb-1">{typeof w === 'object' ? w.action : w}</p>
-                {typeof w === 'object' && (
-                  <>
-                    {w.detail && <p className="text-xs text-slate-600 mb-1.5">{w.detail}</p>}
-                    {w.kpi && (
-                      <div className="flex items-center gap-1 text-[11px] text-emerald-700 font-bold">
-                        <TrendingUp size={10} /> 예상 효과: {w.kpi}
-                      </div>
-                    )}
-                  </>
-                )}
+          {(insight.quickWins ?? []).map((w, i) => {
+            const catColor = (typeof w === 'object' && w.category)
+              ? w.category.includes('이탈') ? 'bg-rose-100 text-rose-700'
+              : w.category.includes('전환') ? 'bg-emerald-100 text-emerald-700'
+              : 'bg-indigo-100 text-indigo-700'
+              : 'bg-amber-100 text-amber-700';
+            return (
+              <div key={i} className="flex items-start gap-4 p-4 bg-amber-50 border border-amber-100 rounded-xl">
+                <div className="w-7 h-7 bg-amber-500 text-white rounded-xl flex items-center justify-center text-xs font-black shrink-0">{i + 1}</div>
+                <div className="flex-1">
+                  {typeof w === 'object' && w.category && (
+                    <span className={'text-[9px] font-black px-1.5 py-0.5 rounded mb-1.5 inline-block ' + catColor}>{w.category}</span>
+                  )}
+                  <p className="text-sm font-bold text-slate-800 mb-1">{typeof w === 'object' ? w.action : w}</p>
+                  {typeof w === 'object' && (
+                    <>
+                      {w.detail && <p className="text-xs text-slate-600 mb-1.5">{w.detail}</p>}
+                      {w.kpi && (
+                        <div className="flex items-center gap-1 text-[11px] text-emerald-700 font-bold">
+                          <TrendingUp size={10} /> 예상 효과: {w.kpi}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+                <span className={'text-[10px] font-black px-2 py-1 rounded-lg shrink-0 ' +
+                  ((typeof w === 'object' ? w.effort : '') === '낮음' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700')}>
+                  {typeof w === 'object' ? w.effort : ''}
+                </span>
               </div>
-              <span className={'text-[10px] font-black px-2 py-1 rounded-lg shrink-0 ' +
-                ((typeof w === 'object' ? w.effort : '') === '낮음' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700')}>
-                {typeof w === 'object' ? w.effort : ''}
-              </span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </Card>
 
@@ -1323,18 +1386,33 @@ function InsightReport({ insight }: { insight: InsightResult }) {
         </h4>
         <p className="text-xs text-slate-400 mb-4">수치 기반 목표와 실행 로드맵</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {(insight.monthlyGoals ?? []).map((g, i) => (
-            <div key={i} className="p-4 bg-gradient-to-br from-indigo-50 to-white border border-indigo-100 rounded-2xl">
-              <div className="w-6 h-6 bg-indigo-600 text-white rounded-lg flex items-center justify-center text-xs font-black mb-3">{i + 1}</div>
-              <p className="text-sm font-bold text-slate-800 mb-2">{typeof g === 'object' ? g.goal : g}</p>
-              {typeof g === 'object' && (
-                <>
-                  <p className="text-xs text-slate-600 leading-relaxed mb-2">{g.strategy}</p>
-                  {g.kpi && <div className="text-[11px] font-bold text-indigo-600 bg-indigo-50 rounded-lg px-2 py-1">📊 {g.kpi}</div>}
-                </>
-              )}
-            </div>
-          ))}
+          {(insight.monthlyGoals ?? []).map((g, i) => {
+            const catBorder = (typeof g === 'object' && g.category)
+              ? g.category.includes('이탈') ? 'border-rose-200 from-rose-50'
+              : g.category.includes('전환') ? 'border-emerald-200 from-emerald-50'
+              : 'border-indigo-100 from-indigo-50'
+              : 'border-indigo-100 from-indigo-50';
+            const catBg = (typeof g === 'object' && g.category)
+              ? g.category.includes('이탈') ? 'bg-rose-600'
+              : g.category.includes('전환') ? 'bg-emerald-600'
+              : 'bg-indigo-600'
+              : 'bg-indigo-600';
+            return (
+              <div key={i} className={`p-4 bg-gradient-to-br to-white border rounded-2xl ${catBorder}`}>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className={`w-6 h-6 text-white rounded-lg flex items-center justify-center text-xs font-black shrink-0 ${catBg}`}>{i + 1}</div>
+                  {typeof g === 'object' && g.category && <span className="text-[10px] font-black text-slate-500 uppercase">{g.category}</span>}
+                </div>
+                <p className="text-sm font-bold text-slate-800 mb-2">{typeof g === 'object' ? g.goal : g}</p>
+                {typeof g === 'object' && (
+                  <>
+                    <p className="text-xs text-slate-600 leading-relaxed mb-2">{g.strategy}</p>
+                    {g.kpi && <div className="text-[11px] font-bold text-indigo-600 bg-white/80 border border-indigo-100 rounded-lg px-2 py-1">📊 {g.kpi}</div>}
+                  </>
+                )}
+              </div>
+            );
+          })}
         </div>
       </Card>
 
