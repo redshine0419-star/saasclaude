@@ -23,15 +23,15 @@ async function getPosts(lang: Lang): Promise<PostIndex[]> {
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
   const title = lang === 'ko'
-    ? 'AI 마케팅 블로그 | GrowWeb.me'
+    ? 'SEO·GEO·AI 마케팅 실전 블로그 | GrowWeb.me'
     : lang === 'ja'
-    ? 'AIマーケティングブログ | GrowWeb.me'
-    : 'AI Marketing Blog | GrowWeb.me';
+    ? 'SEO・GEO・AIマーケティング実践ブログ | GrowWeb.me'
+    : 'SEO, GEO & AI Marketing Blog for Startups | GrowWeb.me';
   const description = lang === 'ko'
-    ? 'AI 마케팅, SEO, GEO(AI 검색 최적화), 콘텐츠 전략까지 — 스타트업 마케터와 1인 마케터를 위한 실전 가이드를 무료로 제공합니다. 키워드 분석부터 퍼포먼스 마케팅까지 매주 새 글이 올라옵니다.'
+    ? '1인 마케터·스타트업을 위한 SEO, GEO(AI 검색 최적화), GA4 분석, 콘텐츠 전략 실전 가이드. 경쟁 없는 롱테일 키워드 발굴부터 ChatGPT·Perplexity 노출 전략까지 매일 새 글이 올라옵니다.'
     : lang === 'ja'
-    ? 'AIマーケティング・SEO・GEO最適化・コンテンツ戦略まで — スタートアップマーケターと個人マーケター向けの実践ガイドを無料提供。キーワード分析からパフォーマンスマーケティングまで、毎週新記事を公開中。'
-    : 'Practical guides on AI marketing, SEO, GEO optimization, and content strategy — free for startup marketers and solo marketers. From keyword research to performance marketing, new articles every week.';
+    ? '個人マーケター・スタートアップ向けSEO、GEO（AI検索最適化）、GA4分析、コンテンツ戦略の実践ガイド。競合の少ないロングテールキーワード発掘からChatGPT・Perplexity表示戦略まで、毎日新記事を公開中。'
+    : 'Practical SEO, GEO (AI search optimization), GA4 analytics, and content strategy guides for solo marketers and startups. From finding low-competition long-tail keywords to getting cited in ChatGPT and Perplexity — new posts daily.';
   return {
     title,
     description,
@@ -74,14 +74,18 @@ export default async function BlogListPage({ params, searchParams }: {
             </div>
           </div>
           <h1 className="text-3xl font-bold text-[#24292f] dark:text-[#e6edf3]">
-            {isKo ? 'AI 마케팅 블로그' : isJa ? 'AIマーケティングブログ' : 'AI Marketing Blog'}
-          </h1>
-          <p className="mt-2 text-[#57606a] dark:text-[#8b949e] max-w-xl">
             {isKo
-              ? 'AI 마케팅·SEO·GEO 최적화·콘텐츠 전략 — 1인 마케터와 스타트업을 위한 실전 가이드'
+              ? 'SEO · GEO · AI 마케팅 실전 가이드'
               : isJa
-              ? 'AIマーケティング・SEO・GEO最適化・コンテンツ戦略 — 個人マーケターとスタートアップのための実践ガイド'
-              : 'AI marketing · SEO · GEO optimization · content strategy — practical guides for solo marketers and startups'}
+              ? 'SEO・GEO・AIマーケティング実践ガイド'
+              : 'SEO, GEO & AI Marketing — Practical Guides'}
+          </h1>
+          <p className="mt-2 text-[#57606a] dark:text-[#8b949e] max-w-2xl leading-relaxed">
+            {isKo
+              ? '1인 마케터·스타트업을 위한 GA4 분석, 롱테일 키워드 발굴, ChatGPT·Perplexity 노출 전략까지 — 에이전시 없이 혼자 실행할 수 있는 실전 방법만 다룹니다.'
+              : isJa
+              ? '個人マーケター・スタートアップ向け。GA4分析、ロングテールキーワード、ChatGPT/Perplexity表示戦略など、エージェンシーなしで実行できる実践的な方法だけを扱います。'
+              : 'For solo marketers and startups: GA4 analytics, long-tail keywords, getting cited in ChatGPT & Perplexity — actionable tactics you can run without an agency.'}
           </p>
         </div>
       </div>

@@ -169,6 +169,7 @@ export default function BlogAdminModule({ onToast }: Props) {
   const [exportMenuSlug, setExportMenuSlug] = useState<string | null>(null);
   const [publishingMedium, setPublishingMedium] = useState<string | null>(null);
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
+  const [mediumTokenOk, setMediumTokenOk] = useState<boolean | null>(null);
 
   // Bulk state
   const [bulkOpen, setBulkOpen] = useState(false);
@@ -367,7 +368,17 @@ export default function BlogAdminModule({ onToast }: Props) {
     }
   };
 
-  const handleCopyExport = async (slug: string, platform: 'note' | 'brunch') => {
+  const checkMediumToken = async () => {
+    try {
+      const res = await fetch('/api/blog/medium/status');
+      const data = await res.json();
+      setMediumTokenOk(!!data.ok);
+    } catch {
+      setMediumTokenOk(false);
+    }
+  };
+
+  const handleCopyExport = async (slug: string, platform: 'note' | 'brunch' | 'naver') => {
     setExportMenuSlug(null);
     try {
       const res = await fetch(`/api/blog/posts/${slug}?lang=${lang}`);
@@ -377,21 +388,27 @@ export default function BlogAdminModule({ onToast }: Props) {
       const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://growweb.me';
       const canonicalUrl = `${SITE_URL}/blog/${lang}/${slug}`;
       let text = '';
-      if (platform === 'note') {
-        const footer = lang === 'ja'
-          ? `\n\n---\n\n原文: ${canonicalUrl}\nGrowWeb.me — 無料AIマーケティング診断ツール`
-          : `\n\n---\n\n원문: ${canonicalUrl}\nGrowWeb.me — AI 마케팅 무료 진단 도구`;
+      const siteUrl = 'https://growweb.me';
+      const footer_ko = `\n\n---\n\n원문: ${canonicalUrl}\nGrowWeb.me — AI 마케팅 무료 진단 도구 (${siteUrl})`;
+      const footer_en = `\n\n---\n\nOriginally published at GrowWeb.me: ${canonicalUrl}`;
+      const footer_ja = `\n\n---\n\n原文: ${canonicalUrl}\nGrowWeb.me — 無料AIマーケティング診断ツール (${siteUrl})`;
+      const footer = lang === 'en' ? footer_en : lang === 'ja' ? footer_ja : footer_ko;
+
+      if (platform === 'naver') {
+        // 네이버 블로그: 제목 + 요약 + 핵심 포인트 + 원문 링크 형식
+        const summary = post.metaDescription || post.content.replace(/[#*`>\-\[\]()]/g, '').slice(0, 200);
+        const tags = (post.tags || []).map((t: string) => `#${t}`).join(' ');
+        text = `📌 ${post.title}\n\n${summary}\n\n👉 전문 보기: ${canonicalUrl}\n\n${tags}\n\n---\n✅ GrowWeb.me — SEO·GEO·AI 마케팅 실전 가이드 (매일 업데이트)`;
+      } else if (platform === 'note') {
         text = `# ${post.title}\n\n${post.content}${footer}`;
       } else {
-        const footer = lang === 'en'
-          ? `\n\n---\n\n원문: ${canonicalUrl}\nGrowWeb.me — AI 마케팅 무료 진단 도구`
-          : `\n\n---\n\n원문: ${canonicalUrl}\nGrowWeb.me — AI 마케팅 무료 진단 도구`;
         text = `# ${post.title}\n\n${post.content}${footer}`;
       }
       await navigator.clipboard.writeText(text);
       setCopiedSlug(slug);
       setTimeout(() => setCopiedSlug(null), 2000);
-      onToast(`${platform === 'note' ? 'note.com' : '브런치'} 내보내기 복사 완료!`);
+      const label = platform === 'naver' ? '네이버 블로그' : platform === 'note' ? 'note.com' : '브런치';
+      onToast(`${label} 내보내기 복사 완료!`);
     } catch (e) {
       onToast('복사 오류: ' + (e as Error).message);
     }
@@ -853,20 +870,21 @@ export default function BlogAdminModule({ onToast }: Props) {
                         {publishingMedium === post.slug ? <Loader2 size={14} className="animate-spin" /> : copiedSlug === post.slug ? <Check size={14} className="text-green-500" /> : <Share2 size={14} />}
                       </button>
                       {exportMenuSlug === post.slug && (
-                        <div onClick={(e) => e.stopPropagation()} className="absolute right-0 top-8 z-20 w-44 bg-white dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-lg shadow-lg overflow-hidden">
+                        <div onClick={(e) => e.stopPropagation()} className="absolute right-0 top-8 z-20 w-52 bg-white dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-lg shadow-lg overflow-hidden">
                           <button
-                            onClick={() => handleMediumPublish(post.slug)}
+                            onClick={() => { checkMediumToken(); handleMediumPublish(post.slug); }}
                             className="w-full text-left px-4 py-2.5 text-xs text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] flex items-center gap-2"
                           >
                             <ExternalLink size={12} />
-                            Medium에 자동 발행
+                            Medium 자동 발행
+                            {mediumTokenOk === false && <span className="ml-auto text-red-500 text-[10px]">토큰 미설정</span>}
                           </button>
                           <button
-                            onClick={() => handleCopyExport(post.slug, 'note')}
+                            onClick={() => handleCopyExport(post.slug, 'naver')}
                             className="w-full text-left px-4 py-2.5 text-xs text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] flex items-center gap-2 border-t border-[#d0d7de] dark:border-[#30363d]"
                           >
                             <Copy size={12} />
-                            note.com용 복사
+                            네이버 블로그용 복사
                           </button>
                           <button
                             onClick={() => handleCopyExport(post.slug, 'brunch')}
@@ -874,6 +892,13 @@ export default function BlogAdminModule({ onToast }: Props) {
                           >
                             <Copy size={12} />
                             브런치용 복사
+                          </button>
+                          <button
+                            onClick={() => handleCopyExport(post.slug, 'note')}
+                            className="w-full text-left px-4 py-2.5 text-xs text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] flex items-center gap-2 border-t border-[#d0d7de] dark:border-[#30363d]"
+                          >
+                            <Copy size={12} />
+                            note.com용 복사
                           </button>
                         </div>
                       )}
