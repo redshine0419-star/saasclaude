@@ -92,8 +92,7 @@ export async function POST(req: NextRequest) {
   const isJa = lang === 'ja';
 
   const prompt = isJa
-    ? `あなたはシニアコンテンツマーケターかつSEO/GEO専門家です。
-以下の情報をもとに、検索流入とAI引用に最適化された日本語ブログ記事を作成してください。
+    ? `以下の情報をもとに、検索流入とAI引用に最適化された日本語ブログ記事を作成してください。
 
 キーワード: ${keyword}
 ターゲット読者: ${targetAudience || 'マーケター、経営者'}
@@ -128,8 +127,7 @@ SEO/GEO要件:
   "content": "## 導入部見出し\\n\\n本文マークダウン..."
 }`
     : isKo
-    ? `당신은 시니어 콘텐츠 마케터이자 SEO/GEO 전문가입니다.
-다음 정보를 바탕으로 검색 유입과 AI 인용에 최적화된 한국어 블로그 포스트를 작성하세요.
+    ? `다음 정보를 바탕으로 검색 유입과 AI 인용에 최적화된 한국어 블로그 포스트를 작성하세요.
 
 키워드: ${keyword}
 대상 독자: ${targetAudience || '마케터, 사업주'}
@@ -163,8 +161,7 @@ SEO/GEO 요건:
   ],
   "content": "## 도입부 제목\\n\\n본문 마크다운..."
 }`
-    : `You are a senior content marketer and SEO/GEO specialist.
-Write a search- and AI-optimized English blog post based on the following:
+    : `Write a search- and AI-optimized English blog post based on the following:
 
 Keyword: ${keyword}
 Target audience: ${targetAudience || 'marketers, business owners'}
