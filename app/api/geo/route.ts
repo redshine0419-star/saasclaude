@@ -30,6 +30,11 @@ function isLlmBlocked(robotsTxt: string): boolean {
   return wildcardDisallowAll;
 }
 
+interface RichResultCheck {
+  eligible: boolean;
+  missingFields: string[];
+}
+
 interface GeoResult {
   meta: {
     title: string | null;
@@ -84,6 +89,21 @@ interface GeoResult {
     hasOrganization: boolean;
     hasHowTo: boolean;
     raw: string[];
+  };
+  richResults: {
+    article: RichResultCheck;
+    product: RichResultCheck;
+    faq: RichResultCheck;
+    breadcrumb: RichResultCheck;
+    organization: RichResultCheck;
+  };
+  contentQuality: {
+    score: number;
+    hasAuthorityLinks: boolean;
+    hasFaqSection: boolean;
+    keywordInBody: boolean;
+    h2Density: number;
+    avgSentenceLength: number;
   };
   llmsTxt: { exists: boolean };
   robotsTxt: { exists: boolean; llmBlocked: boolean; hasSitemap: boolean };
@@ -141,6 +161,14 @@ export async function POST(req: NextRequest) {
     content: { wordCount: 0, internalLinks: 0, externalLinks: 0, nofollowLinks: 0, isHttps: url.startsWith('https://'), hasFavicon: false },
     images: { total: 0, missingAlt: 0 },
     jsonLd: { exists: false, count: 0, types: [], hasFaq: false, hasArticle: false, hasBreadcrumb: false, hasProduct: false, hasOrganization: false, hasHowTo: false, raw: [] },
+    richResults: {
+      article: { eligible: false, missingFields: [] },
+      product: { eligible: false, missingFields: [] },
+      faq: { eligible: false, missingFields: [] },
+      breadcrumb: { eligible: false, missingFields: [] },
+      organization: { eligible: false, missingFields: [] },
+    },
+    contentQuality: { score: 0, hasAuthorityLinks: false, hasFaqSection: false, keywordInBody: false, h2Density: 0, avgSentenceLength: 0 },
     llmsTxt: { exists: !!(llmsRes && llmsRes.ok) },
     robotsTxt: { exists: false, llmBlocked: false, hasSitemap: false },
     sitemap: { exists: !!(sitemapRes && sitemapRes.ok) },
@@ -267,6 +295,107 @@ export async function POST(req: NextRequest) {
       hasOrganization: uniqueTypes.some((t) => ['Organization', 'LocalBusiness', 'Corporation'].includes(t)),
       hasHowTo: uniqueTypes.some((t) => t === 'HowTo'),
       raw: jsonLdRaw.slice(0, 3),
+    };
+
+    // Rich Result 적격성 검증 (Google 필수 속성 기준)
+    $('script[type="application/ld+json"]').each((_, el) => {
+      try {
+        const parsed = JSON.parse($(el).html() ?? '');
+        const items: Record<string, unknown>[] = parsed['@graph'] ? parsed['@graph'] : [parsed];
+        items.forEach((item) => {
+          const type = String(item['@type'] ?? '');
+          if (['Article', 'BlogPosting', 'NewsArticle'].includes(type)) {
+            const missing: string[] = [];
+            if (!item['headline'] && !item['name']) missing.push('headline');
+            if (!item['author']) missing.push('author');
+            if (!item['datePublished']) missing.push('datePublished');
+            if (!item['image']) missing.push('image');
+            result.richResults.article = { eligible: missing.length === 0, missingFields: missing };
+          }
+          if (type === 'Product') {
+            const missing: string[] = [];
+            if (!item['name']) missing.push('name');
+            if (!item['image']) missing.push('image');
+            if (!item['description']) missing.push('description');
+            if (!item['offers']) missing.push('offers');
+            result.richResults.product = { eligible: missing.length === 0, missingFields: missing };
+          }
+          if (type === 'FAQPage') {
+            const questions = item['mainEntity'];
+            const missing: string[] = [];
+            if (!questions || !Array.isArray(questions) || questions.length === 0) missing.push('mainEntity(Question 배열)');
+            else {
+              const firstQ = questions[0] as Record<string, unknown>;
+              if (!firstQ['acceptedAnswer']) missing.push('acceptedAnswer');
+            }
+            result.richResults.faq = { eligible: missing.length === 0, missingFields: missing };
+          }
+          if (type === 'BreadcrumbList') {
+            const items2 = item['itemListElement'];
+            const missing: string[] = [];
+            if (!items2 || !Array.isArray(items2) || items2.length === 0) missing.push('itemListElement');
+            else {
+              const first = items2[0] as Record<string, unknown>;
+              if (!first['position']) missing.push('position');
+              if (!first['name'] && !first['item']) missing.push('name/item');
+            }
+            result.richResults.breadcrumb = { eligible: missing.length === 0, missingFields: missing };
+          }
+          if (['Organization', 'LocalBusiness', 'Corporation'].includes(type)) {
+            const missing: string[] = [];
+            if (!item['name']) missing.push('name');
+            if (!item['url']) missing.push('url');
+            if (!item['logo']) missing.push('logo');
+            result.richResults.organization = { eligible: missing.length === 0, missingFields: missing };
+          }
+        });
+      } catch {}
+    });
+
+    // 콘텐츠 품질 분석
+    const bodyTextForQuality = $('body').text().replace(/\s+/g, ' ').trim();
+    const sentences = bodyTextForQuality.split(/[.。!?！？]+/).filter((s) => s.trim().length > 5);
+    const avgSentenceLength = sentences.length > 0
+      ? Math.round(bodyTextForQuality.split(/\s+/).filter(Boolean).length / sentences.length)
+      : 0;
+
+    let hasAuthorityLinks = false;
+    $('a[href]').each((_, el) => {
+      const href = $(el).attr('href') ?? '';
+      if (/wikipedia\.org|\.gov\b|\.edu\b|\.go\.kr|\.ac\.kr|scholar\.google/.test(href)) {
+        hasAuthorityLinks = true;
+      }
+    });
+
+    const hasFaqSection = result.jsonLd.hasFaq ||
+      $('h2, h3').toArray().some((el) => /faq|자주\s*묻|よくある/i.test($(el).text()));
+
+    const h1Keyword = (result.headings.h1[0] ?? '').toLowerCase().replace(/[^\w가-힣ぁ-ん一-龯]/g, ' ').trim();
+    const h1Words = h1Keyword.split(/\s+/).filter((w) => w.length > 1);
+    const bodyLower = bodyTextForQuality.toLowerCase();
+    const keywordInBody = h1Words.length > 0 &&
+      h1Words.some((kw) => (bodyLower.match(new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) ?? []).length >= 3);
+
+    const h2Density = result.content.wordCount > 100
+      ? Math.round((result.headings.h2Count / result.content.wordCount) * 1000 * 10) / 10
+      : 0;
+
+    let cqScore = 100;
+    if (result.content.wordCount < 500) cqScore -= 30;
+    else if (result.content.wordCount < 1000) cqScore -= 15;
+    if (!keywordInBody) cqScore -= 20;
+    if (!hasAuthorityLinks) cqScore -= 15;
+    if (!hasFaqSection) cqScore -= 10;
+    if (result.headings.h2Count < 2) cqScore -= 15;
+    if (avgSentenceLength > 40) cqScore -= 10;
+
+    result.contentQuality = {
+      score: Math.max(0, cqScore),
+      hasAuthorityLinks,
+      hasFaqSection,
+      keywordInBody,
+      h2Density,
+      avgSentenceLength,
     };
   }
 
