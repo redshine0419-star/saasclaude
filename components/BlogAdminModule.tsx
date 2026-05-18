@@ -166,7 +166,7 @@ export default function BlogAdminModule({ onToast }: Props) {
   const [testPublishing, setTestPublishing] = useState(false);
 
   // Export state
-  const [exportMenuSlug, setExportMenuSlug] = useState<string | null>(null);
+  const [exportMenu, setExportMenu] = useState<{ slug: string; top: number; right: number } | null>(null);
   const [publishingMedium, setPublishingMedium] = useState<string | null>(null);
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
   const [mediumTokenOk, setMediumTokenOk] = useState<boolean | null>(null);
@@ -209,11 +209,11 @@ export default function BlogAdminModule({ onToast }: Props) {
   useEffect(() => { fetchPosts(lang); }, [lang]);
 
   useEffect(() => {
-    if (!exportMenuSlug) return;
-    const close = () => setExportMenuSlug(null);
+    if (!exportMenu) return;
+    const close = () => setExportMenu(null);
     document.addEventListener('click', close);
     return () => document.removeEventListener('click', close);
-  }, [exportMenuSlug]);
+  }, [exportMenu]);
   useEffect(() => {
     if (scheduleOpen && !schedules.ko) {
       fetchSchedule('ko');
@@ -350,7 +350,7 @@ export default function BlogAdminModule({ onToast }: Props) {
 
   const handleMediumPublish = async (slug: string) => {
     setPublishingMedium(slug);
-    setExportMenuSlug(null);
+    setExportMenu(null);
     try {
       const res = await fetch('/api/blog/medium', {
         method: 'POST',
@@ -379,7 +379,7 @@ export default function BlogAdminModule({ onToast }: Props) {
   };
 
   const handleCopyExport = async (slug: string, platform: 'note' | 'brunch' | 'naver') => {
-    setExportMenuSlug(null);
+    setExportMenu(null);
     try {
       const res = await fetch(`/api/blog/posts/${slug}?lang=${lang}`);
       const data = await res.json();
@@ -863,45 +863,17 @@ export default function BlogAdminModule({ onToast }: Props) {
                       </button>
                       {/* Export dropdown trigger */}
                       <button
-                        onClick={(e) => { e.stopPropagation(); setExportMenuSlug(exportMenuSlug === post.slug ? null : post.slug); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (exportMenu?.slug === post.slug) { setExportMenu(null); return; }
+                          const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                          setExportMenu({ slug: post.slug, top: rect.bottom + 4, right: window.innerWidth - rect.right });
+                        }}
                         className="p-1.5 text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors"
                         title="내보내기"
                       >
                         {publishingMedium === post.slug ? <Loader2 size={14} className="animate-spin" /> : copiedSlug === post.slug ? <Check size={14} className="text-green-500" /> : <Share2 size={14} />}
                       </button>
-                      {exportMenuSlug === post.slug && (
-                        <div onClick={(e) => e.stopPropagation()} className="absolute right-0 top-8 z-20 w-52 bg-white dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-lg shadow-lg overflow-hidden">
-                          <button
-                            onClick={() => { checkMediumToken(); handleMediumPublish(post.slug); }}
-                            className="w-full text-left px-4 py-2.5 text-xs text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] flex items-center gap-2"
-                          >
-                            <ExternalLink size={12} />
-                            Medium 자동 발행
-                            {mediumTokenOk === false && <span className="ml-auto text-red-500 text-[10px]">토큰 미설정</span>}
-                          </button>
-                          <button
-                            onClick={() => handleCopyExport(post.slug, 'naver')}
-                            className="w-full text-left px-4 py-2.5 text-xs text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] flex items-center gap-2 border-t border-[#d0d7de] dark:border-[#30363d]"
-                          >
-                            <Copy size={12} />
-                            네이버 블로그용 복사
-                          </button>
-                          <button
-                            onClick={() => handleCopyExport(post.slug, 'brunch')}
-                            className="w-full text-left px-4 py-2.5 text-xs text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] flex items-center gap-2 border-t border-[#d0d7de] dark:border-[#30363d]"
-                          >
-                            <Copy size={12} />
-                            브런치용 복사
-                          </button>
-                          <button
-                            onClick={() => handleCopyExport(post.slug, 'note')}
-                            className="w-full text-left px-4 py-2.5 text-xs text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] flex items-center gap-2 border-t border-[#d0d7de] dark:border-[#30363d]"
-                          >
-                            <Copy size={12} />
-                            note.com용 복사
-                          </button>
-                        </div>
-                      )}
                     </div>
                   </td>
                 </tr>
@@ -950,6 +922,45 @@ export default function BlogAdminModule({ onToast }: Props) {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Export dropdown — fixed position to escape table overflow clipping */}
+      {exportMenu && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{ position: 'fixed', top: exportMenu.top, right: exportMenu.right, zIndex: 9999 }}
+          className="w-52 bg-white dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-lg shadow-lg overflow-hidden"
+        >
+          <button
+            onClick={() => { checkMediumToken(); handleMediumPublish(exportMenu.slug); setExportMenu(null); }}
+            className="w-full text-left px-4 py-2.5 text-xs text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] flex items-center gap-2"
+          >
+            <ExternalLink size={12} />
+            Medium 자동 발행
+            {mediumTokenOk === false && <span className="ml-auto text-red-500 text-[10px]">토큰 미설정</span>}
+          </button>
+          <button
+            onClick={() => { handleCopyExport(exportMenu.slug, 'naver'); setExportMenu(null); }}
+            className="w-full text-left px-4 py-2.5 text-xs text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] flex items-center gap-2 border-t border-[#d0d7de] dark:border-[#30363d]"
+          >
+            <Copy size={12} />
+            네이버 블로그용 복사
+          </button>
+          <button
+            onClick={() => { handleCopyExport(exportMenu.slug, 'brunch'); setExportMenu(null); }}
+            className="w-full text-left px-4 py-2.5 text-xs text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] flex items-center gap-2 border-t border-[#d0d7de] dark:border-[#30363d]"
+          >
+            <Copy size={12} />
+            브런치용 복사
+          </button>
+          <button
+            onClick={() => { handleCopyExport(exportMenu.slug, 'note'); setExportMenu(null); }}
+            className="w-full text-left px-4 py-2.5 text-xs text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] flex items-center gap-2 border-t border-[#d0d7de] dark:border-[#30363d]"
+          >
+            <Copy size={12} />
+            note.com용 복사
+          </button>
         </div>
       )}
     </div>
