@@ -34,158 +34,108 @@ function assignBulkDates(lang: Lang): string[] {
   return slots.filter((_, i) => i % 3 === mod);
 }
 
-const KO_DEFAULT_KEYWORDS = `AI 마케팅이란 무엇인가
-AI 콘텐츠 마케팅 전략
-ChatGPT 마케팅 활용법
-SEO 최적화 완벽 가이드
-데이터 기반 마케팅 전략
-개인화 마케팅 전략 수립
-GEO 최적화 완벽 가이드
-검색엔진 최적화 핵심 요소
-소셜미디어 마케팅 전략
-콘텐츠 마케팅 ROI 측정법
-AI 광고 최적화 방법
-마케팅 자동화 도구 활용법
-고객 세그멘테이션 전략
-이메일 마케팅 성과 높이는 방법
-퍼포먼스 마케팅 기초 가이드
-브랜드 마케팅 전략 수립
-인플루언서 마케팅 실전 가이드
-B2B 마케팅 전략 완벽 정리
-마케팅 퍼널 최적화 방법
-키워드 리서치 완벽 가이드
-롱테일 키워드 발굴 전략
-백링크 구축 전략 가이드
-온페이지 SEO 최적화 방법
-기술적 SEO 체크리스트
-로컬 SEO 마케팅 전략
-음성 검색 SEO 최적화 방법
-모바일 SEO 전략 가이드
-AI 검색 최적화 방법
-제로 클릭 검색 대응 전략
-검색 의도 분석 방법
-고객 여정 맵 작성 가이드
-CRM 마케팅 활용 전략
-리타겟팅 광고 전략 가이드
-전환율 최적화 실전 방법
-마케팅 예산 배분 전략
-경쟁사 분석 방법 가이드
-구글 애널리틱스 마케팅 활용법
-마케팅 KPI 설정 방법
-A/B 테스트 마케팅 적용 방법
-소비자 행동 분석 방법
-브랜드 스토리텔링 전략
-바이럴 마케팅 성공 전략
-옴니채널 마케팅 전략 가이드
-커뮤니티 마케팅 실전 방법
-리뷰 마케팅 활용 전략
-동영상 마케팅 SEO 전략
-AI 챗봇 마케팅 활용법
-스타트업 마케팅 전략 가이드
-마케팅 자동화 워크플로우 구축
-제품 마케팅 전략 완벽 가이드`;
+const KO_DEFAULT_KEYWORDS = `스타트업 랜딩페이지 GEO 최적화 체크리스트
+1인 마케터 GA4 자동 리포트 만드는 법
+ChatGPT로 블로그 콘텐츠 자동화하는 단계별 방법
+GA4 이탈률 높은 페이지 찾아서 수정하는 법
+Google Search Console로 노출 키워드 찾는 법
+AI 검색(ChatGPT·Perplexity)에 내 사이트 노출시키는 법
+마케팅 예산 월 100만 원으로 SEO 시작하는 방법
+1인 마케터가 혼자 운영하는 SEO 블로그 전략
+소규모 쇼핑몰 상품 페이지 SEO 최적화 실전 가이드
+스타트업 콘텐츠 마케팅 3개월 로드맵
+GA4 전환 이벤트 설정하는 법 초보자 가이드
+네이버 블로그 vs 티스토리 vs 자체 블로그 SEO 비교
+AI 검색 시대에 살아남는 콘텐츠 전략
+구글 SGE에서 내 사이트가 인용되는 조건
+페르소나 기반 콘텐츠 캘린더 만드는 법
+SNS 없이 블로그만으로 월 1만 방문자 만드는 법
+롱테일 키워드로 경쟁 없이 구글 상위 노출하는 법
+B2B SaaS 콘텐츠 마케팅 월 50만 원 예산으로 시작하기
+GA4 세션 소스 매체 분석으로 유입 채널 최적화하기
+클릭률 낮은 구글 검색 결과 제목·설명 개선하는 법
+중소기업 SEO 담당자가 혼자 할 수 있는 기술 SEO 체크리스트
+AI로 키워드 리서치 10배 빠르게 하는 방법
+퍼포먼스 마케팅과 콘텐츠 마케팅 비용 대비 효과 비교
+소셜미디어 없이 오가닉 트래픽 늘리는 6가지 방법
+신규 스타트업 도메인 권위 빠르게 높이는 백링크 전략
+이탈률 70% 이상인 랜딩페이지 개선 체크리스트
+마케터를 위한 파이썬 없이 데이터 분석하는 법
+구글 애즈 없이 전환율 높이는 SEO CRO 통합 전략
+AI 작성 블로그 글 품질 높이는 편집 프레임워크
+주간 마케팅 리포트 자동화하는 노코드 방법
+Search Console 데이터로 콘텐츠 업데이트 우선순위 정하는 법
+스타트업 브랜드 검색 점유율 높이는 GEO 전략
+마케팅 자동화로 1인이 5인 역할 하는 워크플로우
+Core Web Vitals 개선으로 SEO 순위 올리는 실전 가이드
+AI 검색 시대 제로 클릭 검색 대응 콘텐츠 전략
+리타겟팅 없이 이메일로 재방문율 높이는 방법
+인하우스 마케터가 에이전시 없이 SEO 감사하는 법
+GA4 맞춤 대시보드 만드는 법 초보자 완전 정복
+블로그 포스트 하나로 여러 채널 콘텐츠 만드는 리퍼포징 전략
+중소기업 유튜브 SEO 최적화로 오가닉 유입 늘리는 법`;
 
-const JA_DEFAULT_KEYWORDS = `AIマーケティングとは何か
-AIコンテンツマーケティング戦略
-ChatGPTをビジネスに活用する方法
-SEO最適化完全ガイド
-データドリブンマーケティング戦略
-パーソナライズマーケティングの実践
-GEO最適化完全ガイド
-検索エンジン最適化の基礎
-ソーシャルメディアマーケティング戦略
-コンテンツマーケティングROI測定方法
-AI広告最適化の方法
-マーケティングオートメーションツール比較
-顧客セグメンテーション戦略
-メールマーケティング成果向上のコツ
-パフォーマンスマーケティング基礎ガイド
-ブランドマーケティング戦略の立て方
-インフルエンサーマーケティング実践ガイド
-B2Bマーケティング戦略完全解説
-マーケティングファネル最適化方法
-キーワードリサーチ完全ガイド
-ロングテールキーワード発掘戦略
-被リンク構築戦略ガイド
-オンページSEO最適化方法
-テクニカルSEOチェックリスト
-ローカルSEOマーケティング戦略
-音声検索SEO最適化方法
-モバイルSEO戦略ガイド
-AI検索最適化の方法
-ゼロクリック検索対策戦略
-検索意図分析方法
-顧客ジャーニーマップ作成ガイド
-CRMマーケティング活用戦略
-リターゲティング広告戦略ガイド
-コンバージョン率最適化の実践方法
-マーケティング予算配分戦略
-競合分析方法ガイド
-Google Analyticsのマーケティング活用
-マーケティングKPI設定方法
-A/Bテストのマーケティング活用
-消費者行動分析方法
-ブランドストーリーテリング戦略
-バイラルマーケティング成功戦略
-オムニチャネルマーケティング戦略ガイド
-コミュニティマーケティング実践方法
-レビューマーケティング活用戦略
-動画マーケティングSEO戦略
-AIチャットボットマーケティング活用
-スタートアップ向けマーケティング戦略
-マーケティングオートメーションワークフロー構築
-プロダクトマーケティング戦略完全ガイド`;
+const JA_DEFAULT_KEYWORDS = `スタートアップのランディングページGEO最適化チェックリスト
+一人マーケターのGA4自動レポート作成方法
+ChatGPTでブログコンテンツを自動化するステップバイステップガイド
+GA4で直帰率の高いページを見つけて改善する方法
+Google Search Consoleで流入キーワードを発見する方法
+ChatGPT・PerplexityなどAI検索に自社サイトを表示させる方法
+月10万円以下の予算でSEOを始めるスタートアップ向けガイド
+一人マーケターが運営するSEOブログ戦略の実践
+小規模ECサイトの商品ページSEO最適化実践ガイド
+スタートアップのコンテンツマーケティング3ヶ月ロードマップ
+GA4コンバージョンイベント設定方法 初心者向け完全ガイド
+AI検索時代を生き抜くコンテンツ戦略
+GoogleのSGEで自社サイトが引用される条件とは
+ペルソナベースのコンテンツカレンダー作成方法
+SNSなしでブログだけで月1万訪問者を達成する方法
+ロングテールキーワードで競合なしにGoogle上位表示する方法
+GA4セッションソース・メディア分析で流入チャネルを最適化する
+クリック率の低い検索結果のタイトルと説明を改善する方法
+中小企業のSEO担当者が一人でできるテクニカルSEOチェックリスト
+AIを使ってキーワードリサーチを10倍速くする方法
+オーガニックトラフィックを増やす6つの方法 SNS不要
+新規ドメインの権威を素早く高めるバックリンク戦略
+直帰率70%以上のランディングページ改善チェックリスト
+AIが書いたブログ記事の品質を高める編集フレームワーク
+Search Consoleデータでコンテンツ更新の優先順位を決める方法
+スタートアップのブランド検索シェアを高めるGEO戦略
+マーケティング自動化で一人が5人分の仕事をするワークフロー
+Core Web Vitals改善でSEO順位を上げる実践ガイド
+AI検索時代のゼロクリック検索対応コンテンツ戦略
+インハウスマーケターがエージェンシーなしでSEO監査する方法`;
 
-const EN_DEFAULT_KEYWORDS = `What is AI marketing
-AI content marketing strategy guide
-Using ChatGPT for business marketing
-Complete SEO optimization guide
-Data-driven marketing strategy
-Personalized marketing tactics and examples
-What is GEO optimization
-Search engine optimization fundamentals
-Social media marketing strategy guide
-Measuring content marketing ROI
-AI advertising optimization methods
-Marketing automation tools comparison
-Customer segmentation strategy guide
-Email marketing performance tips
-Performance marketing basics guide
-Brand marketing strategy framework
-Influencer marketing complete guide
-B2B marketing strategy playbook
-Marketing funnel optimization methods
-Keyword research complete guide
-Long-tail keyword strategy guide
-Link building strategy guide
-On-page SEO optimization checklist
-Technical SEO audit checklist
-Local SEO marketing guide
-Voice search SEO optimization
-Mobile SEO strategy guide
-AI search optimization methods
-Zero-click search strategy guide
-Search intent analysis guide
-Customer journey mapping guide
-CRM marketing strategy guide
-Retargeting advertising strategy
-Conversion rate optimization methods
-Marketing budget allocation strategy
-Competitor analysis methods guide
-Google Analytics for marketers
-Marketing KPI framework guide
-A/B testing in marketing guide
-Consumer behavior analysis methods
-Brand storytelling strategy guide
-Viral marketing strategy examples
-Omnichannel marketing strategy guide
-Community marketing methods guide
-Review marketing strategy guide
-Video marketing SEO guide
-AI chatbot marketing applications
-Startup marketing strategy guide
-Marketing automation workflow setup
-Product marketing strategy guide`;
+const EN_DEFAULT_KEYWORDS = `How to get your website cited in ChatGPT and Perplexity answers
+Step-by-step GEO optimization checklist for startup landing pages
+How to reduce bounce rate on your landing page without paid ads
+GA4 tutorial for solo marketers building automated reports
+How to find low-competition keywords using Google Search Console
+Content marketing strategy for B2B SaaS with a small budget
+How to rank on Google without backlinks using long-tail keywords
+Technical SEO audit checklist you can do without a developer
+How to repurpose one blog post into 10 pieces of content
+Startup SEO roadmap for the first 90 days with no budget
+How to track conversions in GA4 step by step for beginners
+AI search optimization vs traditional SEO what's different
+How to get featured in Google's AI Overviews and SGE results
+Zero-click search strategy how to win traffic without clicks
+How to build domain authority for a new website from scratch
+Solo marketer's guide to doing SEO without an agency
+How to set up GA4 custom dashboards for weekly reporting
+Longtail keyword strategy that beats high-competition terms
+How to improve click-through rate on Google search results
+Core Web Vitals fixes that actually improve your Google rankings
+Email list building without social media using SEO content
+How to do a content gap analysis using free tools
+Conversion rate optimization checklist for landing pages under 1000 visitors
+How to use GA4 source medium report to cut wasted ad spend
+Blog content calendar template based on buyer personas
+How to measure content marketing ROI without expensive tools
+Link building tactics for small businesses with no outreach budget
+How to optimize product pages for AI search engines
+Marketing automation workflows for a one-person marketing team
+Startup growth hacking with organic content instead of paid ads`;
 
 const inputCls = 'w-full px-3 py-2 text-sm border border-[#d0d7de] dark:border-[#30363d] rounded-md bg-white dark:bg-[#0d1117] text-[#24292f] dark:text-[#e6edf3] focus:outline-none focus:border-[#57606a] dark:focus:border-[#8b949e]';
 
