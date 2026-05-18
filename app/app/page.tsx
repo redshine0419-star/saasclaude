@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Globe, FileText, Tag,
   Bot, BarChart3, Megaphone, CheckCircle2,
-  FolderKanban, LayoutGrid, CheckSquare, Users, Rss, Code2,
+  FolderKanban, LayoutGrid, CheckSquare, Users, Rss, Code2, FileSearch,
 } from 'lucide-react';
 import SidebarLayout from '@/components/SidebarLayout';
 import OnboardingModal from '@/components/OnboardingModal';
@@ -25,10 +25,12 @@ import WorkMyTasksTab from '@/components/work/WorkMyTasksTab';
 import WorkTeamTab from '@/components/work/WorkTeamTab';
 import BlogAdminModule from '@/components/BlogAdminModule';
 import SiteEditorModule from '@/components/SiteEditorModule';
+import BulkGeoModule from '@/components/BulkGeoModule';
 
 const TABS = {
   DASHBOARD: 'dashboard',
   WEB:       'web',
+  BULK_GEO:  'bulk-geo',
   INSIGHT:   'insight',
   LLMSTXT:   'llmstxt',
   CONTENT:   'content',
@@ -47,6 +49,7 @@ function buildNavItems(lang: Parameters<typeof t>[2]) {
   return [
     { id: TABS.DASHBOARD, icon: <LayoutDashboard size={16} />, label: t('nav', 'dashboard', lang) },
     { id: TABS.WEB,       icon: <Globe size={16} />,           label: t('nav', 'web', lang),       sectionLabel: t('nav', 'sectionWeb', lang) },
+    { id: TABS.BULK_GEO,  icon: <FileSearch size={16} />,      label: '일괄 GEO 진단' },
     { id: TABS.INSIGHT,   icon: <BarChart3 size={16} />,       label: t('nav', 'insight', lang),   restrictedToMembers: true },
     { id: TABS.LLMSTXT,   icon: <Bot size={16} />,             label: 'llms.txt' },
     { id: TABS.CONTENT,   icon: <FileText size={16} />,        label: t('nav', 'content', lang),   sectionLabel: t('nav', 'sectionContent', lang) },
@@ -105,6 +108,7 @@ export default function App() {
       >
         {activeTab === TABS.DASHBOARD && <DashboardModule />}
         {activeTab === TABS.WEB       && <WebModule onToast={showToast} />}
+        {activeTab === TABS.BULK_GEO  && <BulkGeoModule onToast={showToast} />}
         {activeTab === TABS.INSIGHT   && <MarketingInsightModule onToast={showToast} />}
         {activeTab === TABS.LLMSTXT   && <LlmsTxtModule onToast={showToast} />}
         {activeTab === TABS.CONTENT   && <UnifiedContentModule onToast={showToast} />}
