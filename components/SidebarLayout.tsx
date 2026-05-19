@@ -194,7 +194,7 @@ export default function SidebarLayout({
   );
 
   return (
-    <div className="flex h-screen bg-[#f6f8fa] dark:bg-[#010409] font-sans text-[#24292f] dark:text-[#e6edf3] overflow-hidden">
+    <div className="flex h-screen bg-[#f6f8fa] dark:bg-[#010409] font-sans text-[#24292f] dark:text-[#e6edf3]">
       {/* Desktop sidebar */}
       <div className="hidden md:flex h-full shrink-0">
         <Sidebar />
@@ -211,7 +211,7 @@ export default function SidebarLayout({
       )}
 
       {/* Main */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar (mobile only) */}
         <header className="md:hidden flex items-center justify-between px-4 h-12 bg-[#0d1117] border-b border-[#21262d] shrink-0">
           <button onClick={() => setMobileOpen(true)} className="text-[#8b949e] hover:text-white">
