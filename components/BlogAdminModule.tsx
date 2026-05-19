@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Loader2, Trash2, ExternalLink, RefreshCw, Plus, Globe, Pencil, X, Clock, ChevronDown, ChevronUp, Zap, Share2, Copy, Check } from 'lucide-react';
 import type { PostIndex, BlogPost } from '@/app/api/blog/generate/route';
 import type { ScheduleConfig } from '@/app/api/blog/schedule/route';
@@ -930,12 +931,12 @@ export default function BlogAdminModule({ onToast }: Props) {
         </div>
       )}
 
-      {/* Export dropdown — fixed position to escape table overflow clipping */}
-      {exportMenu && (
+      {/* Export dropdown — portal to document.body to escape all overflow/stacking contexts */}
+      {exportMenu && typeof document !== 'undefined' && createPortal(
         <div
           onClick={(e) => e.stopPropagation()}
-          style={{ position: 'fixed', top: exportMenu.top, bottom: exportMenu.bottom, right: exportMenu.right, zIndex: 9999 }}
-          className="w-52 bg-white dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-lg shadow-lg overflow-hidden"
+          style={{ position: 'fixed', top: exportMenu.top, bottom: exportMenu.bottom, right: exportMenu.right, zIndex: 9999, width: '208px' }}
+          className="bg-white dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-lg shadow-lg overflow-hidden"
         >
           <button
             onClick={() => { checkMediumToken(); handleMediumPublish(exportMenu.slug); setExportMenu(null); }}
@@ -966,7 +967,8 @@ export default function BlogAdminModule({ onToast }: Props) {
             <Copy size={12} />
             note.com용 복사
           </button>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
