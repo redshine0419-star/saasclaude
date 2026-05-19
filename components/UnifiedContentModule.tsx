@@ -5,6 +5,7 @@ import { Sparkles, Zap, Loader2, Copy, ChevronDown, ChevronUp } from 'lucide-rea
 import RewriterModule from '@/components/RewriterModule';
 import { useAppLang } from '@/components/AppLangContext';
 import { t } from '@/lib/app-i18n';
+import AdUnit from '@/components/AdUnit';
 
 type Tab = 'generate' | 'rewriter';
 
@@ -284,6 +285,7 @@ function ContentGenerateTab({ onToast }: { onToast: (msg: string) => void }) {
           ))}
         </div>
       )}
+      {result && <AdUnit slot="3344556677" />}
     </div>
   );
 }

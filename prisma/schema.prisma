@@ -154,3 +154,12 @@ model Comment {
   task Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
   user WorkUser @relation(fields: [userId], references: [id])
 }
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  lang      String   @default("ko")
+  token     String   @unique @default(cuid())
+  createdAt DateTime @default(now())
+}
