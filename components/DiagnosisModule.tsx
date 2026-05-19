@@ -5,7 +5,7 @@ import {
   Globe, Loader2, Sparkles, Copy, CheckCircle2, AlertCircle,
   Smartphone, Monitor, ShieldCheck, FileText, Image,
   Link, Type, Share2, Code2, Bot, ChevronDown, ChevronUp, Download,
-  Lock, Mail, Star, BarChart2,
+  Lock, Mail, Star, BarChart2, Printer,
 } from 'lucide-react';
 import { saveDiagnosis, getDiagnoses } from '@/lib/storage';
 import AdUnit from '@/components/AdUnit';
@@ -416,6 +416,107 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
     URL.revokeObjectURL(link.href);
   };
 
+  const openPdfReport = () => {
+    if (!analyzeData || !geoData) return;
+    const date = new Date().toLocaleDateString('ko-KR');
+    const m = analyzeData.mobile.scores;
+    const d = analyzeData.desktop.scores;
+    const geo = geoData;
+    const scoreColor = (s: number) => s >= 80 ? '#10b981' : s >= 50 ? '#f59e0b' : '#ef4444';
+    const impactColor = (i: string) => i === 'High' ? '#ef4444' : i === 'Medium' ? '#f59e0b' : '#10b981';
+    const check = (v: unknown) => v ? '✅' : '❌';
+
+    const scoreRow = (label: string, mob: number | undefined, desk: number | undefined) =>
+      `<tr><td>${label}</td><td style="color:${scoreColor(mob ?? 0)};font-weight:700">${mob ?? '-'}</td><td style="color:${scoreColor(desk ?? 0)};font-weight:700">${desk ?? '-'}</td></tr>`;
+
+    const issueRows = geo.issues.map(issue =>
+      `<tr><td><span style="background:${impactColor(issue.impact)}20;color:${impactColor(issue.impact)};padding:2px 8px;border-radius:9999px;font-size:11px;font-weight:700">${issue.impact}</span></td><td style="font-weight:600">${issue.title}</td><td style="font-size:12px;color:#64748b">${issue.detail}</td></tr>`
+    ).join('');
+
+    const html = `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>SEO·GEO 진단 리포트 — ${url}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Apple SD Gothic Neo',Malgun Gothic,sans-serif;font-size:13px;color:#1e293b;background:#fff;padding:24px 32px}
+  h1{font-size:20px;font-weight:900;color:#4f46e5;margin-bottom:4px}
+  h2{font-size:14px;font-weight:800;color:#334155;margin:20px 0 8px;padding-bottom:4px;border-bottom:2px solid #e2e8f0}
+  h3{font-size:13px;font-weight:700;color:#475569;margin:12px 0 6px}
+  table{width:100%;border-collapse:collapse;margin-bottom:8px;font-size:12px}
+  th{background:#f8fafc;padding:6px 10px;text-align:left;font-weight:700;color:#64748b;border:1px solid #e2e8f0}
+  td{padding:6px 10px;border:1px solid #e2e8f0;vertical-align:top}
+  tr:hover{background:#f8fafc}
+  .meta{color:#64748b;font-size:12px;margin-bottom:16px}
+  .score-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+  .score-card{border:1px solid #e2e8f0;border-radius:12px;padding:12px;text-align:center}
+  .score-num{font-size:28px;font-weight:900;line-height:1}
+  .score-label{font-size:11px;color:#64748b;margin-top:4px}
+  .chip{display:inline-block;padding:2px 8px;border-radius:9999px;font-size:11px;font-weight:700}
+  .advice{background:#faf5ff;border:1px solid #e9d5ff;border-radius:8px;padding:12px;white-space:pre-wrap;font-size:12px;line-height:1.7;color:#374151}
+  @media print{body{padding:0} @page{size:A4;margin:15mm 15mm}}
+</style></head><body>
+<h1>SEO · GEO 진단 리포트</h1>
+<p class="meta">분석 URL: <strong>${url}</strong> &nbsp;|&nbsp; 분석일: <strong>${date}</strong></p>
+
+<div class="score-grid">
+  ${[
+    { label: 'Performance', mob: m.performance, desk: d.performance },
+    { label: 'SEO', mob: m.seo, desk: d.seo },
+    { label: 'Accessibility', mob: m.accessibility, desk: d.accessibility },
+    { label: 'GEO Visibility', mob: geo.score, desk: null },
+  ].map(s => `<div class="score-card">
+    <div class="score-num" style="color:${scoreColor(s.mob ?? 0)}">${s.mob ?? '-'}</div>
+    <div class="score-label">${s.label}<br><span style="color:#94a3b8;font-size:10px">모바일${s.desk !== null ? ` / ${s.desk} 데스크탑` : ''}</span></div>
+  </div>`).join('')}
+</div>
+
+<h2>성능 지표 비교</h2>
+<table><tr><th>지표</th><th>모바일</th><th>데스크탑</th></tr>
+${scoreRow('Performance', m.performance, d.performance)}
+${scoreRow('SEO', m.seo, d.seo)}
+${scoreRow('Accessibility', m.accessibility, d.accessibility)}
+${scoreRow('Best Practices', m.bestPractices, d.bestPractices)}
+<tr><td><strong>GEO Visibility</strong></td><td style="color:${scoreColor(geo.score)};font-weight:700">${geo.score}/100</td><td>—</td></tr>
+</table>
+
+<h2>메타 & OG 태그</h2>
+<table><tr><th>항목</th><th>값</th></tr>
+<tr><td>Title</td><td>${geo.meta.title || '없음'} <span style="color:#94a3b8">(${geo.meta.titleLength}자)</span></td></tr>
+<tr><td>Meta Description</td><td>${geo.meta.description ? geo.meta.description.slice(0, 100) + '…' : '없음'} <span style="color:#94a3b8">(${geo.meta.descriptionLength}자)</span></td></tr>
+<tr><td>Canonical</td><td>${geo.meta.canonical || '없음'}</td></tr>
+<tr><td>Lang</td><td>${geo.meta.lang || '없음'}</td></tr>
+<tr><td>Noindex</td><td>${geo.meta.isNoindex ? '⚠️ 있음' : '없음'}</td></tr>
+<tr><td>og:title / description / image</td><td>${check(geo.og.title)} / ${check(geo.og.description)} / ${check(geo.og.image)}</td></tr>
+</table>
+
+<h2>콘텐츠 구조</h2>
+<table><tr><th>항목</th><th>값</th></tr>
+<tr><td>H1 / H2 / H3</td><td>${geo.headings.h1Count} / ${geo.headings.h2Count} / ${geo.headings.h3Count}</td></tr>
+<tr><td>단어 수</td><td>${geo.content.wordCount.toLocaleString()}</td></tr>
+<tr><td>내부 / 외부 링크</td><td>${geo.content.internalLinks} / ${geo.content.externalLinks}</td></tr>
+<tr><td>이미지 Alt 누락</td><td>${geo.images.missingAlt} / ${geo.images.total}</td></tr>
+<tr><td>HTTPS</td><td>${check(geo.content.isHttps)}</td></tr>
+</table>
+
+<h2>구조화 데이터 & GEO</h2>
+<table><tr><th>항목</th><th>상태</th></tr>
+<tr><td>JSON-LD</td><td>${geo.jsonLd.exists ? `✅ ${geo.jsonLd.types.join(', ')}` : '❌'}</td></tr>
+<tr><td>Sitemap</td><td>${check(geo.sitemap.exists)}</td></tr>
+<tr><td>robots.txt</td><td>${check(geo.robotsTxt.exists)}</td></tr>
+<tr><td>AI 봇 차단</td><td>${geo.robotsTxt.llmBlocked ? '⚠️ 차단됨' : '✅ 허용'}</td></tr>
+<tr><td>llms.txt</td><td>${check(geo.llmsTxt.exists)}</td></tr>
+</table>
+
+${geo.issues.length > 0 ? `<h2>개선 이슈 (${geo.issues.length}개)</h2>
+<table><tr><th>영향도</th><th>이슈</th><th>설명</th></tr>${issueRows}</table>` : ''}
+
+${advice ? `<h2>AI 어드바이저 분석</h2><div class="advice">${advice.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>` : ''}
+
+<script>window.onload=()=>{setTimeout(()=>window.print(),400)}</script>
+</body></html>`;
+
+    const w = window.open('', '_blank');
+    if (w) { w.document.write(html); w.document.close(); }
+  };
+
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Input Card */}
@@ -490,6 +591,14 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
             >
               <Download size={16} />
               {t('diagnosis', 'reportBtn', lang)}
+            </button>
+            <button
+              onClick={openPdfReport}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-white border border-slate-200 text-slate-500 hover:bg-violet-50 hover:text-violet-700 hover:border-violet-200 transition-all"
+              title={lang === 'ko' ? 'PDF 리포트 인쇄/저장' : lang === 'ja' ? 'PDFレポート印刷/保存' : 'Print / Save as PDF'}
+            >
+              <Printer size={16} />
+              PDF
             </button>
           </div>
 

@@ -24,6 +24,37 @@ export interface PostIndex {
   keyword: string;
 }
 
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://growweb.me';
+
+function injectCTA(content: string, lang: string): string {
+  const ctaMap: Record<string, string> = {
+    ko: `\n\n> 💡 **사이트 무료 진단받기** — GEO 점수, 보안 헤더, 콘텐츠 품질을 즉시 확인하세요.\n>\n> [👉 ${SITE_URL} 에서 무료로 시작하기 →](${SITE_URL})\n\n`,
+    en: `\n\n> 💡 **Free Site Diagnosis** — Check your GEO score, security headers, and content quality instantly.\n>\n> [👉 Try it free at ${SITE_URL} →](${SITE_URL})\n\n`,
+    ja: `\n\n> 💡 **無料サイト診断** — GEOスコア・セキュリティヘッダー・コンテンツ品質を今すぐ確認。\n>\n> [👉 ${SITE_URL} で無料スタート →](${SITE_URL})\n\n`,
+  };
+  const cta = ctaMap[lang] ?? ctaMap.ko;
+
+  // H2 단락 경계에서 중간 삽입
+  const h2Matches = [...content.matchAll(/\n##\s+/g)];
+  const midIdx = Math.floor(h2Matches.length / 2);
+  let result = content;
+  if (midIdx > 0 && h2Matches[midIdx]) {
+    const pos = h2Matches[midIdx].index!;
+    result = result.slice(0, pos) + cta + result.slice(pos);
+  }
+
+  // 끝에도 삽입 (마치며/Conclusion 섹션 바로 전)
+  const conclusionRe = /\n##\s+(마치며|Conclusion|まとめ)/i;
+  const conclusionMatch = result.match(conclusionRe);
+  if (conclusionMatch?.index) {
+    result = result.slice(0, conclusionMatch.index) + cta + result.slice(conclusionMatch.index);
+  } else {
+    result += cta;
+  }
+
+  return result;
+}
+
 function sanitizeSlug(raw: string): string {
   return String(raw)
     .toLowerCase()
@@ -224,7 +255,7 @@ Respond ONLY with this JSON (no explanation):
       metaDescription: metaDescription ? String(metaDescription) : '',
       tags: Array.isArray(tags) ? (tags as string[]) : [],
       faq: Array.isArray(faq) ? (faq as { q: string; a: string }[]) : [],
-      content: String(content),
+      content: injectCTA(String(content), lang),
       createdAt: createdAt || new Date().toISOString(),
       keyword,
     };
