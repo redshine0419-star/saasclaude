@@ -166,7 +166,7 @@ export default function BlogAdminModule({ onToast }: Props) {
   const [testPublishing, setTestPublishing] = useState(false);
 
   // Export state
-  const [exportMenu, setExportMenu] = useState<{ slug: string; top: number; right: number } | null>(null);
+  const [exportMenu, setExportMenu] = useState<{ slug: string; top?: number; bottom?: number; right: number } | null>(null);
   const [publishingMedium, setPublishingMedium] = useState<string | null>(null);
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
   const [mediumTokenOk, setMediumTokenOk] = useState<boolean | null>(null);
@@ -867,7 +867,12 @@ export default function BlogAdminModule({ onToast }: Props) {
                           e.stopPropagation();
                           if (exportMenu?.slug === post.slug) { setExportMenu(null); return; }
                           const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                          setExportMenu({ slug: post.slug, top: rect.bottom + 4, right: window.innerWidth - rect.right });
+                          const dropdownH = 164; // 4 items × ~41px
+                          const spaceBelow = window.innerHeight - rect.bottom;
+                          const pos = spaceBelow >= dropdownH
+                            ? { top: rect.bottom + 4 }
+                            : { bottom: window.innerHeight - rect.top + 4 };
+                          setExportMenu({ slug: post.slug, ...pos, right: window.innerWidth - rect.right });
                         }}
                         className="p-1.5 text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors"
                         title="내보내기"
@@ -929,7 +934,7 @@ export default function BlogAdminModule({ onToast }: Props) {
       {exportMenu && (
         <div
           onClick={(e) => e.stopPropagation()}
-          style={{ position: 'fixed', top: exportMenu.top, right: exportMenu.right, zIndex: 9999 }}
+          style={{ position: 'fixed', top: exportMenu.top, bottom: exportMenu.bottom, right: exportMenu.right, zIndex: 9999 }}
           className="w-52 bg-white dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-lg shadow-lg overflow-hidden"
         >
           <button
