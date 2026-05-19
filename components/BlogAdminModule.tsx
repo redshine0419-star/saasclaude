@@ -167,7 +167,7 @@ export default function BlogAdminModule({ onToast }: Props) {
   const [testPublishing, setTestPublishing] = useState(false);
 
   // Export state
-  const [exportMenu, setExportMenu] = useState<{ slug: string; top?: number; bottom?: number; right: number } | null>(null);
+  const [exportMenu, setExportMenu] = useState<{ slug: string } | null>(null);
   const [publishingMedium, setPublishingMedium] = useState<string | null>(null);
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
   const [mediumTokenOk, setMediumTokenOk] = useState<boolean | null>(null);
@@ -862,18 +862,11 @@ export default function BlogAdminModule({ onToast }: Props) {
                       >
                         {deletingSlug === post.slug ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
                       </button>
-                      {/* Export dropdown trigger */}
+                      {/* Export trigger */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (exportMenu?.slug === post.slug) { setExportMenu(null); return; }
-                          const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                          const dropdownH = 164; // 4 items × ~41px
-                          const spaceBelow = window.innerHeight - rect.bottom;
-                          const pos = spaceBelow >= dropdownH
-                            ? { top: rect.bottom + 4 }
-                            : { bottom: window.innerHeight - rect.top + 4 };
-                          setExportMenu({ slug: post.slug, ...pos, right: window.innerWidth - rect.right });
+                          setExportMenu(exportMenu?.slug === post.slug ? null : { slug: post.slug });
                         }}
                         className="p-1.5 text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors"
                         title="내보내기"
@@ -931,43 +924,55 @@ export default function BlogAdminModule({ onToast }: Props) {
         </div>
       )}
 
-      {/* Export dropdown — portal to document.body to escape all overflow/stacking contexts */}
+      {/* Export bottom sheet — portal to document.body, works on all devices */}
       {exportMenu && typeof document !== 'undefined' && createPortal(
-        <div
-          onClick={(e) => e.stopPropagation()}
-          style={{ position: 'fixed', top: exportMenu.top, bottom: exportMenu.bottom, right: exportMenu.right, zIndex: 9999, width: '208px' }}
-          className="bg-white dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-lg shadow-lg overflow-hidden"
-        >
-          <button
-            onClick={() => { checkMediumToken(); handleMediumPublish(exportMenu.slug); setExportMenu(null); }}
-            className="w-full text-left px-4 py-2.5 text-xs text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] flex items-center gap-2"
-          >
-            <ExternalLink size={12} />
-            Medium 자동 발행
-            {mediumTokenOk === false && <span className="ml-auto text-red-500 text-[10px]">토큰 미설정</span>}
-          </button>
-          <button
-            onClick={() => { handleCopyExport(exportMenu.slug, 'naver'); setExportMenu(null); }}
-            className="w-full text-left px-4 py-2.5 text-xs text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] flex items-center gap-2 border-t border-[#d0d7de] dark:border-[#30363d]"
-          >
-            <Copy size={12} />
-            네이버 블로그용 복사
-          </button>
-          <button
-            onClick={() => { handleCopyExport(exportMenu.slug, 'brunch'); setExportMenu(null); }}
-            className="w-full text-left px-4 py-2.5 text-xs text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] flex items-center gap-2 border-t border-[#d0d7de] dark:border-[#30363d]"
-          >
-            <Copy size={12} />
-            브런치용 복사
-          </button>
-          <button
-            onClick={() => { handleCopyExport(exportMenu.slug, 'note'); setExportMenu(null); }}
-            className="w-full text-left px-4 py-2.5 text-xs text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] flex items-center gap-2 border-t border-[#d0d7de] dark:border-[#30363d]"
-          >
-            <Copy size={12} />
-            note.com용 복사
-          </button>
-        </div>,
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-[9998] bg-black/40"
+            onClick={() => setExportMenu(null)}
+          />
+          {/* Sheet */}
+          <div className="fixed bottom-0 left-0 right-0 z-[9999] bg-white dark:bg-[#161b22] rounded-t-2xl shadow-2xl border-t border-[#d0d7de] dark:border-[#30363d]">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[#d0d7de] dark:border-[#30363d]">
+              <span className="text-sm font-semibold text-[#24292f] dark:text-[#e6edf3]">배포 채널 선택</span>
+              <button onClick={() => setExportMenu(null)} className="text-[#57606a] dark:text-[#8b949e]">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="px-4 py-3 space-y-2 pb-8">
+              <button
+                onClick={() => { checkMediumToken(); handleMediumPublish(exportMenu.slug); setExportMenu(null); }}
+                className="w-full text-left px-4 py-3 text-sm text-[#24292f] dark:text-[#e6edf3] bg-[#f6f8fa] dark:bg-[#21262d] hover:bg-[#eaeef2] dark:hover:bg-[#30363d] rounded-lg flex items-center gap-3 transition-colors"
+              >
+                <ExternalLink size={16} className="shrink-0" />
+                <span>Medium 자동 발행</span>
+                {mediumTokenOk === false && <span className="ml-auto text-red-500 text-xs">토큰 미설정</span>}
+              </button>
+              <button
+                onClick={() => { handleCopyExport(exportMenu.slug, 'naver'); setExportMenu(null); }}
+                className="w-full text-left px-4 py-3 text-sm text-[#24292f] dark:text-[#e6edf3] bg-[#f6f8fa] dark:bg-[#21262d] hover:bg-[#eaeef2] dark:hover:bg-[#30363d] rounded-lg flex items-center gap-3 transition-colors"
+              >
+                <Copy size={16} className="shrink-0" />
+                <span>네이버 블로그용 복사</span>
+              </button>
+              <button
+                onClick={() => { handleCopyExport(exportMenu.slug, 'brunch'); setExportMenu(null); }}
+                className="w-full text-left px-4 py-3 text-sm text-[#24292f] dark:text-[#e6edf3] bg-[#f6f8fa] dark:bg-[#21262d] hover:bg-[#eaeef2] dark:hover:bg-[#30363d] rounded-lg flex items-center gap-3 transition-colors"
+              >
+                <Copy size={16} className="shrink-0" />
+                <span>브런치용 복사</span>
+              </button>
+              <button
+                onClick={() => { handleCopyExport(exportMenu.slug, 'note'); setExportMenu(null); }}
+                className="w-full text-left px-4 py-3 text-sm text-[#24292f] dark:text-[#e6edf3] bg-[#f6f8fa] dark:bg-[#21262d] hover:bg-[#eaeef2] dark:hover:bg-[#30363d] rounded-lg flex items-center gap-3 transition-colors"
+              >
+                <Copy size={16} className="shrink-0" />
+                <span>note.com용 복사</span>
+              </button>
+            </div>
+          </div>
+        </>,
         document.body
       )}
     </div>
