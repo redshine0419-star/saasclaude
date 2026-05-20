@@ -23,6 +23,7 @@ export const metadata: Metadata = {
   description: "AI 마케팅 SaaS — GEO & SEO 진단, 멀티채널 콘텐츠, 퍼포먼스 대시보드",
   other: {
     'naver-site-verification': '5a5f2d5a0e811f2fb0fc3d94d54a6a6a92b18eaa',
+    'google-adsense-account': 'ca-pub-5240608264303390',
   },
 };
 
