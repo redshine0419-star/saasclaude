@@ -15,6 +15,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   session: { strategy: 'jwt' },
   callbacks: {
+    signIn({ profile }) {
+      if (!profile?.email) return false;
+      return adminEmails.includes(profile.email as string);
+    },
     jwt({ token, profile }) {
       if (profile?.email) {
         token.role = adminEmails.includes(profile.email as string) ? 'admin' : 'user';
