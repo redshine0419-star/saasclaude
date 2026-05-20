@@ -3,10 +3,13 @@
 import { useState } from 'react';
 import DiagnosisModule from '@/components/DiagnosisModule';
 import CompetitorModule from '@/components/CompetitorModule';
+import { useAppLang } from '@/components/AppLangContext';
+import { t } from '@/lib/app-i18n';
 
 type Tab = 'seo' | 'competitor';
 
 export default function WebModule({ onToast }: { onToast: (msg: string) => void }) {
+  const { lang } = useAppLang();
   const [tab, setTab] = useState<Tab>('seo');
 
   return (
@@ -21,7 +24,7 @@ export default function WebModule({ onToast }: { onToast: (msg: string) => void 
               : 'border-transparent text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3]'
           }`}
         >
-          🔍 GEO &amp; SEO 진단
+          🔍 {t('web', 'tabGeoSeo', lang)}
         </button>
         <button
           onClick={() => setTab('competitor')}
@@ -31,7 +34,7 @@ export default function WebModule({ onToast }: { onToast: (msg: string) => void 
               : 'border-transparent text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3]'
           }`}
         >
-          ⚡ 경쟁사 비교 분석
+          ⚡ {t('web', 'tabCompetitor', lang)}
         </button>
       </div>
 

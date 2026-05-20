@@ -5,6 +5,8 @@ import {
   Bot, Loader2, AlertCircle, Globe, Zap, CheckCircle2, XCircle,
   MinusCircle, ChevronDown, ChevronUp, MessageSquare, TrendingUp,
 } from 'lucide-react';
+import { useAppLang } from '@/components/AppLangContext';
+import { t } from '@/lib/app-i18n';
 
 interface QuestionResult {
   question: string;
@@ -61,6 +63,7 @@ function scoreColor(score: number) {
 }
 
 export default function AiSearchQualityModule({ onToast }: { onToast: (msg: string) => void }) {
+  const { lang } = useAppLang();
   const [brandUrl, setBrandUrl] = useState('');
   const [brandName, setBrandName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -98,11 +101,10 @@ export default function AiSearchQualityModule({ onToast }: { onToast: (msg: stri
       {/* Header */}
       <div>
         <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
-          <Bot size={22} className="text-indigo-600" /> AI 검색 응답 품질 진단
+          <Bot size={22} className="text-indigo-600" /> {t('aiSearch', 'title', lang)}
         </h2>
         <p className="text-sm text-slate-500 mt-1">
-          ChatGPT·Perplexity·Claude 같은 AI 검색 엔진이 귀사 브랜드를 어떻게 인식하는지 시뮬레이션합니다.
-          GEO(Generative Engine Optimization) 가시성 점수와 개선 방향을 제시합니다.
+          {t('aiSearch', 'subtitle', lang)}
         </p>
       </div>
 
@@ -111,7 +113,7 @@ export default function AiSearchQualityModule({ onToast }: { onToast: (msg: stri
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-1.5">
-              사이트 URL <span className="text-rose-400">*</span>
+              {t('aiSearch', 'siteUrl', lang)} <span className="text-rose-400">*</span>
             </label>
             <div className="relative">
               <Globe size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -127,12 +129,12 @@ export default function AiSearchQualityModule({ onToast }: { onToast: (msg: stri
           </div>
           <div>
             <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-1.5">
-              브랜드명 (선택)
+              {t('aiSearch', 'brandName', lang)}
             </label>
             <input
               value={brandName}
               onChange={(e) => setBrandName(e.target.value)}
-              placeholder="예: MarketerOps"
+              placeholder={t('sov', 'companyNamePh', lang)}
               className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
               disabled={loading}
             />
@@ -145,14 +147,14 @@ export default function AiSearchQualityModule({ onToast }: { onToast: (msg: stri
             className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors"
           >
             {loading
-              ? <><Loader2 size={15} className="animate-spin" /> 시뮬레이션 중…</>
-              : <><Bot size={15} /> AI 검색 시뮬레이션</>
+              ? <><Loader2 size={15} className="animate-spin" /> {t('aiSearch', 'running', lang)}</>
+              : <><Bot size={15} /> {t('aiSearch', 'runBtn', lang)}</>
             }
           </button>
           {loading && (
             <span className="text-xs text-slate-400 flex items-center gap-1">
               <Loader2 size={11} className="animate-spin" />
-              5개 AI 검색 질문 시뮬레이션 중 (약 20초)
+              {t('aiSearch', 'runningMsg', lang)}
             </span>
           )}
         </div>

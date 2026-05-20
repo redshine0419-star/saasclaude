@@ -113,7 +113,7 @@ export default function LlmsTxtModule({ onToast }: { onToast: (msg: string) => v
         <Card className="p-6 space-y-4">
           <h4 className="font-bold text-slate-800 text-sm">{t('llmstxt', 'aiGuide', lang)}</h4>
           <Field label={t('llmstxt', 'mainUrls', lang)} multiline value={urls} onChange={setUrls}
-            placeholder={'홈: https://marketerops.ai\n블로그: https://marketerops.ai/blog\n문서: https://marketerops.ai/docs'}
+            placeholder={t('llmstxt', 'mainUrlsPh', lang)}
             hint={t('llmstxt', 'mainUrlsHint', lang)} />
           <Field label={t('llmstxt', 'aiInstructions', lang)} multiline value={instructions} onChange={setInstructions}
             placeholder={t('llmstxt', 'aiInstructPh', lang)}

@@ -6,6 +6,8 @@ import {
   CheckCircle2, XCircle, TrendingUp, TrendingDown,
   Minus, Lightbulb, BarChart2,
 } from 'lucide-react';
+import { useAppLang } from '@/components/AppLangContext';
+import { t } from '@/lib/app-i18n';
 
 interface GapTopic {
   topic: string;
@@ -63,6 +65,7 @@ function gapLabel(score: number) {
 }
 
 export default function CompetitorGapModule({ onToast }: { onToast: (msg: string) => void }) {
+  const { lang } = useAppLang();
   const [ourUrl, setOurUrl] = useState('');
   const [competitorUrl, setCompetitorUrl] = useState('');
   const [loading, setLoading] = useState(false);
@@ -100,10 +103,10 @@ export default function CompetitorGapModule({ onToast }: { onToast: (msg: string
       {/* Header */}
       <div>
         <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
-          <Swords size={22} className="text-indigo-600" /> 경쟁사 콘텐츠 갭 분석
+          <Swords size={22} className="text-indigo-600" /> {t('compGap', 'title', lang)}
         </h2>
         <p className="text-sm text-slate-500 mt-1">
-          경쟁사 페이지와 우리 페이지를 AI로 비교해 빠진 주제·키워드를 찾고, 즉시 실행 가능한 콘텐츠 추천을 제공합니다.
+          {t('compGap', 'subtitle', lang)}
         </p>
       </div>
 
@@ -112,7 +115,7 @@ export default function CompetitorGapModule({ onToast }: { onToast: (msg: string
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-1.5">
-              우리 사이트 URL <span className="text-rose-400">*</span>
+              {t('compGap', 'ourUrl', lang)} <span className="text-rose-400">*</span>
             </label>
             <div className="relative">
               <Globe size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -127,7 +130,7 @@ export default function CompetitorGapModule({ onToast }: { onToast: (msg: string
           </div>
           <div>
             <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-1.5">
-              경쟁사 URL <span className="text-rose-400">*</span>
+              {t('compGap', 'competitorUrl', lang)} <span className="text-rose-400">*</span>
             </label>
             <div className="relative">
               <Swords size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -148,13 +151,13 @@ export default function CompetitorGapModule({ onToast }: { onToast: (msg: string
             className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors"
           >
             {loading
-              ? <><Loader2 size={15} className="animate-spin" /> 분석 중…</>
-              : <><Swords size={15} /> 갭 분석 시작</>
+              ? <><Loader2 size={15} className="animate-spin" /> {t('compGap', 'running', lang)}</>
+              : <><Swords size={15} /> {t('compGap', 'runBtn', lang)}</>
             }
           </button>
           {loading && (
             <span className="text-xs text-slate-400 flex items-center gap-1">
-              <Loader2 size={11} className="animate-spin" />두 페이지 크롤링 후 AI 비교 분석 중 (약 15초)
+              <Loader2 size={11} className="animate-spin" />{t('compGap', 'runningMsg', lang)}
             </span>
           )}
         </div>

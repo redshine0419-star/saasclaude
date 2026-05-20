@@ -6,6 +6,8 @@ import {
   CheckCircle2, XCircle, AlertTriangle, Zap, FileSearch, BarChart2,
   ExternalLink,
 } from 'lucide-react';
+import { useAppLang } from '@/components/AppLangContext';
+import { t } from '@/lib/app-i18n';
 
 interface PageScore {
   url: string;
@@ -59,6 +61,7 @@ const shortUrl = (url: string) => {
 };
 
 export default function BulkGeoModule({ onToast }: { onToast: (msg: string) => void }) {
+  const { lang } = useAppLang();
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -101,18 +104,17 @@ export default function BulkGeoModule({ onToast }: { onToast: (msg: string) => v
       {/* Header */}
       <div>
         <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
-          <FileSearch size={22} className="text-indigo-600" /> 사이트맵 일괄 GEO 진단
+          <FileSearch size={22} className="text-indigo-600" /> {t('bulkGeo', 'title', lang)}
         </h2>
         <p className="text-sm text-slate-500 mt-1">
-          sitemap.xml을 자동 탐색하여 모든 페이지의 GEO(AI 검색 최적화) 점수를 일괄 분석합니다.
-          최대 20개 URL · 페이지당 8초 제한
+          {t('bulkGeo', 'subtitle', lang)}
         </p>
       </div>
 
       {/* Input */}
       <Card className="p-5">
         <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-2">
-          사이트 도메인 또는 사이트맵 URL
+          {t('bulkGeo', 'inputLabel', lang)}
         </label>
         <div className="flex gap-2">
           <div className="flex-1 relative">
@@ -132,15 +134,15 @@ export default function BulkGeoModule({ onToast }: { onToast: (msg: string) => v
             className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white text-sm font-bold rounded-xl flex items-center gap-2 whitespace-nowrap transition-colors"
           >
             {loading
-              ? <><Loader2 size={15} className="animate-spin" /> 분석 중…</>
-              : <><Zap size={15} /> 일괄 진단</>
+              ? <><Loader2 size={15} className="animate-spin" /> {t('bulkGeo', 'running', lang)}</>
+              : <><Zap size={15} /> {t('bulkGeo', 'runBtn', lang)}</>
             }
           </button>
         </div>
         {loading && (
           <p className="text-xs text-slate-400 mt-2 flex items-center gap-1.5">
             <Loader2 size={11} className="animate-spin" />
-            사이트맵 탐색 → 최대 20개 페이지 병렬 분석 중… (약 20~30초 소요)
+            {t('bulkGeo', 'scanningMsg', lang)}
           </p>
         )}
       </Card>

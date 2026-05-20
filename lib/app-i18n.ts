@@ -361,6 +361,51 @@ const T = {
     serverError:      { ko: '오류', en: 'Error', ja: 'エラー' },
   },
 
+  /* ── Web module tabs ────────────────────────────────────────────────── */
+  web: {
+    tabGeoSeo:    { ko: 'GEO & SEO 진단',    en: 'GEO & SEO Diagnosis',     ja: 'GEO & SEO診断'       },
+    tabCompetitor:{ ko: '경쟁사 비교 분석',   en: 'Competitor Analysis',     ja: '競合比較分析'          },
+  },
+
+  /* ── Insight (MarketingInsightModule) ───────────────────────────────── */
+  insight: {
+    title:       { ko: '통합 마케팅 인사이트',                                 en: 'Marketing Intelligence Hub',                    ja: '統合マーケティングインサイト' },
+    subtitle:    { ko: 'GA4 분석 + Search Console을 하나의 화면에서 교차 분석합니다.', en: 'Cross-analyze GA4 & Search Console in one view.', ja: 'GA4 + Search Consoleをひとつの画面で交差分析します。' },
+    checkingConn:{ ko: '연결 상태 확인 중...',                                 en: 'Checking connection...',                         ja: '接続状態を確認中...'  },
+  },
+
+  /* ── Bulk GEO ────────────────────────────────────────────────────────── */
+  bulkGeo: {
+    title:       { ko: '사이트맵 일괄 GEO 진단',                              en: 'Sitemap Bulk GEO Diagnosis',                    ja: 'サイトマップ一括GEO診断'       },
+    subtitle:    { ko: 'sitemap.xml을 자동 탐색하여 모든 페이지의 GEO(AI 검색 최적화) 점수를 일괄 분석합니다. 최대 20개 URL · 페이지당 8초 제한', en: 'Auto-crawl sitemap.xml and bulk-analyze GEO (AI search optimization) scores for all pages. Up to 20 URLs · 8s per page.', ja: 'sitemap.xmlを自動探索し、全ページのGEO（AI検索最適化）スコアを一括分析します。最大20URL・1ページ8秒制限' },
+    inputLabel:  { ko: '사이트 도메인 또는 사이트맵 URL',                      en: 'Site domain or sitemap URL',                    ja: 'サイトドメインまたはサイトマップURL' },
+    runBtn:      { ko: '일괄 진단',                                            en: 'Bulk Diagnose',                                 ja: '一括診断'              },
+    running:     { ko: '분석 중…',                                             en: 'Analyzing…',                                   ja: '分析中…'              },
+    scanningMsg: { ko: '사이트맵 탐색 → 최대 20개 페이지 병렬 분석 중… (약 20~30초 소요)', en: 'Crawling sitemap → parallel analysis of up to 20 pages… (~20–30s)', ja: 'サイトマップ探索 → 最大20ページ並列分析中…（約20〜30秒）' },
+  },
+
+  /* ── AI Search Quality ───────────────────────────────────────────────── */
+  aiSearch: {
+    title:       { ko: 'AI 검색 응답 품질 진단',                              en: 'AI Search Response Quality Diagnosis',          ja: 'AI検索応答品質診断'           },
+    subtitle:    { ko: 'ChatGPT·Perplexity·Claude 같은 AI 검색 엔진이 귀사 브랜드를 어떻게 인식하는지 시뮬레이션합니다. GEO(Generative Engine Optimization) 가시성 점수와 개선 방향을 제시합니다.', en: 'Simulate how AI search engines like ChatGPT, Perplexity, and Claude perceive your brand. Get a GEO (Generative Engine Optimization) visibility score and improvement plan.', ja: 'ChatGPT・Perplexity・ClaudeなどのAI検索エンジンが貴社ブランドをどう認識するかをシミュレーションします。GEO可視性スコアと改善方針を提示します。' },
+    siteUrl:     { ko: '사이트 URL',                                           en: 'Site URL',                                      ja: 'サイトURL'             },
+    brandName:   { ko: '브랜드명 (선택)',                                       en: 'Brand Name (optional)',                         ja: 'ブランド名（任意）'      },
+    runBtn:      { ko: 'AI 검색 시뮬레이션',                                   en: 'AI Search Simulation',                          ja: 'AI検索シミュレーション'  },
+    running:     { ko: '시뮬레이션 중…',                                       en: 'Simulating…',                                  ja: 'シミュレーション中…'    },
+    runningMsg:  { ko: '5개 AI 검색 질문 시뮬레이션 중 (약 20초)',              en: 'Simulating 5 AI search queries (~20s)',          ja: '5件のAI検索質問をシミュレーション中（約20秒）' },
+  },
+
+  /* ── Competitor Gap ──────────────────────────────────────────────────── */
+  compGap: {
+    title:       { ko: '경쟁사 콘텐츠 갭 분석',                               en: 'Competitor Content Gap Analysis',               ja: '競合コンテンツギャップ分析'    },
+    subtitle:    { ko: '경쟁사 페이지와 우리 페이지를 AI로 비교해 빠진 주제·키워드를 찾고, 즉시 실행 가능한 콘텐츠 추천을 제공합니다.', en: 'AI-compare your page against a competitor\'s to uncover missing topics and keywords, and get actionable content recommendations.', ja: '競合ページと自社ページをAIで比較し、抜けているトピック・キーワードを特定して即実行できるコンテンツ提案を提供します。' },
+    ourUrl:      { ko: '우리 사이트 URL',                                      en: 'Our Site URL',                                  ja: '自社サイトURL'          },
+    competitorUrl:{ ko: '경쟁사 URL',                                          en: 'Competitor URL',                                ja: '競合URL'              },
+    runBtn:      { ko: '갭 분석 시작',                                         en: 'Start Gap Analysis',                            ja: 'ギャップ分析開始'        },
+    running:     { ko: '분석 중…',                                             en: 'Analyzing…',                                   ja: '分析中…'              },
+    runningMsg:  { ko: '두 페이지 크롤링 후 AI 비교 분석 중 (약 15초)',          en: 'Crawling both pages then AI comparison (~15s)',  ja: '2ページをクロール後AI比較分析中（約15秒）' },
+  },
+
   /* ── Work tabs ───────────────────────────────────────────────────────── */
   work: {
     projects:    { ko: '프로젝트', en: 'Projects', ja: 'プロジェクト' },

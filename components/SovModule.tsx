@@ -230,7 +230,7 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
           </div>
           <div>
             <h3 className="text-xl font-bold text-slate-800">{t('sov', 'title', lang)}</h3>
-            <p className="text-sm text-slate-500">AI가 특정 질문에 답할 때 우리 브랜드를 얼마나 언급하는지 측정합니다.</p>
+            <p className="text-sm text-slate-500">{t('sov', 'subtitle', lang)}</p>
           </div>
         </div>
 
@@ -243,13 +243,13 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-slate-500 mb-1.5">{t('sov', 'companyName', lang)} *</label>
-              <input type="text" placeholder="예: MarketerOps"
+              <input type="text" placeholder={t('sov', 'companyNamePh', lang)}
                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none text-sm transition-all"
                 value={company} onChange={e => setCompany(e.target.value)} disabled={isRunning} />
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-500 mb-1.5">{t('sov', 'industry', lang)} *</label>
-              <input type="text" placeholder="예: AI 마케팅 SaaS, SEO 도구"
+              <input type="text" placeholder={t('sov', 'industryPh', lang)}
                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none text-sm transition-all"
                 value={industry} onChange={e => setIndustry(e.target.value)} disabled={isRunning} />
             </div>

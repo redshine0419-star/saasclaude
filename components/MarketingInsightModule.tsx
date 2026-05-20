@@ -579,14 +579,14 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
             <GitMerge size={24} color="#ffffff" />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-slate-800">통합 마케팅 인사이트</h3>
-            <p className="text-sm text-slate-500">GA4 분석 + Search Console을 하나의 화면에서 교차 분석합니다.</p>
+            <h3 className="text-xl font-bold text-slate-800">{t('insight', 'title', lang)}</h3>
+            <p className="text-sm text-slate-500">{t('insight', 'subtitle', lang)}</p>
           </div>
         </div>
 
         {/* ── Two-column connection cards ── */}
         {statusLoading ? (
-          <div className="flex items-center gap-2 text-slate-400 text-sm py-2"><Loader2 size={15} className="animate-spin" /> 연결 상태 확인 중...</div>
+          <div className="flex items-center gap-2 text-slate-400 text-sm py-2"><Loader2 size={15} className="animate-spin" /> {t('insight', 'checkingConn', lang)}</div>
         ) : !session?.user ? (
           <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl text-sm text-amber-800">연동을 위해 먼저 우측 상단에서 Google 로그인을 해주세요.</div>
         ) : (
