@@ -301,6 +301,18 @@ const T = {
     data_loaded:     { ko: 'GA4 데이터를 불러왔습니다.', en: 'GA4 data loaded.', ja: 'GA4データを読み込みました。' },
     insight_done:    { ko: 'AI 인사이트 분석이 완료됐습니다.', en: 'AI insight analysis complete.', ja: 'AIインサイト分析が完了しました。' },
     compare_done:    { ko: '기간 비교 분석이 완료됐습니다.', en: 'Period comparison complete.', ja: '期間比較分析が完了しました。' },
+    totalSessions:   { ko: '총 세션', en: 'Total Sessions', ja: '総セッション' },
+    avgBounceRate:   { ko: '평균 이탈률', en: 'Avg Bounce Rate', ja: '平均直帰率' },
+    sessionTrend:    { ko: '최근 30일 세션 추이', en: '30-Day Session Trend', ja: '直近30日のセッション推移' },
+    basePeriod:      { ko: '기준 기간', en: 'Base Period', ja: '基準期間' },
+    comparePeriod:   { ko: '비교 기간', en: 'Compare Period', ja: '比較期間' },
+    newShort:        { ko: '신규', en: 'New', ja: '新規' },
+    sessionDurationShort: { ko: '세션시간', en: 'Session', ja: 'セッション時間' },
+    bounceHigh:      { ko: '이탈률 높음', en: 'High bounce rate', ja: '直帰率高い' },
+    bounceWarn:      { ko: '이탈률 주의', en: 'Bounce rate caution', ja: '直帰率注意' },
+    durationVeryShort: { ko: '체류시간 매우 짧음', en: 'Very short session', ja: '滞在時間が極めて短い' },
+    durationShort:   { ko: '체류시간 짧음', en: 'Short session', ja: '滞在時間が短い' },
+    serverError:     { ko: '서버 오류', en: 'Server error', ja: 'サーバーエラー' },
   },
 
   /* ── GSC ─────────────────────────────────────────────────────────────── */
@@ -330,6 +342,16 @@ const T = {
     period28year: { ko: '최근 28일 vs 전년 동기', en: 'Last 28 days vs year ago', ja: '直近28日 vs 前年同期' },
     period90year: { ko: '최근 90일 vs 전년 동기', en: 'Last 90 days vs year ago', ja: '直近90日 vs 前年同期' },
     customDates: { ko: '날짜 직접 설정', en: 'Custom dates', ja: '日付を手動設定' },
+    totalClicks:      { ko: '총 클릭수', en: 'Total Clicks', ja: '総クリック数' },
+    totalImpressions: { ko: '총 노출수', en: 'Total Impressions', ja: '総表示回数' },
+    avgCtr:           { ko: '평균 CTR', en: 'Avg CTR', ja: '平均CTR' },
+    avgPosition:      { ko: '평균 게재순위', en: 'Avg Position', ja: '平均掲載順位' },
+    avgPositionShort: { ko: '평균순위', en: 'Avg Rank', ja: '平均順位' },
+    clicksShort:      { ko: '클릭수', en: 'Clicks', ja: 'クリック数' },
+    impressionsShort: { ko: '노출수', en: 'Impressions', ja: '表示回数' },
+    avgCtrShort:      { ko: '평균CTR', en: 'Avg CTR', ja: '平均CTR' },
+    placeholderUrl:   { ko: '예: https://example.com/ 또는 sc-domain:example.com', en: 'e.g. https://example.com/ or sc-domain:example.com', ja: '例: https://example.com/ または sc-domain:example.com' },
+    serverError:      { ko: '오류', en: 'Error', ja: 'エラー' },
   },
 
   /* ── Work tabs ───────────────────────────────────────────────────────── */
@@ -362,6 +384,18 @@ export function t(section: keyof typeof T, key: string, lang: AppLang): string {
 
 export function useT(lang: AppLang) {
   return (section: keyof typeof T, key: string) => t(section, key, lang);
+}
+
+export function tExpand(n: number, lang: AppLang): string {
+  if (lang === 'en') return `Show ${n} more`;
+  if (lang === 'ja') return `あと${n}件表示`;
+  return `나머지 ${n}개 더 보기`;
+}
+
+export function tViewAll(n: number, lang: AppLang): string {
+  if (lang === 'en') return `View all ${n}`;
+  if (lang === 'ja') return `全${n}件を見る`;
+  return `전체 ${n}개 보기`;
 }
 
 export default T;

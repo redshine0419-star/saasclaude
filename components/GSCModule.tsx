@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import { useAppLang } from '@/components/AppLangContext';
-import { t } from '@/lib/app-i18n';
+import { t, tExpand, tViewAll } from '@/lib/app-i18n';
 import {
   Search, Link2, Link2Off, Loader2, AlertTriangle, TrendingUp, TrendingDown,
   Target, Zap, ExternalLink, ChevronDown, ChevronUp, Info,
@@ -199,7 +199,7 @@ export default function GSCModule({ onToast }: { onToast: (msg: string) => void 
         }),
       });
       const d = await res.json();
-      if (!res.ok) throw new Error(d?.error || `오류 (${res.status})`);
+      if (!res.ok) throw new Error(d?.error || `${t('gsc', 'serverError', lang)} (${res.status})`);
       setData(d);
       onToast(t('gsc', 'data_loaded', lang));
     } catch (e) { setError(e instanceof Error ? e.message : '오류'); }
@@ -270,7 +270,7 @@ export default function GSCModule({ onToast }: { onToast: (msg: string) => void 
                     type="text"
                     value={siteUrl}
                     onChange={(e) => setSiteUrl(e.target.value)}
-                    placeholder="예: https://example.com/ 또는 sc-domain:example.com"
+                    placeholder={t('gsc', 'placeholderUrl', lang)}
                     className="w-full pl-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-sm"
                   />
                   <p className="text-[11px] text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
@@ -355,13 +355,13 @@ export default function GSCModule({ onToast }: { onToast: (msg: string) => void 
 
           {/* KPI Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <KpiCard label="총 클릭수" value={fmtNum(data.totals.clicks)}
+            <KpiCard label={t('gsc', 'totalClicks', lang)} value={fmtNum(data.totals.clicks)}
               delta={deltas?.clicks} deltaUnit="%" sub={deltas ? `vs ${fmtNum(data.compTotals!.clicks)}` : undefined} />
-            <KpiCard label="총 노출수" value={fmtNum(data.totals.impressions)}
+            <KpiCard label={t('gsc', 'totalImpressions', lang)} value={fmtNum(data.totals.impressions)}
               delta={deltas?.impressions} deltaUnit="%" sub={deltas ? `vs ${fmtNum(data.compTotals!.impressions)}` : undefined} />
-            <KpiCard label="평균 CTR" value={fmtCtr(data.totals.avgCtr)}
+            <KpiCard label={t('gsc', 'avgCtr', lang)} value={fmtCtr(data.totals.avgCtr)}
               delta={deltas?.ctr} deltaUnit="%" sub={deltas ? `vs ${fmtCtr(data.compTotals!.avgCtr)}` : undefined} />
-            <KpiCard label="평균 게재순위" value={fmtPos(data.totals.avgPosition)}
+            <KpiCard label={t('gsc', 'avgPosition', lang)} value={fmtPos(data.totals.avgPosition)}
               delta={deltas?.position ?? null} deltaUnit="위" invertDelta
               sub={deltas ? `vs ${fmtPos(data.compTotals!.avgPosition)}위` : undefined} />
           </div>
@@ -415,7 +415,7 @@ export default function GSCModule({ onToast }: { onToast: (msg: string) => void 
                   <button onClick={() => setExpandedAI(!expandedAI)}
                     className="mt-3 flex items-center gap-1 text-xs text-slate-500 hover:text-emerald-600 transition-colors">
                     {expandedAI ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-                    {expandedAI ? '접기' : `나머지 ${data.aiOverviewCandidates.length - 4}개 더 보기`}
+                    {expandedAI ? t('common', 'collapse', lang) : tExpand(data.aiOverviewCandidates.length - 4, lang)}
                   </button>
                 )}
               </div>
@@ -472,7 +472,7 @@ export default function GSCModule({ onToast }: { onToast: (msg: string) => void 
                   <button onClick={() => setExpandedNearMiss(!expandedNearMiss)}
                     className="mt-2 flex items-center gap-1 text-xs text-slate-500 hover:text-indigo-600">
                     {expandedNearMiss ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-                    {expandedNearMiss ? '접기' : `나머지 ${data.nearMissQueries.length - 8}개 더 보기`}
+                    {expandedNearMiss ? t('common', 'collapse', lang) : tExpand(data.nearMissQueries.length - 8, lang)}
                   </button>
                 )}
               </div>
@@ -556,7 +556,7 @@ export default function GSCModule({ onToast }: { onToast: (msg: string) => void 
                 <button onClick={() => setExpandedPages(!expandedPages)}
                   className="mt-3 flex items-center gap-1 text-xs text-slate-500 hover:text-emerald-600">
                   {expandedPages ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-                  {expandedPages ? '접기' : `전체 ${data.pages.length}개 보기`}
+                  {expandedPages ? t('common', 'collapse', lang) : tViewAll(data.pages.length, lang)}
                 </button>
               )}
             </div>
@@ -604,7 +604,7 @@ export default function GSCModule({ onToast }: { onToast: (msg: string) => void 
                 <button onClick={() => setExpandedQueries(!expandedQueries)}
                   className="mt-3 flex items-center gap-1 text-xs text-slate-500 hover:text-slate-700">
                   {expandedQueries ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-                  {expandedQueries ? '접기' : `전체 ${data.queries.length}개 보기`}
+                  {expandedQueries ? t('common', 'collapse', lang) : tViewAll(data.queries.length, lang)}
                 </button>
               )}
             </div>

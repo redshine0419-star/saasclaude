@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { useAppLang } from '@/components/AppLangContext';
+import { t, tExpand } from '@/lib/app-i18n';
 import { useSession } from 'next-auth/react';
 import {
   BarChart3, Loader2, CheckCircle2, XCircle, AlertCircle, Zap,
@@ -217,16 +219,16 @@ function healthColor(score: number) {
 }
 
 // ── scorePages ─────────────────────────────────────────────────────────────
-function scorePages(pages: TopPage[]): ScoredPage[] {
+function scorePages(pages: TopPage[], lang: import('@/lib/app-i18n').AppLang = 'ko'): ScoredPage[] {
   if (!pages.length) return [];
   const maxPV = Math.max(...pages.map((p) => p.pageViews), 1);
   return pages.map((p) => {
     const tw = p.pageViews / maxPV;
     const issues: string[] = [];
-    if (p.bounceRate > 0.7) issues.push(`이탈률 높음 (${Math.round(p.bounceRate * 100)}%)`);
-    else if (p.bounceRate > 0.55) issues.push(`이탈률 주의 (${Math.round(p.bounceRate * 100)}%)`);
-    if (p.avgDuration < 30) issues.push(`체류시간 매우 짧음 (${Math.round(p.avgDuration)}초)`);
-    else if (p.avgDuration < 60) issues.push(`체류시간 짧음 (${Math.round(p.avgDuration)}초)`);
+    if (p.bounceRate > 0.7) issues.push(`${t('ga4', 'bounceHigh', lang)} (${Math.round(p.bounceRate * 100)}%)`);
+    else if (p.bounceRate > 0.55) issues.push(`${t('ga4', 'bounceWarn', lang)} (${Math.round(p.bounceRate * 100)}%)`);
+    if (p.avgDuration < 30) issues.push(`${t('ga4', 'durationVeryShort', lang)} (${Math.round(p.avgDuration)}s)`);
+    else if (p.avgDuration < 60) issues.push(`${t('ga4', 'durationShort', lang)} (${Math.round(p.avgDuration)}s)`);
     const bounceScore = Math.max(0, p.bounceRate - 0.4) / 0.6;
     const durScore = Math.max(0, 1 - p.avgDuration / 120);
     const problemScore = (bounceScore * 0.6 + durScore * 0.4) * (0.3 + tw * 0.7);
@@ -271,6 +273,7 @@ function DeltaBadge({ value, unit = '%', invert = false }: { value: number | nul
 // ── Main component ─────────────────────────────────────────────────────────
 export default function MarketingInsightModule({ onToast }: { onToast: (msg: string) => void }) {
   const { data: session } = useSession();
+  const { lang } = useAppLang();
 
   // ── Connection states ──
   const [ga4Status, setGa4Status] = useState<GA4Status | null>(null);
@@ -420,7 +423,7 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
     try {
       const res = await fetch('/api/ga4/check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: installUrl }) });
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || `서버 오류 (${res.status})`);
+      if (!res.ok) throw new Error(data?.error || `${t('ga4', 'serverError', lang)} (${res.status})`);
       setCheckResult(data);
       onToast('GA4 설치 확인이 완료됐습니다.');
     } catch (e) { setError(e instanceof Error ? e.message : '오류'); }
@@ -484,7 +487,7 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
         body: JSON.stringify({ siteUrl: gscSiteUrl, startDate: start, endDate: end }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || `오류 (${res.status})`);
+      if (!res.ok) throw new Error(data?.error || `${t('gsc', 'serverError', lang)} (${res.status})`);
       setOppData(data);
       onToast('키워드 기회 분석이 완료됐습니다.');
     } catch (e) {
@@ -506,7 +509,7 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
         body: JSON.stringify({ propertyId }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || `오류 (${res.status})`);
+      if (!res.ok) throw new Error(data?.error || `${t('gsc', 'serverError', lang)} (${res.status})`);
       setFunnelData(data);
       onToast('전환 퍼널 진단이 완료됐습니다.');
     } catch (e) {
@@ -517,7 +520,7 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
   };
 
   // ── Page improvement ──
-  const scoredPages = useMemo(() => (ga4Data ? scorePages(ga4Data.topPages) : []), [ga4Data]);
+  const scoredPages = useMemo(() => (ga4Data ? scorePages(ga4Data.topPages, lang) : []), [ga4Data, lang]);
   const problemPages = scoredPages.filter((p) => p.priority !== '양호');
 
   const fetchPageReport = async () => {
@@ -536,7 +539,7 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || `서버 오류 (${res.status})`);
+      if (!res.ok) throw new Error(data?.error || `${t('ga4', 'serverError', lang)} (${res.status})`);
       setPageReport(data);
       setShowPageReport(true);
       onToast('페이지 개선안 분석이 완료됐습니다.');
@@ -707,7 +710,7 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
                     </select>
                   ) : (
                     <input type="text" value={gscSiteUrl} onChange={(e) => setGscSiteUrl(e.target.value)} disabled={loading}
-                      placeholder="예: https://example.com/ 또는 sc-domain:example.com"
+                      placeholder={t('gsc', 'placeholderUrl', lang)}
                       className="w-full pl-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-sm" />
                   )}
                 </div>
@@ -781,38 +784,38 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
             {/* GA4 KPIs — indigo */}
             {ga4Data ? (
               <>
-                <KpiMiniCard label="세션" value={formatNumber(ga4Data.totals.sessions)} color="indigo"
+                <KpiMiniCard label={t('ga4', 'sessions', lang)} value={formatNumber(ga4Data.totals.sessions)} color="indigo"
                   delta={ga4Data.prevTotals ? pct(ga4Data.totals.sessions, ga4Data.prevTotals.sessions) : null} />
-                <KpiMiniCard label="활성사용자" value={formatNumber(ga4Data.totals.activeUsers)} color="indigo"
+                <KpiMiniCard label={t('ga4', 'activeUsers', lang)} value={formatNumber(ga4Data.totals.activeUsers)} color="indigo"
                   delta={ga4Data.prevTotals ? pct(ga4Data.totals.activeUsers, ga4Data.prevTotals.activeUsers) : null} />
-                <KpiMiniCard label="이탈률" value={ga4Data.totals.avgBounceRate + '%'} color="indigo" warn={ga4Data.totals.avgBounceRate > 60}
+                <KpiMiniCard label={t('ga4', 'bounceRate', lang)} value={ga4Data.totals.avgBounceRate + '%'} color="indigo" warn={ga4Data.totals.avgBounceRate > 60}
                   delta={ga4Data.prevTotals ? (ga4Data.totals.avgBounceRate - ga4Data.prevTotals.avgBounceRate) : null} deltaUnit="pp" invertDelta />
-                <KpiMiniCard label="세션시간" value={formatDuration(ga4Data.totals.avgSessionDuration)} color="indigo"
+                <KpiMiniCard label={t('ga4', 'sessionDurationShort', lang)} value={formatDuration(ga4Data.totals.avgSessionDuration)} color="indigo"
                   delta={ga4Data.prevTotals ? pct(ga4Data.totals.avgSessionDuration, ga4Data.prevTotals.avgSessionDuration) : null} />
               </>
             ) : (
               <>
-                <KpiMiniCardEmpty label="세션" color="indigo" />
-                <KpiMiniCardEmpty label="활성사용자" color="indigo" />
-                <KpiMiniCardEmpty label="이탈률" color="indigo" />
-                <KpiMiniCardEmpty label="세션시간" color="indigo" />
+                <KpiMiniCardEmpty label={t('ga4', 'sessions', lang)} color="indigo" />
+                <KpiMiniCardEmpty label={t('ga4', 'activeUsers', lang)} color="indigo" />
+                <KpiMiniCardEmpty label={t('ga4', 'bounceRate', lang)} color="indigo" />
+                <KpiMiniCardEmpty label={t('ga4', 'sessionDurationShort', lang)} color="indigo" />
               </>
             )}
 
             {/* GSC KPIs — emerald */}
             {gscData ? (
               <>
-                <KpiMiniCard label="클릭수" value={formatNumber(gscData.totals.clicks)} color="emerald" delta={gscDeltas?.clicks ?? null} />
-                <KpiMiniCard label="노출수" value={formatNumber(gscData.totals.impressions)} color="emerald" delta={gscDeltas?.impressions ?? null} />
-                <KpiMiniCard label="평균CTR" value={fmtCtr(gscData.totals.avgCtr)} color="emerald" delta={gscDeltas?.ctr ?? null} />
-                <KpiMiniCard label="평균순위" value={fmtPos(gscData.totals.avgPosition)} color="emerald" delta={gscDeltas?.position ?? null} deltaUnit="위" invertDelta />
+                <KpiMiniCard label={t('gsc', 'clicksShort', lang)} value={formatNumber(gscData.totals.clicks)} color="emerald" delta={gscDeltas?.clicks ?? null} />
+                <KpiMiniCard label={t('gsc', 'impressionsShort', lang)} value={formatNumber(gscData.totals.impressions)} color="emerald" delta={gscDeltas?.impressions ?? null} />
+                <KpiMiniCard label={t('gsc', 'avgCtrShort', lang)} value={fmtCtr(gscData.totals.avgCtr)} color="emerald" delta={gscDeltas?.ctr ?? null} />
+                <KpiMiniCard label={t('gsc', 'avgPositionShort', lang)} value={fmtPos(gscData.totals.avgPosition)} color="emerald" delta={gscDeltas?.position ?? null} deltaUnit="위" invertDelta />
               </>
             ) : (
               <>
-                <KpiMiniCardEmpty label="클릭수" color="emerald" />
-                <KpiMiniCardEmpty label="노출수" color="emerald" />
-                <KpiMiniCardEmpty label="평균CTR" color="emerald" />
-                <KpiMiniCardEmpty label="평균순위" color="emerald" />
+                <KpiMiniCardEmpty label={t('gsc', 'clicksShort', lang)} color="emerald" />
+                <KpiMiniCardEmpty label={t('gsc', 'impressionsShort', lang)} color="emerald" />
+                <KpiMiniCardEmpty label={t('gsc', 'avgCtrShort', lang)} color="emerald" />
+                <KpiMiniCardEmpty label={t('gsc', 'avgPositionShort', lang)} color="emerald" />
               </>
             )}
           </div>
@@ -891,7 +894,7 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
                 {crossPages.length > 10 && (
                   <button onClick={() => setExpandedCross(!expandedCross)} className="mt-3 flex items-center gap-1 text-xs text-slate-500 hover:text-indigo-600">
                     {expandedCross ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-                    {expandedCross ? '접기' : `나머지 ${crossPages.length - 10}개 더 보기`}
+                    {expandedCross ? t('common', 'collapse', lang) : tExpand(crossPages.length - 10, lang)}
                   </button>
                 )}
                 <div className="mt-3 p-3 bg-slate-50 rounded-xl text-[10px] text-slate-400 leading-relaxed">
@@ -1036,7 +1039,7 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
                           <button onClick={() => setFunnelExpanded(!funnelExpanded)}
                             className="mt-2 flex items-center gap-1 text-xs text-slate-500 hover:text-violet-600 transition-colors">
                             {funnelExpanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-                            {funnelExpanded ? '접기' : `나머지 ${funnelData.pages.length - 5}개 더 보기`}
+                            {funnelExpanded ? t('common', 'collapse', lang) : tExpand(funnelData.pages.length - 5, lang)}
                           </button>
                         )}
                       </div>
@@ -1091,7 +1094,7 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
                 {gscData.aiOverviewCandidates.length > 4 && (
                   <button onClick={() => setExpandedAI(!expandedAI)} className="mt-3 flex items-center gap-1 text-xs text-slate-500 hover:text-emerald-600 transition-colors">
                     {expandedAI ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-                    {expandedAI ? '접기' : `나머지 ${gscData.aiOverviewCandidates.length - 4}개 더 보기`}
+                    {expandedAI ? t('common', 'collapse', lang) : tExpand(gscData.aiOverviewCandidates.length - 4, lang)}
                   </button>
                 )}
               </div>
@@ -1145,7 +1148,7 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
                 {gscData.nearMissQueries.length > 8 && (
                   <button onClick={() => setExpandedNearMiss(!expandedNearMiss)} className="mt-2 flex items-center gap-1 text-xs text-slate-500 hover:text-indigo-600">
                     {expandedNearMiss ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-                    {expandedNearMiss ? '접기' : `나머지 ${gscData.nearMissQueries.length - 8}개 더 보기`}
+                    {expandedNearMiss ? t('common', 'collapse', lang) : tExpand(gscData.nearMissQueries.length - 8, lang)}
                   </button>
                 )}
               </div>
@@ -1306,8 +1309,8 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
                     <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
                     <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', fontSize: '12px' }} />
-                    <Area type="monotone" dataKey="세션" stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#miSession)" />
-                    <Area type="monotone" dataKey="신규사용자" stroke="#10b981" strokeWidth={2} fillOpacity={0} />
+                    <Area type="monotone" dataKey="세션" name={t('ga4', 'sessions', lang)} stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#miSession)" />
+                    <Area type="monotone" dataKey="신규사용자" name={t('ga4', 'newUsers', lang)} stroke="#10b981" strokeWidth={2} fillOpacity={0} />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -1408,7 +1411,7 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
                 {pageReport && (
                   <button onClick={() => setShowPageReport(!showPageReport)} className="flex items-center gap-1 text-xs text-slate-500 hover:text-indigo-600">
                     {showPageReport ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                    {showPageReport ? '접기' : '개선안 보기'}
+                    {showPageReport ? t('common', 'collapse', lang) : (lang === 'en' ? 'View suggestions' : lang === 'ja' ? '改善案を見る' : '개선안 보기')}
                   </button>
                 )}
               </div>

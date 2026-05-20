@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import { useAppLang } from '@/components/AppLangContext';
-import { t } from '@/lib/app-i18n';
+import { t, tExpand } from '@/lib/app-i18n';
 import {
   BarChart3, Loader2, CheckCircle2, XCircle, AlertCircle, Zap,
   TrendingUp, TrendingDown, Users, Globe, Monitor, Smartphone, Tablet,
@@ -146,7 +146,7 @@ function buildPresets(): { name: string; periods: ComparePeriod[] }[] {
 }
 
 // ── Scoring ────────────────────────────────────────────────────────────────
-function scorePages(pages: TopPage[]): ScoredPage[] {
+function scorePages(pages: TopPage[], lang: import('@/lib/app-i18n').AppLang = 'ko'): ScoredPage[] {
   if (!pages.length) return [];
   const maxPV = Math.max(...pages.map((p) => p.pageViews), 1);
 
@@ -155,11 +155,11 @@ function scorePages(pages: TopPage[]): ScoredPage[] {
       const tw = p.pageViews / maxPV;
       const issues: string[] = [];
 
-      if (p.bounceRate > 0.7) issues.push(`이탈률 높음 (${Math.round(p.bounceRate * 100)}%)`);
-      else if (p.bounceRate > 0.55) issues.push(`이탈률 주의 (${Math.round(p.bounceRate * 100)}%)`);
+      if (p.bounceRate > 0.7) issues.push(`${t('ga4', 'bounceHigh', lang)} (${Math.round(p.bounceRate * 100)}%)`);
+      else if (p.bounceRate > 0.55) issues.push(`${t('ga4', 'bounceWarn', lang)} (${Math.round(p.bounceRate * 100)}%)`);
 
-      if (p.avgDuration < 30) issues.push(`체류시간 매우 짧음 (${Math.round(p.avgDuration)}초)`);
-      else if (p.avgDuration < 60) issues.push(`체류시간 짧음 (${Math.round(p.avgDuration)}초)`);
+      if (p.avgDuration < 30) issues.push(`${t('ga4', 'durationVeryShort', lang)} (${Math.round(p.avgDuration)}s)`);
+      else if (p.avgDuration < 60) issues.push(`${t('ga4', 'durationShort', lang)} (${Math.round(p.avgDuration)}s)`);
 
       const bounceScore = Math.max(0, p.bounceRate - 0.4) / 0.6;
       const durScore = Math.max(0, 1 - p.avgDuration / 120);
@@ -300,7 +300,7 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
     try {
       const res = await fetch('/api/ga4/check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: siteUrl }) });
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || `서버 오류 (${res.status})`);
+      if (!res.ok) throw new Error(data?.error || `${t('ga4', 'serverError', lang)} (${res.status})`);
       setCheckResult(data);
       onToast(t('ga4', 'check_done', lang));
     } catch (e) { setError(e instanceof Error ? e.message : '오류'); }
@@ -313,7 +313,7 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
     try {
       const res = await fetch('/api/ga4/data', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ propertyId }) });
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || `서버 오류 (${res.status})`);
+      if (!res.ok) throw new Error(data?.error || `${t('ga4', 'serverError', lang)} (${res.status})`);
       setGa4Data(data);
       onToast(t('ga4', 'data_loaded', lang));
       setInsightLoading(true);
@@ -330,14 +330,14 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
     try {
       const res = await fetch('/api/ga4/compare', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ propertyId, periods }) });
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || `서버 오류 (${res.status})`);
+      if (!res.ok) throw new Error(data?.error || `${t('ga4', 'serverError', lang)} (${res.status})`);
       setCompareData(data);
       onToast(t('ga4', 'compare_done', lang));
     } catch (e) { setError(e instanceof Error ? e.message : '오류'); }
     finally { setCompareLoading(false); }
   };
 
-  const scoredPages = useMemo(() => (ga4Data ? scorePages(ga4Data.topPages) : []), [ga4Data]);
+  const scoredPages = useMemo(() => (ga4Data ? scorePages(ga4Data.topPages, lang) : []), [ga4Data, lang]);
   const problemPages = scoredPages.filter((p) => p.priority !== '양호');
 
   const fetchPageReport = async () => {
@@ -355,7 +355,7 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || `서버 오류 (${res.status})`);
+      if (!res.ok) throw new Error(data?.error || `${t('ga4', 'serverError', lang)} (${res.status})`);
       setPageReport(data);
       setShowPageReport(true);
       onToast('페이지 개선안 분석이 완료됐습니다.');
@@ -509,7 +509,7 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
                     {periods.map((p, i) => (
                       <div key={i} className={'p-3 rounded-xl border ' + (i === 0 ? 'border-indigo-200 bg-indigo-50' : 'border-slate-200 bg-slate-50')}>
                         <div className={'text-[10px] font-black uppercase tracking-wide mb-2 ' + (i === 0 ? 'text-indigo-600' : 'text-slate-500')}>
-                          {i === 0 ? '기준 기간' : `비교 기간 ${i}`}
+                          {i === 0 ? t('ga4', 'basePeriod', lang) : `${t('ga4', 'comparePeriod', lang)} ${i}`}
                         </div>
                         <div className="text-xs font-bold text-slate-700 mb-1">{p.label}</div>
                         <input type="date" value={p.start} onChange={(e) => { const next = [...periods]; next[i] = { ...next[i], start: e.target.value }; setPeriods(next); }}
@@ -650,14 +650,14 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
       {ga4Data && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard label="총 세션" value={formatNumber(ga4Data.totals.sessions)} icon={<Globe size={16} />} color="bg-indigo-600" />
-            <StatCard label="활성 사용자" value={formatNumber(ga4Data.totals.activeUsers)} sub={'신규 ' + formatNumber(ga4Data.totals.newUsers)} icon={<Users size={16} />} color="bg-emerald-500" />
-            <StatCard label="평균 이탈률" value={ga4Data.totals.avgBounceRate + '%'} icon={<TrendingDown size={16} />} color={ga4Data.totals.avgBounceRate > 60 ? 'bg-rose-500' : 'bg-amber-500'} />
-            <StatCard label="평균 세션 시간" value={formatDuration(ga4Data.totals.avgSessionDuration)} icon={<Clock size={16} />} color="bg-purple-500" />
+            <StatCard label={t('ga4', 'totalSessions', lang)} value={formatNumber(ga4Data.totals.sessions)} icon={<Globe size={16} />} color="bg-indigo-600" />
+            <StatCard label={t('ga4', 'activeUsers', lang)} value={formatNumber(ga4Data.totals.activeUsers)} sub={t('ga4', 'newShort', lang) + ' ' + formatNumber(ga4Data.totals.newUsers)} icon={<Users size={16} />} color="bg-emerald-500" />
+            <StatCard label={t('ga4', 'avgBounceRate', lang)} value={ga4Data.totals.avgBounceRate + '%'} icon={<TrendingDown size={16} />} color={ga4Data.totals.avgBounceRate > 60 ? 'bg-rose-500' : 'bg-amber-500'} />
+            <StatCard label={t('ga4', 'avgDuration', lang)} value={formatDuration(ga4Data.totals.avgSessionDuration)} icon={<Clock size={16} />} color="bg-purple-500" />
           </div>
 
           <Card className="p-6">
-            <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><TrendingUp size={18} className="text-indigo-600" /> 최근 30일 세션 추이</h4>
+            <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><TrendingUp size={18} className="text-indigo-600" /> {t('ga4', 'sessionTrend', lang)}</h4>
             <div className="h-52">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={trendChartData}>
@@ -671,8 +671,8 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
                   <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
                   <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
                   <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', fontSize: '12px' }} />
-                  <Area type="monotone" dataKey="세션" stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#gSession)" />
-                  <Area type="monotone" dataKey="신규사용자" stroke="#10b981" strokeWidth={2} fillOpacity={0} />
+                  <Area type="monotone" dataKey="세션" name={t('ga4', 'sessions', lang)} stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#gSession)" />
+                  <Area type="monotone" dataKey="신규사용자" name={t('ga4', 'newUsers', lang)} stroke="#10b981" strokeWidth={2} fillOpacity={0} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -687,7 +687,7 @@ export default function GA4Module({ onToast }: { onToast: (msg: string) => void 
                     <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
                     <YAxis type="category" dataKey="channel" width={90} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
                     <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', fontSize: '12px' }} />
-                    <Bar dataKey="sessions" name="세션" radius={[0, 4, 4, 0]}>
+                    <Bar dataKey="sessions" name={t('ga4', 'sessions', lang)} radius={[0, 4, 4, 0]}>
                       {ga4Data.channels.map((c, i) => <Cell key={i} fill={CHANNEL_COLORS[c.channel] ?? PIE_COLORS[i % PIE_COLORS.length]} />)}
                     </Bar>
                   </BarChart>
