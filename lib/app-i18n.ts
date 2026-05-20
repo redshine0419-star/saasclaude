@@ -382,6 +382,38 @@ const T = {
     runBtn:      { ko: '일괄 진단',                                            en: 'Bulk Diagnose',                                 ja: '一括診断'              },
     running:     { ko: '분석 중…',                                             en: 'Analyzing…',                                   ja: '分析中…'              },
     scanningMsg: { ko: '사이트맵 탐색 → 최대 20개 페이지 병렬 분석 중… (약 20~30초 소요)', en: 'Crawling sitemap → parallel analysis of up to 20 pages… (~20–30s)', ja: 'サイトマップ探索 → 最大20ページ並列分析中…（約20〜30秒）' },
+    /* score labels */
+    scoreGood:   { ko: '양호',            en: 'Good',           ja: '良好'              },
+    scoreWarn:   { ko: '주의',            en: 'Caution',        ja: '注意'              },
+    scoreDanger: { ko: '위험',            en: 'Danger',         ja: '危険'              },
+    /* error */
+    httpError:   { ko: '오류 ({status})', en: 'Error ({status})', ja: 'エラー ({status})' },
+    genericError:{ ko: '오류가 발생했습니다.', en: 'An error occurred.', ja: 'エラーが発生しました。' },
+    /* toast */
+    toastDone:   { ko: '{n}개 페이지 진단 완료 — 평균 GEO 점수 {score}점', en: '{n} pages diagnosed — avg GEO score {score}', ja: '{n}ページ診断完了 — 平均GEOスコア {score}' },
+    /* result section labels */
+    scoreDist:   { ko: '점수 분포',       en: 'Score Distribution', ja: 'スコア分布'       },
+    aiPriority:  { ko: 'AI 사이트 전체 개선 우선순위', en: 'AI Site-wide Improvement Priorities', ja: 'AIサイト全体改善優先順位' },
+    aiPrioritySub: { ko: '전체 페이지 분석 기반 즉시 실행 가능한 액션', en: 'Immediately actionable items based on full-page analysis', ja: '全ページ分析に基づく即実行可能なアクション' },
+    commonIssues:{ ko: '사이트 공통 이슈', en: 'Common Site Issues', ja: 'サイト共通の課題'   },
+    pageScores:  { ko: '페이지별 GEO 점수', en: 'Per-page GEO Scores', ja: 'ページ別GEOスコア' },
+    sortLabel:   { ko: '정렬:',           en: 'Sort:',          ja: '並替:'             },
+    sortByScore: { ko: '점수순',          en: 'By score',       ja: 'スコア順'           },
+    sortByUrl:   { ko: 'URL순',           en: 'By URL',         ja: 'URL順'             },
+    sitemapInfo: { ko: '사이트맵: ',      en: 'Sitemap: ',      ja: 'サイトマップ: '     },
+    urlsFound:   { ko: '총 {total}개 URL 발견 · {analyzed}개 분석', en: '{total} URLs found · {analyzed} analyzed', ja: '合計{total}件URL発見 · {analyzed}件分析' },
+    noFixNeeded: { ko: '개선 불필요',     en: 'No fix needed',  ja: '改善不要'           },
+    partialFix:  { ko: '부분 개선 권장',  en: 'Partial fix recommended', ja: '部分的改善推奨' },
+    urgentFix:   { ko: '즉시 개선 필요',  en: 'Immediate fix needed', ja: '即時改善が必要'   },
+    pagesCount:  { ko: '{n}개 페이지',    en: '{n} pages',      ja: '{n}ページ'          },
+    wordUnit:    { ko: '단어',            en: 'words',          ja: '語'                },
+    /* avg geo score label */
+    avgGeoScore: { ko: '평균 GEO 점수',   en: 'Avg GEO Score',  ja: '平均GEOスコア'      },
+    goodLabel:   { ko: '양호 (70+)',      en: 'Good (70+)',     ja: '良好 (70+)'         },
+    warnLabel:   { ko: '주의 (40~69)',    en: 'Caution (40~69)', ja: '注意 (40~69)'      },
+    dangerLabel: { ko: '위험 (~39)',      en: 'Danger (~39)',   ja: '危険 (~39)'         },
+    /* page count in issues */
+    issuePages:  { ko: '{count}/{total} 페이지', en: '{count}/{total} pages', ja: '{count}/{total}ページ' },
   },
 
   /* ── AI Search Quality ───────────────────────────────────────────────── */
@@ -393,6 +425,43 @@ const T = {
     runBtn:      { ko: 'AI 검색 시뮬레이션',                                   en: 'AI Search Simulation',                          ja: 'AI検索シミュレーション'  },
     running:     { ko: '시뮬레이션 중…',                                       en: 'Simulating…',                                  ja: 'シミュレーション中…'    },
     runningMsg:  { ko: '5개 AI 검색 질문 시뮬레이션 중 (약 20초)',              en: 'Simulating 5 AI search queries (~20s)',          ja: '5件のAI検索質問をシミュレーション中（約20秒）' },
+    /* tone labels */
+    tonePositive:    { ko: '긍정',    en: 'Positive',  ja: 'ポジティブ' },
+    toneNeutral:     { ko: '중립',    en: 'Neutral',   ja: 'ニュートラル' },
+    toneNegative:    { ko: '부정',    en: 'Negative',  ja: 'ネガティブ' },
+    toneNotMentioned:{ ko: '미언급',  en: 'Not Mentioned', ja: '未言及' },
+    /* score labels */
+    scoreGood:   { ko: '양호',        en: 'Good',      ja: '良好'      },
+    scoreImprove:{ ko: '개선 필요',   en: 'Needs Improvement', ja: '改善必要' },
+    scoreDanger: { ko: '위험',        en: 'Danger',    ja: '危険'      },
+    /* geo visibility */
+    geoVisibility: { ko: 'GEO 가시성', en: 'GEO Visibility', ja: 'GEO可視性' },
+    /* stats labels */
+    aiMentionCount:  { ko: 'AI 언급 횟수', en: 'AI Mentions',        ja: 'AI言及回数'       },
+    mentionInQuest:  { ko: '질문 중 언급', en: 'Mentioned in queries', ja: '質問中の言及'    },
+    includeRecommend:{ ko: '추천 포함',    en: 'With Recommendation', ja: '推薦含む'         },
+    firstRecommend:  { ko: '첫 추천에 등장', en: 'First Recommendation', ja: '最初の推薦に登場' },
+    geoSignalLabel:  { ko: 'GEO 신호',    en: 'GEO Signals',        ja: 'GEOシグナル'      },
+    optimizedItems:  { ko: '최적화 항목',  en: 'Optimized Items',    ja: '最適化項目'       },
+    /* section titles */
+    geoOptSignals:   { ko: 'GEO 최적화 신호', en: 'GEO Optimization Signals', ja: 'GEO最適化シグナル' },
+    signalGood:      { ko: '양호',    en: 'Good',    ja: '良好'  },
+    signalWarn:      { ko: '주의',    en: 'Caution', ja: '注意'  },
+    signalMissing:   { ko: '누락',    en: 'Missing', ja: '欠如'  },
+    geoPriority:     { ko: 'GEO 가시성 개선 우선순위', en: 'GEO Visibility Improvement Priorities', ja: 'GEO可視性改善優先順位' },
+    simResults:      { ko: 'AI 검색 시뮬레이션 결과', en: 'AI Search Simulation Results', ja: 'AI検索シミュレーション結果' },
+    recommendBadge:  { ko: '추천 포함', en: 'Recommended', ja: '推薦含む' },
+    fullResponse:    { ko: 'AI 검색 응답 전문', en: 'Full AI Search Response', ja: 'AI検索応答全文' },
+    scoreLabel:      { ko: '점수: ',  en: 'Score: ',  ja: 'スコア: '  },
+    mentionLabel:    { ko: '언급: ',  en: 'Mention: ', ja: '言及: '   },
+    recommendLabel:  { ko: '추천: ',  en: 'Recommended: ', ja: '推薦: ' },
+    present:         { ko: '있음',    en: 'Yes',      ja: 'あり'      },
+    absent:          { ko: '없음',    en: 'No',       ja: 'なし'      },
+    /* toast */
+    toastDone:       { ko: '{brand} AI 검색 품질 진단 완료 — {score}점', en: '{brand} AI search quality diagnosis complete — {score}pts', ja: '{brand} AI検索品質診断完了 — {score}点' },
+    genericError:    { ko: '오류가 발생했습니다.', en: 'An error occurred.', ja: 'エラーが発生しました。' },
+    httpError:       { ko: '오류 ({status})', en: 'Error ({status})', ja: 'エラー ({status})' },
+    questionsCount:  { ko: '{n}개 질문', en: '{n} questions', ja: '{n}件の質問' },
   },
 
   /* ── Competitor Gap ──────────────────────────────────────────────────── */
@@ -404,6 +473,38 @@ const T = {
     runBtn:      { ko: '갭 분석 시작',                                         en: 'Start Gap Analysis',                            ja: 'ギャップ分析開始'        },
     running:     { ko: '분석 중…',                                             en: 'Analyzing…',                                   ja: '分析中…'              },
     runningMsg:  { ko: '두 페이지 크롤링 후 AI 비교 분석 중 (약 15초)',          en: 'Crawling both pages then AI comparison (~15s)',  ja: '2ページをクロール後AI比較分析中（約15秒）' },
+    /* gap score labels */
+    gapBig:      { ko: '격차 큼',    en: 'Large Gap',  ja: 'ギャップ大'   },
+    gapMedium:   { ko: '격차 보통',  en: 'Medium Gap', ja: 'ギャップ中'   },
+    gapAdvantage:{ ko: '우위',       en: 'Advantage',  ja: '優位'         },
+    /* toast */
+    toastDone:   { ko: '경쟁사 콘텐츠 갭 분석 완료 — 격차 점수 {score}점', en: 'Competitor content gap analysis complete — gap score {score}', ja: '競合コンテンツギャップ分析完了 — ギャップスコア {score}' },
+    genericError:{ ko: '오류가 발생했습니다.', en: 'An error occurred.', ja: 'エラーが発生しました。' },
+    httpError:   { ko: '오류 ({status})', en: 'Error ({status})', ja: 'エラー ({status})' },
+    /* result section labels */
+    gapScoreLabel: { ko: '콘텐츠 갭 점수', en: 'Content Gap Score', ja: 'コンテンツギャップスコア' },
+    gapScoreSub:   { ko: '100에 가까울수록 격차 큼', en: 'Closer to 100 = larger gap', ja: '100に近いほどギャップが大きい' },
+    siteComparison:{ ko: '사이트 지표 비교', en: 'Site Metrics Comparison', ja: 'サイト指標比較' },
+    colDomain:     { ko: '도메인',    en: 'Domain',     ja: 'ドメイン'   },
+    colWordCount:  { ko: '단어 수',   en: 'Word Count', ja: '語数'       },
+    colH2Count:    { ko: 'H2 개수',   en: 'H2 Count',   ja: 'H2数'       },
+    colStructData: { ko: '구조화 데이터', en: 'Structured Data', ja: '構造化データ' },
+    yes:           { ko: '있음',      en: 'Yes',        ja: 'あり'       },
+    no:            { ko: '없음',      en: 'No',         ja: 'なし'       },
+    labelOurs:     { ko: '(우리)',    en: '(ours)',      ja: '(我々)'     },
+    labelComp:     { ko: '(경쟁사)',  en: '(competitor)', ja: '(競合)'   },
+    aiSummary:     { ko: 'AI 분석 요약', en: 'AI Analysis Summary', ja: 'AI分析サマリー' },
+    compOnlyTopics:{ ko: '경쟁사만 다루는 주제', en: 'Topics Only Competitor Covers', ja: '競合のみカバーするトピック' },
+    ourOnlyTopics: { ko: '우리만 다루는 주제', en: 'Topics Only We Cover', ja: '我々のみカバーするトピック' },
+    ourAdvantages: { ko: '우리 강점', en: 'Our Advantages', ja: '我々の強み' },
+    commonTopics:  { ko: '공통 주제', en: 'Common Topics', ja: '共通トピック' },
+    noCompTopics:  { ko: '경쟁사 전용 주제가 없습니다.', en: 'No competitor-only topics found.', ja: '競合専用トピックはありません。' },
+    noOurTopics:   { ko: '차별화된 주제가 없습니다.', en: 'No unique topics found.', ja: '差別化されたトピックはありません。' },
+    contentRec:    { ko: '콘텐츠 제작 추천', en: 'Content Creation Recommendations', ja: 'コンテンツ制作推薦' },
+    contentRecSub: { ko: '갭 분석 기반 즉시 제작 가능한 콘텐츠 목록', en: 'Immediately producible content based on gap analysis', ja: 'ギャップ分析に基づく即制作可能なコンテンツ一覧' },
+    keywordLabel:  { ko: '키워드:',   en: 'Keyword:',   ja: 'キーワード:' },
+    expectedImpact:{ ko: '기대 효과 ', en: 'Est. Impact ', ja: '期待効果 '   },
+    countN:        { ko: '{n}개',     en: '{n}',        ja: '{n}件'       },
   },
 
   /* ── Work tabs ───────────────────────────────────────────────────────── */
