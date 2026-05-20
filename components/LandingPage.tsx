@@ -341,6 +341,8 @@ export default function LandingPage({ lang, isLoggedIn = false }: { lang: 'ko' |
   const t = T[lang];
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
+  const appHref = lang !== 'ko' ? `/app?lang=${lang}` : '/app';
+  const appProjectsHref = lang !== 'ko' ? `/app?lang=${lang}&tab=projects` : '/app?tab=projects';
 
   // Sync homepage language to app dashboard localStorage
   useEffect(() => {
@@ -386,15 +388,15 @@ export default function LandingPage({ lang, isLoggedIn = false }: { lang: 'ko' |
             {/* Desktop CTA */}
             {isLoggedIn ? (
               <div className="hidden md:flex items-center gap-2">
-                <Link href="/app" className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-md border border-[#d0d7de] dark:border-[#30363d] text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] transition-colors">
+                <Link href={appHref} className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-md border border-[#d0d7de] dark:border-[#30363d] text-[#24292f] dark:text-[#e6edf3] hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] transition-colors">
                   {lang === 'ja' ? 'マーケティング' : lang === 'en' ? 'Marketing' : '마케팅 도구'}
                 </Link>
-                <Link href="/app?tab=projects" className="flex items-center gap-1.5 bg-[#000] hover:bg-[#333] dark:bg-white dark:hover:bg-[#eee] dark:text-black text-white text-sm font-semibold px-3 py-2 rounded-md transition-colors">
+                <Link href={appProjectsHref} className="flex items-center gap-1.5 bg-[#000] hover:bg-[#333] dark:bg-white dark:hover:bg-[#eee] dark:text-black text-white text-sm font-semibold px-3 py-2 rounded-md transition-colors">
                   {lang === 'ja' ? '業務管理' : lang === 'en' ? 'Work' : '업무 관리'} <ChevronRight size={14} />
                 </Link>
               </div>
             ) : (
-              <Link href="/app" className="hidden md:flex items-center gap-1.5 bg-[#000] hover:bg-[#333] dark:bg-white dark:hover:bg-[#eee] dark:text-black text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors">
+              <Link href={appHref} className="hidden md:flex items-center gap-1.5 bg-[#000] hover:bg-[#333] dark:bg-white dark:hover:bg-[#eee] dark:text-black text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors">
                 {t.nav_cta} <ChevronRight size={14} />
               </Link>
             )}
@@ -417,17 +419,17 @@ export default function LandingPage({ lang, isLoggedIn = false }: { lang: 'ko' |
             </Link>
             {isLoggedIn ? (
               <div className="flex flex-col gap-2">
-                <Link href="/app" onClick={() => setMobileMenuOpen(false)}
+                <Link href={appHref} onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center justify-center gap-1.5 border border-[#d0d7de] dark:border-[#30363d] text-[#24292f] dark:text-[#e6edf3] text-sm font-semibold px-4 py-2.5 rounded-md transition-colors hover:bg-[#f6f8fa] dark:hover:bg-[#21262d]">
                   {lang === 'ja' ? 'マーケティング' : lang === 'en' ? 'Marketing Tools' : '마케팅 도구'}
                 </Link>
-                <Link href="/app?tab=projects" onClick={() => setMobileMenuOpen(false)}
+                <Link href={appProjectsHref} onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center justify-center gap-1.5 bg-[#000] hover:bg-[#333] dark:bg-white dark:hover:bg-[#eee] dark:text-black text-white text-sm font-semibold px-4 py-2.5 rounded-md transition-colors">
                   {lang === 'ja' ? '業務管理' : lang === 'en' ? 'Work Management' : '업무 관리'} <ChevronRight size={14} />
                 </Link>
               </div>
             ) : (
-              <Link href="/app" onClick={() => setMobileMenuOpen(false)}
+              <Link href={appHref} onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center justify-center gap-1.5 bg-[#000] hover:bg-[#333] dark:bg-white dark:hover:bg-[#eee] dark:text-black text-white text-sm font-semibold px-4 py-2.5 rounded-md transition-colors">
                 {t.nav_cta} <ChevronRight size={14} />
               </Link>
@@ -459,7 +461,7 @@ export default function LandingPage({ lang, isLoggedIn = false }: { lang: 'ko' |
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
-            <Link href="/app"
+            <Link href={appHref}
               className="flex items-center gap-2 bg-white hover:bg-[#eee] text-black font-bold text-base px-7 py-3.5 rounded-md transition-colors">
               <Zap size={18} fill="currentColor" />
               {t.hero_cta}
@@ -512,7 +514,7 @@ export default function LandingPage({ lang, isLoggedIn = false }: { lang: 'ko' |
             {FEATURES.map((f, i) => {
               const copy = lang === 'ko' ? f.ko : lang === 'ja' ? f.ja : f.en;
               return (
-                <Link key={i} href="/app"
+                <Link key={i} href={appHref}
                   className="group flex items-start gap-4 p-5 bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded-xl hover:border-[#000] dark:hover:border-white transition-colors">
                   <div className="w-8 h-8 rounded-md bg-[#f6f8fa] dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] flex items-center justify-center shrink-0 text-[#24292f] dark:text-[#e6edf3] group-hover:bg-black group-hover:text-white group-hover:border-black dark:group-hover:bg-white dark:group-hover:text-black dark:group-hover:border-white transition-colors">
                     {f.icon}
@@ -574,7 +576,7 @@ export default function LandingPage({ lang, isLoggedIn = false }: { lang: 'ko' |
                     </li>
                   ))}
                 </ul>
-                <Link href="/app"
+                <Link href={appHref}
                   className="block w-full bg-white hover:bg-[#eee] text-black font-bold py-3 rounded-md transition-colors text-center text-sm">
                   {t.pricing_cta}
                 </Link>
@@ -621,7 +623,7 @@ export default function LandingPage({ lang, isLoggedIn = false }: { lang: 'ko' |
         <div className="relative max-w-6xl mx-auto px-6 py-20 md:py-28 text-center">
           <h2 className="text-3xl md:text-5xl font-black tracking-tighter mb-3">{t.cta_title}</h2>
           <p className="text-white/50 text-sm font-medium mb-10">{t.cta_sub}</p>
-          <Link href="/app"
+          <Link href={appHref}
             className="inline-flex items-center gap-2 bg-white hover:bg-[#eee] text-black font-bold text-base px-8 py-3.5 rounded-md transition-colors">
             <Zap size={18} fill="currentColor" />
             {t.cta_btn}

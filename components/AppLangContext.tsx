@@ -17,6 +17,17 @@ export function AppLangProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const path = window.location.pathname;
+    const params = new URLSearchParams(window.location.search);
+    const queryLang = params.get('lang') as AppLang | null;
+
+    // 1순위: URL 쿼리 파라미터 (?lang=en)
+    if (queryLang && ['ko', 'en', 'ja'].includes(queryLang)) {
+      setLangState(queryLang);
+      localStorage.setItem(STORAGE_KEY, queryLang);
+      return;
+    }
+
+    // 2순위: URL 경로 (/en, /ja)
     if (path.startsWith('/en') || path.startsWith('/blog/en')) {
       setLangState('en');
       localStorage.setItem(STORAGE_KEY, 'en');
@@ -27,6 +38,8 @@ export function AppLangProvider({ children }: { children: ReactNode }) {
       localStorage.setItem(STORAGE_KEY, 'ja');
       return;
     }
+
+    // 3순위: localStorage
     const saved = localStorage.getItem(STORAGE_KEY) as AppLang | null;
     if (saved && ['ko', 'en', 'ja'].includes(saved)) setLangState(saved);
   }, []);

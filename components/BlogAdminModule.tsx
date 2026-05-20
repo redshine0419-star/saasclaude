@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Loader2, Trash2, ExternalLink, RefreshCw, Plus, Globe, Pencil, X, Clock, ChevronDown, ChevronUp, Zap, Share2, Copy, Check } from 'lucide-react';
 import type { PostIndex, BlogPost } from '@/app/api/blog/generate/route';
 import type { ScheduleConfig } from '@/app/api/blog/schedule/route';
+import { useAppLang } from '@/components/AppLangContext';
 
 type Lang = 'ko' | 'en' | 'ja';
 
@@ -140,6 +141,7 @@ Startup growth hacking with organic content instead of paid ads`;
 const inputCls = 'w-full px-3 py-2 text-sm border border-[#d0d7de] dark:border-[#30363d] rounded-md bg-white dark:bg-[#0d1117] text-[#24292f] dark:text-[#e6edf3] focus:outline-none focus:border-[#57606a] dark:focus:border-[#8b949e]';
 
 export default function BlogAdminModule({ onToast }: Props) {
+  const { lang: uiLang } = useAppLang();
   const [lang, setLang] = useState<Lang>('ko');
   const [keyword, setKeyword] = useState('');
   const [targetAudience, setTargetAudience] = useState('');
@@ -338,7 +340,7 @@ export default function BlogAdminModule({ onToast }: Props) {
       const res = await fetch(`/api/blog/cron?lang=${scheduleLang}`, { method: 'POST' });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      onToast(`테스트 발행 완료! 포스트: ${data.slug}`);
+      onToast(uiLang === 'en' ? `Test published! Post: ${data.slug}` : uiLang === 'ja' ? `テスト発行完了！ポスト: ${data.slug}` : `테스트 발행 완료! 포스트: ${data.slug}`);
       fetchPosts(scheduleLang);
       fetchSchedule(scheduleLang);
     } catch (e) {
@@ -458,7 +460,9 @@ export default function BlogAdminModule({ onToast }: Props) {
     setBulkRunning(false);
     setBulkCurrentKeyword('');
     fetchPosts(lang);
-    onToast(stopRef.current ? '대량 생성이 중지되었습니다.' : `대량 생성 완료! (오류 ${failed.length}건)`);
+    onToast(stopRef.current
+      ? (uiLang === 'en' ? 'Bulk generation stopped.' : uiLang === 'ja' ? '一括生成を停止しました。' : '대량 생성이 중지되었습니다.')
+      : (uiLang === 'en' ? `Bulk generation complete! (${failed.length} errors)` : uiLang === 'ja' ? `一括生成完了！(エラー${failed.length}件)` : `대량 생성 완료! (오류 ${failed.length}건)`));
   };
 
   const toneOptions = lang === 'ko'
@@ -852,12 +856,12 @@ export default function BlogAdminModule({ onToast }: Props) {
                   <td className="px-3 py-3">
                     <div className="flex items-center gap-1 relative">
                       <button onClick={() => handleEditOpen(post.slug)} disabled={editLoading}
-                        className="p-1.5 text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors disabled:opacity-50" title="수정"
+                        className="p-1.5 text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors disabled:opacity-50" title={uiLang === 'en' ? 'Edit' : uiLang === 'ja' ? '編集' : '수정'}
                       >
                         {editLoading ? <Loader2 size={14} className="animate-spin" /> : <Pencil size={14} />}
                       </button>
                       <button onClick={() => handleDelete(post.slug)} disabled={deletingSlug === post.slug}
-                        className="p-1.5 text-[#57606a] dark:text-[#8b949e] hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50" title="삭제"
+                        className="p-1.5 text-[#57606a] dark:text-[#8b949e] hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50" title={uiLang === 'en' ? 'Delete' : uiLang === 'ja' ? '削除' : '삭제'}
                       >
                         {deletingSlug === post.slug ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
                       </button>
@@ -868,7 +872,7 @@ export default function BlogAdminModule({ onToast }: Props) {
                           setExportMenu(exportMenu?.slug === post.slug ? null : { slug: post.slug });
                         }}
                         className="p-1.5 text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors"
-                        title="내보내기"
+                        title={uiLang === 'en' ? 'Export' : uiLang === 'ja' ? 'エクスポート' : '내보내기'}
                       >
                         {publishingMedium === post.slug ? <Loader2 size={14} className="animate-spin" /> : copiedSlug === post.slug ? <Check size={14} className="text-green-500" /> : <Share2 size={14} />}
                       </button>
