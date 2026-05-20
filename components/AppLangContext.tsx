@@ -16,6 +16,17 @@ export function AppLangProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<AppLang>('ko');
 
   useEffect(() => {
+    const path = window.location.pathname;
+    if (path.startsWith('/en') || path.startsWith('/blog/en')) {
+      setLangState('en');
+      localStorage.setItem(STORAGE_KEY, 'en');
+      return;
+    }
+    if (path.startsWith('/ja') || path.startsWith('/blog/ja')) {
+      setLangState('ja');
+      localStorage.setItem(STORAGE_KEY, 'ja');
+      return;
+    }
     const saved = localStorage.getItem(STORAGE_KEY) as AppLang | null;
     if (saved && ['ko', 'en', 'ja'].includes(saved)) setLangState(saved);
   }, []);
