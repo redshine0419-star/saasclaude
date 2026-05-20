@@ -203,6 +203,7 @@ const T = {
     services:    { ko: '주요 서비스 / 제품', en: 'Key Services / Products', en2: 'Comma-separated', ja: '主要サービス/製品' },
     targetUser:  { ko: '타겟 고객', en: 'Target Audience', ja: 'ターゲット顧客' },
     mainUrls:    { ko: '주요 URL', en: 'Key URLs', ja: '主要URL' },
+    mainUrlsPh:  { ko: '홈: https://example.com\n블로그: https://example.com/blog\n문서: https://example.com/docs', en: 'Home: https://example.com\nBlog: https://example.com/blog\nDocs: https://example.com/docs', ja: 'ホーム: https://example.com\nブログ: https://example.com/blog\nドキュメント: https://example.com/docs' },
     mainUrlsHint: { ko: 'AI 봇이 참고해야 할 페이지 목록', en: 'Pages AI bots should reference', ja: 'AIボットが参照すべきページ一覧' },
     aiInstructions: { ko: 'AI 봇 안내 메시지', en: 'AI Bot Instructions', ja: 'AIボット向けメッセージ' },
     aiInstructPh:   { ko: 'AI 모델에게 전달할 특별 지시사항 (선택)', en: 'Special instructions for AI models (optional)', ja: 'AIモデルへの特別な指示（任意）' },
@@ -224,8 +225,11 @@ const T = {
   /* ── SOV ─────────────────────────────────────────────────────────────── */
   sov: {
     title:       { ko: 'AI Share of Voice', en: 'AI Share of Voice', ja: 'AI Share of Voice' },
+    subtitle:    { ko: 'AI가 특정 질문에 답할 때 우리 브랜드를 얼마나 언급하는지 측정합니다.', en: 'Measure how often AI mentions your brand when answering specific questions.', ja: 'AIが特定の質問に答える際に自社ブランドがどれくらい言及されるかを測定します。' },
     companyName: { ko: '회사명', en: 'Company Name', ja: '会社名' },
+    companyNamePh: { ko: '예: MarketerOps', en: 'e.g. MarketerOps', ja: '例: MarketerOps' },
     industry:    { ko: '업종 / 카테고리', en: 'Industry / Category', ja: '業種/カテゴリ' },
+    industryPh:  { ko: '예: AI 마케팅 SaaS, SEO 도구', en: 'e.g. AI Marketing SaaS, SEO Tools', ja: '例: AIマーケティングSaaS、SEOツール' },
     basicInfo:   { ko: '기본 정보 입력', en: 'Basic Info', ja: '基本情報入力' },
     competitors: { ko: '경쟁사 (선택)', en: 'Competitors (optional)', ja: '競合他社（任意）' },
     competitorPh: { ko: '경쟁사명 입력 후 Enter', en: 'Enter competitor name and press Enter', ja: '競合他社名を入力してEnter' },
