@@ -22,8 +22,17 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   try {
-    const count = await prisma.newsletterSubscriber.count();
-    return NextResponse.json({ count });
+    const [total, byLang, recent] = await Promise.all([
+      prisma.newsletterSubscriber.count(),
+      prisma.newsletterSubscriber.groupBy({ by: ['lang'], _count: { lang: true } }),
+      prisma.newsletterSubscriber.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+        select: { id: true, email: true, name: true, lang: true, createdAt: true },
+      }),
+    ]);
+    const langBreakdown = Object.fromEntries(byLang.map((r) => [r.lang, r._count.lang]));
+    return NextResponse.json({ total, byLang: langBreakdown, recent });
   } catch {
     return NextResponse.json({ error: 'DB 오류' }, { status: 500 });
   }

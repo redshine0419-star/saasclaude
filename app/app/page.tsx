@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Globe, FileText, Tag,
   Bot, BarChart3, Megaphone, CheckCircle2,
-  FolderKanban, LayoutGrid, CheckSquare, Users, Rss, Code2, FileSearch, Swords,
+  FolderKanban, LayoutGrid, CheckSquare, Users, Rss, Code2, FileSearch, Swords, MailOpen,
 } from 'lucide-react';
 import SidebarLayout from '@/components/SidebarLayout';
 import OnboardingModal from '@/components/OnboardingModal';
@@ -28,6 +28,7 @@ import SiteEditorModule from '@/components/SiteEditorModule';
 import BulkGeoModule from '@/components/BulkGeoModule';
 import AiSearchQualityModule from '@/components/AiSearchQualityModule';
 import CompetitorGapModule from '@/components/CompetitorGapModule';
+import NewsletterStatsModule from '@/components/NewsletterStatsModule';
 
 const TABS = {
   DASHBOARD: 'dashboard',
@@ -46,6 +47,7 @@ const TABS = {
   TEAM:      'team',
   BLOG:      'blog',
   EDITOR:    'editor',
+  NEWSLETTER_STATS: 'newsletter-stats',
 } as const;
 type Tab = typeof TABS[keyof typeof TABS];
 
@@ -65,8 +67,9 @@ function buildNavItems(lang: Parameters<typeof t>[2]) {
     { id: TABS.KANBAN,    icon: <LayoutGrid size={16} />,      label: t('nav', 'kanban', lang),    restrictedToMembers: true },
     { id: TABS.MY_TASKS,  icon: <CheckSquare size={16} />,     label: t('nav', 'myTasks', lang),   restrictedToMembers: true },
     { id: TABS.TEAM,      icon: <Users size={16} />,           label: t('nav', 'team', lang),      restrictedToMembers: true },
-    { id: TABS.BLOG,      icon: <Rss size={16} />,             label: t('nav', 'blog', lang),      adminOnly: true },
-    { id: TABS.EDITOR,    icon: <Code2 size={16} />,           label: t('nav', 'editor', lang),    adminOnly: true },
+    { id: TABS.BLOG,             icon: <Rss size={16} />,      label: t('nav', 'blog', lang),      adminOnly: true },
+    { id: TABS.EDITOR,           icon: <Code2 size={16} />,    label: t('nav', 'editor', lang),    adminOnly: true },
+    { id: TABS.NEWSLETTER_STATS, icon: <MailOpen size={16} />, label: '수집 이메일 확인',           adminOnly: true },
   ];
 }
 
@@ -126,8 +129,9 @@ export default function App() {
         {activeTab === TABS.KANBAN    && <WorkKanbanTab projectId={selectedProjectId} onChangeProject={setSelectedProjectId} />}
         {activeTab === TABS.MY_TASKS  && <WorkMyTasksTab />}
         {activeTab === TABS.TEAM      && <WorkTeamTab />}
-        {activeTab === TABS.BLOG      && <BlogAdminModule onToast={showToast} />}
-        {activeTab === TABS.EDITOR    && <SiteEditorModule />}
+        {activeTab === TABS.BLOG             && <BlogAdminModule onToast={showToast} />}
+        {activeTab === TABS.EDITOR           && <SiteEditorModule />}
+        {activeTab === TABS.NEWSLETTER_STATS && <NewsletterStatsModule />}
       </SidebarLayout>
 
       {toast && (
