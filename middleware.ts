@@ -10,18 +10,23 @@ function detectLang(pathname: string): string {
 export function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
   const country = req.headers.get('x-vercel-ip-country') ?? '';
+  const ua = req.headers.get('user-agent') ?? '';
 
-  // 국가 기반 리다이렉트 — 이미 해당 로케일 경로에 있으면 skip
-  if (country === 'JP' && !pathname.startsWith('/ja')) {
-    const url = req.nextUrl.clone();
-    url.pathname = '/ja';
-    return NextResponse.redirect(url);
-  }
-  if (country !== '' && country !== 'KR' && country !== 'JP'
-      && !pathname.startsWith('/en') && !pathname.startsWith('/ja')) {
-    const url = req.nextUrl.clone();
-    url.pathname = '/en';
-    return NextResponse.redirect(url);
+  // Google 크롤러 및 검증 봇은 리다이렉트 제외
+  const isGoogleBot = /Googlebot|AdsBot-Google|Mediapartners-Google|Google-InspectionTool/i.test(ua);
+  if (!isGoogleBot) {
+    // 국가 기반 리다이렉트 — 이미 해당 로케일 경로에 있으면 skip
+    if (country === 'JP' && !pathname.startsWith('/ja')) {
+      const url = req.nextUrl.clone();
+      url.pathname = '/ja';
+      return NextResponse.redirect(url);
+    }
+    if (country !== '' && country !== 'KR' && country !== 'JP'
+        && !pathname.startsWith('/en') && !pathname.startsWith('/ja')) {
+      const url = req.nextUrl.clone();
+      url.pathname = '/en';
+      return NextResponse.redirect(url);
+    }
   }
 
   // x-lang 헤더를 통해 루트 레이아웃에 언어 전달
