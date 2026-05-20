@@ -7,7 +7,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { useAppLang } from '@/components/AppLangContext';
-import { t } from '@/lib/app-i18n';
+import { t, tExpand } from '@/lib/app-i18n';
 
 interface PageScore {
   url: string;
@@ -42,9 +42,9 @@ const Card = ({ children, className = '' }: { children: React.ReactNode; classNa
 );
 
 function scoreColor(score: number) {
-  if (score >= 70) return { text: 'text-emerald-600', bg: 'bg-emerald-100', bar: 'bg-emerald-500', label: '양호' };
-  if (score >= 40) return { text: 'text-amber-600', bg: 'bg-amber-100', bar: 'bg-amber-400', label: '주의' };
-  return { text: 'text-rose-600', bg: 'bg-rose-100', bar: 'bg-rose-500', label: '위험' };
+  if (score >= 70) return { text: 'text-emerald-600', bg: 'bg-emerald-100', bar: 'bg-emerald-500', labelKey: 'scoreGood' as const };
+  if (score >= 40) return { text: 'text-amber-600', bg: 'bg-amber-100', bar: 'bg-amber-400', labelKey: 'scoreWarn' as const };
+  return { text: 'text-rose-600', bg: 'bg-rose-100', bar: 'bg-rose-500', labelKey: 'scoreDanger' as const };
 }
 
 function impactBadge(impact: 'High' | 'Medium' | 'Low') {
@@ -82,11 +82,11 @@ export default function BulkGeoModule({ onToast }: { onToast: (msg: string) => v
         body: JSON.stringify({ siteUrl }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || `오류 (${res.status})`);
+      if (!res.ok) throw new Error(data?.error || t('bulkGeo', 'httpError', lang).replace('{status}', String(res.status)));
       setResult(data);
-      onToast(`${data.analyzedUrls}개 페이지 진단 완료 — 평균 GEO 점수 ${data.avgScore}점`);
+      onToast(t('bulkGeo', 'toastDone', lang).replace('{n}', String(data.analyzedUrls)).replace('{score}', String(data.avgScore)));
     } catch (e) {
-      setError(e instanceof Error ? e.message : '오류가 발생했습니다.');
+      setError(e instanceof Error ? e.message : t('bulkGeo', 'genericError', lang));
     } finally {
       setLoading(false);
     }
@@ -158,10 +158,10 @@ export default function BulkGeoModule({ onToast }: { onToast: (msg: string) => v
           {/* Summary row */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: '평균 GEO 점수', value: result.avgScore + '점', sub: `${result.analyzedUrls}개 페이지`, color: scoreColor(result.avgScore).text },
-              { label: '양호 (70+)', value: result.distribution.good + '개', sub: '개선 불필요', color: 'text-emerald-600' },
-              { label: '주의 (40~69)', value: result.distribution.warning + '개', sub: '부분 개선 권장', color: 'text-amber-600' },
-              { label: '위험 (~39)', value: result.distribution.critical + '개', sub: '즉시 개선 필요', color: 'text-rose-600' },
+              { label: t('bulkGeo', 'avgGeoScore', lang), value: result.avgScore + (lang === 'en' ? 'pts' : lang === 'ja' ? '点' : '점'), sub: t('bulkGeo', 'pagesCount', lang).replace('{n}', String(result.analyzedUrls)), color: scoreColor(result.avgScore).text },
+              { label: t('bulkGeo', 'goodLabel', lang), value: result.distribution.good + (lang === 'en' ? '' : lang === 'ja' ? '件' : '개'), sub: t('bulkGeo', 'noFixNeeded', lang), color: 'text-emerald-600' },
+              { label: t('bulkGeo', 'warnLabel', lang), value: result.distribution.warning + (lang === 'en' ? '' : lang === 'ja' ? '件' : '개'), sub: t('bulkGeo', 'partialFix', lang), color: 'text-amber-600' },
+              { label: t('bulkGeo', 'dangerLabel', lang), value: result.distribution.critical + (lang === 'en' ? '' : lang === 'ja' ? '件' : '개'), sub: t('bulkGeo', 'urgentFix', lang), color: 'text-rose-600' },
             ].map((m) => (
               <Card key={m.label} className="p-4 text-center">
                 <div className="text-[10px] font-black text-slate-400 uppercase mb-1">{m.label}</div>
@@ -173,7 +173,7 @@ export default function BulkGeoModule({ onToast }: { onToast: (msg: string) => v
 
           {/* Score bar chart */}
           <Card className="p-5">
-            <div className="text-xs font-black text-slate-400 uppercase mb-3">점수 분포</div>
+            <div className="text-xs font-black text-slate-400 uppercase mb-3">{t('bulkGeo', 'scoreDist', lang)}</div>
             <div className="flex items-end gap-1 h-24">
               {(() => {
                 const buckets = Array(10).fill(0);
@@ -206,8 +206,8 @@ export default function BulkGeoModule({ onToast }: { onToast: (msg: string) => v
               <div className="flex items-center gap-2 mb-4">
                 <div className="p-2 bg-indigo-100 rounded-xl"><Zap size={16} className="text-indigo-600" /></div>
                 <div>
-                  <h3 className="font-bold text-slate-800">AI 사이트 전체 개선 우선순위</h3>
-                  <p className="text-xs text-slate-500">전체 페이지 분석 기반 즉시 실행 가능한 액션</p>
+                  <h3 className="font-bold text-slate-800">{t('bulkGeo', 'aiPriority', lang)}</h3>
+                  <p className="text-xs text-slate-500">{t('bulkGeo', 'aiPrioritySub', lang)}</p>
                 </div>
               </div>
               <div className="space-y-3">
@@ -230,7 +230,7 @@ export default function BulkGeoModule({ onToast }: { onToast: (msg: string) => v
           <Card className="p-5">
             <div className="flex items-center gap-2 mb-3">
               <AlertTriangle size={16} className="text-amber-500" />
-              <h3 className="font-bold text-slate-800">사이트 공통 이슈</h3>
+              <h3 className="font-bold text-slate-800">{t('bulkGeo', 'commonIssues', lang)}</h3>
             </div>
             <div className="space-y-2">
               {result.topIssues.map((issue, i) => (
@@ -239,7 +239,7 @@ export default function BulkGeoModule({ onToast }: { onToast: (msg: string) => v
                     {issue.impact}
                   </span>
                   <span className="text-sm text-slate-700 flex-1">{issue.title}</span>
-                  <span className="text-xs text-slate-400 shrink-0">{issue.count}/{result.analyzedUrls} 페이지</span>
+                  <span className="text-xs text-slate-400 shrink-0">{t('bulkGeo', 'issuePages', lang).replace('{count}', String(issue.count)).replace('{total}', String(result.analyzedUrls))}</span>
                   <div className="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden shrink-0">
                     <div
                       className={`h-full rounded-full ${issue.impact === 'High' ? 'bg-rose-400' : issue.impact === 'Medium' ? 'bg-amber-400' : 'bg-slate-300'}`}
@@ -256,18 +256,18 @@ export default function BulkGeoModule({ onToast }: { onToast: (msg: string) => v
             <div className="p-5 border-b border-slate-100 flex items-center justify-between gap-3 flex-wrap">
               <div className="flex items-center gap-2">
                 <BarChart2 size={16} className="text-slate-500" />
-                <h3 className="font-bold text-slate-800">페이지별 GEO 점수</h3>
-                <span className="text-xs text-slate-400">({result.pages.length}개)</span>
+                <h3 className="font-bold text-slate-800">{t('bulkGeo', 'pageScores', lang)}</h3>
+                <span className="text-xs text-slate-400">({result.pages.length}{lang === 'en' ? '' : lang === 'ja' ? '件' : '개'})</span>
               </div>
               <div className="flex items-center gap-2 text-xs">
-                <span className="text-slate-400">정렬:</span>
+                <span className="text-slate-400">{t('bulkGeo', 'sortLabel', lang)}</span>
                 <button onClick={() => setSortBy('score')}
                   className={`px-2 py-1 rounded-lg ${sortBy === 'score' ? 'bg-indigo-100 text-indigo-700 font-bold' : 'text-slate-500 hover:text-slate-700'}`}>
-                  점수순
+                  {t('bulkGeo', 'sortByScore', lang)}
                 </button>
                 <button onClick={() => setSortBy('url')}
                   className={`px-2 py-1 rounded-lg ${sortBy === 'url' ? 'bg-indigo-100 text-indigo-700 font-bold' : 'text-slate-500 hover:text-slate-700'}`}>
-                  URL순
+                  {t('bulkGeo', 'sortByUrl', lang)}
                 </button>
               </div>
             </div>
@@ -280,7 +280,7 @@ export default function BulkGeoModule({ onToast }: { onToast: (msg: string) => v
                       {/* Score badge */}
                       <div className={`shrink-0 w-12 h-12 rounded-xl flex flex-col items-center justify-center ${c.bg}`}>
                         <span className={`text-lg font-black leading-none ${c.text}`}>{page.score}</span>
-                        <span className={`text-[9px] font-bold ${c.text}`}>{c.label}</span>
+                        <span className={`text-[9px] font-bold ${c.text}`}>{t('bulkGeo', c.labelKey, lang)}</span>
                       </div>
 
                       <div className="flex-1 min-w-0">
@@ -321,7 +321,7 @@ export default function BulkGeoModule({ onToast }: { onToast: (msg: string) => v
                           ))}
                           {page.wordCount > 0 && (
                             <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${page.wordCount >= 500 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                              {page.wordCount}단어
+                              {page.wordCount}{t('bulkGeo', 'wordUnit', lang)}
                             </span>
                           )}
                         </div>
@@ -357,7 +357,7 @@ export default function BulkGeoModule({ onToast }: { onToast: (msg: string) => v
                   className="w-full flex items-center justify-center gap-1 text-xs text-slate-500 hover:text-indigo-600 transition-colors py-1"
                 >
                   {expanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-                  {expanded ? '접기' : `나머지 ${result.pages.length - 10}개 더 보기`}
+                  {expanded ? t('common', 'collapse', lang) : tExpand(result.pages.length - 10, lang)}
                 </button>
               </div>
             )}
@@ -366,8 +366,8 @@ export default function BulkGeoModule({ onToast }: { onToast: (msg: string) => v
           {/* Sitemap info */}
           <div className="text-xs text-slate-400 text-center">
             <Search size={11} className="inline mr-1" />
-            사이트맵: <span className="font-mono">{result.sitemapUrl}</span>
-            {' · '}총 {result.totalUrls}개 URL 발견 · {result.analyzedUrls}개 분석
+            {t('bulkGeo', 'sitemapInfo', lang)}<span className="font-mono">{result.sitemapUrl}</span>
+            {' · '}{t('bulkGeo', 'urlsFound', lang).replace('{total}', String(result.totalUrls)).replace('{analyzed}', String(result.analyzedUrls))}
           </div>
         </>
       )}

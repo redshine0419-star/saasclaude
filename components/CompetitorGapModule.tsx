@@ -59,9 +59,9 @@ function impactColor(imp: 'High' | 'Medium' | 'Low') {
 }
 
 function gapLabel(score: number) {
-  if (score >= 70) return { label: '격차 큼', color: 'text-rose-600', ring: 'border-rose-500' };
-  if (score >= 40) return { label: '격차 보통', color: 'text-amber-600', ring: 'border-amber-400' };
-  return { label: '우위', color: 'text-emerald-600', ring: 'border-emerald-500' };
+  if (score >= 70) return { labelKey: 'gapBig' as const, color: 'text-rose-600', ring: 'border-rose-500' };
+  if (score >= 40) return { labelKey: 'gapMedium' as const, color: 'text-amber-600', ring: 'border-amber-400' };
+  return { labelKey: 'gapAdvantage' as const, color: 'text-emerald-600', ring: 'border-emerald-500' };
 }
 
 export default function CompetitorGapModule({ onToast }: { onToast: (msg: string) => void }) {
@@ -84,11 +84,11 @@ export default function CompetitorGapModule({ onToast }: { onToast: (msg: string
         body: JSON.stringify({ ourUrl: ourUrl.trim(), competitorUrl: competitorUrl.trim() }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || `오류 (${res.status})`);
+      if (!res.ok) throw new Error(data?.error || t('compGap', 'httpError', lang).replace('{status}', String(res.status)));
       setResult(data);
-      onToast(`경쟁사 콘텐츠 갭 분석 완료 — 격차 점수 ${data.gapScore}점`);
+      onToast(t('compGap', 'toastDone', lang).replace('{score}', String(data.gapScore)));
     } catch (e) {
-      setError(e instanceof Error ? e.message : '오류가 발생했습니다.');
+      setError(e instanceof Error ? e.message : t('compGap', 'genericError', lang));
     } finally {
       setLoading(false);
     }
@@ -182,9 +182,9 @@ export default function CompetitorGapModule({ onToast }: { onToast: (msg: string
                     <div className={`w-20 h-20 rounded-full border-4 ${g.ring} flex items-center justify-center mb-3`}>
                       <span className={`text-2xl font-black ${g.color}`}>{result.gapScore}</span>
                     </div>
-                    <div className="text-xs font-black text-slate-500">콘텐츠 갭 점수</div>
-                    <div className={`text-sm font-bold mt-1 ${g.color}`}>{g.label}</div>
-                    <div className="text-xs text-slate-400 mt-1">100에 가까울수록 격차 큼</div>
+                    <div className="text-xs font-black text-slate-500">{t('compGap', 'gapScoreLabel', lang)}</div>
+                    <div className={`text-sm font-bold mt-1 ${g.color}`}>{t('compGap', g.labelKey, lang)}</div>
+                    <div className="text-xs text-slate-400 mt-1">{t('compGap', 'gapScoreSub', lang)}</div>
                   </>
                 );
               })()}
@@ -192,13 +192,13 @@ export default function CompetitorGapModule({ onToast }: { onToast: (msg: string
 
             {/* Site comparison */}
             <Card className="p-5 col-span-2">
-              <div className="text-xs font-black text-slate-400 uppercase mb-3">사이트 지표 비교</div>
+              <div className="text-xs font-black text-slate-400 uppercase mb-3">{t('compGap', 'siteComparison', lang)}</div>
               <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
                 {[
-                  { label: '도메인', our: result.ourProfile.origin, comp: result.competitorProfile.origin, compare: false },
-                  { label: '단어 수', our: result.ourProfile.wordCount.toLocaleString(), comp: result.competitorProfile.wordCount.toLocaleString(), ourNum: result.ourProfile.wordCount, compNum: result.competitorProfile.wordCount },
-                  { label: 'H2 개수', our: String(result.ourProfile.h2Count), comp: String(result.competitorProfile.h2Count), ourNum: result.ourProfile.h2Count, compNum: result.competitorProfile.h2Count },
-                  { label: '구조화 데이터', our: result.ourProfile.hasJsonLd ? '있음' : '없음', comp: result.competitorProfile.hasJsonLd ? '있음' : '없음', compare: false },
+                  { label: t('compGap', 'colDomain', lang), our: result.ourProfile.origin, comp: result.competitorProfile.origin, compare: false },
+                  { label: t('compGap', 'colWordCount', lang), our: result.ourProfile.wordCount.toLocaleString(), comp: result.competitorProfile.wordCount.toLocaleString(), ourNum: result.ourProfile.wordCount, compNum: result.competitorProfile.wordCount },
+                  { label: t('compGap', 'colH2Count', lang), our: String(result.ourProfile.h2Count), comp: String(result.competitorProfile.h2Count), ourNum: result.ourProfile.h2Count, compNum: result.competitorProfile.h2Count },
+                  { label: t('compGap', 'colStructData', lang), our: result.ourProfile.hasJsonLd ? t('compGap', 'yes', lang) : t('compGap', 'no', lang), comp: result.competitorProfile.hasJsonLd ? t('compGap', 'yes', lang) : t('compGap', 'no', lang), compare: false },
                 ].map((row) => {
                   const ourBetter = row.ourNum !== undefined && row.compNum !== undefined && row.ourNum >= row.compNum;
                   const compBetter = row.ourNum !== undefined && row.compNum !== undefined && row.compNum > row.ourNum;
@@ -208,12 +208,12 @@ export default function CompetitorGapModule({ onToast }: { onToast: (msg: string
                       <div className="flex items-center gap-1 text-slate-700">
                         {ourBetter ? <TrendingUp size={12} className="text-emerald-500" /> : compBetter ? <TrendingDown size={12} className="text-rose-400" /> : <Minus size={12} className="text-slate-300" />}
                         <span className={ourBetter ? 'font-bold text-emerald-700' : compBetter ? 'text-rose-600' : ''}>{row.our}</span>
-                        <span className="text-[10px] text-slate-400">(우리)</span>
+                        <span className="text-[10px] text-slate-400">{t('compGap', 'labelOurs', lang)}</span>
                       </div>
                       <div className="flex items-center gap-1 text-slate-700">
                         {compBetter ? <TrendingUp size={12} className="text-rose-400" /> : ourBetter ? <TrendingDown size={12} className="text-slate-300" /> : <Minus size={12} className="text-slate-300" />}
                         <span className={compBetter ? 'font-bold text-rose-700' : ''}>{row.comp}</span>
-                        <span className="text-[10px] text-slate-400">(경쟁사)</span>
+                        <span className="text-[10px] text-slate-400">{t('compGap', 'labelComp', lang)}</span>
                       </div>
                     </div>
                   );
@@ -226,7 +226,7 @@ export default function CompetitorGapModule({ onToast }: { onToast: (msg: string
           <Card className="p-5">
             <div className="flex items-center gap-2 mb-2">
               <BarChart2 size={16} className="text-indigo-500" />
-              <h3 className="font-bold text-slate-800">AI 분석 요약</h3>
+              <h3 className="font-bold text-slate-800">{t('compGap', 'aiSummary', lang)}</h3>
             </div>
             <p className="text-sm text-slate-600 leading-relaxed">{result.summary}</p>
           </Card>
@@ -237,11 +237,11 @@ export default function CompetitorGapModule({ onToast }: { onToast: (msg: string
             <Card className="p-5">
               <div className="flex items-center gap-2 mb-3">
                 <XCircle size={16} className="text-rose-400" />
-                <h3 className="font-bold text-slate-800">경쟁사만 다루는 주제</h3>
-                <span className="text-xs text-slate-400">({topicsOnlyCompetitor.length}개)</span>
+                <h3 className="font-bold text-slate-800">{t('compGap', 'compOnlyTopics', lang)}</h3>
+                <span className="text-xs text-slate-400">({t('compGap', 'countN', lang).replace('{n}', String(topicsOnlyCompetitor.length))})</span>
               </div>
               {topicsOnlyCompetitor.length === 0
-                ? <p className="text-xs text-slate-400">경쟁사 전용 주제가 없습니다.</p>
+                ? <p className="text-xs text-slate-400">{t('compGap', 'noCompTopics', lang)}</p>
                 : (
                   <div className="space-y-2">
                     {topicsOnlyCompetitor.map((t, i) => (
@@ -263,11 +263,11 @@ export default function CompetitorGapModule({ onToast }: { onToast: (msg: string
               <Card className="p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <CheckCircle2 size={16} className="text-emerald-500" />
-                  <h3 className="font-bold text-slate-800">우리만 다루는 주제</h3>
-                  <span className="text-xs text-slate-400">({topicsOnlyOurs.length}개)</span>
+                  <h3 className="font-bold text-slate-800">{t('compGap', 'ourOnlyTopics', lang)}</h3>
+                  <span className="text-xs text-slate-400">({t('compGap', 'countN', lang).replace('{n}', String(topicsOnlyOurs.length))})</span>
                 </div>
                 {topicsOnlyOurs.length === 0
-                  ? <p className="text-xs text-slate-400">차별화된 주제가 없습니다.</p>
+                  ? <p className="text-xs text-slate-400">{t('compGap', 'noOurTopics', lang)}</p>
                   : (
                     <div className="space-y-1.5">
                       {topicsOnlyOurs.map((t, i) => (
@@ -288,7 +288,7 @@ export default function CompetitorGapModule({ onToast }: { onToast: (msg: string
                 <Card className="p-5">
                   <div className="flex items-center gap-2 mb-3">
                     <TrendingUp size={16} className="text-emerald-500" />
-                    <h3 className="font-bold text-slate-800">우리 강점</h3>
+                    <h3 className="font-bold text-slate-800">{t('compGap', 'ourAdvantages', lang)}</h3>
                   </div>
                   <ul className="space-y-1.5">
                     {result.ourAdvantages.map((adv, i) => (
@@ -308,8 +308,8 @@ export default function CompetitorGapModule({ onToast }: { onToast: (msg: string
             <Card className="p-5">
               <div className="flex items-center gap-2 mb-3">
                 <Minus size={16} className="text-slate-400" />
-                <h3 className="font-bold text-slate-800">공통 주제</h3>
-                <span className="text-xs text-slate-400">({topicsBoth.length}개)</span>
+                <h3 className="font-bold text-slate-800">{t('compGap', 'commonTopics', lang)}</h3>
+                <span className="text-xs text-slate-400">({t('compGap', 'countN', lang).replace('{n}', String(topicsBoth.length))})</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {topicsBoth.map((t, i) => (
@@ -327,8 +327,8 @@ export default function CompetitorGapModule({ onToast }: { onToast: (msg: string
               <div className="flex items-center gap-2 mb-4">
                 <div className="p-2 bg-indigo-100 rounded-xl"><Lightbulb size={16} className="text-indigo-600" /></div>
                 <div>
-                  <h3 className="font-bold text-slate-800">콘텐츠 제작 추천</h3>
-                  <p className="text-xs text-slate-500">갭 분석 기반 즉시 제작 가능한 콘텐츠 목록</p>
+                  <h3 className="font-bold text-slate-800">{t('compGap', 'contentRec', lang)}</h3>
+                  <p className="text-xs text-slate-500">{t('compGap', 'contentRecSub', lang)}</p>
                 </div>
               </div>
               <div className="space-y-3">
@@ -343,10 +343,10 @@ export default function CompetitorGapModule({ onToast }: { onToast: (msg: string
                         <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-bold">{rec.format}</span>
                       </div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] text-slate-400">키워드:</span>
+                        <span className="text-[10px] text-slate-400">{t('compGap', 'keywordLabel', lang)}</span>
                         <span className="text-xs font-medium text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">{rec.keyword}</span>
                         <span className={`text-[10px] font-bold ${impactColor(rec.estimatedImpact)}`}>
-                          기대 효과 {rec.estimatedImpact}
+                          {t('compGap', 'expectedImpact', lang)}{rec.estimatedImpact}
                         </span>
                       </div>
                       <p className="text-xs text-slate-500">{rec.reason}</p>

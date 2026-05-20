@@ -252,6 +252,22 @@ const T = {
     aiMentionRate: { ko: 'AI 언급율', en: 'AI Mention Rate', ja: 'AI言及率' },
     aiResponse:  { ko: 'AI 응답 (일부)', en: 'AI Response (excerpt)', ja: 'AI回答（抜粋）' },
     competitorMention: { ko: '경쟁사 언급', en: 'Competitor Mentions', ja: '競合他社言及' },
+    /* validation errors */
+    errorNeedCompanyIndustry: { ko: '회사명과 업종을 먼저 입력해주세요.', en: 'Please enter company name and industry first.', ja: '会社名と業種を先に入力してください。' },
+    errorGenerateFailed:      { ko: '생성 실패', en: 'Generation failed', ja: '生成失敗' },
+    errorPromptGenError:      { ko: '프롬프트 생성 중 오류가 발생했습니다.', en: 'An error occurred while generating prompts.', ja: 'プロンプト生成中にエラーが発生しました。' },
+    errorNeedInfo:            { ko: '회사명과 업종을 입력해주세요.', en: 'Please enter company name and industry.', ja: '会社名と業種を入力してください。' },
+    errorNeedPrompts:         { ko: '프롬프트를 먼저 생성해주세요.', en: 'Please generate prompts first.', ja: 'プロンプトを先に生成してください。' },
+    errorAnalyzeFailed:       { ko: '분석 실패', en: 'Analysis failed', ja: '分析失敗' },
+    genericError:             { ko: '오류가 발생했습니다.', en: 'An error occurred.', ja: 'エラーが発生しました。' },
+    /* prompt count edit label */
+    promptsCountEdit: { ko: '{n}개 프롬프트 · 클릭해서 편집 가능', en: '{n} prompts · click to edit', ja: '{n}件のプロンプト · クリックして編集可能' },
+    /* parallel send message */
+    parallelMsg: { ko: 'Gemini에 프롬프트를 병렬로 전송 중입니다. 약 10~20초 소요됩니다.', en: 'Sending prompts to Gemini in parallel. This may take ~10–20 seconds.', ja: 'Geminiにプロンプトを並列送信中です。約10〜20秒かかります。' },
+    /* history count */
+    historyCount: { ko: '{n}건', en: '{n} records', ja: '{n}件' },
+    /* mention stats in history */
+    mentionStats: { ko: '{mention}/{total} 언급', en: '{mention}/{total} mentions', ja: '{mention}/{total} 言及' },
   },
 
   /* ── Site Editor ─────────────────────────────────────────────────────── */

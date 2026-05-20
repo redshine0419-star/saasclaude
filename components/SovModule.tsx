@@ -162,7 +162,7 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
 
   async function generatePrompts() {
     if (!company.trim() || !industry.trim()) {
-      setError('회사명과 업종을 먼저 입력해주세요.');
+      setError(t('sov', 'errorNeedCompanyIndustry', lang));
       return;
     }
     setGeneratingPrompts(true);
@@ -174,11 +174,11 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
         body: JSON.stringify({ company, industry }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? '생성 실패');
+      if (!res.ok) throw new Error(data.error ?? t('sov', 'errorGenerateFailed', lang));
       setPrompts(data.prompts);
       setPromptsGenerated(true);
     } catch (e) {
-      setError(e instanceof Error ? e.message : '프롬프트 생성 중 오류가 발생했습니다.');
+      setError(e instanceof Error ? e.message : t('sov', 'errorPromptGenError', lang));
     } finally {
       setGeneratingPrompts(false);
     }
@@ -190,8 +190,8 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
   }
 
   async function run() {
-    if (!company.trim() || !industry.trim()) { setError('회사명과 업종을 입력해주세요.'); return; }
-    if (prompts.length === 0) { setError('프롬프트를 먼저 생성해주세요.'); return; }
+    if (!company.trim() || !industry.trim()) { setError(t('sov', 'errorNeedInfo', lang)); return; }
+    if (prompts.length === 0) { setError(t('sov', 'errorNeedPrompts', lang)); return; }
     setIsRunning(true);
     setError('');
     setResult(null);
@@ -203,14 +203,14 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
         body: JSON.stringify({ company, industry, competitors, prompts }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? '분석 실패');
+      if (!res.ok) throw new Error(data.error ?? t('sov', 'errorAnalyzeFailed', lang));
       setResult(data);
 
       saveSovRecord({ company: data.company, industry: data.industry, mentionRate: data.mentionRate, mentionCount: data.mentionCount, totalPrompts: data.totalPrompts, timestamp: Date.now() });
       setHistory(getSovHistory());
       onToast('AI Share of Voice 측정 완료!');
     } catch (e) {
-      setError(e instanceof Error ? e.message : '오류가 발생했습니다.');
+      setError(e instanceof Error ? e.message : t('sov', 'genericError', lang));
     } finally {
       setIsRunning(false);
     }
@@ -306,7 +306,7 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
           ) : (
             <div className="space-y-2">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-slate-500 font-medium">{prompts.length}개 프롬프트 · 클릭해서 편집 가능</span>
+                <span className="text-xs text-slate-500 font-medium">{t('sov', 'promptsCountEdit', lang).replace('{n}', String(prompts.length))}</span>
                 <button onClick={generatePrompts} disabled={generatingPrompts || isRunning}
                   className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-700 font-bold transition-colors disabled:opacity-30">
                   <RefreshCw size={12} className={generatingPrompts ? 'animate-spin' : ''} />
@@ -345,7 +345,7 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
             <><Megaphone size={18} /> {t('sov', 'startMeasure', lang)}</>
           )}
         </button>
-        {isRunning && <p className="text-center text-xs text-slate-400 mt-2">Gemini에 프롬프트를 병렬로 전송 중입니다. 약 10~20초 소요됩니다.</p>}
+        {isRunning && <p className="text-center text-xs text-slate-400 mt-2">{t('sov', 'parallelMsg', lang)}</p>}
       </Card>
 
       {/* 결과 */}
@@ -423,7 +423,7 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
           <button onClick={() => setShowHistory(o => !o)} className="w-full flex items-center justify-between">
             <h4 className="font-bold text-slate-800 flex items-center gap-2">
               <Clock size={18} className="text-slate-400" />
-              {t('sov', 'history', lang)} ({history.length}건)
+              {t('sov', 'history', lang)} ({t('sov', 'historyCount', lang).replace('{n}', String(history.length))})
             </h4>
             {showHistory ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
           </button>
@@ -436,7 +436,7 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
                     <span className="text-sm font-black px-2.5 py-1 rounded-lg bg-slate-200 text-slate-700">{rate}%</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-slate-800 truncate">{h.company}</p>
-                      <p className="text-[10px] text-slate-400">{h.industry} · {h.mentionCount}/{h.totalPrompts} 언급</p>
+                      <p className="text-[10px] text-slate-400">{h.industry} · {t('sov', 'mentionStats', lang).replace('{mention}', String(h.mentionCount)).replace('{total}', String(h.totalPrompts))}</p>
                     </div>
                     <span className="text-[10px] text-slate-400 shrink-0">
                       {new Date(h.timestamp).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
