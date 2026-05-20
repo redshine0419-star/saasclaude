@@ -55,9 +55,9 @@ function buildNavItems(lang: Parameters<typeof t>[2]) {
   return [
     { id: TABS.DASHBOARD, icon: <LayoutDashboard size={16} />, label: t('nav', 'dashboard', lang) },
     { id: TABS.WEB,       icon: <Globe size={16} />,           label: t('nav', 'web', lang),       sectionLabel: t('nav', 'sectionWeb', lang) },
-    { id: TABS.BULK_GEO,  icon: <FileSearch size={16} />,      label: '일괄 GEO 진단' },
-    { id: TABS.AI_SEARCH, icon: <Bot size={16} />,             label: 'AI 검색 품질' },
-    { id: TABS.COMP_GAP,  icon: <Swords size={16} />,          label: '경쟁사 콘텐츠 갭' },
+    { id: TABS.BULK_GEO,  icon: <FileSearch size={16} />,      label: t('nav', 'bulkGeo', lang) },
+    { id: TABS.AI_SEARCH, icon: <Bot size={16} />,             label: t('nav', 'aiSearch', lang) },
+    { id: TABS.COMP_GAP,  icon: <Swords size={16} />,          label: t('nav', 'compGap', lang) },
     { id: TABS.INSIGHT,   icon: <BarChart3 size={16} />,       label: t('nav', 'insight', lang),   restrictedToMembers: true },
     { id: TABS.LLMSTXT,   icon: <Bot size={16} />,             label: 'llms.txt' },
     { id: TABS.CONTENT,   icon: <FileText size={16} />,        label: t('nav', 'content', lang),   sectionLabel: t('nav', 'sectionContent', lang) },
