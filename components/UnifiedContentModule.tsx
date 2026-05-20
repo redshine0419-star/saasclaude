@@ -5,6 +5,7 @@ import { Sparkles, Zap, Loader2, Copy, ChevronDown, ChevronUp } from 'lucide-rea
 import RewriterModule from '@/components/RewriterModule';
 import { useAppLang } from '@/components/AppLangContext';
 import { t } from '@/lib/app-i18n';
+import AdUnit from '@/components/AdUnit';
 
 type Tab = 'generate' | 'rewriter';
 
@@ -28,17 +29,17 @@ interface ContentResult {
 }
 
 const CHANNEL_COLOR_ACTIVE: Record<string, string> = {
-  indigo: 'bg-indigo-600 border-indigo-600 text-white',
-  pink: 'bg-pink-500 border-pink-500 text-white',
-  blue: 'bg-blue-600 border-blue-600 text-white',
-  purple: 'bg-purple-600 border-purple-600 text-white',
+  indigo: 'bg-slate-900 border-slate-900 text-white',
+  pink:   'bg-slate-900 border-slate-900 text-white',
+  blue:   'bg-slate-900 border-slate-900 text-white',
+  purple: 'bg-slate-900 border-slate-900 text-white',
 };
 
 const CHANNEL_COLOR_INACTIVE: Record<string, string> = {
-  indigo: 'border-indigo-200 text-indigo-700 hover:border-indigo-400 bg-white',
-  pink: 'border-pink-200 text-pink-700 hover:border-pink-400 bg-white',
-  blue: 'border-blue-200 text-blue-700 hover:border-blue-400 bg-white',
-  purple: 'border-purple-200 text-purple-700 hover:border-purple-400 bg-white',
+  indigo: 'border-slate-200 text-slate-600 hover:border-slate-400 bg-white',
+  pink:   'border-slate-200 text-slate-600 hover:border-slate-400 bg-white',
+  blue:   'border-slate-200 text-slate-600 hover:border-slate-400 bg-white',
+  purple: 'border-slate-200 text-slate-600 hover:border-slate-400 bg-white',
 };
 
 const CHANNEL_ACCENT: Record<string, string> = {
@@ -284,6 +285,7 @@ function ContentGenerateTab({ onToast }: { onToast: (msg: string) => void }) {
           ))}
         </div>
       )}
+      {result && <AdUnit slot="3344556677" />}
     </div>
   );
 }

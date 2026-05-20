@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import { list } from '@vercel/blob';
 import type { BlogPost, PostIndex } from '@/app/api/blog/generate/route';
+import AdUnit from '@/components/AdUnit';
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://growweb.me';
 
@@ -313,6 +314,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
 
                 <ReactMarkdown components={mdComponents}>{contentSecond}</ReactMarkdown>
               </div>
+
+              {/* Ad — article bottom */}
+              <AdUnit slot="2345678901" className="mt-8" />
 
               {/* Tags footer */}
               {post.tags.length > 0 && (

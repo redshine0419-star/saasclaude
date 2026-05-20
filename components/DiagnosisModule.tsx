@@ -5,6 +5,7 @@ import {
   Globe, Loader2, Sparkles, Copy, CheckCircle2, AlertCircle,
   Smartphone, Monitor, ShieldCheck, FileText, Image,
   Link, Type, Share2, Code2, Bot, ChevronDown, ChevronUp, Download,
+  Lock, Mail, Star, BarChart2, Printer,
 } from 'lucide-react';
 import { saveDiagnosis, getDiagnoses } from '@/lib/storage';
 import AdUnit from '@/components/AdUnit';
@@ -64,6 +65,8 @@ interface AnalyzeResult {
   desktop: { scores: Record<string, number>; vitals: Record<string, string>; opportunities: { title: string; description: string; score: number | null }[] };
 }
 
+interface RichResultCheck { eligible: boolean; missingFields: string[] }
+
 interface GeoResult {
   meta: {
     title: string | null; titleLength: number;
@@ -86,10 +89,50 @@ interface GeoResult {
     hasFaq: boolean; hasArticle: boolean; hasBreadcrumb: boolean;
     hasProduct: boolean; hasOrganization: boolean; hasHowTo: boolean;
   };
+  richResults: {
+    article: RichResultCheck;
+    product: RichResultCheck;
+    faq: RichResultCheck;
+    breadcrumb: RichResultCheck;
+    organization: RichResultCheck;
+  };
+  contentQuality: {
+    score: number;
+    hasAuthorityLinks: boolean;
+    hasFaqSection: boolean;
+    keywordInBody: boolean;
+    h2Density: number;
+    avgSentenceLength: number;
+  };
   llmsTxt: { exists: boolean };
   robotsTxt: { exists: boolean; llmBlocked: boolean; hasSitemap: boolean };
   sitemap: { exists: boolean };
   score: number;
+  issues: { title: string; detail: string; impact: 'High' | 'Medium' | 'Low' }[];
+}
+
+interface SecurityResult {
+  grade: string;
+  score: number;
+  headers: {
+    hsts: { present: boolean; value: string | null; note: string };
+    csp: { present: boolean; value: string | null; note: string };
+    xFrameOptions: { present: boolean; value: string | null; note: string };
+    xContentTypeOptions: { present: boolean; value: string | null; note: string };
+    referrerPolicy: { present: boolean; value: string | null; note: string };
+    permissionsPolicy: { present: boolean; value: string | null; note: string };
+  };
+  issues: { title: string; detail: string; impact: 'High' | 'Medium' | 'Low' }[];
+}
+
+interface EmailHealthResult {
+  domain: string;
+  grade: string;
+  score: number;
+  spf: { exists: boolean; valid: boolean; value: string | null };
+  dkim: { exists: boolean; value: string | null };
+  dmarc: { exists: boolean; policy: string | null; value: string | null };
+  mx: { exists: boolean; records: string[] };
   issues: { title: string; detail: string; impact: 'High' | 'Medium' | 'Low' }[];
 }
 
@@ -141,6 +184,14 @@ function CheckSection({ title, icon, items, defaultOpen = true }: {
   );
 }
 
+// ---- grade color helper ----
+function gradeColor(grade: string) {
+  if (grade === 'A+' || grade === 'A') return { bg: 'bg-emerald-100', text: 'text-emerald-700', border: 'border-emerald-300' };
+  if (grade === 'B') return { bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-300' };
+  if (grade === 'C') return { bg: 'bg-amber-100', text: 'text-amber-700', border: 'border-amber-300' };
+  return { bg: 'bg-rose-100', text: 'text-rose-700', border: 'border-rose-300' };
+}
+
 // ---- main component ----
 export default function DiagnosisModule({ onToast }: { onToast: (msg: string) => void }) {
   const { lang } = useAppLang();
@@ -149,10 +200,38 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
   const [step, setStep] = useState('');
   const [analyzeData, setAnalyzeData] = useState<AnalyzeResult | null>(null);
   const [geoData, setGeoData] = useState<GeoResult | null>(null);
+  const [securityData, setSecurityData] = useState<SecurityResult | null>(null);
   const [strategy, setStrategy] = useState<'mobile' | 'desktop'>('mobile');
   const [error, setError] = useState('');
   const [advice, setAdvice] = useState<string | null>(null);
   const [adviceLoading, setAdviceLoading] = useState(false);
+
+  // 이메일 진단 별도 상태
+  const [emailDomain, setEmailDomain] = useState('');
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [emailData, setEmailData] = useState<EmailHealthResult | null>(null);
+  const [emailError, setEmailError] = useState('');
+
+  const runEmailCheck = async () => {
+    if (!emailDomain.trim()) return;
+    setEmailLoading(true);
+    setEmailError('');
+    setEmailData(null);
+    try {
+      const res = await fetch('/api/email-health', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ domain: emailDomain }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? '이메일 진단 오류');
+      setEmailData(data);
+    } catch (e) {
+      setEmailError(e instanceof Error ? e.message : '알 수 없는 오류');
+    } finally {
+      setEmailLoading(false);
+    }
+  };
 
   const startAnalysis = async () => {
     if (!url.trim()) return;
@@ -160,13 +239,15 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
     setError('');
     setAnalyzeData(null);
     setGeoData(null);
+    setSecurityData(null);
     setAdvice(null);
 
     try {
       setStep(t('diagnosis', 'analyzing1', lang));
-      const [analyzeRes, geoRes] = await Promise.all([
+      const [analyzeRes, geoRes, secRes] = await Promise.all([
         fetch('/api/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) }),
         fetch('/api/geo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) }),
+        fetch('/api/security', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) }),
       ]);
 
       if (!analyzeRes.ok) {
@@ -179,9 +260,10 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
       }
 
       setStep(t('diagnosis', 'analyzing2', lang));
-      const [aData, gData] = await Promise.all([analyzeRes.json(), geoRes.json()]);
+      const [aData, gData, sData] = await Promise.all([analyzeRes.json(), geoRes.json(), secRes.ok ? secRes.json() : Promise.resolve(null)]);
       setAnalyzeData(aData);
       setGeoData(gData);
+      setSecurityData(sData);
       setStatus('complete');
 
       const prevDiagnoses = getDiagnoses().filter((d) => d.url === url);
@@ -334,6 +416,107 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
     URL.revokeObjectURL(link.href);
   };
 
+  const openPdfReport = () => {
+    if (!analyzeData || !geoData) return;
+    const date = new Date().toLocaleDateString('ko-KR');
+    const m = analyzeData.mobile.scores;
+    const d = analyzeData.desktop.scores;
+    const geo = geoData;
+    const scoreColor = (s: number) => s >= 80 ? '#10b981' : s >= 50 ? '#f59e0b' : '#ef4444';
+    const impactColor = (i: string) => i === 'High' ? '#ef4444' : i === 'Medium' ? '#f59e0b' : '#10b981';
+    const check = (v: unknown) => v ? '✅' : '❌';
+
+    const scoreRow = (label: string, mob: number | undefined, desk: number | undefined) =>
+      `<tr><td>${label}</td><td style="color:${scoreColor(mob ?? 0)};font-weight:700">${mob ?? '-'}</td><td style="color:${scoreColor(desk ?? 0)};font-weight:700">${desk ?? '-'}</td></tr>`;
+
+    const issueRows = geo.issues.map(issue =>
+      `<tr><td><span style="background:${impactColor(issue.impact)}20;color:${impactColor(issue.impact)};padding:2px 8px;border-radius:9999px;font-size:11px;font-weight:700">${issue.impact}</span></td><td style="font-weight:600">${issue.title}</td><td style="font-size:12px;color:#64748b">${issue.detail}</td></tr>`
+    ).join('');
+
+    const html = `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>SEO·GEO 진단 리포트 — ${url}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Apple SD Gothic Neo',Malgun Gothic,sans-serif;font-size:13px;color:#1e293b;background:#fff;padding:24px 32px}
+  h1{font-size:20px;font-weight:900;color:#4f46e5;margin-bottom:4px}
+  h2{font-size:14px;font-weight:800;color:#334155;margin:20px 0 8px;padding-bottom:4px;border-bottom:2px solid #e2e8f0}
+  h3{font-size:13px;font-weight:700;color:#475569;margin:12px 0 6px}
+  table{width:100%;border-collapse:collapse;margin-bottom:8px;font-size:12px}
+  th{background:#f8fafc;padding:6px 10px;text-align:left;font-weight:700;color:#64748b;border:1px solid #e2e8f0}
+  td{padding:6px 10px;border:1px solid #e2e8f0;vertical-align:top}
+  tr:hover{background:#f8fafc}
+  .meta{color:#64748b;font-size:12px;margin-bottom:16px}
+  .score-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+  .score-card{border:1px solid #e2e8f0;border-radius:12px;padding:12px;text-align:center}
+  .score-num{font-size:28px;font-weight:900;line-height:1}
+  .score-label{font-size:11px;color:#64748b;margin-top:4px}
+  .chip{display:inline-block;padding:2px 8px;border-radius:9999px;font-size:11px;font-weight:700}
+  .advice{background:#faf5ff;border:1px solid #e9d5ff;border-radius:8px;padding:12px;white-space:pre-wrap;font-size:12px;line-height:1.7;color:#374151}
+  @media print{body{padding:0} @page{size:A4;margin:15mm 15mm}}
+</style></head><body>
+<h1>SEO · GEO 진단 리포트</h1>
+<p class="meta">분석 URL: <strong>${url}</strong> &nbsp;|&nbsp; 분석일: <strong>${date}</strong></p>
+
+<div class="score-grid">
+  ${[
+    { label: 'Performance', mob: m.performance, desk: d.performance },
+    { label: 'SEO', mob: m.seo, desk: d.seo },
+    { label: 'Accessibility', mob: m.accessibility, desk: d.accessibility },
+    { label: 'GEO Visibility', mob: geo.score, desk: null },
+  ].map(s => `<div class="score-card">
+    <div class="score-num" style="color:${scoreColor(s.mob ?? 0)}">${s.mob ?? '-'}</div>
+    <div class="score-label">${s.label}<br><span style="color:#94a3b8;font-size:10px">모바일${s.desk !== null ? ` / ${s.desk} 데스크탑` : ''}</span></div>
+  </div>`).join('')}
+</div>
+
+<h2>성능 지표 비교</h2>
+<table><tr><th>지표</th><th>모바일</th><th>데스크탑</th></tr>
+${scoreRow('Performance', m.performance, d.performance)}
+${scoreRow('SEO', m.seo, d.seo)}
+${scoreRow('Accessibility', m.accessibility, d.accessibility)}
+${scoreRow('Best Practices', m.bestPractices, d.bestPractices)}
+<tr><td><strong>GEO Visibility</strong></td><td style="color:${scoreColor(geo.score)};font-weight:700">${geo.score}/100</td><td>—</td></tr>
+</table>
+
+<h2>메타 & OG 태그</h2>
+<table><tr><th>항목</th><th>값</th></tr>
+<tr><td>Title</td><td>${geo.meta.title || '없음'} <span style="color:#94a3b8">(${geo.meta.titleLength}자)</span></td></tr>
+<tr><td>Meta Description</td><td>${geo.meta.description ? geo.meta.description.slice(0, 100) + '…' : '없음'} <span style="color:#94a3b8">(${geo.meta.descriptionLength}자)</span></td></tr>
+<tr><td>Canonical</td><td>${geo.meta.canonical || '없음'}</td></tr>
+<tr><td>Lang</td><td>${geo.meta.lang || '없음'}</td></tr>
+<tr><td>Noindex</td><td>${geo.meta.isNoindex ? '⚠️ 있음' : '없음'}</td></tr>
+<tr><td>og:title / description / image</td><td>${check(geo.og.title)} / ${check(geo.og.description)} / ${check(geo.og.image)}</td></tr>
+</table>
+
+<h2>콘텐츠 구조</h2>
+<table><tr><th>항목</th><th>값</th></tr>
+<tr><td>H1 / H2 / H3</td><td>${geo.headings.h1Count} / ${geo.headings.h2Count} / ${geo.headings.h3Count}</td></tr>
+<tr><td>단어 수</td><td>${geo.content.wordCount.toLocaleString()}</td></tr>
+<tr><td>내부 / 외부 링크</td><td>${geo.content.internalLinks} / ${geo.content.externalLinks}</td></tr>
+<tr><td>이미지 Alt 누락</td><td>${geo.images.missingAlt} / ${geo.images.total}</td></tr>
+<tr><td>HTTPS</td><td>${check(geo.content.isHttps)}</td></tr>
+</table>
+
+<h2>구조화 데이터 & GEO</h2>
+<table><tr><th>항목</th><th>상태</th></tr>
+<tr><td>JSON-LD</td><td>${geo.jsonLd.exists ? `✅ ${geo.jsonLd.types.join(', ')}` : '❌'}</td></tr>
+<tr><td>Sitemap</td><td>${check(geo.sitemap.exists)}</td></tr>
+<tr><td>robots.txt</td><td>${check(geo.robotsTxt.exists)}</td></tr>
+<tr><td>AI 봇 차단</td><td>${geo.robotsTxt.llmBlocked ? '⚠️ 차단됨' : '✅ 허용'}</td></tr>
+<tr><td>llms.txt</td><td>${check(geo.llmsTxt.exists)}</td></tr>
+</table>
+
+${geo.issues.length > 0 ? `<h2>개선 이슈 (${geo.issues.length}개)</h2>
+<table><tr><th>영향도</th><th>이슈</th><th>설명</th></tr>${issueRows}</table>` : ''}
+
+${advice ? `<h2>AI 어드바이저 분석</h2><div class="advice">${advice.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>` : ''}
+
+<script>window.onload=()=>{setTimeout(()=>window.print(),400)}</script>
+</body></html>`;
+
+    const w = window.open('', '_blank');
+    if (w) { w.document.write(html); w.document.close(); }
+  };
+
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Input Card */}
@@ -409,6 +592,14 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
               <Download size={16} />
               {t('diagnosis', 'reportBtn', lang)}
             </button>
+            <button
+              onClick={openPdfReport}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-white border border-slate-200 text-slate-500 hover:bg-violet-50 hover:text-violet-700 hover:border-violet-200 transition-all"
+              title={lang === 'ko' ? 'PDF 리포트 인쇄/저장' : lang === 'ja' ? 'PDFレポート印刷/保存' : 'Print / Save as PDF'}
+            >
+              <Printer size={16} />
+              PDF
+            </button>
           </div>
 
           {/* Score Rings */}
@@ -417,6 +608,87 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
             <ScoreRing score={current!.scores.seo} label="SEO" sub={t('diagnosis', 'seoScore', lang)} />
             <ScoreRing score={current!.scores.accessibility} label="Accessibility" sub={t('diagnosis', 'accessScore', lang)} />
             <ScoreRing score={geoData.score} label="GEO Visibility" sub={t('diagnosis', 'geoScore', lang)} />
+          </div>
+
+          {/* 보안 헤더 + 콘텐츠 품질 카드 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {securityData && (() => {
+              const gc = gradeColor(securityData.grade);
+              const headerEntries = [
+                { key: 'HSTS', h: securityData.headers.hsts },
+                { key: 'CSP', h: securityData.headers.csp },
+                { key: 'X-Frame-Options', h: securityData.headers.xFrameOptions },
+                { key: 'X-Content-Type', h: securityData.headers.xContentTypeOptions },
+                { key: 'Referrer-Policy', h: securityData.headers.referrerPolicy },
+                { key: 'Permissions-Policy', h: securityData.headers.permissionsPolicy },
+              ];
+              return (
+                <Card className="p-5">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Lock size={18} className="text-indigo-600" />
+                    <h4 className="font-bold text-slate-800 text-sm">{lang === 'ko' ? '보안 헤더 진단' : lang === 'ja' ? 'セキュリティヘッダー診断' : 'Security Headers'}</h4>
+                    <span className={`ml-auto text-lg font-black px-3 py-1 rounded-xl border ${gc.bg} ${gc.text} ${gc.border}`}>{securityData.grade}</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {headerEntries.map(({ key, h }) => (
+                      <div key={key} className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs ${h.present ? 'bg-emerald-50' : 'bg-rose-50'}`}>
+                        <div className="flex items-center gap-2">
+                          {h.present
+                            ? <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
+                            : <AlertCircle size={13} className="text-rose-500 shrink-0" />}
+                          <span className="font-bold text-slate-700">{key}</span>
+                        </div>
+                        <span className={`text-[10px] max-w-[140px] truncate ${h.present ? 'text-emerald-700' : 'text-rose-600'}`}>{h.note}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-3 flex items-center gap-2">
+                    <div className="flex-1 bg-slate-100 rounded-full h-1.5">
+                      <div className={`h-1.5 rounded-full ${securityData.score >= 80 ? 'bg-emerald-500' : securityData.score >= 50 ? 'bg-amber-500' : 'bg-rose-500'}`} style={{ width: `${securityData.score}%` }} />
+                    </div>
+                    <span className="text-xs font-bold text-slate-500">{securityData.score}/100</span>
+                  </div>
+                </Card>
+              );
+            })()}
+
+            {geoData.contentQuality && (() => {
+              const cq = geoData.contentQuality;
+              const cqItems = [
+                { label: lang === 'ko' ? '키워드 본문 노출' : 'Keyword in Body', ok: cq.keywordInBody, note: cq.keywordInBody ? (lang === 'ko' ? 'H1 키워드가 본문에 3회 이상 등장' : 'H1 keyword appears 3+ times') : (lang === 'ko' ? 'H1 키워드가 본문에 부족 — 토픽 일관성 약함' : 'H1 keyword insufficient in body') },
+                { label: lang === 'ko' ? '권위 링크' : 'Authority Links', ok: cq.hasAuthorityLinks, note: cq.hasAuthorityLinks ? (lang === 'ko' ? '위키/정부/학술 링크 포함' : 'Wikipedia/gov/edu links present') : (lang === 'ko' ? '권위 있는 외부 링크 없음 — E-E-A-T 약화' : 'No authority links — weak E-E-A-T') },
+                { label: 'FAQ 섹션', ok: cq.hasFaqSection, note: cq.hasFaqSection ? (lang === 'ko' ? 'FAQ 구조 감지됨' : 'FAQ structure detected') : (lang === 'ko' ? 'FAQ 없음 — AI 검색 노출 기회 손실' : 'No FAQ — lost AI search opportunity') },
+                { label: lang === 'ko' ? 'H2 구조 밀도' : 'H2 Density', ok: cq.h2Density >= 1, note: lang === 'ko' ? `${cq.h2Density}/1000단어 ${cq.h2Density < 1 ? '(소제목 부족)' : '(양호)'}` : `${cq.h2Density}/1000 words ${cq.h2Density < 1 ? '(low)' : '(good)'}` },
+              ];
+              const cqGrade = cq.score >= 80 ? 'A' : cq.score >= 60 ? 'B' : cq.score >= 40 ? 'C' : 'D';
+              const gc2 = gradeColor(cqGrade);
+              return (
+                <Card className="p-5">
+                  <div className="flex items-center gap-3 mb-4">
+                    <BarChart2 size={18} className="text-indigo-600" />
+                    <h4 className="font-bold text-slate-800 text-sm">{lang === 'ko' ? '콘텐츠 품질 점수' : lang === 'ja' ? 'コンテンツ品質スコア' : 'Content Quality'}</h4>
+                    <span className={`ml-auto text-lg font-black px-3 py-1 rounded-xl border ${gc2.bg} ${gc2.text} ${gc2.border}`}>{cq.score}</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {cqItems.map(({ label, ok, note }) => (
+                      <div key={label} className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs ${ok ? 'bg-emerald-50' : 'bg-rose-50'}`}>
+                        <div className="flex items-center gap-2">
+                          {ok ? <CheckCircle2 size={13} className="text-emerald-600 shrink-0" /> : <AlertCircle size={13} className="text-rose-500 shrink-0" />}
+                          <span className="font-bold text-slate-700">{label}</span>
+                        </div>
+                        <span className={`text-[10px] max-w-[150px] truncate ${ok ? 'text-emerald-700' : 'text-rose-600'}`}>{note}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-3 flex items-center gap-2">
+                    <div className="flex-1 bg-slate-100 rounded-full h-1.5">
+                      <div className={`h-1.5 rounded-full ${cq.score >= 80 ? 'bg-emerald-500' : cq.score >= 50 ? 'bg-amber-500' : 'bg-rose-500'}`} style={{ width: `${cq.score}%` }} />
+                    </div>
+                    <span className="text-xs font-bold text-slate-500">{cq.score}/100</span>
+                  </div>
+                </Card>
+              );
+            })()}
           </div>
 
           {/* Core Web Vitals */}
@@ -633,6 +905,67 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
                 ]}
               />
 
+              {/* Rich Result 적격성 */}
+              {geoData.richResults && geoData.jsonLd.exists && (
+                <CheckSection
+                  title={lang === 'ko' ? 'Rich Result 적격성 (Google 리치 스니펫)' : lang === 'ja' ? 'リッチリザルト適格性' : 'Rich Result Eligibility'}
+                  icon={<Star size={16} />}
+                  defaultOpen={false}
+                  items={[
+                    {
+                      label: 'Article / BlogPosting',
+                      ok: geoData.richResults.article.eligible,
+                      warn: !geoData.richResults.article.eligible && geoData.jsonLd.hasArticle,
+                      value: geoData.jsonLd.hasArticle
+                        ? (geoData.richResults.article.eligible
+                          ? (lang === 'ko' ? '리치 스니펫 적격' : 'Eligible for rich snippet')
+                          : (lang === 'ko' ? `누락 필드: ${geoData.richResults.article.missingFields.join(', ')}` : `Missing: ${geoData.richResults.article.missingFields.join(', ')}`))
+                        : (lang === 'ko' ? 'Article 스키마 없음' : 'No Article schema'),
+                    },
+                    {
+                      label: 'Product',
+                      ok: geoData.richResults.product.eligible,
+                      warn: !geoData.richResults.product.eligible && geoData.jsonLd.hasProduct,
+                      value: geoData.jsonLd.hasProduct
+                        ? (geoData.richResults.product.eligible
+                          ? (lang === 'ko' ? '리치 스니펫 적격' : 'Eligible for rich snippet')
+                          : (lang === 'ko' ? `누락 필드: ${geoData.richResults.product.missingFields.join(', ')}` : `Missing: ${geoData.richResults.product.missingFields.join(', ')}`))
+                        : (lang === 'ko' ? 'Product 스키마 없음' : 'No Product schema'),
+                    },
+                    {
+                      label: 'FAQPage',
+                      ok: geoData.richResults.faq.eligible,
+                      warn: !geoData.richResults.faq.eligible && geoData.jsonLd.hasFaq,
+                      value: geoData.jsonLd.hasFaq
+                        ? (geoData.richResults.faq.eligible
+                          ? (lang === 'ko' ? '리치 스니펫 적격' : 'Eligible for rich snippet')
+                          : (lang === 'ko' ? `누락 필드: ${geoData.richResults.faq.missingFields.join(', ')}` : `Missing: ${geoData.richResults.faq.missingFields.join(', ')}`))
+                        : (lang === 'ko' ? 'FAQPage 스키마 없음' : 'No FAQPage schema'),
+                    },
+                    {
+                      label: 'BreadcrumbList',
+                      ok: geoData.richResults.breadcrumb.eligible,
+                      warn: !geoData.richResults.breadcrumb.eligible && geoData.jsonLd.hasBreadcrumb,
+                      value: geoData.jsonLd.hasBreadcrumb
+                        ? (geoData.richResults.breadcrumb.eligible
+                          ? (lang === 'ko' ? '리치 스니펫 적격' : 'Eligible for rich snippet')
+                          : (lang === 'ko' ? `누락 필드: ${geoData.richResults.breadcrumb.missingFields.join(', ')}` : `Missing: ${geoData.richResults.breadcrumb.missingFields.join(', ')}`))
+                        : (lang === 'ko' ? 'BreadcrumbList 스키마 없음' : 'No BreadcrumbList schema'),
+                    },
+                    {
+                      label: 'Organization',
+                      ok: geoData.richResults.organization.eligible,
+                      warn: !geoData.richResults.organization.eligible && geoData.jsonLd.hasOrganization,
+                      value: geoData.jsonLd.hasOrganization
+                        ? (geoData.richResults.organization.eligible
+                          ? (lang === 'ko' ? '리치 스니펫 적격' : 'Eligible for rich snippet')
+                          : (lang === 'ko' ? `누락 필드: ${geoData.richResults.organization.missingFields.join(', ')}` : `Missing: ${geoData.richResults.organization.missingFields.join(', ')}`))
+                        : (lang === 'ko' ? 'Organization 스키마 없음' : 'No Organization schema'),
+                    },
+                  ]}
+                />
+              )}
+
               {/* 기술 SEO & GEO */}
               <CheckSection
                 title={t('diagnosis', 'techSeo', lang)}
@@ -720,6 +1053,86 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
           )}
         </div>
       )}
+
+      {/* 이메일 전송 인프라 진단 — URL 분석과 독립적으로 항상 표시 */}
+      <Card className="p-6 border-indigo-100">
+        <div className="flex items-center gap-3 mb-5">
+          <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl">
+            <Mail size={20} />
+          </div>
+          <div>
+            <h4 className="font-bold text-slate-800">{lang === 'ko' ? '이메일 전송 인프라 진단' : lang === 'ja' ? 'メール配信インフラ診断' : 'Email Deliverability Check'}</h4>
+            <p className="text-xs text-slate-500">{lang === 'ko' ? 'SPF · DKIM · DMARC · MX 레코드 검증 — 이메일 스팸 차단율 진단' : lang === 'ja' ? 'SPF · DKIM · DMARC · MX レコード検証' : 'SPF · DKIM · DMARC · MX record validation'}</p>
+          </div>
+        </div>
+        <div className="flex gap-2 mb-4">
+          <input
+            type="text"
+            placeholder={lang === 'ko' ? '도메인 입력 (예: example.com)' : lang === 'ja' ? 'ドメインを入力 (例: example.com)' : 'Enter domain (e.g. example.com)'}
+            className="flex-1 px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-sm"
+            value={emailDomain}
+            onChange={(e) => setEmailDomain(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && runEmailCheck()}
+          />
+          <button
+            onClick={runEmailCheck}
+            disabled={emailLoading || !emailDomain.trim()}
+            className="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-bold rounded-xl text-sm flex items-center gap-2 whitespace-nowrap"
+          >
+            {emailLoading ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
+            {lang === 'ko' ? '진단' : lang === 'ja' ? '診断' : 'Check'}
+          </button>
+        </div>
+        {emailError && (
+          <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-700 flex items-center gap-2">
+            <AlertCircle size={16} className="shrink-0" /> {emailError}
+          </div>
+        )}
+        {emailData && (() => {
+          const gc = gradeColor(emailData.grade);
+          const records = [
+            { label: 'MX 레코드', ok: emailData.mx.exists, warn: false, value: emailData.mx.exists ? emailData.mx.records[0] ?? '확인됨' : (lang === 'ko' ? 'MX 레코드 없음' : 'No MX record') },
+            { label: 'SPF', ok: emailData.spf.valid, warn: emailData.spf.exists && !emailData.spf.valid, value: emailData.spf.value ?? (lang === 'ko' ? 'SPF 없음' : 'No SPF') },
+            { label: 'DKIM (default)', ok: emailData.dkim.exists, warn: false, value: emailData.dkim.exists ? (lang === 'ko' ? 'DKIM 키 감지됨' : 'DKIM key detected') : (lang === 'ko' ? 'DKIM 미감지' : 'DKIM not found') },
+            { label: 'DMARC', ok: emailData.dmarc.exists && emailData.dmarc.policy !== 'none', warn: emailData.dmarc.exists && emailData.dmarc.policy === 'none', value: emailData.dmarc.value ?? (lang === 'ko' ? 'DMARC 없음' : 'No DMARC') },
+          ];
+          return (
+            <div>
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-sm text-slate-500">{emailData.domain}</span>
+                <span className={`text-xl font-black px-3 py-1 rounded-xl border ${gc.bg} ${gc.text} ${gc.border}`}>{emailData.grade}</span>
+                <span className="text-xs text-slate-400">{emailData.score}/100</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3">
+                {records.map(({ label, ok, warn, value }) => (
+                  <div key={label} className={`flex items-start gap-2.5 p-3 rounded-xl ${ok ? 'bg-emerald-50' : warn ? 'bg-amber-50' : 'bg-rose-50'}`}>
+                    {ok ? <CheckCircle2 size={15} className="text-emerald-600 shrink-0 mt-0.5" />
+                      : warn ? <AlertCircle size={15} className="text-amber-500 shrink-0 mt-0.5" />
+                      : <AlertCircle size={15} className="text-rose-500 shrink-0 mt-0.5" />}
+                    <div className="min-w-0">
+                      <div className="text-[10px] font-black text-slate-500 uppercase">{label}</div>
+                      <div className={`text-xs mt-0.5 font-medium truncate ${ok ? 'text-emerald-700' : warn ? 'text-amber-700' : 'text-rose-700'}`}>{value}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {emailData.issues.length > 0 && (
+                <div className="space-y-2">
+                  {emailData.issues.map((issue, i) => (
+                    <div key={i} className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-bold text-slate-800">{issue.title}</span>
+                        <Badge variant={issue.impact === 'High' ? 'danger' : issue.impact === 'Medium' ? 'warning' : 'default'}>{issue.impact}</Badge>
+                      </div>
+                      <p className="text-xs text-slate-600 leading-relaxed">{issue.detail}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })()}
+      </Card>
     </div>
   );
 }

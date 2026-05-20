@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/ai-pm",
       "schedule": "0 0 * * 1"
+    },
+    {
+      "path": "/api/cron/newsletter",
+      "schedule": "0 10 * * 3"
     }
   ]
 }

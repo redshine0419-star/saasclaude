@@ -8,6 +8,7 @@ import {
   ChevronDown, MessageCircle, Send, Loader2, Menu, X,
 } from 'lucide-react';
 import { useDarkMode } from '@/components/DarkModeProvider';
+import NewsletterWidget from '@/components/NewsletterWidget';
 
 const T = {
   ko: {
@@ -607,6 +608,13 @@ export default function LandingPage({ lang, isLoggedIn = false }: { lang: 'ko' |
       </section>
 
       {/* ── CTA ── */}
+      {/* ── Newsletter ── */}
+      <section className="border-b border-[#d0d7de] dark:border-[#30363d]">
+        <div className="max-w-2xl mx-auto px-6 py-16">
+          <NewsletterWidget lang={lang} />
+        </div>
+      </section>
+
       <section className="relative bg-[#000] text-white overflow-hidden">
         <div className="absolute inset-0 opacity-[0.06]"
           style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
