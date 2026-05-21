@@ -79,7 +79,8 @@ JSON 배열만 반환 (다른 텍스트 없이): ["질문1", "질문2", ...]`;
   let questions: string[] = [];
   try {
     const { text } = await generateText(questionGenPrompt);
-    const match = text.match(/\[[\s\S]*\]/);
+    const clean = text.replace(/```(?:json)?\s*/g, '').replace(/```/g, '').trim();
+    const match = clean.match(/\[[\s\S]*\]/);
     if (match) questions = JSON.parse(match[0]);
   } catch { /* fallback */ }
 
@@ -215,7 +216,8 @@ JSON 배열만 반환: [{"priority":1,"title":"제목","detail":"2문장 설명"
   let recommendations: AiSearchQualityResult['recommendations'] = [];
   try {
     const { text } = await generateText(recPrompt);
-    const match = text.match(/\[[\s\S]*\]/);
+    const clean = text.replace(/```(?:json)?\s*/g, '').replace(/```/g, '').trim();
+    const match = clean.match(/\[[\s\S]*\]/);
     if (match) recommendations = JSON.parse(match[0]);
   } catch { /* fallback */ }
 

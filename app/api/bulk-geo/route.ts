@@ -236,7 +236,8 @@ export async function POST(req: NextRequest) {
   let aiRecommendations: { priority: number; title: string; detail: string }[] = [];
   try {
     const { text } = await generateText(prompt);
-    const match = text.match(/\[[\s\S]*\]/);
+    const clean = text.replace(/```(?:json)?\s*/g, '').replace(/```/g, '').trim();
+    const match = clean.match(/\[[\s\S]*\]/);
     if (match) aiRecommendations = JSON.parse(match[0]);
   } catch { /* fallback */ }
 

@@ -28,7 +28,7 @@ function extractPageProfile(html: string, url: string) {
   const h3s = $('h3').map((_, el) => $(el).text().trim()).get().slice(0, 8);
   const bodyText = $('body').text().replace(/\s+/g, ' ').trim();
   const wordCount = bodyText.split(' ').filter(Boolean).length;
-  const snippet = bodyText.slice(0, 1000);
+  const snippet = bodyText.slice(0, 600);
   const internalLinks = $('a[href]').filter((_, el) => {
     const href = $(el).attr('href') ?? '';
     return href.startsWith('/') || href.startsWith(url);
@@ -154,7 +154,9 @@ topics는 5~8개, contentRecommendations는 4~6개, ourAdvantages는 2~4개`;
 
   try {
     const { text } = await generateText(gapPrompt);
-    const match = text.match(/\{[\s\S]*\}/);
+    // strip markdown code fences if present
+    const clean = text.replace(/```(?:json)?\s*/g, '').replace(/```/g, '').trim();
+    const match = clean.match(/\{[\s\S]*\}/);
     if (match) aiResult = JSON.parse(match[0]);
   } catch { /* fallback */ }
 
