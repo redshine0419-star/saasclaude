@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Sparkles, Zap, Loader2, Copy, ChevronDown, ChevronUp } from 'lucide-react';
+import { Sparkles, Zap, Loader2, Copy, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
 import RewriterModule from '@/components/RewriterModule';
 import { useAppLang } from '@/components/AppLangContext';
 import { t } from '@/lib/app-i18n';
@@ -162,11 +162,14 @@ function ContentGenerateTab({ onToast }: { onToast: (msg: string) => void }) {
         body: JSON.stringify({ topic: topic.trim(), tone, channels: Array.from(selectedChannels) }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? '생성 실패');
+      if (!res.ok) {
+        const isAiFailed = !data.error || data.error === 'AI_FAILED';
+        throw new Error(isAiFailed ? t('content', 'errorGenerateFailed', lang) : data.error);
+      }
       setResult(data);
       onToast(t('content', 'complete', lang));
     } catch (e) {
-      setError(e instanceof Error ? e.message : '오류가 발생했습니다.');
+      setError(e instanceof Error ? e.message : t('content', 'errorGenerateFailed', lang));
     } finally {
       setIsGenerating(false);
     }
@@ -252,8 +255,17 @@ function ContentGenerateTab({ onToast }: { onToast: (msg: string) => void }) {
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-700">
-            {error}
+          <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+            <div className="flex items-start gap-2">
+              <AlertCircle size={16} className="shrink-0 mt-0.5 text-amber-600" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-amber-800">{error}</p>
+                <p className="text-xs text-amber-600 mt-1">{t('content', 'errorGenerateFailed', lang)}</p>
+                <button onClick={generate} className="mt-2 text-xs font-bold text-amber-700 underline hover:text-amber-900">
+                  {t('common', 'retry', lang)}
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

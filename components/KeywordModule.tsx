@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Loader2, TrendingUp, Target, Lightbulb, FileText, BarChart2, Tag, Layers } from 'lucide-react';
+import { Search, Loader2, TrendingUp, Target, Lightbulb, FileText, BarChart2, Tag, Layers, AlertCircle } from 'lucide-react';
 import AdUnit from '@/components/AdUnit';
 import { useAppLang } from '@/components/AppLangContext';
 import { t } from '@/lib/app-i18n';
@@ -80,11 +80,14 @@ function SingleMode({ onToast }: { onToast: (msg: string) => void }) {
         body: JSON.stringify({ keyword }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? '분석 실패');
+      if (!res.ok) {
+        const isAiFailed = !data.error || data.error === 'AI_FAILED';
+        throw new Error(isAiFailed ? t('keyword', 'errorAnalysisFailed', lang) : data.error);
+      }
       setResult(data);
       onToast(t('keyword', 'analyzeComplete', lang));
     } catch (e) {
-      setError(e instanceof Error ? e.message : t('common', 'error', lang));
+      setError(e instanceof Error ? e.message : t('keyword', 'errorAnalysisFailed', lang));
     } finally {
       setLoading(false);
     }
@@ -113,7 +116,20 @@ function SingleMode({ onToast }: { onToast: (msg: string) => void }) {
             {loading ? <><Loader2 size={18} className="animate-spin" /> {t('common', 'analyzing', lang)}</> : <><Search size={18} /> {t('keyword', 'analyzeBtn', lang)}</>}
           </button>
         </div>
-        {error && <div className="mt-4 p-4 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-700">{error}</div>}
+        {error && (
+          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+            <div className="flex items-start gap-2">
+              <AlertCircle size={16} className="shrink-0 mt-0.5 text-amber-600" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-amber-800">{error}</p>
+                <p className="text-xs text-amber-600 mt-1">{t('keyword', 'errorNoResults', lang)}</p>
+                <button onClick={analyze} className="mt-2 text-xs font-bold text-amber-700 underline hover:text-amber-900">
+                  {t('common', 'retry', lang)}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </Card>
 
       {result && (
@@ -287,7 +303,20 @@ function ClusterMode({ onToast }: { onToast: (msg: string) => void }) {
             {loading ? <><Loader2 size={18} className="animate-spin" /> {t('keyword', 'clustering', lang)}</> : <><Layers size={18} /> {t('keyword', 'clusterBtn', lang)}</>}
           </button>
         </div>
-        {error && <div className="mt-4 p-4 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-700">{error}</div>}
+        {error && (
+          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+            <div className="flex items-start gap-2">
+              <AlertCircle size={16} className="shrink-0 mt-0.5 text-amber-600" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-amber-800">{error}</p>
+                <p className="text-xs text-amber-600 mt-1">{t('keyword', 'errorNoResults', lang)}</p>
+                <button onClick={analyze} className="mt-2 text-xs font-bold text-amber-700 underline hover:text-amber-900">
+                  {t('common', 'retry', lang)}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </Card>
 
       {result && (

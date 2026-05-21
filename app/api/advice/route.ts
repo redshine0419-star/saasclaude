@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     const { text } = await generateText(prompt);
     return NextResponse.json({ advice: text });
   } catch (e) {
-    console.error(e);
-    return NextResponse.json({ error: 'AI 분석 중 오류가 발생했습니다.' }, { status: 500 });
+    console.error('[advice]', e);
+    return NextResponse.json({ error: 'AI_FAILED' }, { status: 500 });
   }
 }

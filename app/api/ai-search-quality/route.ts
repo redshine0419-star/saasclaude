@@ -54,8 +54,9 @@ export async function POST(req: NextRequest) {
 
   const fullUrl = brandUrl.startsWith('http') ? brandUrl : `https://${brandUrl}`;
   const pageRes = await safeFetch(fullUrl);
-  if (!pageRes) return NextResponse.json({ error: `도메인에 연결할 수 없습니다 (${new URL(fullUrl).hostname}). URL을 확인하세요.` }, { status: 400 });
-  if (!pageRes.ok) return NextResponse.json({ error: `페이지를 가져올 수 없습니다 (HTTP ${pageRes.status}).` }, { status: 400 });
+  const hostname = (() => { try { return new URL(fullUrl).hostname; } catch { return fullUrl; } })();
+  if (!pageRes) return NextResponse.json({ error: 'SITE_UNREACHABLE', hostname }, { status: 400 });
+  if (!pageRes.ok) return NextResponse.json({ error: `HTTP_ERROR_${pageRes.status}`, hostname, status: pageRes.status }, { status: 400 });
 
   const html = await pageRes.text();
   const brand = extractBrandInfo(html, fullUrl);

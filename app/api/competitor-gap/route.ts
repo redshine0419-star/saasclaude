@@ -88,8 +88,10 @@ export async function POST(req: NextRequest) {
     safeFetch(normalize(competitorUrl)),
   ]);
 
-  if (!ourRes?.ok) return NextResponse.json({ error: '우리 사이트를 가져올 수 없습니다.' }, { status: 400 });
-  if (!compRes?.ok) return NextResponse.json({ error: '경쟁사 사이트를 가져올 수 없습니다.' }, { status: 400 });
+  if (!ourRes) return NextResponse.json({ error: `우리 사이트(${normalize(ourUrl)})에 접근할 수 없습니다. URL이 올바르고 공개 접근 가능한지 확인해 주세요.` }, { status: 400 });
+  if (!ourRes.ok) return NextResponse.json({ error: `우리 사이트(${normalize(ourUrl)})를 가져올 수 없습니다 (HTTP ${ourRes.status}). URL을 확인해 주세요.` }, { status: 400 });
+  if (!compRes) return NextResponse.json({ error: `경쟁사 사이트(${normalize(competitorUrl)})에 접근할 수 없습니다. URL을 확인하거나 다른 경쟁사 URL을 시도해 주세요.` }, { status: 400 });
+  if (!compRes.ok) return NextResponse.json({ error: `경쟁사 사이트(${normalize(competitorUrl)})를 가져올 수 없습니다 (HTTP ${compRes.status}). 다른 경쟁사 URL을 시도해 주세요.` }, { status: 400 });
 
   const [ourHtml, compHtml] = await Promise.all([ourRes.text(), compRes.text()]);
   const ours = extractPageProfile(ourHtml, normalize(ourUrl));

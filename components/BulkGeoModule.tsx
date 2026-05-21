@@ -82,7 +82,13 @@ export default function BulkGeoModule({ onToast }: { onToast: (msg: string) => v
         body: JSON.stringify({ siteUrl }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || t('bulkGeo', 'httpError', lang).replace('{status}', String(res.status)));
+      if (!res.ok) {
+        // Use i18n key for sitemap-not-found, otherwise generic message
+        if (data?.error === 'SITEMAP_NOT_FOUND') {
+          throw new Error(t('bulkGeo', 'errorNoSitemap', lang));
+        }
+        throw new Error(data?.message || data?.error || t('bulkGeo', 'httpError', lang).replace('{status}', String(res.status)));
+      }
       setResult(data);
       onToast(t('bulkGeo', 'toastDone', lang).replace('{n}', String(data.analyzedUrls)).replace('{score}', String(data.avgScore)));
     } catch (e) {
@@ -148,8 +154,23 @@ export default function BulkGeoModule({ onToast }: { onToast: (msg: string) => v
       </Card>
 
       {error && (
-        <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-sm text-rose-700 flex items-start gap-2">
-          <AlertCircle size={16} className="shrink-0 mt-0.5" /> {error}
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl">
+          <div className="flex items-start gap-2">
+            <AlertCircle size={16} className="shrink-0 mt-0.5 text-amber-600" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-amber-800">{error}</p>
+              <p className="text-xs text-amber-600 mt-1">
+                {error === t('bulkGeo', 'errorNoSitemap', lang)
+                  ? (lang === 'ko' ? 'sitemap.xml URL을 직접 입력해 보세요 (예: https://example.com/sitemap.xml).'
+                   : lang === 'ja' ? 'サイトマップのURLを直接入力してみてください（例: https://example.com/sitemap.xml）。'
+                   : 'Try entering the sitemap URL directly (e.g. https://example.com/sitemap.xml).')
+                  : t('common', 'tryDifferentUrl', lang)}
+              </p>
+              <button onClick={run} className="mt-2 text-xs font-bold text-amber-700 underline hover:text-amber-900">
+                {t('common', 'retry', lang)}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(output);
   } catch (e) {
-    const msg = e instanceof Error ? e.message : '콘텐츠 생성 중 오류가 발생했습니다.';
-    return NextResponse.json({ error: msg }, { status: 500 });
+    console.error('[content-hub]', e);
+    return NextResponse.json({ error: 'AI_FAILED' }, { status: 500 });
   }
 }

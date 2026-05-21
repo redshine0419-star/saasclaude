@@ -251,12 +251,15 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
       ]);
 
       if (!analyzeRes.ok) {
-        const e = await analyzeRes.json();
-        throw new Error(e.error ?? (lang === 'ko' ? 'PageSpeed API 오류' : lang === 'ja' ? 'PageSpeed API エラー' : 'PageSpeed API error'));
+        const e = await analyzeRes.json().catch(() => ({}));
+        const msg = e.error as string | undefined;
+        // Hide raw technical messages; show friendly i18n message unless it's already user-friendly
+        const isUserFriendly = msg && !msg.includes('PageSpeed API') && !msg.includes('HTTP') && !msg.includes('Unexpected');
+        throw new Error(isUserFriendly ? msg! : t('diagnosis', 'errorPageSpeed', lang));
       }
       if (!geoRes.ok) {
-        const e = await geoRes.json();
-        throw new Error(e.error ?? (lang === 'ko' ? 'GEO 분석 오류' : lang === 'ja' ? 'GEO分析エラー' : 'GEO analysis error'));
+        const e = await geoRes.json().catch(() => ({}));
+        throw new Error((e.error as string | undefined) ?? t('diagnosis', 'errorGeo', lang));
       }
 
       setStep(t('diagnosis', 'analyzing2', lang));
@@ -310,7 +313,7 @@ export default function DiagnosisModule({ onToast }: { onToast: (msg: string) =>
         .catch(() => setAdvice(null))
         .finally(() => setAdviceLoading(false));
     } catch (e) {
-      setError(e instanceof Error ? e.message : (lang === 'ko' ? '알 수 없는 오류' : lang === 'ja' ? '不明なエラー' : 'Unknown error'));
+      setError(e instanceof Error ? e.message : t('common', 'errorUnknown', lang));
       setStatus('error');
     }
   };
@@ -560,9 +563,20 @@ ${advice ? `<h2>AI 어드바이저 분석</h2><div class="advice">${advice.repla
         </div>
 
         {status === 'error' && (
-          <div className="mt-4 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-3 text-sm text-rose-700">
-            <AlertCircle size={18} className="shrink-0" />
-            {error}
+          <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
+            <div className="flex gap-3">
+              <AlertCircle className="text-amber-500 shrink-0 mt-0.5" size={18} />
+              <div>
+                <p className="text-sm font-semibold text-amber-800">{error}</p>
+                <p className="text-xs text-amber-600 mt-1">{t('diagnosis', 'errorHint', lang)}</p>
+                <button
+                  onClick={startAnalysis}
+                  className="mt-2 text-xs font-bold text-amber-700 underline hover:text-amber-900"
+                >
+                  {t('common', 'retry', lang)}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </Card>
@@ -1084,8 +1098,16 @@ ${advice ? `<h2>AI 어드바이저 분석</h2><div class="advice">${advice.repla
           </button>
         </div>
         {emailError && (
-          <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-700 flex items-center gap-2">
-            <AlertCircle size={16} className="shrink-0" /> {emailError}
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-3">
+            <div className="flex gap-2">
+              <AlertCircle className="text-amber-500 shrink-0 mt-0.5" size={16} />
+              <div>
+                <p className="text-sm font-semibold text-amber-800">{emailError}</p>
+                <button onClick={runEmailCheck} className="mt-1 text-xs font-bold text-amber-700 underline hover:text-amber-900">
+                  {t('common', 'retry', lang)}
+                </button>
+              </div>
+            </div>
           </div>
         )}
         {emailData && (() => {

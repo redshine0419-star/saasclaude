@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Megaphone, Loader2, Plus, X, CheckCircle2, XCircle, ChevronDown, ChevronUp, Clock, Lightbulb, BarChart2, Sparkles, RefreshCw, Edit2, Check } from 'lucide-react';
+import { Megaphone, Loader2, Plus, X, CheckCircle2, XCircle, ChevronDown, ChevronUp, Clock, Lightbulb, BarChart2, Sparkles, RefreshCw, Edit2, Check, AlertCircle } from 'lucide-react';
 import { saveSovRecord, getSovHistory, SovRecord } from '@/lib/storage';
 import { useAppLang } from '@/components/AppLangContext';
 import { t } from '@/lib/app-i18n';
@@ -334,7 +334,20 @@ export default function SovModule({ onToast }: { onToast: (msg: string) => void 
           )}
         </div>
 
-        {error && <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-700">{error}</div>}
+        {error && (
+          <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+            <div className="flex items-start gap-2">
+              <AlertCircle size={16} className="shrink-0 mt-0.5 text-amber-600" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-amber-800">{error}</p>
+                <p className="text-xs text-amber-600 mt-1">{t('sov', 'errorHint', lang)}</p>
+                <button onClick={run} className="mt-2 text-xs font-bold text-amber-700 underline hover:text-amber-900">
+                  {t('common', 'retry', lang)}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <button onClick={run}
           disabled={isRunning || !company.trim() || !industry.trim() || prompts.length === 0}

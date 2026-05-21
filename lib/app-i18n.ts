@@ -272,7 +272,8 @@ const T = {
     errorNeedInfo:            { ko: '회사명과 업종을 입력해주세요.', en: 'Please enter company name and industry.', ja: '会社名と業種を入力してください。' },
     errorNeedPrompts:         { ko: '프롬프트를 먼저 생성해주세요.', en: 'Please generate prompts first.', ja: 'プロンプトを先に生成してください。' },
     errorAnalyzeFailed:       { ko: '분석 실패', en: 'Analysis failed', ja: '分析失敗' },
-    genericError:             { ko: '오류가 발생했습니다.', en: 'An error occurred.', ja: 'エラーが発生しました。' },
+    genericError:             { ko: '오류가 발생했습니다. 잠시 후 다시 시도해 주세요.', en: 'An error occurred. Please try again in a moment.', ja: 'エラーが発生しました。しばらく経ってから再試行してください。' },
+    errorHint:                { ko: '회사명·업종을 다시 확인하거나 잠시 후 재시도해 주세요.', en: 'Double-check company name and industry, or try again later.', ja: '会社名・業種を再確認するか、しばらく経ってから再試行してください。' },
     /* prompt count edit label */
     promptsCountEdit: { ko: '{n}개 프롬프트 · 클릭해서 편집 가능', en: '{n} prompts · click to edit', ja: '{n}件のプロンプト · クリックして編集可能' },
     /* parallel send message */
@@ -511,8 +512,11 @@ const T = {
     gapAdvantage:{ ko: '우위',       en: 'Advantage',  ja: '優位'         },
     /* toast */
     toastDone:   { ko: '경쟁사 콘텐츠 갭 분석 완료 — 격차 점수 {score}점', en: 'Competitor content gap analysis complete — gap score {score}', ja: '競合コンテンツギャップ分析完了 — ギャップスコア {score}' },
-    genericError:{ ko: '오류가 발생했습니다.', en: 'An error occurred.', ja: 'エラーが発生しました。' },
-    httpError:   { ko: '오류 ({status})', en: 'Error ({status})', ja: 'エラー ({status})' },
+    genericError:  { ko: '오류가 발생했습니다. 잠시 후 다시 시도해 주세요.', en: 'An error occurred. Please try again in a moment.', ja: 'エラーが発生しました。しばらく経ってから再試行してください。' },
+    httpError:     { ko: '오류 ({status})', en: 'Error ({status})', ja: 'エラー ({status})' },
+    errorOurSite:  { ko: '우리 사이트에 접근할 수 없습니다. URL이 올바른지 확인해 주세요.', en: 'Cannot reach our site. Please verify the URL is correct.', ja: '自社サイトにアクセスできません。URLが正しいかご確認ください。' },
+    errorCompSite: { ko: '경쟁사 사이트에 접근할 수 없습니다. URL을 확인하거나 다른 경쟁사 URL을 시도해 주세요.', en: 'Cannot reach the competitor site. Check the URL or try a different competitor.', ja: '競合サイトにアクセスできません。URLを確認するか別の競合URLをお試しください。' },
+    errorHint:     { ko: 'URL이 공개적으로 접근 가능한지 확인하고, 잠시 후 다시 시도해 주세요.', en: 'Ensure the URLs are publicly accessible and try again in a moment.', ja: 'URLが公開アクセス可能かご確認のうえ、しばらく経ってから再試行してください。' },
     /* result section labels */
     gapScoreLabel: { ko: '콘텐츠 갭 점수', en: 'Content Gap Score', ja: 'コンテンツギャップスコア' },
     gapScoreSub:   { ko: '100에 가까울수록 격차 큼', en: 'Closer to 100 = larger gap', ja: '100に近いほどギャップが大きい' },

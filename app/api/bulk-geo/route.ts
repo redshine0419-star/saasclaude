@@ -188,7 +188,11 @@ export async function POST(req: NextRequest) {
   }
 
   if (urls.length === 0) {
-    return NextResponse.json({ error: '사이트맵을 찾을 수 없습니다. /sitemap.xml이 존재하는지 확인하세요.' }, { status: 404 });
+    // Return a structured error the component can detect
+    return NextResponse.json({
+      error: 'SITEMAP_NOT_FOUND',
+      message: '사이트맵을 찾을 수 없습니다. sitemap.xml이 없거나 robots.txt에 Sitemap 경로가 선언되지 않았습니다. sitemap.xml URL을 직접 입력해 보세요.',
+    }, { status: 404 });
   }
 
   // 분석 실행

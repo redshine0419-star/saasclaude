@@ -83,7 +83,15 @@ export default function AiSearchQualityModule({ onToast }: { onToast: (msg: stri
         body: JSON.stringify({ brandUrl: brandUrl.trim(), brandName: brandName.trim() }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || t('aiSearch', 'httpError', lang).replace('{status}', String(res.status)));
+      if (!res.ok) {
+        if (data?.error === 'SITE_UNREACHABLE') {
+          throw new Error(t('aiSearch', 'errorSiteUnreachable', lang));
+        }
+        if (typeof data?.error === 'string' && data.error.startsWith('HTTP_ERROR_')) {
+          throw new Error(t('aiSearch', 'httpError', lang).replace('{status}', String(data.status ?? res.status)));
+        }
+        throw new Error(data?.error || t('aiSearch', 'genericError', lang));
+      }
       setResult(data);
       onToast(t('aiSearch', 'toastDone', lang).replace('{brand}', data.brandName).replace('{score}', String(data.overallScore)));
     } catch (e) {
@@ -161,8 +169,17 @@ export default function AiSearchQualityModule({ onToast }: { onToast: (msg: stri
       </Card>
 
       {error && (
-        <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-sm text-rose-700 flex items-start gap-2">
-          <AlertCircle size={16} className="shrink-0 mt-0.5" /> {error}
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl">
+          <div className="flex items-start gap-2">
+            <AlertCircle size={16} className="shrink-0 mt-0.5 text-amber-600" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-amber-800">{error}</p>
+              <p className="text-xs text-amber-600 mt-1">{t('aiSearch', 'errorHint', lang)}</p>
+              <button onClick={run} className="mt-2 text-xs font-bold text-amber-700 underline hover:text-amber-900">
+                {t('common', 'retry', lang)}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

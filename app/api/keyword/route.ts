@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(data);
   } catch (e) {
-    console.error(e);
-    return NextResponse.json({ error: '키워드 분석 중 오류가 발생했습니다.' }, { status: 500 });
+    console.error('[keyword]', e);
+    return NextResponse.json({ error: 'AI_FAILED' }, { status: 500 });
   }
 }
