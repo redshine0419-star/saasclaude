@@ -47,11 +47,13 @@ async function fetchPageSpeed(url: string, strategy: 'mobile' | 'desktop', apiKe
 }
 
 export async function POST(req: NextRequest) {
-  const { url } = await req.json();
+  const { url: rawUrl } = await req.json();
 
-  if (!url) {
+  if (!rawUrl) {
     return NextResponse.json({ error: 'URL이 필요합니다.' }, { status: 400 });
   }
+
+  const url = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`;
 
   const apiKey = process.env.PAGESPEED_API_KEY;
 

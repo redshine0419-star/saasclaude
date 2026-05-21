@@ -128,8 +128,9 @@ async function safeFetch(url: string, timeout = 8000): Promise<Response | null> 
 }
 
 export async function POST(req: NextRequest) {
-  const { url } = await req.json();
-  if (!url) return NextResponse.json({ error: 'URL이 필요합니다.' }, { status: 400 });
+  const { url: rawUrl } = await req.json();
+  if (!rawUrl) return NextResponse.json({ error: 'URL이 필요합니다.' }, { status: 400 });
+  const url = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`;
 
   let origin: string;
   try {

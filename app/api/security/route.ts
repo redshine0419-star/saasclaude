@@ -30,8 +30,9 @@ function gradeFromScore(score: number): string {
 }
 
 export async function POST(req: NextRequest) {
-  const { url } = await req.json();
-  if (!url) return NextResponse.json({ error: 'URL이 필요합니다.' }, { status: 400 });
+  const { url: rawUrl } = await req.json();
+  if (!rawUrl) return NextResponse.json({ error: 'URL이 필요합니다.' }, { status: 400 });
+  const url = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`;
 
   let parsedUrl: URL;
   try {
