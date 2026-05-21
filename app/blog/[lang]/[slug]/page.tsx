@@ -304,7 +304,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
                       </p>
                     </div>
                     <Link
-                      href="/"
+                      href={isKo ? '/' : isJa ? '/ja' : '/en'}
                       className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 bg-[#000000] dark:bg-white text-white dark:text-black text-[13px] font-bold rounded-lg hover:opacity-80 transition-opacity whitespace-nowrap"
                     >
                       {isKo ? '무료 진단 →' : isJa ? '無料診断 →' : 'Try Free →'}
@@ -404,7 +404,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
-                href="/"
+                href={isKo ? '/' : isJa ? '/ja' : '/en'}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black text-sm font-bold rounded-xl hover:bg-gray-100 transition-colors shadow-lg"
               >
                 {isKo ? '무료로 진단받기 →' : isJa ? '無料で診断する →' : 'Diagnose for Free →'}
