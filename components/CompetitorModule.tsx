@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { Globe, Loader2, ArrowLeftRight, TrendingUp, TrendingDown, Minus, Zap, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { useAppLang } from '@/components/AppLangContext';
+import { t } from '@/lib/app-i18n';
 
 const Card = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
   <div className={'bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden ' + className}>
@@ -61,6 +63,7 @@ function ImpactColor(impact: string) {
 }
 
 export default function CompetitorModule({ onToast }: { onToast: (msg: string) => void }) {
+  const { lang } = useAppLang();
   const [urlA, setUrlA] = useState('');
   const [urlB, setUrlB] = useState('');
   const [loading, setLoading] = useState(false);
@@ -173,7 +176,18 @@ export default function CompetitorModule({ onToast }: { onToast: (msg: string) =
         </button>
 
         {error && (
-          <div className="mt-4 p-4 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-700">{error}</div>
+          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
+            <div className="flex items-start gap-2">
+              <AlertCircle size={16} className="shrink-0 mt-0.5 text-amber-600" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-amber-800">{error}</p>
+                <p className="text-xs text-amber-600 mt-1">{t('common', 'tryDifferentUrl', lang)}</p>
+                <button onClick={analyze} className="mt-2 text-xs font-bold text-amber-700 underline hover:text-amber-900">
+                  {t('common', 'retry', lang)}
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </Card>
 

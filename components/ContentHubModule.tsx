@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Sparkles, Zap, Loader2, MessageSquare, Share2, Mail, BarChart3, Copy, ChevronDown, ChevronUp, Clock, X } from 'lucide-react';
+import { Sparkles, Zap, Loader2, MessageSquare, Share2, Mail, BarChart3, Copy, ChevronDown, ChevronUp, Clock, X, AlertCircle } from 'lucide-react';
 import AdUnit from '@/components/AdUnit';
 import { incrementContentCount, saveContentRecord, getContentHistory, ContentRecord } from '@/lib/storage';
 
@@ -222,8 +222,15 @@ export default function ContentHubModule({ onToast }: { onToast: (msg: string) =
         />
 
         {error && (
-          <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-700">
-            {error}
+          <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
+            <div className="flex items-start gap-2">
+              <AlertCircle size={16} className="shrink-0 mt-0.5 text-amber-600" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-amber-800">{error}</p>
+                <p className="text-xs text-amber-600 mt-1">주제를 다르게 입력하거나 잠시 후 다시 시도해 주세요.</p>
+                <button onClick={generateAll} className="mt-2 text-xs font-bold text-amber-700 underline hover:text-amber-900">다시 시도</button>
+              </div>
+            </div>
           </div>
         )}
 

@@ -199,6 +199,9 @@ const T = {
     copyAll:      { ko: '전체 복사', en: 'Copy All', ja: '全てコピー' },
     rewriteComplete: { ko: '리라이팅 완료', en: 'Rewrite complete', ja: 'リライト完了' },
     errorGenerateFailed: { ko: '콘텐츠 생성에 실패했습니다. AI 서버가 일시적으로 응답하지 않습니다. 잠시 후 다시 시도해 주세요.', en: 'Content generation failed. The AI server is temporarily unavailable. Please try again in a moment.', ja: 'コンテンツ生成に失敗しました。AIサーバーが一時的に応答していません。しばらく経ってから再試行してください。' },
+    errorHint:           { ko: '주제를 다르게 입력하거나 잠시 후 다시 시도해 주세요.', en: 'Try a different topic or retry in a moment.', ja: '別のトピックを入力するか、しばらく経ってから再試行してください。' },
+    errorRewriteFailed:  { ko: '리라이팅에 실패했습니다. AI 서버가 일시적으로 응답하지 않습니다. 잠시 후 다시 시도해 주세요.', en: 'Rewrite failed. The AI server is temporarily unavailable. Please try again in a moment.', ja: 'リライトに失敗しました。AIサーバーが一時的に応答していません。しばらく経ってから再試行してください。' },
+    errorRewriteHint:    { ko: '내용을 줄이거나 잠시 후 다시 시도해 주세요.', en: 'Try shorter content or retry in a moment.', ja: '内容を短くするか、しばらく経ってから再試行してください。' },
   },
 
   /* ── LLMs.txt ───────────────────────────────────────────────────────── */
@@ -233,6 +236,8 @@ const T = {
     fileGenerated: { ko: 'llms.txt 파일이 생성되었습니다.', en: 'llms.txt file generated.', ja: 'llms.txtファイルが生成されました。' },
     downloadComplete: { ko: 'llms.txt 다운로드 완료!', en: 'llms.txt downloaded!', ja: 'llms.txtをダウンロードしました！' },
     commaHint:   { ko: '쉼표로 구분하여 입력', en: 'Comma-separated', ja: 'カンマ区切りで入力' },
+    errorGenerateFailed: { ko: 'llms.txt 생성에 실패했습니다. AI 서버가 일시적으로 응답하지 않습니다.', en: 'llms.txt generation failed. The AI server is temporarily unavailable.', ja: 'llms.txt生成に失敗しました。AIサーバーが一時的に応答していません。' },
+    errorHint:   { ko: '입력 내용을 확인하고 잠시 후 다시 시도해 주세요.', en: 'Check your inputs and try again in a moment.', ja: '入力内容を確認し、しばらく経ってから再試行してください。' },
   },
 
   /* ── SOV ─────────────────────────────────────────────────────────────── */
@@ -350,6 +355,8 @@ const T = {
     durationVeryShort: { ko: '체류시간 매우 짧음', en: 'Very short session', ja: '滞在時間が極めて短い' },
     durationShort:   { ko: '체류시간 짧음', en: 'Short session', ja: '滞在時間が短い' },
     serverError:     { ko: '서버 오류', en: 'Server error', ja: 'サーバーエラー' },
+    errorLoadFailed: { ko: 'GA4 데이터를 불러오지 못했습니다. 연결 상태를 확인해 주세요.', en: 'Failed to load GA4 data. Please check your connection status.', ja: 'GA4データを読み込めませんでした。接続状態を確認してください。' },
+    errorHint:       { ko: 'GA4 속성 ID를 확인하거나, 연결을 해제 후 다시 연결해 보세요.', en: 'Check your GA4 property ID, or disconnect and reconnect.', ja: 'GA4プロパティIDを確認するか、一度切断して再接続してください。' },
   },
 
   /* ── GSC ─────────────────────────────────────────────────────────────── */
@@ -389,6 +396,8 @@ const T = {
     avgCtrShort:      { ko: '평균CTR', en: 'Avg CTR', ja: '平均CTR' },
     placeholderUrl:   { ko: '예: https://example.com/ 또는 sc-domain:example.com', en: 'e.g. https://example.com/ or sc-domain:example.com', ja: '例: https://example.com/ または sc-domain:example.com' },
     serverError:      { ko: '오류', en: 'Error', ja: 'エラー' },
+    errorLoadFailed: { ko: 'Search Console 데이터를 불러오지 못했습니다.', en: 'Failed to load Search Console data.', ja: 'Search Consoleデータを読み込めませんでした。' },
+    errorHint:       { ko: 'GSC 사이트 URL을 확인하거나, 연결을 해제 후 다시 연결해 보세요.', en: 'Check your GSC site URL, or disconnect and reconnect.', ja: 'GSCサイトURLを確認するか、一度切断して再接続してください。' },
   },
 
   /* ── Web module tabs ────────────────────────────────────────────────── */
@@ -402,6 +411,8 @@ const T = {
     title:       { ko: '통합 마케팅 인사이트',                                 en: 'Marketing Intelligence Hub',                    ja: '統合マーケティングインサイト' },
     subtitle:    { ko: 'GA4 분석 + Search Console을 하나의 화면에서 교차 분석합니다.', en: 'Cross-analyze GA4 & Search Console in one view.', ja: 'GA4 + Search Consoleをひとつの画面で交差分析します。' },
     checkingConn:{ ko: '연결 상태 확인 중...',                                 en: 'Checking connection...',                         ja: '接続状態を確認中...'  },
+    errorLoadFailed: { ko: '데이터를 불러오지 못했습니다. 연결 상태를 확인해 주세요.', en: 'Failed to load data. Please check your connection.', ja: 'データを読み込めませんでした。接続状態を確認してください。' },
+    errorHint:   { ko: 'GA4 또는 Search Console 연결을 확인하고 다시 시도해 주세요.', en: 'Check your GA4 or Search Console connection and try again.', ja: 'GA4またはSearch Consoleの接続を確認して再試行してください。' },
   },
 
   /* ── Bulk GEO ────────────────────────────────────────────────────────── */
