@@ -69,7 +69,11 @@ export async function generateText(prompt: string): Promise<AIResult> {
       const geminiErr = (err as Error).message;
       console.warn('[AI] Gemini failed, falling back to Claude:', geminiErr);
       if (!process.env.ANTHROPIC_API_KEY) {
-        throw new Error('Gemini 오류: ' + geminiErr);
+        const isQuota = geminiErr.includes('429') || geminiErr.includes('spending cap') || geminiErr.includes('quota');
+        if (isQuota) {
+          throw new Error('Gemini API 월 한도 초과. Vercel 환경변수에 ANTHROPIC_API_KEY를 설정하면 Claude로 자동 전환됩니다.');
+        }
+        throw new Error('AI 서비스 오류: ' + geminiErr);
       }
     }
   }
