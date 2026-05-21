@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
-import { auth } from '@/auth';
 import { generateText } from '@/lib/ai';
 
 const MAX_URLS = 20;
@@ -146,9 +145,6 @@ async function batchAnalyze(urls: string[]): Promise<PageScore[]> {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.email) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
-
   const { siteUrl } = await req.json();
   if (!siteUrl?.trim()) return NextResponse.json({ error: 'siteUrl이 필요합니다.' }, { status: 400 });
 

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
-import { auth } from '@/auth';
 import { generateText } from '@/lib/ai';
 
 async function safeFetch(url: string, timeout = 8000): Promise<Response | null> {
@@ -78,9 +77,6 @@ export interface CompetitorGapResult {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.email) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
-
   const { ourUrl, competitorUrl } = await req.json();
   if (!ourUrl?.trim() || !competitorUrl?.trim()) {
     return NextResponse.json({ error: 'ourUrl과 competitorUrl이 모두 필요합니다.' }, { status: 400 });
