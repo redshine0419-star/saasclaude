@@ -43,6 +43,7 @@ const T = {
     download:   { ko: '다운로드',     en: 'Download',     ja: 'ダウンロード' },
     refresh:    { ko: '새로고침',     en: 'Refresh',      ja: '更新'       },
     error:      { ko: '오류',         en: 'Error',        ja: 'エラー'     },
+    retry:      { ko: '다시 시도',    en: 'Retry',        ja: '再試行'     },
     copiedToClipboard: { ko: '클립보드에 복사되었습니다.', en: 'Copied to clipboard.', ja: 'クリップボードにコピーしました。' },
     optional:   { ko: '선택',         en: 'optional',     ja: '任意'       },
     required:   { ko: '필수',         en: 'required',     ja: '必須'       },
@@ -62,6 +63,12 @@ const T = {
     collapse:   { ko: '접기',         en: 'Collapse',     ja: '折りたたむ' },
     mobileStrategy:  { ko: '모바일',  en: 'Mobile',       ja: 'モバイル'   },
     desktopStrategy: { ko: '데스크탑', en: 'Desktop',      ja: 'デスクトップ' },
+    /* error UX */
+    errorSiteUnreachable: { ko: '사이트에 접근할 수 없습니다. URL이 올바른지, 사이트가 운영 중인지 확인해 주세요.', en: 'Cannot reach the site. Please check the URL and ensure the site is online.', ja: 'サイトにアクセスできません。URLが正しいか、サイトが稼動中かご確認ください。' },
+    errorAiFailed:        { ko: 'AI 분석 중 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.', en: 'A temporary AI error occurred. Please try again in a moment.', ja: 'AI分析中に一時的なエラーが発生しました。しばらく経ってから再試行してください。' },
+    errorUnknown:         { ko: '알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.', en: 'An unexpected error occurred. Please try again later.', ja: '予期しないエラーが発生しました。しばらく経ってから再試行してください。' },
+    errorInvalidUrl:      { ko: 'URL 형식이 올바르지 않습니다. https://example.com 형태로 입력해 주세요.', en: 'Invalid URL format. Please enter a URL like https://example.com.', ja: 'URL形式が正しくありません。https://example.com の形式で入力してください。' },
+    tryDifferentUrl:      { ko: '다른 URL을 시도해 보세요.', en: 'Try a different URL.', ja: '別のURLを試してください。' },
   },
 
   /* ── Dashboard ──────────────────────────────────────────────────────── */
@@ -112,6 +119,9 @@ const T = {
     patches:     { ko: '즉각 개선 패치 제안', en: 'Instant Improvement Patches', ja: '即時改善パッチ提案' },
     reportBtn:   { ko: '리포트', en: 'Report', ja: 'レポート' },
     reportTitle: { ko: 'SEO & GEO 진단 리포트', en: 'SEO & GEO Diagnosis Report', ja: 'SEO & GEO診断レポート' },
+    errorPageSpeed:    { ko: '페이지 성능 분석에 실패했습니다. URL이 올바른지, 페이지가 공개 접근 가능한지 확인해 주세요.', en: 'Page performance analysis failed. Please verify the URL is correct and publicly accessible.', ja: 'ページパフォーマンス分析に失敗しました。URLが正しく公開アクセス可能かご確認ください。' },
+    errorGeo:          { ko: 'GEO 분석에 실패했습니다. 잠시 후 다시 시도해 주세요.', en: 'GEO analysis failed. Please try again in a moment.', ja: 'GEO分析に失敗しました。しばらく経ってから再試行してください。' },
+    errorHint:         { ko: '다른 URL을 시도하거나, 잠시 후 다시 시도해 주세요.', en: 'Try a different URL or wait a moment before retrying.', ja: '別のURLを試すか、しばらく経ってから再試行してください。' },
   },
 
   /* ── Keyword ─────────────────────────────────────────────────────────── */
@@ -142,6 +152,8 @@ const T = {
     recommendedContent: { ko: '추천 콘텐츠', en: 'Recommended Content', ja: 'おすすめコンテンツ' },
     analyzedKeyword: { ko: '키워드로 변경됐습니다.', en: 'Keyword changed.', ja: 'キーワードが変更されました。' },
     analyzeComplete: { ko: '키워드 분석이 완료되었습니다.', en: 'Keyword analysis complete.', ja: 'キーワード分析が完了しました。' },
+    errorAnalysisFailed: { ko: '키워드 분석에 실패했습니다. AI 서버가 일시적으로 과부하 상태일 수 있습니다. 잠시 후 다시 시도해 주세요.', en: 'Keyword analysis failed. The AI server may be temporarily overloaded. Please try again in a moment.', ja: 'キーワード分析に失敗しました。AIサーバーが一時的に過負荷の可能性があります。しばらく経ってから再試行してください。' },
+    errorNoResults:      { ko: '분석 결과를 가져오지 못했습니다. 키워드를 다시 확인하거나 다른 키워드를 시도해 주세요.', en: 'Could not retrieve analysis results. Please check your keyword or try a different one.', ja: '分析結果を取得できませんでした。キーワードを確認するか別のキーワードをお試しください。' },
   },
 
   /* ── Content ─────────────────────────────────────────────────────────── */
@@ -186,6 +198,7 @@ const T = {
     rewriteResult: { ko: '리라이팅 결과', en: 'Rewrite Result', ja: 'リライト結果' },
     copyAll:      { ko: '전체 복사', en: 'Copy All', ja: '全てコピー' },
     rewriteComplete: { ko: '리라이팅 완료', en: 'Rewrite complete', ja: 'リライト完了' },
+    errorGenerateFailed: { ko: '콘텐츠 생성에 실패했습니다. AI 서버가 일시적으로 응답하지 않습니다. 잠시 후 다시 시도해 주세요.', en: 'Content generation failed. The AI server is temporarily unavailable. Please try again in a moment.', ja: 'コンテンツ生成に失敗しました。AIサーバーが一時的に応答していません。しばらく経ってから再試行してください。' },
   },
 
   /* ── LLMs.txt ───────────────────────────────────────────────────────── */
@@ -403,8 +416,9 @@ const T = {
     scoreWarn:   { ko: '주의',            en: 'Caution',        ja: '注意'              },
     scoreDanger: { ko: '위험',            en: 'Danger',         ja: '危険'              },
     /* error */
-    httpError:   { ko: '오류 ({status})', en: 'Error ({status})', ja: 'エラー ({status})' },
-    genericError:{ ko: '오류가 발생했습니다.', en: 'An error occurred.', ja: 'エラーが発生しました。' },
+    httpError:      { ko: '오류 ({status})', en: 'Error ({status})', ja: 'エラー ({status})' },
+    genericError:   { ko: '오류가 발생했습니다. 잠시 후 다시 시도해 주세요.', en: 'An error occurred. Please try again in a moment.', ja: 'エラーが発生しました。しばらく経ってから再試行してください。' },
+    errorNoSitemap: { ko: '사이트맵을 찾을 수 없습니다. sitemap.xml이 없거나 robots.txt에 Sitemap 경로가 선언되지 않았습니다. sitemap.xml URL을 직접 입력해 보세요.', en: 'Sitemap not found. The site may not have a sitemap.xml, or it is not declared in robots.txt. Try entering the sitemap URL directly.', ja: 'サイトマップが見つかりません。sitemap.xmlが存在しないか、robots.txtにSitemapパスが宣言されていません。サイトマップURLを直接入力してみてください。' },
     /* toast */
     toastDone:   { ko: '{n}개 페이지 진단 완료 — 평균 GEO 점수 {score}점', en: '{n} pages diagnosed — avg GEO score {score}', ja: '{n}ページ診断完了 — 平均GEOスコア {score}' },
     /* result section labels */
@@ -475,9 +489,11 @@ const T = {
     absent:          { ko: '없음',    en: 'No',       ja: 'なし'      },
     /* toast */
     toastDone:       { ko: '{brand} AI 검색 품질 진단 완료 — {score}점', en: '{brand} AI search quality diagnosis complete — {score}pts', ja: '{brand} AI検索品質診断完了 — {score}点' },
-    genericError:    { ko: '오류가 발생했습니다.', en: 'An error occurred.', ja: 'エラーが発生しました。' },
+    genericError:    { ko: '오류가 발생했습니다. 잠시 후 다시 시도해 주세요.', en: 'An error occurred. Please try again in a moment.', ja: 'エラーが発生しました。しばらく経ってから再試行してください。' },
     httpError:       { ko: '오류 ({status})', en: 'Error ({status})', ja: 'エラー ({status})' },
     questionsCount:  { ko: '{n}개 질문', en: '{n} questions', ja: '{n}件の質問' },
+    errorSiteUnreachable: { ko: '사이트에 접근할 수 없습니다. URL이 올바른지, 사이트가 운영 중인지 확인해 주세요.', en: 'Cannot reach the site. Please verify the URL and ensure the site is online.', ja: 'サイトにアクセスできません。URLが正しいか、サイトが稼動中かご確認ください。' },
+    errorHint:            { ko: '다른 URL을 시도하거나, 잠시 후 다시 시도해 주세요.', en: 'Try a different URL or wait a moment before retrying.', ja: '別のURLを試すか、しばらく経ってから再試行してください。' },
   },
 
   /* ── Competitor Gap ──────────────────────────────────────────────────── */
