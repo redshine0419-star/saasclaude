@@ -20,8 +20,16 @@ async function getPosts(lang: Lang): Promise<PostIndex[]> {
   }
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ lang: string }>;
+  searchParams: Promise<{ tag?: string }>;
+}): Promise<Metadata> {
   const { lang } = await params;
+  const { tag } = await searchParams;
+
   const title = lang === 'ko'
     ? 'SEO·GEO·AI 마케팅 실전 블로그 | GrowWeb.me'
     : lang === 'ja'
@@ -32,6 +40,17 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     : lang === 'ja'
     ? '個人マーケター・スタートアップ向けSEO、GEO（AI検索最適化）、GA4分析、コンテンツ戦略の実践ガイド。競合の少ないロングテールキーワード発掘からChatGPT・Perplexity表示戦略まで、毎日新記事を公開中。'
     : 'Practical SEO, GEO (AI search optimization), GA4 analytics, and content strategy guides for solo marketers and startups. From finding low-competition long-tail keywords to getting cited in ChatGPT and Perplexity — new posts daily.';
+
+  // ?tag= 필터 페이지는 noindex — 중복 색인 방지
+  if (tag) {
+    return {
+      title,
+      description,
+      robots: { index: false, follow: true },
+      alternates: { canonical: `${SITE_URL}/blog/${lang}` },
+    };
+  }
+
   return {
     title,
     description,
