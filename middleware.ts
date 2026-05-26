@@ -9,16 +9,8 @@ function detectLang(pathname: string): string {
 
 export function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
-  const host = req.headers.get('host') ?? '';
   const country = req.headers.get('x-vercel-ip-country') ?? '';
   const ua = req.headers.get('user-agent') ?? '';
-
-  // www → non-www 리디렉션 (next.config.ts redirects가 먼저 처리되지만 안전망)
-  if (host.startsWith('www.')) {
-    const url = req.nextUrl.clone();
-    url.host = host.replace(/^www\./, '');
-    return NextResponse.redirect(url, { status: 301 });
-  }
 
   // 검색 봇은 국가 리다이렉트 제외 (Google, Bing, 기타 주요 크롤러)
   const isBot = /Googlebot|AdsBot-Google|Mediapartners-Google|Google-InspectionTool|bingbot|Baiduspider|YandexBot|DuckDuckBot|Slurp|facebookexternalhit/i.test(ua);
