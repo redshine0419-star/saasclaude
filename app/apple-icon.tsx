@@ -13,49 +13,22 @@ export default function AppleIcon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #6366f1 0%, #3730a3 100%)',
+          background: '#0f0f0f',
           borderRadius: 40,
-          position: 'relative',
         }}
       >
-        {/* Bold G */}
-        <span
-          style={{
-            color: 'white',
-            fontSize: 120,
-            fontWeight: 900,
-            fontFamily: 'Arial Black, Arial, sans-serif',
-            lineHeight: 1,
-            marginTop: -8,
-          }}
+        <svg
+          width="100"
+          height="124"
+          viewBox="0 0 18 22"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          G
-        </span>
-        {/* Sparkline accent — bottom right */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 24,
-            right: 22,
-            width: 52,
-            height: 28,
-            display: 'flex',
-            alignItems: 'flex-end',
-            gap: 6,
-          }}
-        >
-          {[18, 10, 24, 6, 28].map((h, i) => (
-            <div
-              key={i}
-              style={{
-                width: 6,
-                height: h,
-                background: '#a5b4fc',
-                borderRadius: 3,
-              }}
-            />
-          ))}
-        </div>
+          <path
+            d="M10.5 1L1 13h7.5L7 21l10-12h-7L10.5 1z"
+            fill="white"
+          />
+        </svg>
       </div>
     ),
     { ...size },

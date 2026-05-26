@@ -13,49 +13,23 @@ export default function Icon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #6366f1 0%, #3730a3 100%)',
+          background: '#0f0f0f',
           borderRadius: 7,
-          position: 'relative',
         }}
       >
-        {/* Bold G */}
-        <span
-          style={{
-            color: 'white',
-            fontSize: 21,
-            fontWeight: 900,
-            fontFamily: 'Arial Black, Arial, sans-serif',
-            lineHeight: 1,
-            marginTop: -2,
-          }}
+        {/* Lightning bolt — SVG path via img trick not available, use div shapes */}
+        <svg
+          width="18"
+          height="22"
+          viewBox="0 0 18 22"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          G
-        </span>
-        {/* Sparkline accent — bottom right */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 4,
-            right: 4,
-            width: 10,
-            height: 6,
-            display: 'flex',
-            alignItems: 'flex-end',
-            gap: 1.5,
-          }}
-        >
-          {[4, 2, 5, 1, 6].map((h, i) => (
-            <div
-              key={i}
-              style={{
-                width: 1.2,
-                height: h,
-                background: '#a5b4fc',
-                borderRadius: 1,
-              }}
-            />
-          ))}
-        </div>
+          <path
+            d="M10.5 1L1 13h7.5L7 21l10-12h-7L10.5 1z"
+            fill="white"
+          />
+        </svg>
       </div>
     ),
     { ...size },
