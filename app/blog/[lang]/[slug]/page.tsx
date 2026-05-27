@@ -1,9 +1,11 @@
+import React from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown, { type Components } from 'react-markdown';
 import { list } from '@vercel/blob';
 import type { BlogPost, PostIndex } from '@/app/api/blog/generate/route';
+import AdUnit from '@/components/AdUnit';
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://growweb.me';
 
@@ -111,6 +113,65 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
   const isKo = lang === 'ko';
   const isJa = lang === 'ja';
   const minutes = readingTime(post.content, lang);
+
+  // 본문을 H2 단위로 분할해 중간에 CTA 삽입
+  const h2Sections = post.content.split(/(?=^## )/m);
+  const midIdx = Math.ceil(h2Sections.length / 2);
+  const contentFirst = h2Sections.slice(0, midIdx).join('');
+  const contentSecond = h2Sections.slice(midIdx).join('');
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mdComponents: Record<string, React.ComponentType<any>> = {
+    h2: ({ children }) => (
+      <h2 className="text-[1.5rem] font-bold text-[#24292f] dark:text-[#e6edf3] mt-14 mb-5 pb-3 border-b border-[#d0d7de] dark:border-[#30363d]" style={{ letterSpacing: '-0.02em' }}>
+        {children}
+      </h2>
+    ),
+    h3: ({ children }) => (
+      <h3 className="text-[1.2rem] font-semibold text-[#24292f] dark:text-[#e6edf3] mt-9 mb-3">
+        {children}
+      </h3>
+    ),
+    p: ({ children }) => (
+      <p className="text-[17px] leading-[1.85] mb-6 max-w-[680px] text-[#24292f] dark:text-[#c9d1d9]">
+        {children}
+      </p>
+    ),
+    blockquote: ({ children }) => (
+      <div className="my-8 p-5 bg-[#f6f8fa] dark:bg-[#161b22] border-l-4 border-[#000000] dark:border-[#e6edf3] rounded-r-lg max-w-[680px]">
+        <div className="text-[15px] leading-[1.7] text-[#24292f] dark:text-[#e6edf3] [&>p]:mb-2 [&>p]:last:mb-0 [&>ul]:ml-4 [&>ul]:list-disc [&>ul]:space-y-1">
+          {children}
+        </div>
+      </div>
+    ),
+    ul: ({ children }) => <ul className="my-5 ml-6 space-y-2 list-disc max-w-[680px]">{children}</ul>,
+    ol: ({ children }) => <ol className="my-5 ml-6 space-y-2 list-decimal max-w-[680px]">{children}</ol>,
+    li: ({ children }) => <li className="text-[17px] leading-[1.75] text-[#24292f] dark:text-[#c9d1d9]">{children}</li>,
+    strong: ({ children }) => <strong className="font-semibold text-[#24292f] dark:text-[#e6edf3]">{children}</strong>,
+    a: ({ href, children }) => (
+      <a href={href} className="text-[#000000] dark:text-[#58a6ff] underline underline-offset-2 hover:opacity-70 transition-opacity">
+        {children}
+      </a>
+    ),
+    code: ({ children }) => (
+      <code className="px-1.5 py-0.5 bg-[#f6f8fa] dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded text-[14px] font-mono text-[#24292f] dark:text-[#e6edf3]">
+        {children}
+      </code>
+    ),
+    hr: () => <hr className="my-10 border-[#d0d7de] dark:border-[#30363d]" />,
+    table: ({ children }) => (
+      <div className="my-6 overflow-x-auto max-w-[680px]">
+        <table className="w-full text-sm border-collapse border border-[#d0d7de] dark:border-[#30363d]">{children}</table>
+      </div>
+    ),
+    thead: ({ children }) => <thead className="bg-[#f6f8fa] dark:bg-[#21262d]">{children}</thead>,
+    th: ({ children }) => (
+      <th className="px-4 py-2.5 text-left text-xs font-semibold text-[#24292f] dark:text-[#e6edf3] border border-[#d0d7de] dark:border-[#30363d]">{children}</th>
+    ),
+    td: ({ children }) => (
+      <td className="px-4 py-2.5 text-[15px] text-[#24292f] dark:text-[#c9d1d9] border border-[#d0d7de] dark:border-[#30363d]">{children}</td>
+    ),
+  };
 
   const articleJsonLd = {
     '@context': 'https://schema.org',
@@ -229,70 +290,33 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
                   [&>pre]:my-5 [&>pre]:p-4 [&>pre]:bg-[#f6f8fa] dark:[&>pre]:bg-[#161b22] [&>pre]:border [&>pre]:border-[#d0d7de] dark:[&>pre]:border-[#30363d] [&>pre]:rounded-lg [&>pre]:overflow-x-auto [&>pre]:text-sm [&>pre]:font-mono
                 "
               >
-                <ReactMarkdown
-                  components={{
-                    h2: ({ children }) => (
-                      <h2 className="text-[1.5rem] font-bold text-[#24292f] dark:text-[#e6edf3] mt-14 mb-5 pb-3 border-b border-[#d0d7de] dark:border-[#30363d]" style={{ letterSpacing: '-0.02em' }}>
-                        {children}
-                      </h2>
-                    ),
-                    h3: ({ children }) => (
-                      <h3 className="text-[1.2rem] font-semibold text-[#24292f] dark:text-[#e6edf3] mt-9 mb-3">
-                        {children}
-                      </h3>
-                    ),
-                    p: ({ children }) => (
-                      <p className="text-[17px] leading-[1.85] mb-6 max-w-[680px] text-[#24292f] dark:text-[#c9d1d9]">
-                        {children}
+                <ReactMarkdown components={mdComponents}>{contentFirst}</ReactMarkdown>
+
+                {/* Mid-content CTA — H2 섹션 중간 삽입 */}
+                {contentSecond && (
+                  <div className="my-10 p-5 rounded-xl border border-[#d0d7de] dark:border-[#30363d] bg-[#f6f8fa] dark:bg-[#161b22] flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-semibold text-[#24292f] dark:text-[#e6edf3] mb-1">
+                        {isKo ? '📊 내 사이트 SEO·GEO 점수 무료 진단' : isJa ? '📊 自分のサイトのSEO·GEOスコアを無料診断' : '📊 Free SEO & GEO Diagnosis for Your Site'}
                       </p>
-                    ),
-                    blockquote: ({ children }) => (
-                      <div className="my-8 p-5 bg-[#f6f8fa] dark:bg-[#161b22] border-l-4 border-[#000000] dark:border-[#e6edf3] rounded-r-lg max-w-[680px]">
-                        <div className="text-[15px] leading-[1.7] text-[#24292f] dark:text-[#e6edf3] [&>p]:mb-2 [&>p]:last:mb-0 [&>ul]:ml-4 [&>ul]:list-disc [&>ul]:space-y-1">
-                          {children}
-                        </div>
-                      </div>
-                    ),
-                    ul: ({ children }) => (
-                      <ul className="my-5 ml-6 space-y-2 list-disc max-w-[680px]">{children}</ul>
-                    ),
-                    ol: ({ children }) => (
-                      <ol className="my-5 ml-6 space-y-2 list-decimal max-w-[680px]">{children}</ol>
-                    ),
-                    li: ({ children }) => (
-                      <li className="text-[17px] leading-[1.75] text-[#24292f] dark:text-[#c9d1d9]">{children}</li>
-                    ),
-                    strong: ({ children }) => (
-                      <strong className="font-semibold text-[#24292f] dark:text-[#e6edf3]">{children}</strong>
-                    ),
-                    a: ({ href, children }) => (
-                      <a href={href} className="text-[#000000] dark:text-[#58a6ff] underline underline-offset-2 hover:opacity-70 transition-opacity">
-                        {children}
-                      </a>
-                    ),
-                    code: ({ children }) => (
-                      <code className="px-1.5 py-0.5 bg-[#f6f8fa] dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded text-[14px] font-mono text-[#24292f] dark:text-[#e6edf3]">
-                        {children}
-                      </code>
-                    ),
-                    hr: () => <hr className="my-10 border-[#d0d7de] dark:border-[#30363d]" />,
-                    table: ({ children }) => (
-                      <div className="my-6 overflow-x-auto max-w-[680px]">
-                        <table className="w-full text-sm border-collapse border border-[#d0d7de] dark:border-[#30363d]">{children}</table>
-                      </div>
-                    ),
-                    thead: ({ children }) => <thead className="bg-[#f6f8fa] dark:bg-[#21262d]">{children}</thead>,
-                    th: ({ children }) => (
-                      <th className="px-4 py-2.5 text-left text-xs font-semibold text-[#24292f] dark:text-[#e6edf3] border border-[#d0d7de] dark:border-[#30363d]">{children}</th>
-                    ),
-                    td: ({ children }) => (
-                      <td className="px-4 py-2.5 text-[15px] text-[#24292f] dark:text-[#c9d1d9] border border-[#d0d7de] dark:border-[#30363d]">{children}</td>
-                    ),
-                  }}
-                >
-                  {post.content}
-                </ReactMarkdown>
+                      <p className="text-[13px] text-[#57606a] dark:text-[#8b949e] leading-snug">
+                        {isKo ? 'URL 입력 → 30초 안에 PageSpeed·GEO 가시성·AI 검색 노출 가능성 확인. 가입 불필요.' : isJa ? 'URLを入力するだけ→30秒でPageSpeed·GEO可視性·AI検索への露出可能性を確認。登録不要。' : 'Enter your URL → check PageSpeed, GEO visibility & AI search exposure in 30 seconds. No sign-up.'}
+                      </p>
+                    </div>
+                    <Link
+                      href={isKo ? '/app' : isJa ? '/app?lang=ja' : '/app?lang=en'}
+                      className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 bg-[#000000] dark:bg-white text-white dark:text-black text-[13px] font-bold rounded-lg hover:opacity-80 transition-opacity whitespace-nowrap"
+                    >
+                      {isKo ? '무료 진단 →' : isJa ? '無料診断 →' : 'Try Free →'}
+                    </Link>
+                  </div>
+                )}
+
+                <ReactMarkdown components={mdComponents}>{contentSecond}</ReactMarkdown>
               </div>
+
+              {/* Ad — article bottom */}
+              <AdUnit slot="2345678901" className="mt-8" />
 
               {/* Tags footer */}
               {post.tags.length > 0 && (
@@ -380,7 +404,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
-                href="/"
+                href={isKo ? '/app' : isJa ? '/app?lang=ja' : '/app?lang=en'}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black text-sm font-bold rounded-xl hover:bg-gray-100 transition-colors shadow-lg"
               >
                 {isKo ? '무료로 진단받기 →' : isJa ? '無料で診断する →' : 'Diagnose for Free →'}

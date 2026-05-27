@@ -82,8 +82,8 @@ const T = {
     hero_badge: 'AI-Powered · Free Forever',
     hero_title: 'AI-Powered\nMarketing Intelligence',
     hero_sub: 'From GEO & SEO diagnostics to AI Share of Voice — augment senior marketer intuition with AI.',
-    hero_cta: 'Start for Free',
-    hero_sub_cta: 'Explore features',
+    hero_cta: 'Try Free — No Sign-up',
+    hero_sub_cta: 'See how it works',
 
     stats: [
       { val: '9', label: 'AI Marketing Tools' },
@@ -146,8 +146,8 @@ const T = {
     hero_badge: 'AI搭載 · 完全無料',
     hero_title: 'AIマーケティング\n運営ツール',
     hero_sub: 'GEO・SEO診断からAIシェアオブボイス測定まで、上級マーケターの直感をAIが補助します。',
-    hero_cta: '無料で始める',
-    hero_sub_cta: '機能を見る',
+    hero_cta: '無料で試す',
+    hero_sub_cta: '使い方を見る',
 
     stats: [
       { val: '9', label: 'AIマーケティングツール' },
@@ -457,15 +457,22 @@ export default function LandingPage({ lang, isLoggedIn = false }: { lang: 'ko' |
             {t.hero_sub}
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
-            <Link href="/app"
-              className="flex items-center gap-2 bg-white hover:bg-[#eee] text-black font-bold text-base px-7 py-3.5 rounded-md transition-colors">
-              <Zap size={18} fill="currentColor" />
-              {t.hero_cta}
-            </Link>
-            <a href="#features" className="text-white/50 hover:text-white/80 font-medium text-sm transition-colors flex items-center gap-1">
-              {t.hero_sub_cta} <ChevronRight size={14} />
-            </a>
+          <div className="flex flex-col items-center gap-4 mb-20">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href={appHref}
+                className="flex items-center gap-2 bg-white hover:bg-[#eee] text-black font-bold text-base px-7 py-3.5 rounded-md transition-colors">
+                <Zap size={18} fill="currentColor" />
+                {t.hero_cta}
+              </Link>
+              <a href="#features" className="flex items-center gap-1.5 border border-white/20 hover:border-white/40 text-white/70 hover:text-white font-medium text-sm px-5 py-3 rounded-md transition-colors">
+                {t.hero_sub_cta} <ChevronRight size={14} />
+              </a>
+            </div>
+            {lang !== 'ko' && (
+              <p className="text-white/35 text-xs">
+                {lang === 'ja' ? 'クレジットカード不要 · 30秒で結果表示 · 登録なしで即利用' : 'No credit card · Results in 30 seconds · No account needed'}
+              </p>
+            )}
           </div>
 
           {/* Stats */}
