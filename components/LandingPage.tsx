@@ -218,7 +218,7 @@ const FEATURES = [
 
 interface Msg { role: 'user' | 'assistant'; content: string; }
 
-function LandingChat({ t }: { t: typeof T['ko'] }) {
+function LandingChat({ t, lang }: { t: typeof T['ko']; lang: 'ko' | 'en' | 'ja' }) {
   const [messages, setMessages] = useState<Msg[]>([{ role: 'assistant', content: t.chat_welcome }]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -230,11 +230,13 @@ function LandingChat({ t }: { t: typeof T['ko'] }) {
     setInput('');
     setLoading(true);
     try {
-      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: next }) });
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: next, lang }) });
       const data = await res.json();
-      setMessages(prev => [...prev, { role: 'assistant', content: data.reply || data.error || '오류가 발생했습니다.' }]);
+      const errMsg = lang === 'ja' ? 'エラーが発生しました。' : lang === 'en' ? 'An error occurred.' : '오류가 발생했습니다.';
+      setMessages(prev => [...prev, { role: 'assistant', content: data.reply || data.error || errMsg }]);
     } catch {
-      setMessages(prev => [...prev, { role: 'assistant', content: '네트워크 오류가 발생했습니다.' }]);
+      const netErr = lang === 'ja' ? 'ネットワークエラーが発生しました。' : lang === 'en' ? 'A network error occurred.' : '네트워크 오류가 발생했습니다.';
+      setMessages(prev => [...prev, { role: 'assistant', content: netErr }]);
     } finally {
       setLoading(false);
     }
@@ -247,12 +249,12 @@ function LandingChat({ t }: { t: typeof T['ko'] }) {
           <Bot size={15} className="text-white dark:text-black" />
         </div>
         <div>
-          <p className="font-bold text-sm text-[#24292f] dark:text-[#e6edf3]">AI 마케팅 어시스턴트</p>
+          <p className="font-bold text-sm text-[#24292f] dark:text-[#e6edf3]">{t.chat_title}</p>
           <p className="text-[11px] text-[#57606a] dark:text-[#8b949e]">GrowWeb.me</p>
         </div>
         <div className="ml-auto flex items-center gap-1.5">
           <span className="w-2 h-2 bg-[#2da44e] rounded-full" />
-          <span className="text-[11px] text-[#57606a] dark:text-[#8b949e] font-medium">온라인</span>
+          <span className="text-[11px] text-[#57606a] dark:text-[#8b949e] font-medium">{lang === 'ja' ? 'オンライン' : lang === 'en' ? 'Online' : '온라인'}</span>
         </div>
       </div>
 
@@ -601,7 +603,7 @@ export default function LandingPage({ lang, isLoggedIn = false }: { lang: 'ko' |
             <h2 className="text-2xl md:text-3xl font-black tracking-tighter mb-2">{t.chat_title}</h2>
             <p className="text-[#57606a] dark:text-[#8b949e] text-sm">{t.chat_sub}</p>
           </div>
-          <LandingChat t={t} />
+          <LandingChat t={t} lang={lang} />
         </div>
       </section>
 
