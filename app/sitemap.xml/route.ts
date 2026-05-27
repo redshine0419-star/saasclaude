@@ -24,6 +24,22 @@ function urlEntry(loc: string, lastmod: string, changefreq: string, priority: st
   </url>`;
 }
 
+function postChangefreq(createdAt: string): string {
+  const ageMs = Date.now() - new Date(createdAt).getTime();
+  const days = ageMs / 86400000;
+  if (days < 7) return 'daily';
+  if (days < 30) return 'weekly';
+  return 'monthly';
+}
+
+function postPriority(createdAt: string): string {
+  const ageMs = Date.now() - new Date(createdAt).getTime();
+  const days = ageMs / 86400000;
+  if (days < 7) return '0.9';
+  if (days < 30) return '0.8';
+  return '0.7';
+}
+
 export async function GET() {
   const today = new Date().toISOString().split('T')[0];
 
@@ -44,9 +60,9 @@ export async function GET() {
   ];
 
   const blogEntries = [
-    ...koPosts.map((p) => urlEntry(`${BASE_URL}/blog/ko/${p.slug}`, p.createdAt.split('T')[0], 'monthly', '0.7')),
-    ...enPosts.map((p) => urlEntry(`${BASE_URL}/blog/en/${p.slug}`, p.createdAt.split('T')[0], 'monthly', '0.7')),
-    ...jaPosts.map((p) => urlEntry(`${BASE_URL}/blog/ja/${p.slug}`, p.createdAt.split('T')[0], 'monthly', '0.7')),
+    ...koPosts.map((p) => urlEntry(`${BASE_URL}/blog/ko/${p.slug}`, p.createdAt.split('T')[0], postChangefreq(p.createdAt), postPriority(p.createdAt))),
+    ...enPosts.map((p) => urlEntry(`${BASE_URL}/blog/en/${p.slug}`, p.createdAt.split('T')[0], postChangefreq(p.createdAt), postPriority(p.createdAt))),
+    ...jaPosts.map((p) => urlEntry(`${BASE_URL}/blog/ja/${p.slug}`, p.createdAt.split('T')[0], postChangefreq(p.createdAt), postPriority(p.createdAt))),
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

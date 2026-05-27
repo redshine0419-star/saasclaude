@@ -114,6 +114,32 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
   const isJa = lang === 'ja';
   const minutes = readingTime(post.content, lang);
 
+  // 태그 기반 관련 도구 탭 딥링크
+  function getDeepLink(tags: string[]): string {
+    const t = (tags.join(' ') + ' ' + (post?.keyword ?? '')).toLowerCase();
+    const langParam = lang !== 'ko' ? `&lang=${lang}` : '';
+    if (/geo|seo|진단|diagnosis|pagespeed|engine|크롤|crawl/.test(t)) return `/app?tab=web${langParam}`;
+    if (/keyword|키워드|검색어|롱테일|longtail|cluster/.test(t)) return `/app?tab=keyword${langParam}`;
+    if (/content|콘텐츠|블로그|blog|sns|newsletter|카피|copy/.test(t)) return `/app?tab=content${langParam}`;
+    if (/share of voice|sov|언급|brand mention|chatgpt|gemini|perplexity/.test(t)) return `/app?tab=sov${langParam}`;
+    if (/ga4|analytics|분析|분석|insight|트래픽|traffic/.test(t)) return `/app?tab=insight${langParam}`;
+    if (/llms|llmstxt|ai search|ai 검색/.test(t)) return `/app?tab=llmstxt${langParam}`;
+    return lang !== 'ko' ? `/app?lang=${lang}` : '/app';
+  }
+
+  const deepLink = getDeepLink(post.tags);
+
+  // 딥링크에 맞는 도구명
+  const toolName = (() => {
+    if (deepLink.includes('tab=web')) return isKo ? 'Engine Diagnosis' : isJa ? 'エンジン診断' : 'Engine Diagnosis';
+    if (deepLink.includes('tab=keyword')) return isKo ? '키워드 분석' : isJa ? 'キーワード分析' : 'Keyword Analysis';
+    if (deepLink.includes('tab=content')) return isKo ? '콘텐츠 생성' : isJa ? 'コンテンツ自動化' : 'Content Orchestrator';
+    if (deepLink.includes('tab=sov')) return isKo ? 'AI Share of Voice' : isJa ? 'AIシェアオブボイス' : 'AI Share of Voice';
+    if (deepLink.includes('tab=insight')) return isKo ? 'GA4 분석' : isJa ? 'GA4アナリティクス' : 'GA4 Analytics';
+    if (deepLink.includes('tab=llmstxt')) return 'llms.txt Generator';
+    return isKo ? 'AI 마케팅 도구' : isJa ? 'AIマーケティングツール' : 'AI Marketing Tools';
+  })();
+
   // 본문을 H2 단위로 분할해 중간에 CTA 삽입
   const h2Sections = post.content.split(/(?=^## )/m);
   const midIdx = Math.ceil(h2Sections.length / 2);
@@ -297,17 +323,17 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
                   <div className="my-10 p-5 rounded-xl border border-[#d0d7de] dark:border-[#30363d] bg-[#f6f8fa] dark:bg-[#161b22] flex flex-col sm:flex-row items-start sm:items-center gap-4">
                     <div className="flex-1 min-w-0">
                       <p className="text-[13px] font-semibold text-[#24292f] dark:text-[#e6edf3] mb-1">
-                        {isKo ? '📊 내 사이트 SEO·GEO 점수 무료 진단' : isJa ? '📊 自分のサイトのSEO·GEOスコアを無料診断' : '📊 Free SEO & GEO Diagnosis for Your Site'}
+                        {isKo ? `🛠 지금 바로 ${toolName} 무료로 사용하기` : isJa ? `🛠 今すぐ${toolName}を無料で試す` : `🛠 Try ${toolName} Free — No Sign-up`}
                       </p>
                       <p className="text-[13px] text-[#57606a] dark:text-[#8b949e] leading-snug">
                         {isKo ? 'URL 입력 → 30초 안에 PageSpeed·GEO 가시성·AI 검색 노출 가능성 확인. 가입 불필요.' : isJa ? 'URLを入力するだけ→30秒でPageSpeed·GEO可視性·AI検索への露出可能性を確認。登録不要。' : 'Enter your URL → check PageSpeed, GEO visibility & AI search exposure in 30 seconds. No sign-up.'}
                       </p>
                     </div>
                     <Link
-                      href={isKo ? '/app' : isJa ? '/app?lang=ja' : '/app?lang=en'}
+                      href={deepLink}
                       className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 bg-[#000000] dark:bg-white text-white dark:text-black text-[13px] font-bold rounded-lg hover:opacity-80 transition-opacity whitespace-nowrap"
                     >
-                      {isKo ? '무료 진단 →' : isJa ? '無料診断 →' : 'Try Free →'}
+                      {isKo ? '무료로 시작 →' : isJa ? '無料で始める →' : 'Try Free →'}
                     </Link>
                   </div>
                 )}
@@ -390,10 +416,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
             </p>
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">
               {isKo
-                ? '내 사이트 SEO·GEO 점수, 지금 바로 확인하세요'
+                ? `${toolName}를 지금 바로 무료로 써보세요`
                 : isJa
-                ? '自分のサイトのSEO・GEOスコアを今すぐ確認'
-                : "Check Your Site's SEO & GEO Score — Free"}
+                ? `今すぐ${toolName}を無料で試してみましょう`
+                : `Try ${toolName} Free — No Sign-up Required`}
             </h2>
             <p className="text-[#8b949e] text-sm md:text-base mb-8 max-w-xl mx-auto leading-relaxed">
               {isKo
@@ -404,10 +430,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
-                href={isKo ? '/app' : isJa ? '/app?lang=ja' : '/app?lang=en'}
+                href={deepLink}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black text-sm font-bold rounded-xl hover:bg-gray-100 transition-colors shadow-lg"
               >
-                {isKo ? '무료로 진단받기 →' : isJa ? '無料で診断する →' : 'Diagnose for Free →'}
+                {isKo ? `${toolName} 무료로 시작 →` : isJa ? `${toolName}を無料で試す →` : `Try ${toolName} Free →`}
               </Link>
               <Link
                 href={`/blog/${lang}`}

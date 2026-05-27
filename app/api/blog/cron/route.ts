@@ -179,6 +179,14 @@ async function runOneLang(config: ScheduleConfig, now: number, testMode = false)
       nextRunAt: new Date(now + config.intervalHours * 3600 * 1000).toISOString(),
       currentKeywordIndex: (currentKeywordIndex + 1) % keywords.length,
     });
+
+    // 구글/빙에 사이트맵 갱신 알림 (fire-and-forget)
+    const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://growweb.me';
+    const sitemapUrl = encodeURIComponent(`${siteUrl}/sitemap.xml`);
+    Promise.allSettled([
+      fetch(`https://www.google.com/ping?sitemap=${sitemapUrl}`),
+      fetch(`https://www.bing.com/ping?sitemap=${sitemapUrl}`),
+    ]).catch(() => {});
   }
 
   return { slug: post.slug };
