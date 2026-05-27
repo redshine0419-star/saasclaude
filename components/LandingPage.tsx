@@ -342,6 +342,7 @@ export default function LandingPage({ lang, isLoggedIn = false }: { lang: 'ko' |
   const t = T[lang];
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
+  const appHref = lang !== 'ko' ? `/app?lang=${lang}` : '/app';
 
   // Sync homepage language to app dashboard localStorage
   useEffect(() => {
