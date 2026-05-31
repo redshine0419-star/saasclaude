@@ -1,56 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { put, list } from '@vercel/blob';
+import { put } from '@vercel/blob';
 import { generateText } from '@/lib/ai';
 import { auth as getSession } from '@/auth';
 import { getScheduleConfig, saveScheduleConfig, ScheduleConfig } from '../schedule/route';
-import type { BlogPost, PostIndex } from '../generate/route';
-
-function sanitizeSlug(raw: string): string {
-  return String(raw)
-    .toLowerCase()
-    .replace(/[^a-z0-9-]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-    .slice(0, 100) || 'post';
-}
-
-function extractJson(text: string): Record<string, unknown> | null {
-  let depth = 0;
-  let start = -1;
-  for (let i = 0; i < text.length; i++) {
-    if (text[i] === '{') {
-      if (start === -1) start = i;
-      depth++;
-    } else if (text[i] === '}') {
-      depth--;
-      if (depth === 0 && start !== -1) {
-        try { return JSON.parse(text.slice(start, i + 1)); } catch { return null; }
-      }
-    }
-  }
-  return null;
-}
-
-async function getIndex(lang: string): Promise<PostIndex[]> {
-  try {
-    const { blobs } = await list({ prefix: `posts-index-${lang}.json` });
-    if (blobs.length === 0) return [];
-    const res = await fetch(blobs[0].url, { cache: 'no-store' });
-    if (!res.ok) return [];
-    return await res.json();
-  } catch {
-    return [];
-  }
-}
-
-async function saveIndex(lang: string, index: PostIndex[]) {
-  await put(`posts-index-${lang}.json`, JSON.stringify(index), {
-    access: 'public',
-    contentType: 'application/json',
-    addRandomSuffix: false,
-    allowOverwrite: true,
-  });
-}
+import { sanitizeSlug, extractJson, getIndex, saveIndex } from '@/lib/blog-utils';
+import type { BlogPost, PostIndex } from '@/lib/blog-utils';
 
 function buildPrompt(keyword: string, lang: 'ko' | 'en' | 'ja', targetAudience: string, tone: string): string {
   if (lang === 'ja') {

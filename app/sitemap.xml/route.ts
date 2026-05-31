@@ -1,5 +1,5 @@
 import { list } from '@vercel/blob';
-import type { PostIndex } from '@/app/api/blog/generate/route';
+import type { PostIndex } from '@/lib/blog-utils';
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://growweb.me';
 

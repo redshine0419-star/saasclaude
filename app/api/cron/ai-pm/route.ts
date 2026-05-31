@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-cron-source': 'internal',
+      'x-internal-cron': process.env.CRON_SECRET ?? '',
     },
   });
 

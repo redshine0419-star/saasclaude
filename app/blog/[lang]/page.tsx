@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { list } from '@vercel/blob';
-import type { PostIndex } from '@/app/api/blog/generate/route';
+import type { PostIndex } from '@/lib/blog-utils';
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://growweb.me';
 

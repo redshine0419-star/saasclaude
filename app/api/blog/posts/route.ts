@@ -1,28 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { del, list, put } from '@vercel/blob';
 import { auth } from '@/auth';
-import type { PostIndex, BlogPost } from '../generate/route';
-
-async function getIndex(lang: string): Promise<PostIndex[]> {
-  try {
-    const { blobs } = await list({ prefix: `posts-index-${lang}.json` });
-    if (blobs.length === 0) return [];
-    const res = await fetch(blobs[0].url, { cache: 'no-store' });
-    if (!res.ok) return [];
-    return await res.json();
-  } catch {
-    return [];
-  }
-}
-
-async function saveIndex(lang: string, index: PostIndex[]) {
-  await put(`posts-index-${lang}.json`, JSON.stringify(index), {
-    access: 'public',
-    contentType: 'application/json',
-    addRandomSuffix: false,
-    allowOverwrite: true,
-  });
-}
+import { getIndex, saveIndex } from '@/lib/blog-utils';
+import type { PostIndex, BlogPost } from '@/lib/blog-utils';
 
 export async function GET(req: NextRequest) {
   const lang = req.nextUrl.searchParams.get('lang') || 'ko';

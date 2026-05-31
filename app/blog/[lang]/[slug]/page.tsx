@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import { list } from '@vercel/blob';
-import type { BlogPost, PostIndex } from '@/app/api/blog/generate/route';
+import type { BlogPost, PostIndex } from '@/lib/blog-utils';
 import AdUnit from '@/components/AdUnit';
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://growweb.me';

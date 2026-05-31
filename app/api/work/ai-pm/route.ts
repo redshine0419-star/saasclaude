@@ -21,7 +21,8 @@ export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const isCron = req.headers.get('x-cron-source') === 'internal';
+  const cronSecret = process.env.CRON_SECRET;
+  const isCron = cronSecret && req.headers.get('x-internal-cron') === cronSecret;
   const role = (session?.user as { role?: string })?.role;
   if (!isCron && role !== 'admin') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

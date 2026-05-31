@@ -11,7 +11,7 @@ export interface GSCTokens {
 
 function blobKey(email: string): string {
   const hash = crypto
-    .createHmac('sha256', process.env.NEXTAUTH_SECRET ?? 'gsc-secret')
+    .createHmac('sha256', process.env.NEXTAUTH_SECRET!)
     .update(email)
     .digest('hex');
   return `gsc-tokens/${hash}.json`;

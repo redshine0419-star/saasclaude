@@ -27,26 +27,10 @@ interface ContentResult {
   ads: string;
 }
 
-const CHANNEL_COLOR_ACTIVE: Record<string, string> = {
-  indigo: 'bg-indigo-600 border-indigo-600 text-white',
-  pink: 'bg-pink-500 border-pink-500 text-white',
-  blue: 'bg-blue-600 border-blue-600 text-white',
-  purple: 'bg-purple-600 border-purple-600 text-white',
-};
+const CHANNEL_COLOR_ACTIVE = 'bg-slate-800 border-slate-800 text-white';
+const CHANNEL_COLOR_INACTIVE = 'border-slate-200 text-slate-600 hover:border-slate-400 bg-white';
 
-const CHANNEL_COLOR_INACTIVE: Record<string, string> = {
-  indigo: 'border-indigo-200 text-indigo-700 hover:border-indigo-400 bg-white',
-  pink: 'border-pink-200 text-pink-700 hover:border-pink-400 bg-white',
-  blue: 'border-blue-200 text-blue-700 hover:border-blue-400 bg-white',
-  purple: 'border-purple-200 text-purple-700 hover:border-purple-400 bg-white',
-};
-
-const CHANNEL_ACCENT: Record<string, string> = {
-  indigo: 'bg-indigo-500',
-  pink: 'bg-pink-500',
-  blue: 'bg-blue-500',
-  purple: 'bg-purple-500',
-};
+const CHANNEL_ACCENT = 'bg-slate-400';
 
 const Card = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
   <div className={`bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden ${className}`}>
@@ -71,7 +55,7 @@ function ContentCard({
 
   return (
     <Card className="group hover:border-indigo-300 transition-all">
-      <div className={`h-1.5 w-full ${CHANNEL_ACCENT[channel.color]} opacity-30 group-hover:opacity-100 transition-opacity`} />
+      <div className={`h-1.5 w-full ${CHANNEL_ACCENT} opacity-30 group-hover:opacity-100 transition-opacity`} />
       <div className="p-6">
         <div className="flex justify-between items-center mb-4">
           <span className="flex items-center gap-1.5 text-xs font-bold text-slate-600 uppercase tracking-wider">
@@ -155,7 +139,7 @@ function ContentGenerateTab({ onToast }: { onToast: (msg: string) => void }) {
     setResult(null);
 
     try {
-      const res = await fetch('/api/content-hub', {
+      const res = await fetch('/api/content', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic: topic.trim(), tone, channels: Array.from(selectedChannels) }),
@@ -201,7 +185,7 @@ function ContentGenerateTab({ onToast }: { onToast: (msg: string) => void }) {
                   key={ch.key}
                   onClick={() => toggleChannel(ch.key)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 text-sm font-semibold transition-all ${
-                    active ? CHANNEL_COLOR_ACTIVE[ch.color] : CHANNEL_COLOR_INACTIVE[ch.color]
+                    active ? CHANNEL_COLOR_ACTIVE : CHANNEL_COLOR_INACTIVE
                   }`}
                 >
                   <span

@@ -3,8 +3,7 @@ import { prisma } from '@/lib/prisma';
 import * as XLSX from 'xlsx';
 import * as fs from 'fs';
 
-const XLSX_PATH =
-  '/root/.claude/uploads/0e27fd0a-4086-403e-a9db-f988ad1917a5/c111b252-2.xlsx';
+const XLSX_PATH = process.env.OPS_IMPORT_XLSX_PATH ?? '';
 
 function excelDateToDate(serial: unknown): Date | null {
   if (!serial || typeof serial !== 'number') return null;
@@ -46,14 +45,14 @@ function mapStatus(
 }
 
 export async function POST(req: NextRequest) {
-  // Simple secret check to prevent accidental triggers
+  const importSecret = process.env.OPS_IMPORT_SECRET;
   const secret = req.headers.get('x-import-secret');
-  if (secret !== 'ops-import-2026') {
+  if (!importSecret || secret !== importSecret) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  if (!fs.existsSync(XLSX_PATH)) {
-    return NextResponse.json({ error: 'File not found: ' + XLSX_PATH }, { status: 404 });
+  if (!XLSX_PATH || !fs.existsSync(XLSX_PATH)) {
+    return NextResponse.json({ error: 'OPS_IMPORT_XLSX_PATH 환경변수가 설정되지 않았거나 파일이 없습니다.' }, { status: 404 });
   }
 
   const buf = fs.readFileSync(XLSX_PATH);

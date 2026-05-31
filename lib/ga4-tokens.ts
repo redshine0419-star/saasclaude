@@ -11,7 +11,7 @@ export interface GA4Tokens {
 
 function tokenBlobKey(email: string): string {
   const hash = crypto
-    .createHmac('sha256', process.env.NEXTAUTH_SECRET ?? 'ga4-secret')
+    .createHmac('sha256', process.env.NEXTAUTH_SECRET!)
     .update(email)
     .digest('hex');
   return `ga4-tokens/${hash}.json`;
