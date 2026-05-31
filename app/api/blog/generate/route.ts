@@ -3,6 +3,7 @@ import { put } from '@vercel/blob';
 import { generateText } from '@/lib/ai';
 import { auth } from '@/auth';
 import { sanitizeSlug, extractJson, getIndex, saveIndex } from '@/lib/blog-utils';
+import type { BlogPost, PostIndex } from '@/lib/blog-utils';
 export type { BlogPost, PostIndex } from '@/lib/blog-utils';
 
 export async function POST(req: NextRequest) {
