@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
 import { generateText } from '@/lib/ai';
 import { auth } from '@/auth';
-import { sanitizeSlug, extractJson, getIndex, saveIndex } from '@/lib/blog-utils';
+import { sanitizeSlug, extractJson, getIndex, saveIndex, fetchUnsplashImage } from '@/lib/blog-utils';
 import type { BlogPost, PostIndex } from '@/lib/blog-utils';
 export type { BlogPost, PostIndex } from '@/lib/blog-utils';
 
@@ -151,6 +151,8 @@ Respond ONLY with this JSON (no explanation):
     const { title, slug, metaDescription, tags, faq, content } = parsed as Record<string, unknown>;
     if (!title || !slug || !content) throw new Error('필수 필드 누락');
 
+    const heroImage = await fetchUnsplashImage(keyword);
+
     const post: BlogPost = {
       slug: sanitizeSlug(String(slug)),
       lang,
@@ -161,6 +163,7 @@ Respond ONLY with this JSON (no explanation):
       content: String(content),
       createdAt: createdAt || new Date().toISOString(),
       keyword,
+      ...(heroImage ? { heroImage } : {}),
     };
 
     await put(`posts/${lang}/${slug}.json`, JSON.stringify(post), {

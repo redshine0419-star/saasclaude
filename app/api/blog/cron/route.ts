@@ -3,7 +3,7 @@ import { put } from '@vercel/blob';
 import { generateText } from '@/lib/ai';
 import { auth as getSession } from '@/auth';
 import { getScheduleConfig, saveScheduleConfig, ScheduleConfig } from '../schedule/route';
-import { sanitizeSlug, extractJson, getIndex, saveIndex } from '@/lib/blog-utils';
+import { sanitizeSlug, extractJson, getIndex, saveIndex, fetchUnsplashImage } from '@/lib/blog-utils';
 import type { BlogPost, PostIndex } from '@/lib/blog-utils';
 
 function buildPrompt(keyword: string, lang: 'ko' | 'en' | 'ja', targetAudience: string, tone: string): string {
@@ -105,6 +105,8 @@ async function runOneLang(config: ScheduleConfig, now: number, testMode = false)
   const { title, slug, metaDescription, tags, faq, content } = parsed as Record<string, unknown>;
   if (!title || !slug || !content) return { error: '필수 필드 누락' };
 
+  const heroImage = await fetchUnsplashImage(keyword);
+
   const post: BlogPost = {
     slug: sanitizeSlug(String(slug)), lang, title: String(title),
     metaDescription: metaDescription ? String(metaDescription) : '',
@@ -113,6 +115,7 @@ async function runOneLang(config: ScheduleConfig, now: number, testMode = false)
     content: String(content),
     createdAt: new Date().toISOString(),
     keyword,
+    ...(heroImage ? { heroImage } : {}),
   };
 
   await put(`posts/${lang}/${post.slug}.json`, JSON.stringify(post), {

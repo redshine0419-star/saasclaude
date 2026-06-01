@@ -80,7 +80,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       locale: lang === 'ko' ? 'ko_KR' : lang === 'ja' ? 'ja_JP' : 'en_US',
       images: [
         {
-          url: `${SITE_URL}/api/og?title=${encodeURIComponent(post.title)}&tag=${encodeURIComponent(post.tags[0] ?? 'GrowWeb.me')}`,
+          url: post.heroImage ?? `${SITE_URL}/api/og?title=${encodeURIComponent(post.title)}&tag=${encodeURIComponent(post.tags[0] ?? 'GrowWeb.me')}`,
           width: 1200,
           height: 630,
           alt: post.title,
@@ -91,7 +91,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       card: 'summary_large_image',
       title: post.title,
       description: post.metaDescription,
-      images: [`${SITE_URL}/api/og?title=${encodeURIComponent(post.title)}&tag=${encodeURIComponent(post.tags[0] ?? 'GrowWeb.me')}`],
+      images: [post.heroImage ?? `${SITE_URL}/api/og?title=${encodeURIComponent(post.title)}&tag=${encodeURIComponent(post.tags[0] ?? 'GrowWeb.me')}`],
     },
   };
 }
@@ -185,6 +185,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
       </code>
     ),
     hr: () => <hr className="my-10 border-[#d0d7de] dark:border-[#30363d]" />,
+    img: ({ src, alt }) => (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={src} alt={alt ?? ''} className="my-6 w-full rounded-lg object-cover max-h-[480px]" loading="lazy" />
+    ),
     table: ({ children }) => (
       <div className="my-6 overflow-x-auto max-w-[680px]">
         <table className="w-full text-sm border-collapse border border-[#d0d7de] dark:border-[#30363d]">{children}</table>
@@ -297,6 +301,24 @@ export default async function BlogPostPage({ params }: { params: Promise<{ lang:
             </div>
           </div>
         </header>
+
+        {/* Hero image */}
+        {post.heroImage && (
+          <div className="max-w-4xl mx-auto px-4 md:px-8 pt-8">
+            <div className="w-full overflow-hidden rounded-xl aspect-[1200/500]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={post.heroImage}
+                alt={post.title}
+                className="w-full h-full object-cover"
+                loading="eager"
+              />
+            </div>
+            <p className="text-xs text-[#8b949e] mt-1.5 text-right">
+              Photo: <a href="https://unsplash.com" target="_blank" rel="noopener noreferrer" className="hover:underline">Unsplash</a>
+            </p>
+          </div>
+        )}
 
         {/* Article body — two-column layout on desktop */}
         <div className="max-w-4xl mx-auto px-4 md:px-8 py-12">

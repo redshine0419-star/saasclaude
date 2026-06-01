@@ -10,6 +10,7 @@ export interface BlogPost {
   content: string;
   createdAt: string;
   keyword: string;
+  heroImage?: string;
 }
 
 export interface PostIndex {
@@ -56,6 +57,19 @@ export async function getIndex(lang: string): Promise<PostIndex[]> {
     return await res.json();
   } catch {
     return [];
+  }
+}
+
+export async function fetchUnsplashImage(keyword: string): Promise<string | null> {
+  try {
+    const encoded = encodeURIComponent(keyword.slice(0, 80));
+    const res = await fetch(`https://source.unsplash.com/1200x630/?${encoded}`, {
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok || !res.url) return null;
+    return res.url;
+  } catch {
+    return null;
   }
 }
 
