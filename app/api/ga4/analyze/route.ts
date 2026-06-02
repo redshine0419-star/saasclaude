@@ -24,7 +24,7 @@ function ppDelta(curr: number, prev: number): string {
 }
 
 export async function POST(req: NextRequest) {
-  const { data, siteUrl, gscData } = await req.json();
+  const { data, siteUrl, gscData, condition } = await req.json();
   if (!data) return NextResponse.json({ error: '분석할 데이터가 없습니다.' }, { status: 400 });
 
   const { totals, prevTotals, channels, sourceMediums, prevSourceMediums, topPages, landingPages, devices, trend } = data;
@@ -101,7 +101,11 @@ ${ctrOpportunities?.length > 0 ? `- CTR 최적화 기회: ${ctrOpportunities.len
   // ── unused variable suppression ────────────────────────────────────────
   void channels;
 
-  const prompt = `아래 GA4 데이터를 분석하여 이탈률 개선, 유입 확대, 전환율 개선을 위한 실행 가능한 인사이트를 도출하세요.
+  const conditionBlock = condition
+    ? `\n[분석 조건 — 반드시 이 조건을 최우선으로 반영하세요]\n${condition}\n`
+    : '';
+
+  const prompt = `아래 GA4 데이터를 분석하여 이탈률 개선, 유입 확대, 전환율 개선을 위한 실행 가능한 인사이트를 도출하세요.${conditionBlock}
 
 [분석 사이트]
 ${siteUrl || '(미입력)'}

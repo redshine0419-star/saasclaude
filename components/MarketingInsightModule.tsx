@@ -310,6 +310,7 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
   const [expandedNearMiss, setExpandedNearMiss] = useState(false);
   const [expandedPages, setExpandedPages] = useState(false);
   const [expandedCross, setExpandedCross] = useState(false);
+  const [analysisCondition, setAnalysisCondition] = useState('');
 
   // ── Load statuses in parallel on mount ──
   useEffect(() => {
@@ -400,7 +401,12 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
           const aRes = await fetch('/api/ga4/analyze', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data: ga4D, siteUrl: gscSiteUrl, gscData: gscD && !gscD.error ? gscD : undefined }),
+            body: JSON.stringify({
+              data: ga4D,
+              siteUrl: gscSiteUrl,
+              gscData: gscD && !gscD.error ? gscD : undefined,
+              condition: analysisCondition.trim() || undefined,
+            }),
           });
           const aData = await aRes.json();
           if (aRes.ok) { setInsight(aData); onToast('AI 인사이트 분석이 완료됐습니다.'); }
@@ -652,6 +658,21 @@ export default function MarketingInsightModule({ onToast }: { onToast: (msg: str
                 </div>
               </div>
             )}
+
+            {/* ── 분석 조건 입력 ── */}
+            <div className="mb-3">
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                분석 조건 <span className="font-normal text-slate-400 normal-case">(선택)</span>
+              </label>
+              <textarea
+                rows={2}
+                value={analysisCondition}
+                onChange={(e) => setAnalysisCondition(e.target.value)}
+                disabled={loading}
+                placeholder={'예: 오가닉 트래픽 위주로 분석해줘 / 싱가폴 트래픽은 제외해줘 / 모바일 전환에 집중해줘'}
+                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-400 resize-none placeholder:text-slate-300 disabled:bg-slate-50 disabled:text-slate-400"
+              />
+            </div>
 
             {/* ── Main CTA ── */}
             <button onClick={fetchAll} disabled={loading || !canFetch}

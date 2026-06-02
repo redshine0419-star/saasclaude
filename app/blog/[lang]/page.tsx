@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { list } from '@vercel/blob';
 import type { PostIndex } from '@/lib/blog-utils';
+import BlogTagFilter from '@/components/blog/BlogTagFilter';
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://growweb.me';
 
@@ -87,34 +88,8 @@ export default async function BlogListPage({ params, searchParams }: {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 md:px-6 py-8">
-        {/* Tag filter */}
-        {allTags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-8">
-            <Link
-              href={`/blog/${lang}`}
-              className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
-                !tag
-                  ? 'bg-[#000000] text-white border-[#000000]'
-                  : 'border-[#d0d7de] dark:border-[#30363d] text-[#57606a] dark:text-[#8b949e] hover:border-[#57606a]'
-              }`}
-            >
-              {isKo ? '전체' : isJa ? 'すべて' : 'All'}
-            </Link>
-            {allTags.map((t) => (
-              <Link
-                key={t}
-                href={`/blog/${lang}?tag=${encodeURIComponent(t)}`}
-                className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
-                  tag === t
-                    ? 'bg-[#000000] text-white border-[#000000]'
-                    : 'border-[#d0d7de] dark:border-[#30363d] text-[#57606a] dark:text-[#8b949e] hover:border-[#57606a]'
-                }`}
-              >
-                {t}
-              </Link>
-            ))}
-          </div>
-        )}
+        {/* Tag filter — 숨김/펼침 */}
+        <BlogTagFilter allTags={allTags} lang={lang} selectedTag={tag} isKo={isKo} isJa={isJa} />
 
         {/* Post grid */}
         {filtered.length === 0 ? (
