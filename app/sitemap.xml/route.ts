@@ -1,13 +1,15 @@
 import { list } from '@vercel/blob';
 import type { PostIndex } from '@/app/api/blog/generate/route';
 
+export const dynamic = 'force-dynamic';
+
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://growweb.me';
 
 async function getPosts(lang: 'ko' | 'en' | 'ja'): Promise<PostIndex[]> {
   try {
     const { blobs } = await list({ prefix: `posts-index-${lang}.json` });
     if (blobs.length === 0) return [];
-    const res = await fetch(blobs[0].url, { next: { revalidate: 3600 } });
+    const res = await fetch(blobs[0].url, { cache: 'no-store' });
     if (!res.ok) return [];
     return await res.json();
   } catch {
@@ -57,7 +59,7 @@ ${[...staticEntries, ...blogEntries].join('\n')}
   return new Response(xml, {
     headers: {
       'Content-Type': 'application/xml',
-      'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
+      'Cache-Control': 'no-store',
     },
   });
 }
