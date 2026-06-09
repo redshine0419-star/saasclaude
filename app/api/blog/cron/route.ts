@@ -4,6 +4,7 @@ import { generateText } from '@/lib/ai';
 import { auth as getSession } from '@/auth';
 import { getScheduleConfig, saveScheduleConfig, ScheduleConfig } from '../schedule/route';
 import type { BlogPost, PostIndex } from '../generate/route';
+import { postTweet, buildTweetText } from '@/lib/twitter';
 
 function sanitizeSlug(raw: string): string {
   return String(raw)
@@ -143,6 +144,11 @@ async function runOneLang(config: ScheduleConfig, now: number, testMode = false)
   }
 
   await notifySlack(`📝 [MarketerOps] 새 블로그 발행\n제목: ${post.title} (${lang})\nURL: https://growweb.me/blog/${lang}/${post.slug}`);
+
+  if (lang === 'ko') {
+    const tweetText = buildTweetText(post.title, post.metaDescription || '', `https://growweb.me/blog/${lang}/${post.slug}`, '#SEO #마케팅 #디지털마케팅');
+    await postTweet(tweetText);
+  }
 
   return { slug: post.slug };
 }
