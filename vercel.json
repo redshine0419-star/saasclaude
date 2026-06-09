@@ -23,6 +23,10 @@
     {
       "path": "/api/cron/email-sequence",
       "schedule": "0 1 * * *"
+    },
+    {
+      "path": "/api/cron/adsense-report",
+      "schedule": "0 3 1 * *"
     }
   ]
 }
