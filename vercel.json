@@ -31,6 +31,10 @@
     {
       "path": "/api/cron/ab-test-resolve",
       "schedule": "0 4 * * 1"
+    },
+    {
+      "path": "/api/cron/monthly-review",
+      "schedule": "0 5 1 * *"
     }
   ]
 }
