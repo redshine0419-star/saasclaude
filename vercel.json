@@ -19,6 +19,10 @@
     {
       "path": "/api/cron/gsc-optimize",
       "schedule": "0 2 * * 1"
+    },
+    {
+      "path": "/api/cron/email-sequence",
+      "schedule": "0 1 * * *"
     }
   ]
 }
