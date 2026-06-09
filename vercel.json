@@ -15,6 +15,10 @@
     {
       "path": "/api/cron/newsletter",
       "schedule": "0 10 * * 3"
+    },
+    {
+      "path": "/api/cron/gsc-optimize",
+      "schedule": "0 2 * * 1"
     }
   ]
 }
