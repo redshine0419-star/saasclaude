@@ -213,6 +213,72 @@ function AddTaskModal({ projectId, members, onClose, onAdd }: {
   );
 }
 
+// ── Service Stats ──────────────────────────────────────────────────────────────
+interface ServiceStats {
+  service: string; domain: string;
+  blog: { total: number; recentWeek: number };
+  emailSubscribers: number;
+}
+
+const SERVICE_ENDPOINTS = [
+  { label: 'MarketerOps', url: '/api/stats', color: '#0969da' },
+  { label: 'FlavorSync', url: 'https://flavorsync.me/api/stats', color: '#16a34a' },
+  { label: 'TaskGrid', url: 'https://www.taskgrid.my/api/stats', color: '#7c3aed' },
+  { label: 'AskHistory', url: 'https://askhistory.me/api/stats', color: '#b45309' },
+];
+
+function MarketingStatsSection() {
+  const [stats, setStats] = useState<(ServiceStats | null)[]>([null, null, null, null]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchStats = useCallback(async () => {
+    setLoading(true);
+    const results = await Promise.all(
+      SERVICE_ENDPOINTS.map((s) =>
+        fetch(s.url, { cache: 'no-store' }).then((r) => r.json()).catch(() => null)
+      )
+    );
+    setStats(results);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { fetchStats(); }, [fetchStats]);
+
+  return (
+    <div className="mb-4 p-4 bg-white dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-xl">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-sm font-semibold text-[#24292f] dark:text-[#e6edf3]">📊 마케팅 현황 (4개 서비스)</h2>
+        <button onClick={fetchStats} disabled={loading}
+          className="text-xs text-[#0969da] hover:underline disabled:opacity-50">
+          {loading ? '로딩중...' : '새로고침'}
+        </button>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {SERVICE_ENDPOINTS.map((svc, i) => {
+          const d = stats[i];
+          return (
+            <div key={svc.label} className="rounded-lg p-3 border border-[#d0d7de] dark:border-[#30363d]"
+              style={{ borderLeftColor: svc.color, borderLeftWidth: 3 }}>
+              <div className="text-xs font-semibold mb-2" style={{ color: svc.color }}>{svc.label}</div>
+              {d ? (
+                <div className="space-y-1 text-xs text-[#57606a] dark:text-[#8b949e]">
+                  <div>📝 블로그 <span className="font-semibold text-[#24292f] dark:text-[#e6edf3]">{d.blog?.total ?? '—'}</span>개</div>
+                  <div>📅 주간 신규 <span className="font-semibold text-[#24292f] dark:text-[#e6edf3]">{d.blog?.recentWeek ?? '—'}</span>개</div>
+                  {typeof d.emailSubscribers === 'number' && (
+                    <div>📧 구독자 <span className="font-semibold text-indigo-600">{d.emailSubscribers.toLocaleString()}</span>명</div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-xs text-[#8c959f]">{loading ? '로딩중...' : '연결 실패'}</div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ── Main Component ─────────────────────────────────────────────────────────────
 export default function WorkOpsTab() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -280,6 +346,7 @@ export default function WorkOpsTab() {
 
   return (
     <div className="space-y-4">
+      <MarketingStatsSection />
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">

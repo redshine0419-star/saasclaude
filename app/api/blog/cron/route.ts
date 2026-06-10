@@ -54,10 +54,11 @@ async function saveIndex(lang: string, index: PostIndex[]) {
 }
 
 function addCTA(content: string, lang: 'ko' | 'en' | 'ja'): string {
+  const utm = '?utm_source=blog&utm_medium=cta&utm_campaign=blog_cta';
   const cta: Record<string, string> = {
-    ko: '\n\n---\n\n> 🔍 **내 사이트 SEO·GEO 점수가 궁금하다면?**  \n> MarketerOps.ai에서 PageSpeed · SEO · GEO 점수를 무료로 즉시 진단해보세요.  \n> [→ MarketerOps.ai 무료 진단 시작](https://growweb.me)\n',
-    en: '\n\n---\n\n> 🔍 **Want to check your site\'s SEO & GEO score?**  \n> Get a free instant diagnosis with MarketerOps.ai — PageSpeed · SEO · GEO scores.  \n> [→ Start Free Diagnosis at MarketerOps.ai](https://growweb.me)\n',
-    ja: '\n\n---\n\n> 🔍 **サイトのSEO・GEOスコアを確認したいですか？**  \n> MarketerOps.aiで PageSpeed・SEO・GEO スコアを無料で即時診断できます。  \n> [→ MarketerOps.ai 無料診断を始める](https://growweb.me)\n',
+    ko: `\n\n---\n\n> 🔍 **내 사이트 SEO·GEO 점수가 궁금하다면?**  \n> MarketerOps.ai에서 PageSpeed · SEO · GEO 점수를 무료로 즉시 진단해보세요.  \n> [→ MarketerOps.ai 무료 진단 시작](https://growweb.me${utm})\n`,
+    en: `\n\n---\n\n> 🔍 **Want to check your site's SEO & GEO score?**  \n> Get a free instant diagnosis with MarketerOps.ai — PageSpeed · SEO · GEO scores.  \n> [→ Start Free Diagnosis at MarketerOps.ai](https://growweb.me${utm})\n`,
+    ja: `\n\n---\n\n> 🔍 **サイトのSEO・GEOスコアを確認したいですか？**  \n> MarketerOps.aiで PageSpeed・SEO・GEO スコアを無料で即時診断できます。  \n> [→ MarketerOps.ai 無料診断を始める](https://growweb.me${utm})\n`,
   };
   return content + (cta[lang] ?? cta.ko);
 }

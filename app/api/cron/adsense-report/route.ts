@@ -20,18 +20,18 @@ export async function GET(req: NextRequest) {
 
   const propertyId = process.env.GA4_PROPERTY_ID
   if (!propertyId) {
-    return NextResponse.json({ error: 'GA4_PROPERTY_ID not set' }, { status: 500 })
+    return NextResponse.json({ skipped: true, reason: 'GA4_PROPERTY_ID not set' })
   }
 
   const adminEmail = (process.env.ADMIN_EMAILS || '').split(',')[0]?.trim()
   if (!adminEmail) {
-    return NextResponse.json({ error: 'ADMIN_EMAILS not set' }, { status: 500 })
+    return NextResponse.json({ skipped: true, reason: 'ADMIN_EMAILS not set' })
   }
 
   try {
     const token = await getValidGA4Token(adminEmail)
     if (!token) {
-      return NextResponse.json({ error: 'No GA4 token for admin' }, { status: 500 })
+      return NextResponse.json({ skipped: true, reason: 'No GA4 token for admin' })
     }
 
     const ga4Res = await fetch(
@@ -65,10 +65,7 @@ export async function GET(req: NextRequest) {
       dimensionValues: { value: string }[]
       metricValues: { value: string }[]
     }
-    interface GA4Report {
-      rows?: GA4Row[]
-    }
-    const ga4Data = await ga4Res.json() as GA4Report
+    const ga4Data = await ga4Res.json() as { rows?: GA4Row[] }
     const rows = ga4Data.rows || []
 
     const pages = rows.map((row) => ({
@@ -106,13 +103,10 @@ export async function GET(req: NextRequest) {
         `startDate.year=${start.year}&startDate.month=${start.month}&startDate.day=${start.day}` +
         `&endDate.year=${end.year}&endDate.month=${end.month}&endDate.day=${end.day}` +
         `&metrics=ESTIMATED_EARNINGS&metrics=PAGE_VIEWS&metrics=PAGE_VIEWS_RPM`,
-        {
-          headers: { Authorization: `Bearer ${adsenseToken}` },
-        }
+        { headers: { Authorization: `Bearer ${adsenseToken}` } }
       ).catch(() => null)
       if (adsRes?.ok) {
-        interface AdsenseReport { totals?: { cells?: { value: string }[] } }
-        const adsData = await adsRes.json() as AdsenseReport
+        const adsData = await adsRes.json() as { totals?: { cells?: { value: string }[] } }
         const cells = adsData.totals?.cells || []
         const earnings = parseFloat(cells[0]?.value || '0').toFixed(2)
         const pageViews = cells[1]?.value || '0'
@@ -121,23 +115,15 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const slackMsg = `📊 [MarketerOps] 월간 AdSense 최적화 리포트\n\n📈 광고 추가 추천 (체류시간 상위):\n${topLines || '데이터 없음'}\n\n📉 광고 줄이고 CTA 권장 (이탈률 80%+):\n${bounceLines || '없음'}${adsenseSection}`
+    const slackMsg =
+      `📊 [MarketerOps] 월간 AdSense 최적화 리포트\n\n` +
+      `📈 광고 추가 추천 (체류시간 상위):\n${topLines || '데이터 없음'}\n\n` +
+      `📉 광고 줄이고 CTA 권장 (이탈률 80%+):\n${bounceLines || '없음'}` +
+      adsenseSection
 
     await notifySlack(slackMsg)
 
-    console.log('[adsense-report]', {
-      topPages: top20Pct.length,
-      highBouncePages: highBounce.length,
-      hasAdsense: !!adsenseSection,
-      slackMsg,
-    })
-
-    return NextResponse.json({
-      ok: true,
-      topPages: top20Pct.length,
-      highBouncePages: highBounce.length,
-      hasAdsense: !!adsenseSection,
-    })
+    return NextResponse.json({ ok: true, topPages: top20Pct.length, highBouncePages: highBounce.length })
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 })
   }

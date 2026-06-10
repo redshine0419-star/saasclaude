@@ -365,6 +365,7 @@ export default function LandingPage({ lang, isLoggedIn = false }: { lang: 'ko' |
             <a href="#pricing" className="hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors">{t.nav_pricing}</a>
             <a href="#faq" className="hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors">{t.nav_faq}</a>
             <Link href={t.nav_blog_href} className="hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors">{t.nav_blog}</Link>
+            <Link href="/feedback" className="hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors">{lang === 'en' ? 'Feedback' : lang === 'ja' ? 'フィードバック' : '의견 보내기'}</Link>
           </nav>
 
           <div className="flex items-center gap-2">
@@ -416,6 +417,10 @@ export default function LandingPage({ lang, isLoggedIn = false }: { lang: 'ko' |
             <Link href={t.nav_blog_href} onClick={() => setMobileMenuOpen(false)}
               className="text-sm font-medium text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors py-1">
               {t.nav_blog}
+            </Link>
+            <Link href="/feedback" onClick={() => setMobileMenuOpen(false)}
+              className="text-sm font-medium text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors py-1">
+              {lang === 'en' ? 'Feedback' : lang === 'ja' ? 'フィードバック' : '의견 보내기'}
             </Link>
             {isLoggedIn ? (
               <div className="flex flex-col gap-2">
