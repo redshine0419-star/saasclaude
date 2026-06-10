@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { list } from '@vercel/blob';
+import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,6 +35,14 @@ export async function GET() {
       .slice(0, 5)
       .map((p) => ({ title: p.title, slug: p.slug, createdAt: p.createdAt }));
 
+    let emailSubscribers = 0;
+    try {
+      const result = await prisma.$queryRaw<[{ count: bigint }]>`
+        SELECT COUNT(*) as count FROM email_subscribers WHERE service = 'marketerops'
+      `;
+      emailSubscribers = Number(result[0]?.count ?? 0);
+    } catch { /* table may not exist yet */ }
+
     return NextResponse.json({
       service: 'marketerops',
       domain: 'growweb.me',
@@ -45,6 +54,7 @@ export async function GET() {
         recentWeek: recentWeekCount,
         recent: recent5,
       },
+      emailSubscribers,
       updatedAt: new Date().toISOString(),
     });
   } catch (e) {

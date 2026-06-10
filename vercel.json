@@ -15,6 +15,26 @@
     {
       "path": "/api/cron/newsletter",
       "schedule": "0 10 * * 3"
+    },
+    {
+      "path": "/api/cron/gsc-optimize",
+      "schedule": "0 2 * * 1"
+    },
+    {
+      "path": "/api/cron/email-sequence",
+      "schedule": "0 1 * * *"
+    },
+    {
+      "path": "/api/cron/adsense-report",
+      "schedule": "0 3 1 * *"
+    },
+    {
+      "path": "/api/cron/ab-test-resolve",
+      "schedule": "0 4 * * 1"
+    },
+    {
+      "path": "/api/cron/monthly-review",
+      "schedule": "0 5 1 * *"
     }
   ]
 }
