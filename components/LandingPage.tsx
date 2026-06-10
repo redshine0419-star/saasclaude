@@ -365,6 +365,7 @@ export default function LandingPage({ lang, isLoggedIn = false }: { lang: 'ko' |
             <a href="#pricing" className="hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors">{t.nav_pricing}</a>
             <a href="#faq" className="hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors">{t.nav_faq}</a>
             <Link href={t.nav_blog_href} className="hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors">{t.nav_blog}</Link>
+            <Link href="/feedback" className="hover:text-[#24292f] dark:hover:text-[#e6edf3] transition-colors">{lang === 'en' ? 'Feedback' : lang === 'ja' ? 'フィードバック' : '의견 보내기'}</Link>
           </nav>
 
           <div className="flex items-center gap-2">
