@@ -163,3 +163,15 @@ model NewsletterSubscriber {
   token     String   @unique @default(cuid())
   createdAt DateTime @default(now())
 }
+
+model Feedback {
+  id        Int      @id @default(autoincrement())
+  nickname  String   @default("익명")
+  content   String
+  rating    Int?
+  ipHash    String   @default("") @map("ip_hash")
+  isHidden  Boolean  @default(false) @map("is_hidden")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("feedback")
+}
