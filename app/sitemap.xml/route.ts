@@ -42,6 +42,7 @@ export async function GET() {
     urlEntry(`${BASE_URL}/blog/ko`, today, 'daily', '0.8'),
     urlEntry(`${BASE_URL}/blog/en`, today, 'daily', '0.8'),
     urlEntry(`${BASE_URL}/blog/ja`, today, 'daily', '0.8'),
+    urlEntry(`${BASE_URL}/feedback`, today, 'monthly', '0.5'),
     urlEntry(`${BASE_URL}/privacy`, today, 'yearly', '0.3'),
   ];
 
