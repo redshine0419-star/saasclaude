@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "GrowWeb.me",
-  description: "AI Marketing SaaS — GEO & SEO Diagnostics, Multi-channel Content, Performance Dashboard",
+  description: "AI 마케팅 SaaS — GEO & SEO 진단, 멀티채널 콘텐츠, 퍼포먼스 대시보드",
   icons: {
     icon: [
       { url: '/icon', type: 'image/png', sizes: '32x32' },
@@ -48,12 +48,6 @@ export default async function RootLayout({
       lang={lang}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <head>
-        <link rel="alternate" hrefLang="ko" href="https://growweb.me/" />
-        <link rel="alternate" hrefLang="en" href="https://en.growweb.me/" />
-        <link rel="alternate" hrefLang="ja" href="https://ja.growweb.me/" />
-        <link rel="alternate" hrefLang="x-default" href="https://growweb.me/" />
-      </head>
       <body className="min-h-full flex flex-col">
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-LNFYKK06L6"
