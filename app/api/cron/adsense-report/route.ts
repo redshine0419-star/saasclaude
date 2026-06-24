@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
       {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${token.access_token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
