@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
     // Count email subscribers
     const subscriberResult = await prisma.$queryRaw<{ count: bigint }[]>`
       SELECT COUNT(*) as count FROM email_subscribers WHERE service = 'marketerops'
-    `.catch(() => [{ count: 0n }])
+    `.catch(() => [{ count: BigInt(0) }])
     const totalSubscribers = Number(subscriberResult[0]?.count || 0)
 
     // Count new subscribers last month
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
       WHERE service = 'marketerops'
         AND created_at >= ${lastMonth}
         AND created_at <= ${lastMonthEnd}
-    `.catch(() => [{ count: 0n }])
+    `.catch(() => [{ count: BigInt(0) }])
     const newSubscribers = Number(newSubResult[0]?.count || 0)
 
     // Count blog posts published last month (from Vercel Blob index)
