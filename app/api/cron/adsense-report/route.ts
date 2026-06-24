@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getValidGA4Token } from '@/lib/ga4-tokens'
+import { getValidAccessToken } from '@/lib/ga4-tokens'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const token = await getValidGA4Token(adminEmail)
+    const token = await getValidAccessToken(adminEmail)
     if (!token) {
       return NextResponse.json({ skipped: true, reason: 'No GA4 token for admin' })
     }
