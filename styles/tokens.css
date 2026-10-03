@@ -1,0 +1,182 @@
+/* ─────────────────────────────────────────────────────
+   첫등원 디자인 토큰 — tokens.json → CSS 변수
+   사용법: <html data-theme="warm"> 또는 "result" / "bright" / "fd"
+   ───────────────────────────────────────────────────── */
+
+/* 테마 무관 고정값 */
+:root {
+  /* 관리자 */
+  --admin-bg: #f4f2ee;
+  --admin-sidebar: #1b2430;
+  --admin-sidebar-active: #2c3747;
+  --admin-sidebar-ink: #c8cdd5;
+  --admin-primary: #1e5645;
+  --admin-line: #e2ddd2;
+
+  /* 상태 배지 (관리자 공통) */
+  --status-new-bg: #fbf1cf;
+  --status-new-ink: #5a4a12;
+  --status-contacted-bg: #e6e9ee;
+  --status-contacted-ink: #2c3747;
+  --status-test-bg: #d8e8e0;
+  --status-test-ink: #1e5645;
+  --status-enrolled-bg: #1e5645;
+  --status-enrolled-ink: #ffffff;
+  --status-lost-bg: #f3e3dc;
+  --status-lost-ink: #8a3a1c;
+
+  /* 브랜드 견본 (테마 선택 화면에서만) */
+  --brand-warm: #1e5645;
+  --brand-result: #1d3fa8;
+  --brand-bright: #0f766e;
+
+  /* 스페이싱 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-14: 56px;
+  --space-20: 80px;
+  --space-30: 120px;
+
+  /* 라디우스 */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+  --radius-pill: 999px;
+
+  /* 그림자 */
+  --shadow-float: 0 12px 32px rgba(27, 36, 48, 0.12);
+  --shadow-panel: 0 12px 40px rgba(27, 36, 48, 0.08);
+
+  /* 크기 */
+  --tap-min: 44px;
+  --input-h: 52px;
+  --button-lg: 56px;
+  --container: 1200px;
+
+  /* 폰트 패밀리 */
+  --font-sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-serif: "Gowun Batang", "Nanum Myeongjo", serif;
+  --font-grotesk: "Gothic A1", "Apple SD Gothic Neo", sans-serif;
+  --font-round: "Jua", "Apple SD Gothic Neo", sans-serif;
+}
+
+/* ── 첫등원 서비스 사이트 ── */
+[data-theme="fd"] {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --subtle: #f3f5f8;
+  --ink: #14213d;
+  --body: #3c4659;
+  --muted: #4a5568;
+  --line: #e3e7ee;
+  --input-line: #cdd3dd;
+  --accent: #14213d;
+  --on-accent: #ffffff;
+  --accent-soft: #e6eaf0;
+  --accent-ink: #14213d;
+  --highlight: #f5b700;
+  --highlight-soft: #fff3cc;
+  --highlight-ink: #5c4300;
+  --label: #8a6400;
+  --warn-bg: #f3e3dc;
+  --warn-ink: #8a3a1c;
+  --dark: #14213d;
+  --dark-surface: #1e2d50;
+  --on-dark: #ffffff;
+  --on-dark-muted: #b8c0cf;
+  --pastel-sky: #f3f5f8;
+  --pastel-pink: #f3f5f8;
+}
+
+/* ── 테마 A 원장 직강형 ── */
+[data-theme="warm"] {
+  --bg: #f6f3ec;
+  --surface: #ffffff;
+  --subtle: #eae5da;
+  --ink: #1b2430;
+  --body: #3e4652;
+  --muted: #5a6270;
+  --line: #e2ddd2;
+  --input-line: #c9c2b4;
+  --accent: #1e5645;
+  --on-accent: #ffffff;
+  --accent-soft: #e4eee9;
+  --accent-ink: #1e5645;
+  --highlight: #f2c94c;
+  --highlight-soft: #fbf1cf;
+  --highlight-ink: #5a4a12;
+  --label: #1e5645;
+  --warn-bg: #f3e3dc;
+  --warn-ink: #8a3a1c;
+  --dark: #1b2430;
+  --dark-surface: #2c3747;
+  --on-dark: #ffffff;
+  --on-dark-muted: #c8cdd5;
+  --pastel-sky: #eae5da;
+  --pastel-pink: #eae5da;
+}
+
+/* ── 테마 B 성과 중심형 ── */
+[data-theme="result"] {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --subtle: #f2f4f7;
+  --ink: #0f1b2d;
+  --body: #4a5568;
+  --muted: #4a5568;
+  --line: #e2e6ec;
+  --input-line: #cbd3dd;
+  --accent: #1d3fa8;
+  --on-accent: #ffffff;
+  --accent-soft: #e5eaf8;
+  --accent-ink: #132c7a;
+  --highlight: #9db2e8;
+  --highlight-soft: #e5eaf8;
+  --highlight-ink: #132c7a;
+  --label: #1d3fa8;
+  --warn-bg: #f3e3dc;
+  --warn-ink: #8a3a1c;
+  --dark: #0f1b2d;
+  --dark-surface: #17263f;
+  --on-dark: #ffffff;
+  --on-dark-muted: #c7d0de;
+  --pastel-sky: #f2f4f7;
+  --pastel-pink: #f2f4f7;
+}
+
+/* ── 테마 C 밝은 친근형 ── */
+[data-theme="bright"] {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --subtle: #f3f6fa;
+  --ink: #1f2a37;
+  --body: #3a4656;
+  --muted: #3a4656;
+  --line: #e8edf3;
+  --input-line: #cbd3dd;
+  --accent: #0f766e;
+  --on-accent: #ffffff;
+  --accent-soft: #e0f5ef;
+  --accent-ink: #0b5a54;
+  --highlight: #ffd54f;
+  --highlight-soft: #fff3c4;
+  --highlight-ink: #1f2a37;
+  --label: #0f766e;
+  --warn-bg: #ffe3ec;
+  --warn-ink: #8a2a4a;
+  --dark: #1f2a37;
+  --dark-surface: #2c3a4c;
+  --on-dark: #ffffff;
+  --on-dark-muted: #d5dce5;
+  --pastel-sky: #ddf1ff;
+  --pastel-pink: #ffe3ec;
+}

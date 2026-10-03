@@ -1,29 +1,35 @@
 import NextAuth from 'next-auth';
 import Google from 'next-auth/providers/google';
+import { prisma } from '@/lib/prisma';
 
-const adminEmails = (process.env.ADMIN_EMAILS ?? '')
-  .split(',')
-  .map((e) => e.trim())
-  .filter(Boolean);
+export type UserRole = 'platform_admin' | 'owner' | 'staff' | 'anon';
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+const PLATFORM_ADMIN_EMAILS = new Set(
+  (process.env.PLATFORM_ADMIN_EMAILS ?? '').split(',').map((e) => e.trim()).filter(Boolean)
+);
+
+export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
   session: { strategy: 'jwt' },
   callbacks: {
-    jwt({ token, profile }) {
-      if (profile?.email) {
-        token.role = adminEmails.includes(profile.email as string) ? 'admin' : 'user';
+    async jwt({ token, user }) {
+      if (user?.email) {
+        token.email = user.email;
+        token.role = PLATFORM_ADMIN_EMAILS.has(user.email)
+          ? 'platform_admin'
+          : 'staff'; // will be refined to owner/staff by membership lookup per-request
       }
       return token;
     },
-    session({ session, token }) {
-      if (session.user) {
-        (session.user as { role?: string }).role = (token.role as string) ?? 'user';
+    async session({ session, token }) {
+      if (token.email) {
+        session.user.email = token.email as string;
+        session.user.role = (token.role as UserRole) ?? 'anon';
       }
       return session;
     },
@@ -32,3 +38,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/auth/signin',
   },
 });
+
+// Extend NextAuth types
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      email: string;
+      name?: string | null;
+      image?: string | null;
+      role: UserRole;
+    };
+  }
+}
