@@ -15,8 +15,8 @@ export default async function ReviewsPage({
 
   const { tenant, reviews } = data;
 
-  const textReviews = reviews.filter((r) => r.kind === 'text');
-  const scoreReviews = reviews.filter((r) => r.kind === 'score');
+  const textReviews = reviews.filter((r) => r.kind === 'review' || r.kind === 'text');
+  const scoreReviews = reviews.filter((r) => r.kind === 'score_case' || r.kind === 'score');
 
   return (
     <>
