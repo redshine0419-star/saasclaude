@@ -82,7 +82,15 @@ export default async function AcademyPage({
 
   return (
     <>
-      <SiteHeader name={data.tenant.name} phone={data.tenant.phone} kakaoChannelUrl={data.tenant.kakaoChannelUrl} />
+      <SiteHeader
+        name={data.tenant.name}
+        slug={slug}
+        activePage="home"
+        phone={data.tenant.phone}
+        kakaoChannelUrl={data.tenant.kakaoChannelUrl}
+        address={data.tenant.address}
+        hours={data.tenant.hours}
+      />
       <main>
         {SECTION_ORDER.map(renderSection)}
       </main>
