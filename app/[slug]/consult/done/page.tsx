@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation';
 import { getAcademyPageData } from '@/lib/academy-data';
 import SiteHeader from '@/components/academy/SiteHeader';
 import SiteFooter from '@/components/academy/SiteFooter';
-import MobileBottomBar from '@/components/academy/MobileBottomBar';
 
 export default async function ConsultDonePage({
   params,
@@ -92,7 +91,6 @@ export default async function ConsultDonePage({
         </section>
       </main>
       <SiteFooter tenant={tenant} />
-      <MobileBottomBar tenant={tenant} />
     </>
   );
 }
