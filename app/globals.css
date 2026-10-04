@@ -1,8 +1,6 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=Gowun+Batang:wght@400;700&family=Gothic+A1:wght@400;700;800&family=Jua&display=swap");
 @import "tailwindcss";
 @import "../styles/tokens.css";
-
-/* Google Fonts */
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=Gowun+Batang:wght@400;700&family=Gothic+A1:wght@400;700;800&family=Jua&display=swap");
 
 @theme inline {
   /* 테마 의미 색 — CSS 변수 참조 */
