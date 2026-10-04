@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>학원 홈페이지 · 데스크톱</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&amp;family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#F6F3EC;color:#1B2430}
+a{color:#1E5645}a:hover{color:#123A2E}
+</style>
+</helmet>
+<div style="width: 1440px; height: 4300px; box-sizing: border-box; display: flex; flex-direction: column; background: #F6F3EC; color: #1B2430; font-family: 'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif">
+
+<dc-import name="SiteHeader" active="home" hint-size="1440px,84px"></dc-import>
+
+<section style="padding: 72px 80px 64px; display: flex; gap: 64px; align-items: center">
+<div style="flex: 1; display: flex; flex-direction: column; gap: 28px">
+<div style="align-self: flex-start; padding: 6px 12px; background: #F2C94C; border-radius: 6px; font-size: 14px; font-weight: 600">[2027] 겨울방학 특강 모집 중</div>
+<h1 style="margin: 0; font-family: 'Gowun Batang',serif; font-size: 60px; line-height: 1.25; font-weight: 700; letter-spacing: -1px">한 반 [8]명,<br>원장이 직접 가르칩니다.</h1>
+<p style="margin: 0; font-size: 19px; line-height: 1.7; color: #3E4652; max-width: 560px">[OO중·OO고] 내신 대비부터 수능 기초까지. 레벨테스트로 아이 수준을 먼저 확인하고, 맞는 반을 정해 드립니다.</p>
+<div style="display: flex; gap: 12px">
+<a href="#consult" style="display: flex; align-items: center; height: 56px; padding: 0 28px; border-radius: 12px; background: {{accent}}; color: #FFFFFF; text-decoration: none; font-weight: 700; font-size: 17px">무료 레벨테스트 신청</a>
+<a href="#consult" style="display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 24px; border-radius: 12px; border: 1px solid #1B2430; color: #1B2430; text-decoration: none; font-weight: 600; font-size: 17px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.8-.8L3 21l1.9-4.6A8.1 8.1 0 0 1 3 11.5 8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"></path></svg>
+카카오톡 채널 상담</a>
+</div>
+</div>
+<div style="width: 580px; height: 440px; position: relative">
+<div style="width: 580px; height: 440px; border-radius: 20px; background: #E4DFD3; display: flex; align-items: center; justify-content: center; color: #5A6270; font-size: 16px">[실제 교실 사진 · 가로형]</div>
+<div style="position: absolute; left: -40px; bottom: -28px; width: 300px; box-sizing: border-box; padding: 20px 22px; background: #FFFFFF; border-radius: 14px; box-shadow: 0 12px 32px rgba(27,36,48,0.12); display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 13px; color: #5A6270; font-weight: 600">이번 주 레벨테스트 가능 시간</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<div style="padding: 6px 10px; border-radius: 6px; background: #E4EEE9; color: #1E5645; font-size: 14px; font-weight: 600">화 18:00</div>
+<div style="padding: 6px 10px; border-radius: 6px; background: #E4EEE9; color: #1E5645; font-size: 14px; font-weight: 600">목 17:00</div>
+<div style="padding: 6px 10px; border-radius: 6px; background: #E4EEE9; color: #1E5645; font-size: 14px; font-weight: 600">토 11:00</div>
+</div>
+</div>
+</div>
+</section>
+
+<section style="margin: 24px 80px 0; padding: 28px 40px; background: #FFFFFF; border-radius: 16px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px">
+<div style="display: flex; flex-direction: column; gap: 6px"><div style="font-size: 14px; color: #5A6270">대상</div><div style="font-size: 20px; font-weight: 700">[중1 ~ 고2]</div></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><div style="font-size: 14px; color: #5A6270">반 정원</div><div style="font-size: 20px; font-weight: 700">최대 [8]명</div></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><div style="font-size: 14px; color: #5A6270">위치</div><div style="font-size: 20px; font-weight: 700">[OO역 3번 출구 5분]</div></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><div style="font-size: 14px; color: #5A6270">셔틀</div><div style="font-size: 20px; font-weight: 700">[운행 아파트 단지]</div></div>
+</section>
+
+<section id="about" style="padding: 120px 80px 0; display: flex; gap: 72px; align-items: center">
+<div style="width: 420px; height: 500px; border-radius: 20px; background: #E4DFD3; display: flex; align-items: center; justify-content: center; color: #5A6270; font-size: 16px">[원장 사진 · 세로형]</div>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 24px">
+<div style="font-size: 15px; font-weight: 700; color: #1E5645">원장 소개</div>
+<h2 style="margin: 0; font-family: 'Gowun Batang',serif; font-size: 42px; line-height: 1.35">“[아이가 왜 틀렸는지 알 때까지<br>같이 봅니다.]”</h2>
+<p style="margin: 0; font-size: 18px; line-height: 1.8; color: #3E4652; max-width: 620px">[원장이 직접 쓴 수업 철학 2~3문장. 동네 학원은 원장 한 사람이 곧 학원이라, 이 문단이 학부모가 가장 오래 읽는 곳입니다.]</p>
+<div style="display: flex; flex-direction: column; gap: 12px; padding-top: 8px; border-top: 1px solid #E2DDD2">
+<div style="display: flex; gap: 16px; font-size: 16px; padding-top: 12px"><span style="width: 80px; color: #5A6270">학력</span><span>[OO대학교 수학교육과]</span></div>
+<div style="display: flex; gap: 16px; font-size: 16px"><span style="width: 80px; color: #5A6270">경력</span><span>[OO학원 강사 N년, 현 학원 운영 N년]</span></div>
+<div style="display: flex; gap: 16px; font-size: 16px"><span style="width: 80px; color: #5A6270">담당</span><span>[중3 · 고1 · 고2 전 과정 직강]</span></div>
+</div>
+</div>
+</section>
+
+<section id="classes" style="padding: 120px 80px 0; display: flex; flex-direction: column; gap: 32px">
+<div style="display: flex; justify-content: space-between; align-items: flex-end">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 15px; font-weight: 700; color: #1E5645">수업 안내</div>
+<h2 style="margin: 0; font-family: 'Gowun Batang',serif; font-size: 40px">학년별 반 구성</h2>
+</div>
+<div style="display: flex; gap: 4px; padding: 4px; background: #EAE5DA; border-radius: 12px">
+<button type="button" style="height: 44px; padding: 0 22px; border: none; border-radius: 9px; background: #FFFFFF; font: inherit; font-size: 15px; font-weight: 700; color: #1B2430">중등</button>
+<button type="button" style="height: 44px; padding: 0 22px; border: none; border-radius: 9px; background: transparent; font: inherit; font-size: 15px; font-weight: 500; color: #3E4652">고등</button>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
+<div style="padding: 32px; background: #FFFFFF; border-radius: 16px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; justify-content: space-between; align-items: center"><div style="font-size: 22px; font-weight: 700">[중1 기본반]</div><div style="padding: 4px 10px; border-radius: 6px; background: #E4EEE9; color: #1E5645; font-size: 13px; font-weight: 600">잔여 [2]석</div></div>
+<div style="display: flex; flex-direction: column; gap: 10px; font-size: 15px">
+<div style="display: flex; gap: 12px"><span style="width: 56px; color: #5A6270">요일</span><span>[월 · 수 · 금]</span></div>
+<div style="display: flex; gap: 12px"><span style="width: 56px; color: #5A6270">시간</span><span>[17:00 – 18:40]</span></div>
+<div style="display: flex; gap: 12px"><span style="width: 56px; color: #5A6270">교재</span><span>[교재명]</span></div>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.7; color: #3E4652">[이 반에서 무엇을 하는지 한두 문장]</p>
+</div>
+<div style="padding: 32px; background: #FFFFFF; border-radius: 16px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; justify-content: space-between; align-items: center"><div style="font-size: 22px; font-weight: 700">[중2 내신반]</div><div style="padding: 4px 10px; border-radius: 6px; background: #F3E3DC; color: #8A3A1C; font-size: 13px; font-weight: 600">마감 · 대기 접수</div></div>
+<div style="display: flex; flex-direction: column; gap: 10px; font-size: 15px">
+<div style="display: flex; gap: 12px"><span style="width: 56px; color: #5A6270">요일</span><span>[화 · 목]</span></div>
+<div style="display: flex; gap: 12px"><span style="width: 56px; color: #5A6270">시간</span><span>[18:00 – 20:30]</span></div>
+<div style="display: flex; gap: 12px"><span style="width: 56px; color: #5A6270">교재</span><span>[교재명]</span></div>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.7; color: #3E4652">[시험 4주 전부터 학교별 기출 대비]</p>
+</div>
+<div style="padding: 32px; background: #FFFFFF; border-radius: 16px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; justify-content: space-between; align-items: center"><div style="font-size: 22px; font-weight: 700">[중3 선행반]</div><div style="padding: 4px 10px; border-radius: 6px; background: #E4EEE9; color: #1E5645; font-size: 13px; font-weight: 600">잔여 [4]석</div></div>
+<div style="display: flex; flex-direction: column; gap: 10px; font-size: 15px">
+<div style="display: flex; gap: 12px"><span style="width: 56px; color: #5A6270">요일</span><span>[월 · 수 · 금]</span></div>
+<div style="display: flex; gap: 12px"><span style="width: 56px; color: #5A6270">시간</span><span>[19:00 – 21:00]</span></div>
+<div style="display: flex; gap: 12px"><span style="width: 56px; color: #5A6270">교재</span><span>[교재명]</span></div>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.7; color: #3E4652">[고1 공통수학 선행]</p>
+</div>
+</div>
+</section>
+
+<section id="fee" style="padding: 120px 80px 0; display: flex; gap: 64px">
+<div style="width: 360px; display: flex; flex-direction: column; gap: 16px">
+<div style="font-size: 15px; font-weight: 700; color: #1E5645">교습비</div>
+<h2 style="margin: 0; font-family: 'Gowun Batang',serif; font-size: 40px">숨김 없이<br>먼저 알려드립니다</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.7; color: #5A6270">[관할 교육지원청]에 신고한 교습비입니다. 교재비 등 기타 경비는 별도로 표기했습니다.</p>
+</div>
+<div style="flex: 1; background: #FFFFFF; border-radius: 16px; overflow: hidden">
+<table style="width: 100%; border-collapse: collapse; font-size: 16px">
+<thead><tr style="background: #EAE5DA; text-align: left"><th style="padding: 18px 28px; font-weight: 600">과정</th><th style="padding: 18px 28px; font-weight: 600">월 수업 시간</th><th style="padding: 18px 28px; font-weight: 600">교습비(월)</th><th style="padding: 18px 28px; font-weight: 600">기타 경비</th></tr></thead>
+<tbody>
+<tr style="border-top: 1px solid #EDE9E0"><td style="padding: 18px 28px">[중등 기본반]</td><td style="padding: 18px 28px">[주 3회 · 월 N시간]</td><td style="padding: 18px 28px; font-weight: 700">[000,000원]</td><td style="padding: 18px 28px">[교재비 별도]</td></tr>
+<tr style="border-top: 1px solid #EDE9E0"><td style="padding: 18px 28px">[중등 내신반]</td><td style="padding: 18px 28px">[주 2회 · 월 N시간]</td><td style="padding: 18px 28px; font-weight: 700">[000,000원]</td><td style="padding: 18px 28px">[교재비 별도]</td></tr>
+<tr style="border-top: 1px solid #EDE9E0"><td style="padding: 18px 28px">[고등반]</td><td style="padding: 18px 28px">[주 2회 · 월 N시간]</td><td style="padding: 18px 28px; font-weight: 700">[000,000원]</td><td style="padding: 18px 28px">[교재비 별도]</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section id="reviews" style="padding: 120px 80px 0; display: flex; flex-direction: column; gap: 32px">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 15px; font-weight: 700; color: #1E5645">성과·후기</div>
+<h2 style="margin: 0; font-family: 'Gowun Batang',serif; font-size: 40px">학부모님이 직접 남긴 이야기</h2>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
+<div style="padding: 32px; background: #FFFFFF; border-radius: 16px; display: flex; flex-direction: column; gap: 20px">
+<p style="margin: 0; font-family: 'Gowun Batang',serif; font-size: 19px; line-height: 1.7">“[학부모 후기 원문 · 수정 없이 게재]”</p>
+<div style="font-size: 14px; color: #5A6270">[중2 학부모] · [네이버 플레이스 리뷰]</div>
+</div>
+<div style="padding: 32px; background: #FFFFFF; border-radius: 16px; display: flex; flex-direction: column; gap: 20px">
+<p style="margin: 0; font-family: 'Gowun Batang',serif; font-size: 19px; line-height: 1.7">“[학부모 후기 원문 · 수정 없이 게재]”</p>
+<div style="font-size: 14px; color: #5A6270">[고1 학부모] · [카카오톡 채널]</div>
+</div>
+<div style="padding: 32px; background: #1E5645; color: #FFFFFF; border-radius: 16px; display: flex; flex-direction: column; gap: 16px">
+<div style="font-size: 14px; font-weight: 600; color: #CFE3DA">성적 변화 사례</div>
+<div style="font-size: 22px; font-weight: 700; line-height: 1.5">[학생 A · 중2 1학기 → 2학기]</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.7; color: #E4EEE9">[실제 점수 변화와 기간. 학생·학부모 동의를 받은 사례만 게재]</p>
+</div>
+</div>
+</section>
+
+<section id="news" style="padding: 120px 80px 0; display: flex; gap: 64px">
+<div style="width: 360px; display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 15px; font-weight: 700; color: #1E5645">소식</div>
+<h2 style="margin: 0; font-family: 'Gowun Batang',serif; font-size: 40px">학원 소식</h2>
+</div>
+<div style="flex: 1; display: flex; flex-direction: column">
+<a href="#news" style="display: flex; justify-content: space-between; padding: 22px 0; border-top: 1px solid #D9D3C6; color: #1B2430; text-decoration: none; font-size: 18px"><span><span style="color: #8A3A1C; font-weight: 700; margin-right: 12px">모집</span>[겨울방학 특강 안내]</span><span style="color: #5A6270; font-size: 15px">[09.25]</span></a>
+<a href="#news" style="display: flex; justify-content: space-between; padding: 22px 0; border-top: 1px solid #D9D3C6; color: #1B2430; text-decoration: none; font-size: 18px"><span><span style="color: #1E5645; font-weight: 700; margin-right: 12px">공지</span>[추석 연휴 휴강 안내]</span><span style="color: #5A6270; font-size: 15px">[09.18]</span></a>
+<a href="#news" style="display: flex; justify-content: space-between; padding: 22px 0; border-top: 1px solid #D9D3C6; border-bottom: 1px solid #D9D3C6; color: #1B2430; text-decoration: none; font-size: 18px"><span><span style="color: #1E5645; font-weight: 700; margin-right: 12px">공지</span>[2학기 중간고사 대비 일정]</span><span style="color: #5A6270; font-size: 15px">[09.10]</span></a>
+</div>
+</section>
+
+<section id="consult" style="margin: 120px 80px 0; padding: 56px; background: #FFFFFF; border-radius: 24px; display: flex; gap: 56px">
+<div id="map" style="width: 520px; display: flex; flex-direction: column; gap: 20px">
+<div style="font-size: 15px; font-weight: 700; color: #1E5645">상담 신청 · 오시는 길</div>
+<h2 style="margin: 0; font-family: 'Gowun Batang',serif; font-size: 38px; line-height: 1.35">레벨테스트는 무료,<br>결과는 원장이 직접 설명합니다</h2>
+<div style="height: 260px; border-radius: 14px; background: #E4DFD3; display: flex; align-items: center; justify-content: center; color: #5A6270; font-size: 15px">[네이버 지도 임베드]</div>
+<div style="display: flex; flex-direction: column; gap: 8px; font-size: 16px">
+<div>[도로명 주소, OO빌딩 N층]</div>
+<div style="color: #5A6270">[셔틀: OO아파트 · OO아파트 경유]</div>
+</div>
+</div>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 20px">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="p-name" style="font-size: 14px; font-weight: 600">학부모 성함</label><input id="p-name" type="text" placeholder="홍길동" style="height: 52px; padding: 0 16px; border: 1px solid #C9C2B4; border-radius: 10px; font: inherit; font-size: 16px; background: #FBFAF7"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="p-tel" style="font-size: 14px; font-weight: 600">연락처</label><input id="p-tel" type="tel" placeholder="010-0000-0000" style="height: 52px; padding: 0 16px; border: 1px solid #C9C2B4; border-radius: 10px; font: inherit; font-size: 16px; background: #FBFAF7"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="p-grade" style="font-size: 14px; font-weight: 600">학생 학년</label><select id="p-grade" style="height: 52px; padding: 0 12px; border: 1px solid #C9C2B4; border-radius: 10px; font: inherit; font-size: 16px; background: #FBFAF7"><option>학년 선택</option><option>중1</option><option>중2</option><option>중3</option><option>고1</option><option>고2</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="p-type" style="font-size: 14px; font-weight: 600">원하시는 상담</label><select id="p-type" style="height: 52px; padding: 0 12px; border: 1px solid #C9C2B4; border-radius: 10px; font: inherit; font-size: 16px; background: #FBFAF7"><option>레벨테스트 예약</option><option>전화 상담</option><option>방문 상담</option></select></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="p-msg" style="font-size: 14px; font-weight: 600">궁금한 점 (선택)</label><textarea id="p-msg" placeholder="아이의 현재 상황이나 궁금한 점을 적어주세요" style="height: 96px; padding: 14px 16px; border: 1px solid #C9C2B4; border-radius: 10px; font: inherit; font-size: 16px; background: #FBFAF7; resize: none"></textarea></div>
+<div style="display: flex; flex-direction: column; gap: 12px; padding: 20px; background: #F6F3EC; border-radius: 12px">
+<div style="display: flex; align-items: center; gap: 10px"><input id="agree-1" type="checkbox" style="width: 20px; height: 20px"><label for="agree-1" style="font-size: 15px"><b>[필수]</b> 개인정보 수집·이용 동의</label><a href="#consult" style="margin-left: auto; font-size: 14px">보기</a></div>
+<div style="display: flex; align-items: center; gap: 10px"><input id="agree-2" type="checkbox" style="width: 20px; height: 20px"><label for="agree-2" style="font-size: 15px"><b>[선택]</b> 특강·모집 안내 수신 동의 (카카오톡·문자)</label></div>
+<div style="display: flex; align-items: center; gap: 10px; padding-left: 30px"><input id="agree-3" type="checkbox" style="width: 20px; height: 20px"><label for="agree-3" style="font-size: 14px; color: #3E4652">[선택] 21시~08시 수신 동의</label></div>
+</div>
+<button type="button" style="height: 60px; border: none; border-radius: 12px; background: {{accent}}; color: #FFFFFF; font: inherit; font-size: 18px; font-weight: 700">상담 신청하기</button>
+<div style="font-size: 14px; color: #5A6270; text-align: center">신청하시면 카카오톡으로 접수 확인 메시지를 바로 보내드립니다.</div>
+</div>
+</section>
+
+<div style="flex-grow: 1; margin-top: 120px; background: #1B2430"><dc-import name="SiteFooter" hint-size="1440px,200px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#1E5645","options":["#1E5645","#1F3F6B","#7A3B22"]},"$preview":{"width":1440,"height":4300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#1E5645' };
+  }
+}
+</script>
+</body>
+</html>

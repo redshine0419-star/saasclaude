@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>A-10 설정</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#F4F2EE}a{color:#1E5645}a:hover{color:#123A2E}</style>
+</helmet>
+<div style="width: 1440px; height: 1000px; display: flex; background: #F4F2EE; color: #1B2430; font-family: 'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif">
+<dc-import name="AdminSide" active="settings" hint-size="240px,1000px"></dc-import>
+<main style="flex: 1; padding: 32px 40px; display: flex; flex-direction: column; gap: 16px">
+<h1 style="margin: 0; font-size: 26px; font-weight: 700">설정</h1>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+<div style="padding: 24px; background: #FFFFFF; border-radius: 12px; display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 16px; font-weight: 700">새 상담 알림 받을 번호</div>
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #EEEAE2"><span>원장 [이름] · 010-****-5678</span><span style="font-size: 13px; color: #1E5645; font-weight: 600">카톡 알림</span></div>
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #EEEAE2"><span>실장 [이름] · 010-****-9012</span><span style="font-size: 13px; color: #1E5645; font-weight: 600">카톡 알림</span></div>
+<button type="button" style="align-self: flex-start; height: 40px; padding: 0 14px; border: 1px dashed #B7B0A2; border-radius: 8px; background: #FFFFFF; font: inherit; font-size: 14px">+ 번호 추가</button>
+</div>
+<div style="padding: 24px; background: #FFFFFF; border-radius: 12px; display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 16px; font-weight: 700">연결 상태</div>
+<div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #EEEAE2"><span>카카오톡 채널</span><span style="color: #1E5645; font-weight: 600">연결됨 · 알림톡 사용 가능</span></div>
+<div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #EEEAE2"><span>GA4 방문 분석</span><span style="color: #1E5645; font-weight: 600">연결됨</span></div>
+<div style="display: flex; justify-content: space-between; padding: 12px 0"><span>네이버 서치어드바이저</span><span style="color: #8A3A1C; font-weight: 600">확인 필요</span></div>
+</div>
+<div style="padding: 24px; background: #FFFFFF; border-radius: 12px; display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 16px; font-weight: 700">계정</div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="s-mail" style="font-size: 13px; font-weight: 600; color: #5A6270">로그인 이메일</label><input id="s-mail" type="email" placeholder="name@example.com" style="height: 44px; padding: 0 12px; border: 1px solid #D5D0C6; border-radius: 8px; font: inherit; font-size: 14px"></div>
+<button type="button" style="align-self: flex-start; height: 40px; padding: 0 14px; border: 1px solid #D5D0C6; border-radius: 8px; background: #FFFFFF; font: inherit; font-size: 14px">비밀번호 변경</button>
+</div>
+<div style="padding: 24px; background: #FFFFFF; border-radius: 12px; display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 16px; font-weight: 700">이용 중인 플랜</div>
+<div style="font-size: 22px; font-weight: 700">[월 관리 플랜명]</div>
+<div style="font-size: 14px; line-height: 1.8; color: #3E4652">[월 000,000원] · 카톡 발송 [N]건 포함 · 월간 리포트 · 콘텐츠 업데이트 대행 [N]회<br>다음 결제일 [10월 15일]</div>
+<a href="#" style="font-size: 14px; font-weight: 600">관리 담당자에게 문의</a>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

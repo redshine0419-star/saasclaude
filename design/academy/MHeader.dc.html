@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>공통 · 모바일 헤더</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&amp;family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<header style="width: 390px; height: 60px; box-sizing: border-box; padding: 0 8px 0 20px; display: flex; align-items: center; justify-content: space-between; background: #F6F3EC; border-bottom: 1px solid #E2DDD2; color: #1B2430; font-family: 'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif">
+<a href="MobileHome.dc.html" style="font-family: 'Gowun Batang',serif; font-size: 20px; font-weight: 700; color: #1B2430; text-decoration: none">[학원명]</a>
+<a href="MNav.dc.html" aria-label="메뉴 열기" style="width: 44px; height: 44px; color: #1B2430; display: flex; align-items: center; justify-content: center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></a>
+</header>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":60}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

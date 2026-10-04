@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>공통 · 관리자 사이드바</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<aside style="width: 240px; height: 1000px; box-sizing: border-box; padding: 28px 16px; background: #1B2430; color: #C8CDD5; font-family: 'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif; display: flex; flex-direction: column; gap: 2px">
+<div style="padding: 0 12px 20px; font-size: 18px; font-weight: 700; color: #FFFFFF">[학원명] <span style="font-size: 13px; font-weight: 500; color: #9AA3AF">관리자</span></div>
+<a href="AdminDashboard.dc.html" style="padding: 11px 12px; border-radius: 8px; background: {{bg.dashboard}}; color: {{c.dashboard}}; font-weight: {{w.dashboard}}; text-decoration: none; font-size: 15px">대시보드</a>
+<a href="AdminLeads.dc.html" style="padding: 11px 12px; border-radius: 8px; background: {{bg.leads}}; color: {{c.leads}}; font-weight: {{w.leads}}; text-decoration: none; font-size: 15px; display: flex; justify-content: space-between">상담 관리<span style="min-width: 22px; padding: 0 6px; border-radius: 11px; background: #F2C94C; color: #1B2430; font-size: 12px; font-weight: 700; text-align: center; line-height: 22px">3</span></a>
+<div style="padding: 18px 12px 6px; font-size: 12px; color: #8E97A4; font-weight: 600">카톡</div>
+<a href="AdminKakao.dc.html" style="padding: 11px 12px; border-radius: 8px; background: {{bg.kakao}}; color: {{c.kakao}}; font-weight: {{w.kakao}}; text-decoration: none; font-size: 15px">자동 발송</a>
+<a href="KakaoLog.dc.html" style="padding: 11px 12px; border-radius: 8px; background: {{bg.kakaolog}}; color: {{c.kakaolog}}; font-weight: {{w.kakaolog}}; text-decoration: none; font-size: 15px">발송 내역·수신 동의</a>
+<div style="padding: 18px 12px 6px; font-size: 12px; color: #8E97A4; font-weight: 600">홈페이지 콘텐츠</div>
+<a href="AdminNews.dc.html" style="padding: 11px 12px; border-radius: 8px; background: {{bg.news}}; color: {{c.news}}; font-weight: {{w.news}}; text-decoration: none; font-size: 15px">소식</a>
+<a href="AdminReviews.dc.html" style="padding: 11px 12px; border-radius: 8px; background: {{bg.reviews}}; color: {{c.reviews}}; font-weight: {{w.reviews}}; text-decoration: none; font-size: 15px">후기·성과</a>
+<a href="AdminClasses.dc.html" style="padding: 11px 12px; border-radius: 8px; background: {{bg.classes}}; color: {{c.classes}}; font-weight: {{w.classes}}; text-decoration: none; font-size: 15px">수업·시간표</a>
+<a href="AdminInfo.dc.html" style="padding: 11px 12px; border-radius: 8px; background: {{bg.info}}; color: {{c.info}}; font-weight: {{w.info}}; text-decoration: none; font-size: 15px">학원 정보·교습비</a>
+<div style="padding: 18px 12px 6px; font-size: 12px; color: #8E97A4; font-weight: 600">운영</div>
+<a href="AdminReport.dc.html" style="padding: 11px 12px; border-radius: 8px; background: {{bg.report}}; color: {{c.report}}; font-weight: {{w.report}}; text-decoration: none; font-size: 15px">월간 리포트</a>
+<a href="AdminSettings.dc.html" style="padding: 11px 12px; border-radius: 8px; background: {{bg.settings}}; color: {{c.settings}}; font-weight: {{w.settings}}; text-decoration: none; font-size: 15px">설정</a>
+<a href="Login.dc.html" style="margin-top: auto; padding: 12px; font-size: 13px; color: #9AA3AF; text-decoration: none">[원장 이름] · 로그아웃</a>
+</aside>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"active":{"editor":"enum","default":"dashboard","options":["dashboard","leads","kakao","kakaolog","news","reviews","classes","info","report","settings"]},"$preview":{"width":240,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const a = this.props.active ?? 'dashboard';
+    const keys = ['dashboard', 'leads', 'kakao', 'kakaolog', 'news', 'reviews', 'classes', 'info', 'report', 'settings'];
+    const bg = {}, c = {}, w = {};
+    keys.forEach((k) => {
+      bg[k] = k === a ? '#2C3747' : 'transparent';
+      c[k] = k === a ? '#FFFFFF' : '#C8CDD5';
+      w[k] = k === a ? '600' : '400';
+    });
+    return { bg, c, w };
+  }
+}
+</script>
+</body>
+</html>

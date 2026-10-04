@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>상담 신청 · 모바일</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&amp;family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif;background:#F6F3EC;color:#1B2430}
+a{color:#1E5645}a:hover{color:#123A2E}
+</style>
+</helmet>
+<div style="width: 390px; height: 1080px; position: relative; background: #F6F3EC; color: #1B2430; font-family: 'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif">
+<header style="height: 60px; box-sizing: border-box; padding: 0 20px 0 8px; display: flex; align-items: center; gap: 4px; border-bottom: 1px solid #E2DDD2">
+<a href="MobileHome.dc.html" aria-label="뒤로" style="width: 44px; height: 44px; color: #1B2430; display: flex; align-items: center; justify-content: center">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+</a>
+<div style="font-size: 17px; font-weight: 700">상담 신청</div>
+</header>
+<div style="padding: 24px 20px; display: flex; flex-direction: column; gap: 18px">
+<h1 style="margin: 0; font-family: 'Gowun Batang',serif; font-size: 26px; line-height: 1.4">1분이면 끝나요.<br>원장이 직접 연락드립니다.</h1>
+<div style="display: flex; flex-direction: column; gap: 8px"><div style="font-size: 14px; font-weight: 600">원하시는 상담</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button type="button" aria-pressed="true" style="height: 52px; border: 2px solid {{accent}}; border-radius: 12px; background: #E4EEE9; color: #1E5645; font: inherit; font-size: 15px; font-weight: 700">레벨테스트 예약</button>
+<button type="button" aria-pressed="false" style="height: 52px; border: 1px solid #C9C2B4; border-radius: 12px; background: #FFFFFF; color: #1B2430; font: inherit; font-size: 15px; font-weight: 500">전화 상담</button>
+</div></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><div style="font-size: 14px; font-weight: 600">희망 테스트 시간</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<button type="button" style="height: 48px; border: 1px solid #C9C2B4; border-radius: 10px; background: #FFFFFF; font: inherit; font-size: 14px">화 18:00</button>
+<button type="button" style="height: 48px; border: 2px solid {{accent}}; border-radius: 10px; background: #E4EEE9; color: #1E5645; font: inherit; font-size: 14px; font-weight: 700">목 17:00</button>
+<button type="button" style="height: 48px; border: 1px solid #C9C2B4; border-radius: 10px; background: #FFFFFF; font: inherit; font-size: 14px">토 11:00</button>
+</div></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="m-name" style="font-size: 14px; font-weight: 600">학부모 성함</label><input id="m-name" type="text" placeholder="홍길동" style="height: 52px; padding: 0 14px; border: 1px solid #C9C2B4; border-radius: 12px; font: inherit; font-size: 16px; background: #FFFFFF"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="m-tel" style="font-size: 14px; font-weight: 600">연락처</label><input id="m-tel" type="tel" placeholder="010-0000-0000" style="height: 52px; padding: 0 14px; border: 1px solid #C9C2B4; border-radius: 12px; font: inherit; font-size: 16px; background: #FFFFFF"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="m-grade" style="font-size: 14px; font-weight: 600">학생 학년</label><select id="m-grade" style="height: 52px; padding: 0 10px; border: 1px solid #C9C2B4; border-radius: 12px; font: inherit; font-size: 16px; background: #FFFFFF"><option>학년 선택</option><option>중1</option><option>중2</option><option>중3</option><option>고1</option><option>고2</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 12px; padding: 16px; background: #FFFFFF; border-radius: 12px">
+<div style="display: flex; align-items: center; gap: 10px"><input id="m-a1" type="checkbox" style="width: 22px; height: 22px"><label for="m-a1" style="font-size: 14px"><b>[필수]</b> 개인정보 수집·이용 동의</label><a href="#" style="margin-left: auto; font-size: 13px">보기</a></div>
+<div style="display: flex; align-items: center; gap: 10px"><input id="m-a2" type="checkbox" style="width: 22px; height: 22px"><label for="m-a2" style="font-size: 14px"><b>[선택]</b> 특강·모집 안내 수신 (카톡·문자)</label></div>
+<div style="display: flex; align-items: center; gap: 10px; padding-left: 32px"><input id="m-a3" type="checkbox" style="width: 22px; height: 22px"><label for="m-a3" style="font-size: 13px; color: #3E4652">[선택] 21시~08시 수신</label></div>
+</div>
+</div>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 20px 28px; background: #FFFFFF; border-top: 1px solid #E2DDD2; display: flex; flex-direction: column; gap: 8px">
+<a href="MConsultDone.dc.html" style="height: 56px; border-radius: 12px; background: {{accent}}; color: #FFFFFF; text-decoration: none; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center">신청하기</a>
+<div style="font-size: 12px; color: #5A6270; text-align: center">접수 즉시 카카오톡으로 확인 메시지가 발송됩니다</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#1E5645","options":["#1E5645","#1F3F6B","#7A3B22"]},"$preview":{"width":390,"height":1080}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#1E5645' };
+  }
+}
+</script>
+</body>
+</html>

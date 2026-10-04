@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>첫등원 · 신청 완료</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#FFFFFF}a{color:#14213D}a:hover{color:#2B3F6B}</style>
+</helmet>
+<div style="width: 100%; background: #FFFFFF; color: #14213D; font-family: 'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif">
+<dc-import name="FdHeader" active="apply" hint-size="100%,76px"></dc-import>
+<section style="padding: clamp(56px, 8vw, 112px) clamp(20px, 4vw, 56px)">
+<div style="max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center">
+<div style="width: 76px; height: 76px; border-radius: 38px; background: #14213D; color: #F5B700; display: flex; align-items: center; justify-content: center"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg></div>
+<h1 style="margin: 0; font-size: clamp(30px, 4vw, 44px); line-height: 1.3; letter-spacing: -1px">베타 신청을 받았습니다</h1>
+<p style="margin: 0; font-size: 18px; line-height: 1.75; color: #3C4659">담당자가 [하루] 안에 예상 시작일을 알려드립니다.<br>베타 3개월 동안 비용은 0원이고, 자동 결제는 없습니다.</p>
+</div>
+<div style="padding: 28px; border-radius: 16px; background: #F3F5F8; display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 16px; font-weight: 700">신청 내용</div>
+<div style="display: flex; justify-content: space-between; font-size: 15px"><span style="color: #4A5568">학원</span><b>[OO수학학원]</b></div>
+<div style="display: flex; justify-content: space-between; font-size: 15px"><span style="color: #4A5568">이용 방식</span><b>베타 3개월 무료</b></div>
+<div style="display: flex; justify-content: space-between; font-size: 15px"><span style="color: #4A5568">받은 자료</span><b>[3]개 · 남은 자료 [3]개</b></div>
+</div>
+<div style="padding: 28px; border-radius: 16px; border: 1px solid #E3E7EE; display: flex; flex-direction: column; gap: 0">
+<div style="font-size: 16px; font-weight: 700; margin-bottom: 16px">앞으로의 진행</div>
+<div style="display: flex; gap: 14px; padding-bottom: 18px"><div style="width: 30px; height: 30px; flex-shrink: 0; border-radius: 15px; background: #F5B700; font-weight: 700; display: flex; align-items: center; justify-content: center">1</div><div><div style="font-weight: 700">담당자 연락 · 예상 시작일 안내</div><div style="font-size: 14px; color: #4A5568; margin-top: 2px">[하루] 안</div></div></div>
+<div style="display: flex; gap: 14px; padding-bottom: 18px"><div style="width: 30px; height: 30px; flex-shrink: 0; border-radius: 15px; background: #F3F5F8; font-weight: 700; display: flex; align-items: center; justify-content: center">2</div><div><div style="font-weight: 700">원장님 인터뷰 · 남은 자료 받기</div><div style="font-size: 14px; color: #4A5568; margin-top: 2px">[30분] 통화 또는 방문</div></div></div>
+<div style="display: flex; gap: 14px; padding-bottom: 18px"><div style="width: 30px; height: 30px; flex-shrink: 0; border-radius: 15px; background: #F3F5F8; font-weight: 700; display: flex; align-items: center; justify-content: center">3</div><div><div style="font-weight: 700">테마 추천 · 첫 시안</div><div style="font-size: 14px; color: #4A5568; margin-top: 2px">자료 받은 후 [N]일</div></div></div>
+<div style="display: flex; gap: 14px"><div style="width: 30px; height: 30px; flex-shrink: 0; border-radius: 15px; background: #14213D; color: #FFFFFF; font-weight: 700; display: flex; align-items: center; justify-content: center">4</div><div><div style="font-weight: 700">카카오 채널 연결 · 오픈</div><div style="font-size: 14px; color: #4A5568; margin-top: 2px">약 [N]주 · 이날부터 3개월이 시작됩니다</div></div></div>
+</div>
+<div style="padding: 20px 24px; border-radius: 14px; background: #FFF3CC; font-size: 15px; line-height: 1.75; color: #3D2F00">자료는 [2주] 안에 보내주세요. 미리 해두시면 빨라지는 것: 카카오톡 채널 개설, 네이버 플레이스 관리자 계정 확인, 원장님 사진 한 장.</div>
+<a href="Main.dc.html" style="align-self: center; font-size: 15px; font-weight: 600">메인으로</a>
+</div>
+</section>
+<dc-import name="FdFooter" hint-size="100%,220px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

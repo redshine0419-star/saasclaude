@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>관리자 · 상담 관리</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif;background:#F4F2EE;color:#1B2430}
+a{color:#1E5645}a:hover{color:#123A2E}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1000px; display: flex; background: #F4F2EE; color: #1B2430; font-family: 'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif; font-variant-numeric: tabular-nums">
+<dc-import name="AdminSide" active="leads" hint-size="240px,1000px"></dc-import>
+<main style="flex: 1; padding: 32px 0 32px 40px; display: flex; gap: 24px">
+<div style="flex: 1; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<h1 style="margin: 0; font-size: 26px; font-weight: 700">상담 관리</h1>
+<input type="search" aria-label="학부모 이름·연락처 검색" placeholder="이름·연락처 검색" style="width: 240px; height: 44px; padding: 0 14px; border: 1px solid #D5D0C6; border-radius: 8px; font: inherit; font-size: 14px; background: #FFFFFF">
+</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<button type="button" style="height: 40px; padding: 0 14px; border: none; border-radius: 20px; background: #1B2430; color: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600">전체 24</button>
+<button type="button" style="height: 40px; padding: 0 14px; border: 1px solid #D5D0C6; border-radius: 20px; background: #FFFFFF; font: inherit; font-size: 14px">신규 3</button>
+<button type="button" style="height: 40px; padding: 0 14px; border: 1px solid #D5D0C6; border-radius: 20px; background: #FFFFFF; font: inherit; font-size: 14px">연락 완료 4</button>
+<button type="button" style="height: 40px; padding: 0 14px; border: 1px solid #D5D0C6; border-radius: 20px; background: #FFFFFF; font: inherit; font-size: 14px">테스트 예약 3</button>
+<button type="button" style="height: 40px; padding: 0 14px; border: 1px solid #D5D0C6; border-radius: 20px; background: #FFFFFF; font: inherit; font-size: 14px">등록 8</button>
+<button type="button" style="height: 40px; padding: 0 14px; border: 1px solid #D5D0C6; border-radius: 20px; background: #FFFFFF; font: inherit; font-size: 14px">미등록 6</button>
+</div>
+<div style="background: #FFFFFF; border-radius: 12px; overflow: hidden">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px">
+<thead><tr style="text-align: left; color: #5A6270; background: #FAF9F6"><th style="padding: 14px 16px; font-weight: 600">신청일</th><th style="padding: 14px 16px; font-weight: 600">학부모 · 학년</th><th style="padding: 14px 16px; font-weight: 600">희망</th><th style="padding: 14px 16px; font-weight: 600">유입</th><th style="padding: 14px 16px; font-weight: 600">상태</th><th style="padding: 14px 16px; font-weight: 600">모집 안내 동의</th></tr></thead>
+<tbody>
+<tr style="border-top: 1px solid #EEEAE2; background: #EEF5F1"><td style="padding: 14px 16px">09.29 14:02</td><td style="padding: 14px 16px; font-weight: 600">김○○ · 중2</td><td style="padding: 14px 16px">레벨테스트</td><td style="padding: 14px 16px">네이버 검색</td><td style="padding: 14px 16px"><span style="padding: 3px 8px; border-radius: 5px; background: #D8E8E0; color: #1E5645; font-weight: 700; font-size: 12px">테스트 예약</span></td><td style="padding: 14px 16px">동의</td></tr>
+<tr style="border-top: 1px solid #EEEAE2"><td style="padding: 14px 16px">09.28 21:40</td><td style="padding: 14px 16px; font-weight: 600">이○○ · 고1</td><td style="padding: 14px 16px">전화 상담</td><td style="padding: 14px 16px">카톡 채널</td><td style="padding: 14px 16px"><span style="padding: 3px 8px; border-radius: 5px; background: #FBF1CF; color: #5A4A12; font-weight: 700; font-size: 12px">신규</span></td><td style="padding: 14px 16px; color: #5A6270">미동의</td></tr>
+<tr style="border-top: 1px solid #EEEAE2"><td style="padding: 14px 16px">09.26 17:15</td><td style="padding: 14px 16px; font-weight: 600">박○○ · 중3</td><td style="padding: 14px 16px">레벨테스트</td><td style="padding: 14px 16px">네이버 플레이스</td><td style="padding: 14px 16px"><span style="padding: 3px 8px; border-radius: 5px; background: #F3E3DC; color: #8A3A1C; font-weight: 700; font-size: 12px">미등록</span></td><td style="padding: 14px 16px">동의</td></tr>
+<tr style="border-top: 1px solid #EEEAE2"><td style="padding: 14px 16px">09.25 10:03</td><td style="padding: 14px 16px; font-weight: 600">최○○ · 중1</td><td style="padding: 14px 16px">방문 상담</td><td style="padding: 14px 16px">블로그</td><td style="padding: 14px 16px"><span style="padding: 3px 8px; border-radius: 5px; background: #E6E9EE; color: #2C3747; font-weight: 700; font-size: 12px">연락 완료</span></td><td style="padding: 14px 16px">동의</td></tr>
+<tr style="border-top: 1px solid #EEEAE2"><td style="padding: 14px 16px">09.23 19:22</td><td style="padding: 14px 16px; font-weight: 600">정○○ · 고2</td><td style="padding: 14px 16px">레벨테스트</td><td style="padding: 14px 16px">AI 검색</td><td style="padding: 14px 16px"><span style="padding: 3px 8px; border-radius: 5px; background: #1E5645; color: #FFFFFF; font-weight: 700; font-size: 12px">등록</span></td><td style="padding: 14px 16px; color: #5A6270">미동의</td></tr>
+<tr style="border-top: 1px solid #EEEAE2"><td style="padding: 14px 16px">09.21 15:48</td><td style="padding: 14px 16px; font-weight: 600">강○○ · 중2</td><td style="padding: 14px 16px">레벨테스트</td><td style="padding: 14px 16px">네이버 검색</td><td style="padding: 14px 16px"><span style="padding: 3px 8px; border-radius: 5px; background: #1E5645; color: #FFFFFF; font-weight: 700; font-size: 12px">등록</span></td><td style="padding: 14px 16px">동의</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<aside style="width: 420px; box-sizing: border-box; padding: 28px; background: #FFFFFF; border-left: 1px solid #E2DDD2; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 20px; font-weight: 700">김○○ 학부모</div>
+<div style="font-size: 14px; color: #5A6270">중2 · 010-****-1234 · 네이버 검색 “[OO동 중등 수학학원]”</div>
+</div>
+<div style="display: flex; gap: 8px">
+<a href="tel:0000000000" style="flex: 1; height: 44px; border-radius: 8px; background: #1E5645; color: #FFFFFF; text-decoration: none; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center">전화</a>
+<button type="button" style="flex: 1; height: 44px; border: 1px solid #D5D0C6; border-radius: 8px; background: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600">알림톡 보내기</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="lead-status" style="font-size: 13px; font-weight: 600; color: #5A6270">상태</label>
+<select id="lead-status" style="height: 44px; padding: 0 10px; border: 1px solid #D5D0C6; border-radius: 8px; font: inherit; font-size: 14px"><option>테스트 예약 · 10.01(목) 17:00</option><option>신규</option><option>연락 완료</option><option>등록</option><option>미등록</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="lead-memo" style="font-size: 13px; font-weight: 600; color: #5A6270">원장 메모</label>
+<textarea id="lead-memo" style="height: 72px; padding: 10px 12px; border: 1px solid #D5D0C6; border-radius: 8px; font: inherit; font-size: 14px; resize: none">[함수 단원 약함. 다른 학원 다니다 옮기려는 중]</textarea></div>
+<div style="display: flex; flex-direction: column; gap: 0">
+<div style="font-size: 13px; font-weight: 600; color: #5A6270; margin-bottom: 12px">진행 기록</div>
+<div style="display: flex; gap: 12px; padding-bottom: 16px"><div style="width: 10px; height: 10px; margin-top: 5px; border-radius: 5px; background: #1B2430; flex-shrink: 0"></div><div><div style="font-size: 14px; font-weight: 600">홈페이지 상담 신청</div><div style="font-size: 13px; color: #5A6270">09.29 14:02</div></div></div>
+<div style="display: flex; gap: 12px; padding-bottom: 16px"><div style="width: 10px; height: 10px; margin-top: 5px; border-radius: 5px; background: #1E5645; flex-shrink: 0"></div><div><div style="font-size: 14px; font-weight: 600">알림톡 자동 발송 · 접수 확인</div><div style="font-size: 13px; color: #5A6270">09.29 14:02 · 전달 완료</div></div></div>
+<div style="display: flex; gap: 12px; padding-bottom: 16px"><div style="width: 10px; height: 10px; margin-top: 5px; border-radius: 5px; background: #1B2430; flex-shrink: 0"></div><div><div style="font-size: 14px; font-weight: 600">원장 통화 · 테스트 일정 확정</div><div style="font-size: 13px; color: #5A6270">09.29 16:30</div></div></div>
+<div style="display: flex; gap: 12px"><div style="width: 10px; height: 10px; margin-top: 5px; border-radius: 5px; border: 2px dashed #1E5645; box-sizing: border-box; flex-shrink: 0"></div><div><div style="font-size: 14px; font-weight: 600">예정 · 테스트 전날 리마인드</div><div style="font-size: 13px; color: #5A6270">09.30 18:00 자동 발송</div></div></div>
+</div>
+</aside>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

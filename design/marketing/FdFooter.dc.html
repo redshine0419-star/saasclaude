@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>공통 · 푸터</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<footer style="width: 100%; box-sizing: border-box; padding: 48px clamp(20px, 4vw, 56px); background: #0E1730; color: #B8C0CF; font-family: 'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif; font-size: 14px; line-height: 1.9">
+<div style="max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 32px">
+<div>
+<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px"><svg width="20" height="20" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9" fill="#F5B700"></circle><circle cx="11" cy="11" r="3.5" fill="#0E1730"></circle></svg><span style="font-size: 20px; font-weight: 700; color: #FFFFFF">첫등원</span></div>
+<div>동네 학원·교습소 전용 홈페이지와 상담 관리</div>
+<div>상호 [상호명] · 대표 [이름] · 사업자등록번호 [000-00-00000]</div>
+<div>[주소] · [대표 전화] · [이메일]</div>
+</div>
+<div style="display: flex; gap: 24px; align-items: flex-start">
+<a href="Consult.dc.html" style="color: #FFFFFF">개인정보처리방침</a>
+<a href="Consult.dc.html" style="color: #B8C0CF">이용약관</a>
+<a href="Consult.dc.html" style="color: #B8C0CF">카카오톡 채널</a>
+</div>
+</div>
+</footer>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":220}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

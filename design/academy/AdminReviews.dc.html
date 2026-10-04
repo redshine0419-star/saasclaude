@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>A-06 후기·성과 관리</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#F4F2EE}a{color:#1E5645}a:hover{color:#123A2E}</style>
+</helmet>
+<div style="width: 1440px; height: 1000px; display: flex; background: #F4F2EE; color: #1B2430; font-family: 'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif; font-variant-numeric: tabular-nums">
+<dc-import name="AdminSide" active="reviews" hint-size="240px,1000px"></dc-import>
+<main style="flex: 1; padding: 32px 40px; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<div style="display: flex; gap: 8px">
+<button type="button" style="height: 44px; padding: 0 18px; border: none; border-radius: 22px; background: #1B2430; color: #FFFFFF; font: inherit; font-weight: 600">학부모 후기 5</button>
+<button type="button" style="height: 44px; padding: 0 18px; border: 1px solid #D5D0C6; border-radius: 22px; background: #FFFFFF; font: inherit">성적 변화 사례 2</button>
+</div>
+<button type="button" style="height: 44px; padding: 0 18px; border: none; border-radius: 8px; background: #1E5645; color: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600">후기 추가</button>
+</div>
+<div style="display: flex; gap: 20px; flex: 1">
+<div style="flex: 1; display: flex; flex-direction: column; gap: 12px">
+<div style="padding: 20px; background: #FFFFFF; border: 2px solid #1E5645; border-radius: 12px; display: flex; gap: 16px; align-items: center"><div style="flex: 1"><div style="font-size: 15px; font-weight: 600">“[후기 앞부분 한 줄…]”</div><div style="font-size: 13px; color: #5A6270; margin-top: 4px">중2 학부모 · 네이버 플레이스 · 동의 확인됨</div></div><span style="padding: 3px 8px; border-radius: 5px; background: #D8E8E0; color: #1E5645; font-size: 12px; font-weight: 700">홈에 노출</span></div>
+<div style="padding: 20px; background: #FFFFFF; border: 1px solid #E2DDD2; border-radius: 12px; display: flex; gap: 16px; align-items: center"><div style="flex: 1"><div style="font-size: 15px; font-weight: 600">“[후기 앞부분 한 줄…]”</div><div style="font-size: 13px; color: #5A6270; margin-top: 4px">고1 학부모 · 카톡 채널 · 동의 확인됨</div></div><span style="padding: 3px 8px; border-radius: 5px; background: #D8E8E0; color: #1E5645; font-size: 12px; font-weight: 700">홈에 노출</span></div>
+<div style="padding: 20px; background: #FFFFFF; border: 1px solid #E2DDD2; border-radius: 12px; display: flex; gap: 16px; align-items: center"><div style="flex: 1"><div style="font-size: 15px; font-weight: 600">“[후기 앞부분 한 줄…]”</div><div style="font-size: 13px; color: #5A6270; margin-top: 4px">중1 학부모 · 직접 전달 · 동의 확인됨</div></div><span style="padding: 3px 8px; border-radius: 5px; background: #E6E9EE; color: #2C3747; font-size: 12px; font-weight: 700">후기 페이지만</span></div>
+<div style="padding: 20px; background: #FFFFFF; border: 1px solid #E2DDD2; border-radius: 12px; display: flex; gap: 16px; align-items: center"><div style="flex: 1"><div style="font-size: 15px; font-weight: 600">“[후기 앞부분 한 줄…]”</div><div style="font-size: 13px; color: #8A3A1C; margin-top: 4px">중3 학부모 · 네이버 플레이스 · 동의 미확인</div></div><span style="padding: 3px 8px; border-radius: 5px; background: #F3E3DC; color: #8A3A1C; font-size: 12px; font-weight: 700">비공개</span></div>
+</div>
+<div style="width: 440px; padding: 24px; background: #FFFFFF; border-radius: 12px; display: flex; flex-direction: column; gap: 16px">
+<div style="font-size: 16px; font-weight: 700">후기 편집</div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="r-body" style="font-size: 13px; font-weight: 600; color: #5A6270">후기 원문</label><textarea id="r-body" style="height: 140px; padding: 12px; border: 1px solid #D5D0C6; border-radius: 8px; font: inherit; font-size: 14px; resize: none">[원문 그대로 붙여넣기. 맞춤법 외 수정 금지]</textarea></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="r-who" style="font-size: 13px; font-weight: 600; color: #5A6270">작성자 표기</label><input id="r-who" type="text" placeholder="중2 학부모" style="height: 44px; padding: 0 12px; border: 1px solid #D5D0C6; border-radius: 8px; font: inherit; font-size: 14px"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="r-src" style="font-size: 13px; font-weight: 600; color: #5A6270">출처</label><select id="r-src" style="height: 44px; padding: 0 10px; border: 1px solid #D5D0C6; border-radius: 8px; font: inherit; font-size: 14px"><option>네이버 플레이스</option><option>카카오톡 채널</option><option>직접 전달</option></select></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px; padding: 16px; background: #F4F2EE; border-radius: 10px">
+<div style="display: flex; gap: 10px; align-items: center"><input id="r-c1" type="checkbox" style="width: 20px; height: 20px"><label for="r-c1" style="font-size: 14px">작성자에게 게재 동의를 받았습니다</label></div>
+<div style="display: flex; gap: 10px; align-items: center"><input id="r-c2" type="checkbox" style="width: 20px; height: 20px"><label for="r-c2" style="font-size: 14px">홈 화면에도 노출</label></div>
+</div>
+<div style="font-size: 13px; line-height: 1.7; color: #5A6270">동의가 체크되지 않은 후기는 게시되지 않습니다. 성적 사례는 동의서 파일 첨부가 필수입니다.</div>
+<button type="button" style="margin-top: auto; height: 48px; border: none; border-radius: 10px; background: #1E5645; color: #FFFFFF; font: inherit; font-size: 15px; font-weight: 700">저장</button>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

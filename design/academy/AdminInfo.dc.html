@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>A-08 학원 정보·교습비</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#F4F2EE}a{color:#1E5645}a:hover{color:#123A2E}</style>
+</helmet>
+<div style="width: 1440px; height: 1000px; display: flex; background: #F4F2EE; color: #1B2430; font-family: 'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif; font-variant-numeric: tabular-nums">
+<dc-import name="AdminSide" active="info" hint-size="240px,1000px"></dc-import>
+<main style="flex: 1; padding: 32px 40px; display: flex; flex-direction: column; gap: 16px">
+<h1 style="margin: 0; font-size: 26px; font-weight: 700">학원 정보·교습비</h1>
+<div style="padding: 16px 20px; background: #F3E3DC; border-radius: 12px; display: flex; gap: 16px; align-items: center">
+<div style="flex: 1; font-size: 14px; line-height: 1.6; color: #5A2A16"><b>네이버 플레이스와 정보가 다릅니다:</b> 운영 시간 (홈페이지 평일 14:00–22:00 / 플레이스 13:00–22:00). 검색에서 신뢰도가 떨어질 수 있어요.</div>
+<button type="button" style="height: 40px; padding: 0 14px; border: 1px solid #8A3A1C; border-radius: 8px; background: #FFFFFF; color: #8A3A1C; font: inherit; font-size: 14px; font-weight: 600">확인하기</button>
+</div>
+<div style="display: flex; gap: 20px; flex: 1">
+<div style="flex: 1; padding: 24px; background: #FFFFFF; border-radius: 12px; display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 16px; font-weight: 700">기본 정보</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="i-1" style="font-size: 13px; font-weight: 600; color: #5A6270">학원명</label><input id="i-1" type="text" placeholder="[학원명]" style="height: 44px; padding: 0 12px; border: 1px solid #D5D0C6; border-radius: 8px; font: inherit; font-size: 14px"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="i-2" style="font-size: 13px; font-weight: 600; color: #5A6270">학원등록번호</label><input id="i-2" type="text" placeholder="제0000호" style="height: 44px; padding: 0 12px; border: 1px solid #D5D0C6; border-radius: 8px; font: inherit; font-size: 14px"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="i-3" style="font-size: 13px; font-weight: 600; color: #5A6270">대표 전화</label><input id="i-3" type="tel" placeholder="000-0000-0000" style="height: 44px; padding: 0 12px; border: 1px solid #D5D0C6; border-radius: 8px; font: inherit; font-size: 14px"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="i-4" style="font-size: 13px; font-weight: 600; color: #5A6270">운영 시간</label><input id="i-4" type="text" placeholder="평일 14:00–22:00" style="height: 44px; padding: 0 12px; border: 1px solid #D5D0C6; border-radius: 8px; font: inherit; font-size: 14px"></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="i-5" style="font-size: 13px; font-weight: 600; color: #5A6270">주소</label><input id="i-5" type="text" placeholder="도로명 주소" style="height: 44px; padding: 0 12px; border: 1px solid #D5D0C6; border-radius: 8px; font: inherit; font-size: 14px"></div>
+<div style="font-size: 16px; font-weight: 700; padding-top: 10px">원장 소개</div>
+<div style="display: flex; gap: 14px">
+<button type="button" style="width: 110px; height: 140px; flex-shrink: 0; border: 1px dashed #B7B0A2; border-radius: 10px; background: #FAF9F6; font: inherit; font-size: 13px; color: #3E4652">사진 변경</button>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 6px"><label for="i-6" style="font-size: 13px; font-weight: 600; color: #5A6270">한 줄 소개</label><input id="i-6" type="text" placeholder="아이가 왜 틀렸는지 알 때까지 같이 봅니다" style="height: 44px; padding: 0 12px; border: 1px solid #D5D0C6; border-radius: 8px; font: inherit; font-size: 14px"><label for="i-7" style="font-size: 13px; font-weight: 600; color: #5A6270; margin-top: 4px">경력</label><input id="i-7" type="text" placeholder="OO대 수학교육과 · 운영 N년" style="height: 44px; padding: 0 12px; border: 1px solid #D5D0C6; border-radius: 8px; font: inherit; font-size: 14px"></div>
+</div>
+</div>
+<div style="width: 460px; padding: 24px; box-sizing: border-box; background: #FFFFFF; border-radius: 12px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center"><div style="font-size: 16px; font-weight: 700">교습비</div><button type="button" style="height: 36px; padding: 0 12px; border: 1px solid #D5D0C6; border-radius: 8px; background: #FFFFFF; font: inherit; font-size: 13px">행 추가</button></div>
+<table style="width: 100%; border-collapse: collapse; font-size: 14px">
+<thead><tr style="text-align: left; color: #5A6270"><th style="padding: 8px 0; font-weight: 500">과정</th><th style="padding: 8px 0; font-weight: 500">월 교습비</th></tr></thead>
+<tbody>
+<tr style="border-top: 1px solid #EEEAE2"><td style="padding: 12px 0">[중1 기본반]</td><td style="padding: 8px 0"><input type="text" aria-label="중1 기본반 교습비" placeholder="000,000원" style="width: 140px; height: 38px; padding: 0 10px; border: 1px solid #D5D0C6; border-radius: 8px; font: inherit; font-size: 14px"></td></tr>
+<tr style="border-top: 1px solid #EEEAE2"><td style="padding: 12px 0">[중2 내신반]</td><td style="padding: 8px 0"><input type="text" aria-label="중2 내신반 교습비" placeholder="000,000원" style="width: 140px; height: 38px; padding: 0 10px; border: 1px solid #D5D0C6; border-radius: 8px; font: inherit; font-size: 14px"></td></tr>
+<tr style="border-top: 1px solid #EEEAE2"><td style="padding: 12px 0">[고1 내신반]</td><td style="padding: 8px 0"><input type="text" aria-label="고1 내신반 교습비" placeholder="000,000원" style="width: 140px; height: 38px; padding: 0 10px; border: 1px solid #D5D0C6; border-radius: 8px; font: inherit; font-size: 14px"></td></tr>
+</tbody>
+</table>
+<div style="padding: 14px; border-radius: 10px; background: #FBF1CF; font-size: 13px; line-height: 1.7; color: #3E3510">교육지원청에 신고한 금액과 같아야 합니다. 금액을 바꾸면 변경 신고 여부를 한 번 더 확인하는 창이 뜹니다.</div>
+<button type="button" style="margin-top: auto; height: 48px; border: none; border-radius: 10px; background: #1E5645; color: #FFFFFF; font: inherit; font-size: 15px; font-weight: 700">저장</button>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

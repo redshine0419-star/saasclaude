@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>A-04 발송 내역·수신 동의</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#F4F2EE}a{color:#1E5645}a:hover{color:#123A2E}</style>
+</helmet>
+<div style="width: 1440px; height: 1000px; display: flex; background: #F4F2EE; color: #1B2430; font-family: 'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif; font-variant-numeric: tabular-nums">
+<dc-import name="AdminSide" active="kakaolog" hint-size="240px,1000px"></dc-import>
+<main style="flex: 1; padding: 32px 40px; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<h1 style="margin: 0; font-size: 26px; font-weight: 700">발송 내역·수신 동의</h1>
+<select aria-label="기간" style="height: 44px; padding: 0 12px; border: 1px solid #D5D0C6; border-radius: 8px; font: inherit; font-size: 14px; background: #FFFFFF"><option>2026년 9월</option></select>
+</div>
+<div style="display: flex; gap: 20px; flex: 1">
+<div style="flex: 1; display: flex; flex-direction: column; gap: 16px">
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+<div style="padding: 18px; background: #FFFFFF; border-radius: 12px"><div style="font-size: 13px; color: #5A6270">총 발송</div><div style="font-size: 26px; font-weight: 700; margin-top: 4px">86건</div></div>
+<div style="padding: 18px; background: #FFFFFF; border-radius: 12px"><div style="font-size: 13px; color: #5A6270">카톡 전달 실패 → 문자 대체</div><div style="font-size: 26px; font-weight: 700; margin-top: 4px">4건</div></div>
+<div style="padding: 18px; background: #FFFFFF; border-radius: 12px"><div style="font-size: 13px; color: #5A6270">예상 비용</div><div style="font-size: 26px; font-weight: 700; margin-top: 4px">[0,000]원</div></div>
+</div>
+<div style="background: #FFFFFF; border-radius: 12px; overflow: hidden">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px">
+<thead><tr style="text-align: left; color: #5A6270; background: #FAF9F6"><th style="padding: 14px 16px; font-weight: 600">일시</th><th style="padding: 14px 16px; font-weight: 600">받는 사람</th><th style="padding: 14px 16px; font-weight: 600">메시지</th><th style="padding: 14px 16px; font-weight: 600">유형</th><th style="padding: 14px 16px; font-weight: 600">결과</th></tr></thead>
+<tbody>
+<tr style="border-top: 1px solid #EEEAE2"><td style="padding: 14px 16px">09.29 18:00</td><td style="padding: 14px 16px">최○○ 학부모</td><td style="padding: 14px 16px">② 테스트 전날 리마인드</td><td style="padding: 14px 16px">정보성</td><td style="padding: 14px 16px; color: #1E5645; font-weight: 600">전달</td></tr>
+<tr style="border-top: 1px solid #EEEAE2"><td style="padding: 14px 16px">09.29 14:02</td><td style="padding: 14px 16px">김○○ 학부모</td><td style="padding: 14px 16px">① 상담 접수 확인</td><td style="padding: 14px 16px">정보성</td><td style="padding: 14px 16px; color: #1E5645; font-weight: 600">전달</td></tr>
+<tr style="border-top: 1px solid #EEEAE2"><td style="padding: 14px 16px">09.28 21:40</td><td style="padding: 14px 16px">이○○ 학부모</td><td style="padding: 14px 16px">① 상담 접수 확인</td><td style="padding: 14px 16px">정보성</td><td style="padding: 14px 16px; color: #8A3A1C; font-weight: 600">문자 대체</td></tr>
+<tr style="border-top: 1px solid #EEEAE2"><td style="padding: 14px 16px">09.29 10:00</td><td style="padding: 14px 16px">박○○ 학부모</td><td style="padding: 14px 16px">③ 미등록 후속 안내</td><td style="padding: 14px 16px">광고성</td><td style="padding: 14px 16px; color: #1E5645; font-weight: 600">전달</td></tr>
+<tr style="border-top: 1px solid #EEEAE2"><td style="padding: 14px 16px">09.25 10:00</td><td style="padding: 14px 16px">동의자 41명</td><td style="padding: 14px 16px">④ 겨울방학 특강 모집</td><td style="padding: 14px 16px">광고성</td><td style="padding: 14px 16px; color: #1E5645; font-weight: 600">40 전달 · 1 실패</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div style="width: 360px; padding: 24px; background: #FFFFFF; border-radius: 12px; display: flex; flex-direction: column; gap: 16px">
+<div style="font-size: 16px; font-weight: 700">수신 동의 현황</div>
+<div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #EEEAE2"><span>모집 안내 수신 동의</span><b>41명</b></div>
+<div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #EEEAE2"><span>야간 수신 동의</span><b>12명</b></div>
+<div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #EEEAE2"><span>수신 거부</span><b>3명</b></div>
+<div style="padding: 14px; border-radius: 10px; background: #FBF1CF; font-size: 13px; line-height: 1.7; color: #3E3510">광고성 수신 동의는 2년마다 재확인해야 합니다. 만료 [30]일 전 확인 메시지가 자동 발송됩니다.</div>
+<button type="button" style="height: 44px; border: 1px solid #D5D0C6; border-radius: 8px; background: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600">동의 이력 내려받기</button>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

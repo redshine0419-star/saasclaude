@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>관리자 · 대시보드</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif;background:#F4F2EE;color:#1B2430}
+a{color:#1E5645}a:hover{color:#123A2E}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1000px; display: flex; background: #F4F2EE; color: #1B2430; font-family: 'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif; font-variant-numeric: tabular-nums">
+<dc-import name="AdminSide" active="dashboard" hint-size="240px,1000px"></dc-import>
+<main style="flex: 1; padding: 32px 40px; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<h1 style="margin: 0; font-size: 26px; font-weight: 700">이번 달 현황</h1>
+<div style="display: flex; gap: 10px">
+<select aria-label="기간 선택" style="height: 44px; padding: 0 12px; border: 1px solid #D5D0C6; border-radius: 8px; font: inherit; font-size: 14px; background: #FFFFFF"><option>2026년 9월</option><option>2026년 8월</option></select>
+<a href="Main.dc.html" style="height: 44px; padding: 0 16px; border: 1px solid #D5D0C6; border-radius: 8px; background: #FFFFFF; color: #1B2430; text-decoration: none; font-size: 14px; font-weight: 600; display: flex; align-items: center">홈페이지 보기</a>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+<div style="padding: 22px; background: #FFFFFF; border-radius: 12px; display: flex; flex-direction: column; gap: 8px"><div style="font-size: 14px; color: #5A6270">홈페이지 방문</div><div style="font-size: 32px; font-weight: 700">1,284</div><div style="font-size: 13px; color: #1E5645">지난달 대비 +18%</div></div>
+<div style="padding: 22px; background: #FFFFFF; border-radius: 12px; display: flex; flex-direction: column; gap: 8px"><div style="font-size: 14px; color: #5A6270">상담 신청</div><div style="font-size: 32px; font-weight: 700">24</div><div style="font-size: 13px; color: #1E5645">지난달 대비 +6건</div></div>
+<div style="padding: 22px; background: #FFFFFF; border-radius: 12px; display: flex; flex-direction: column; gap: 8px"><div style="font-size: 14px; color: #5A6270">레벨테스트 진행</div><div style="font-size: 32px; font-weight: 700">13</div><div style="font-size: 13px; color: #5A6270">노쇼 1건 (리마인드 발송 후)</div></div>
+<div style="padding: 22px; background: #1E5645; color: #FFFFFF; border-radius: 12px; display: flex; flex-direction: column; gap: 8px"><div style="font-size: 14px; color: #CFE3DA">신규 등록</div><div style="font-size: 32px; font-weight: 700">8명</div><div style="font-size: 13px; color: #CFE3DA">상담 대비 등록률 33%</div></div>
+</div>
+
+<div style="display: flex; gap: 16px; flex: 1">
+<div style="flex: 1; display: flex; flex-direction: column; gap: 16px">
+<div style="padding: 24px; background: #FFFFFF; border-radius: 12px; display: flex; flex-direction: column; gap: 16px">
+<div style="font-size: 16px; font-weight: 700">방문에서 등록까지</div>
+<div style="display: flex; flex-direction: column; gap: 12px; font-size: 14px">
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 96px; color: #5A6270">방문</span><div style="flex: 1; height: 28px; background: #EDEAE3; border-radius: 6px"><div style="width: 100%; height: 28px; background: #9FBFB2; border-radius: 6px"></div></div><span style="width: 56px; text-align: right; font-weight: 600">1,284</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 96px; color: #5A6270">상담 신청</span><div style="flex: 1; height: 28px; background: #EDEAE3; border-radius: 6px"><div style="width: 34%; height: 28px; background: #5E9480; border-radius: 6px"></div></div><span style="width: 56px; text-align: right; font-weight: 600">24</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 96px; color: #5A6270">레벨테스트</span><div style="flex: 1; height: 28px; background: #EDEAE3; border-radius: 6px"><div style="width: 19%; height: 28px; background: #2F6E5A; border-radius: 6px"></div></div><span style="width: 56px; text-align: right; font-weight: 600">13</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 96px; color: #5A6270">등록</span><div style="flex: 1; height: 28px; background: #EDEAE3; border-radius: 6px"><div style="width: 12%; height: 28px; background: #1E5645; border-radius: 6px"></div></div><span style="width: 56px; text-align: right; font-weight: 600">8</span></div>
+</div>
+<div style="font-size: 12px; color: #5A6270">방문 대비 신청 1.9% · 신청 대비 테스트 54% · 테스트 대비 등록 62%</div>
+</div>
+<div style="padding: 24px; background: #FFFFFF; border-radius: 12px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between"><div style="font-size: 16px; font-weight: 700">상담 신청 유입 경로</div><div style="font-size: 13px; color: #5A6270">GA4 기준</div></div>
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px">
+<div style="padding: 14px; border-radius: 10px; background: #F4F2EE"><div style="font-size: 13px; color: #5A6270">네이버 검색</div><div style="font-size: 22px; font-weight: 700; margin-top: 4px">9</div></div>
+<div style="padding: 14px; border-radius: 10px; background: #F4F2EE"><div style="font-size: 13px; color: #5A6270">네이버 플레이스</div><div style="font-size: 22px; font-weight: 700; margin-top: 4px">7</div></div>
+<div style="padding: 14px; border-radius: 10px; background: #F4F2EE"><div style="font-size: 13px; color: #5A6270">카톡 채널</div><div style="font-size: 22px; font-weight: 700; margin-top: 4px">4</div></div>
+<div style="padding: 14px; border-radius: 10px; background: #F4F2EE"><div style="font-size: 13px; color: #5A6270">블로그·카페</div><div style="font-size: 22px; font-weight: 700; margin-top: 4px">3</div></div>
+<div style="padding: 14px; border-radius: 10px; background: #FBF1CF"><div style="font-size: 13px; color: #5A4A12">AI 검색</div><div style="font-size: 22px; font-weight: 700; margin-top: 4px">1</div></div>
+</div>
+</div>
+</div>
+
+<div style="width: 400px; padding: 24px; background: #FFFFFF; border-radius: 12px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center"><div style="font-size: 16px; font-weight: 700">오늘 연락할 상담</div><a href="AdminLeads.dc.html" style="font-size: 14px">전체 보기</a></div>
+<div style="padding: 16px; border: 1px solid #E8E4DB; border-radius: 10px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between"><span style="font-weight: 700">김○○ 학부모 · 중2</span><span style="padding: 2px 8px; border-radius: 5px; background: #FBF1CF; color: #5A4A12; font-size: 12px; font-weight: 700">신규 · 2시간 전</span></div>
+<div style="font-size: 14px; color: #5A6270">레벨테스트 희망 · 네이버 검색</div>
+<a href="tel:0000000000" style="height: 44px; border-radius: 8px; background: #1E5645; color: #FFFFFF; text-decoration: none; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center">전화 걸기</a>
+</div>
+<div style="padding: 16px; border: 1px solid #E8E4DB; border-radius: 10px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between"><span style="font-weight: 700">이○○ 학부모 · 고1</span><span style="padding: 2px 8px; border-radius: 5px; background: #FBF1CF; color: #5A4A12; font-size: 12px; font-weight: 700">신규 · 어제</span></div>
+<div style="font-size: 14px; color: #5A6270">전화 상담 희망 · 카톡 채널</div>
+<a href="tel:0000000000" style="height: 44px; border-radius: 8px; background: #1E5645; color: #FFFFFF; text-decoration: none; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center">전화 걸기</a>
+</div>
+<div style="padding: 16px; border: 1px solid #E8E4DB; border-radius: 10px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between"><span style="font-weight: 700">박○○ 학부모 · 중3</span><span style="padding: 2px 8px; border-radius: 5px; background: #F3E3DC; color: #8A3A1C; font-size: 12px; font-weight: 700">테스트 후 3일</span></div>
+<div style="font-size: 14px; color: #5A6270">결과 상담 후 미등록 · 후속 안내 예정</div>
+<a href="AdminLeads.dc.html" style="height: 44px; border-radius: 8px; border: 1px solid #D5D0C6; color: #1B2430; text-decoration: none; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center">상세 보기</a>
+</div>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

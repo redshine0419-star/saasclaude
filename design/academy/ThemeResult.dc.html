@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>테마 B · 성과 중심형</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800&amp;family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#FFFFFF}a{color:#1D3FA8}a:hover{color:#132C7A}</style>
+</helmet>
+<div style="width: 1440px; height: 4300px; display: flex; flex-direction: column; background: #FFFFFF; color: #0F1B2D; font-family: 'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif; font-variant-numeric: tabular-nums">
+
+<header style="height: 76px; box-sizing: border-box; padding: 0 80px; display: flex; align-items: center; justify-content: space-between; background: #0F1B2D; color: #FFFFFF">
+<div style="display: flex; align-items: center; gap: 14px"><span style="font-family: 'Gothic A1',sans-serif; font-size: 24px; font-weight: 800; letter-spacing: -0.5px">[학원명]</span><span style="padding: 3px 8px; border: 1px solid #5B6B85; border-radius: 4px; font-size: 13px; color: #C7D0DE">내신·입시 수학</span></div>
+<nav style="display: flex; gap: 32px; font-size: 15px">
+<a href="#results" style="color: #FFFFFF; text-decoration: none; font-weight: 600">성적 결과</a>
+<a href="#system" style="color: #C7D0DE; text-decoration: none">시험 대비</a>
+<a href="#curriculum" style="color: #C7D0DE; text-decoration: none">커리큘럼</a>
+<a href="#teachers" style="color: #C7D0DE; text-decoration: none">강사진</a>
+<a href="#fee" style="color: #C7D0DE; text-decoration: none">교습비</a>
+<a href="#visit" style="color: #C7D0DE; text-decoration: none">오시는 길</a>
+</nav>
+<a href="#apply" style="height: 44px; padding: 0 20px; border-radius: 6px; background: {{accent}}; color: #FFFFFF; text-decoration: none; font-size: 15px; font-weight: 700; display: flex; align-items: center">레벨테스트 신청</a>
+</header>
+
+<section style="padding: 80px 80px 88px; background: #0F1B2D; color: #FFFFFF; display: flex; gap: 64px; align-items: stretch">
+<div style="flex: 1; display: flex; flex-direction: column; gap: 28px; justify-content: center">
+<div style="font-size: 15px; font-weight: 600; color: #9DB2E8">[OO고 · OO여고 · OO고] 내신 전문</div>
+<h1 style="margin: 0; font-family: 'Gothic A1',sans-serif; font-size: 50px; line-height: 1.24; font-weight: 800; letter-spacing: -1.5px">지난 학기 수강생 [N]명 중<br>[N]명이 내신 1등급</h1>
+<p style="margin: 0; font-size: 18px; line-height: 1.75; color: #C7D0DE; max-width: 560px">학교별 기출과 출제 경향을 시험 4주 전부터 반복합니다. 결과는 매 학기 이 페이지에 그대로 공개합니다.</p>
+<div style="display: flex; gap: 12px">
+<a href="#apply" style="height: 56px; padding: 0 26px; border-radius: 6px; background: {{accent}}; color: #FFFFFF; text-decoration: none; font-size: 17px; font-weight: 700; display: flex; align-items: center">레벨테스트 신청</a>
+<a href="#results" style="height: 56px; padding: 0 24px; border-radius: 6px; border: 1px solid #5B6B85; color: #FFFFFF; text-decoration: none; font-size: 17px; font-weight: 600; display: flex; align-items: center">학교별 결과 보기</a>
+</div>
+</div>
+<div style="width: 520px; padding: 32px; border-radius: 12px; background: #17263F; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><div style="font-size: 17px; font-weight: 700">학교별 평균 점수 변화</div><div style="font-size: 13px; color: #9AA8BF">[2026 1학기 기말]</div></div>
+<table style="width: 100%; border-collapse: collapse; font-size: 16px">
+<thead><tr style="color: #9AA8BF; font-size: 13px; text-align: left"><th style="padding: 8px 0; font-weight: 500">학교</th><th style="padding: 8px 0; font-weight: 500">등록 전</th><th style="padding: 8px 0; font-weight: 500">이번 시험</th><th style="padding: 8px 0; font-weight: 500; text-align: right">변화</th></tr></thead>
+<tbody>
+<tr style="border-top: 1px solid #2A3B5A"><td style="padding: 14px 0">[OO고 2학년]</td><td style="padding: 14px 0">[00]점</td><td style="padding: 14px 0; font-weight: 700">[00]점</td><td style="padding: 14px 0; text-align: right; color: #9DB2E8; font-weight: 700">+[00]</td></tr>
+<tr style="border-top: 1px solid #2A3B5A"><td style="padding: 14px 0">[OO여고 1학년]</td><td style="padding: 14px 0">[00]점</td><td style="padding: 14px 0; font-weight: 700">[00]점</td><td style="padding: 14px 0; text-align: right; color: #9DB2E8; font-weight: 700">+[00]</td></tr>
+<tr style="border-top: 1px solid #2A3B5A"><td style="padding: 14px 0">[OO고 1학년]</td><td style="padding: 14px 0">[00]점</td><td style="padding: 14px 0; font-weight: 700">[00]점</td><td style="padding: 14px 0; text-align: right; color: #9DB2E8; font-weight: 700">+[00]</td></tr>
+</tbody>
+</table>
+<div style="font-size: 13px; line-height: 1.6; color: #9AA8BF">기준: 재원 3개월 이상 학생 전체 평균 · 개인 정보 비공개</div>
+</div>
+</section>
+
+<section id="results" style="padding: 96px 80px 0; display: flex; flex-direction: column; gap: 32px">
+<div style="display: flex; justify-content: space-between; align-items: flex-end">
+<h2 style="margin: 0; font-family: 'Gothic A1',sans-serif; font-size: 40px; font-weight: 800; letter-spacing: -1px">숫자로 보는 지난 학기</h2>
+<div style="display: flex; gap: 4px; padding: 4px; background: #F2F4F7; border-radius: 8px">
+<button type="button" style="height: 40px; padding: 0 16px; border: none; border-radius: 6px; background: #FFFFFF; font: inherit; font-size: 14px; font-weight: 700">2026 1학기</button>
+<button type="button" style="height: 40px; padding: 0 16px; border: none; border-radius: 6px; background: transparent; font: inherit; font-size: 14px; color: #4A5568">2025 2학기</button>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+<div style="padding: 28px; border: 1px solid #E2E6EC; border-radius: 10px"><div style="font-size: 14px; color: #4A5568">내신 1등급</div><div style="font-family: 'Gothic A1',sans-serif; font-size: 52px; font-weight: 800; margin-top: 8px">[N]<span style="font-size: 22px">명</span></div></div>
+<div style="padding: 28px; border: 1px solid #E2E6EC; border-radius: 10px"><div style="font-size: 14px; color: #4A5568">평균 상승 점수</div><div style="font-family: 'Gothic A1',sans-serif; font-size: 52px; font-weight: 800; margin-top: 8px">+[00]<span style="font-size: 22px">점</span></div></div>
+<div style="padding: 28px; border: 1px solid #E2E6EC; border-radius: 10px"><div style="font-size: 14px; color: #4A5568">재등록률</div><div style="font-family: 'Gothic A1',sans-serif; font-size: 52px; font-weight: 800; margin-top: 8px">[00]<span style="font-size: 22px">%</span></div></div>
+<div style="padding: 28px; border-radius: 10px; background: {{accent}}; color: #FFFFFF"><div style="font-size: 14px; color: #D6DEF7">대비한 학교</div><div style="font-family: 'Gothic A1',sans-serif; font-size: 52px; font-weight: 800; margin-top: 8px">[N]<span style="font-size: 22px">곳</span></div></div>
+</div>
+<div style="font-size: 13px; color: #4A5568">수치는 학원 자체 집계이며 집계 기준을 함께 공개합니다. [집계 기준 보기]</div>
+</section>
+
+<section id="system" style="padding: 120px 80px 0; display: flex; flex-direction: column; gap: 32px">
+<div style="display: flex; flex-direction: column; gap: 10px"><div style="font-size: 15px; font-weight: 700; color: {{accent}}">시험 대비 시스템</div><h2 style="margin: 0; font-family: 'Gothic A1',sans-serif; font-size: 40px; font-weight: 800; letter-spacing: -1px">시험 4주 전부터 정해진 순서대로</h2></div>
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid #E2E6EC; border-radius: 10px; overflow: hidden">
+<div style="padding: 24px; border-right: 1px solid #E2E6EC; display: flex; flex-direction: column; gap: 10px"><div style="font-family: 'Gothic A1',sans-serif; font-size: 22px; font-weight: 800">D-28</div><div style="font-size: 15px; font-weight: 700">범위 확정</div><div style="font-size: 14px; line-height: 1.7; color: #4A5568">학교별 시험 범위와 교과서·부교재 정리</div></div>
+<div style="padding: 24px; border-right: 1px solid #E2E6EC; display: flex; flex-direction: column; gap: 10px"><div style="font-family: 'Gothic A1',sans-serif; font-size: 22px; font-weight: 800">D-21</div><div style="font-size: 15px; font-weight: 700">개념 완성</div><div style="font-size: 14px; line-height: 1.7; color: #4A5568">단원별 확인 테스트, 오답 재풀이</div></div>
+<div style="padding: 24px; border-right: 1px solid #E2E6EC; display: flex; flex-direction: column; gap: 10px"><div style="font-family: 'Gothic A1',sans-serif; font-size: 22px; font-weight: 800">D-14</div><div style="font-size: 15px; font-weight: 700">기출 반복</div><div style="font-size: 14px; line-height: 1.7; color: #4A5568">해당 학교 최근 [N]개년 기출</div></div>
+<div style="padding: 24px; border-right: 1px solid #E2E6EC; display: flex; flex-direction: column; gap: 10px"><div style="font-family: 'Gothic A1',sans-serif; font-size: 22px; font-weight: 800">D-7</div><div style="font-size: 15px; font-weight: 700">실전 모의</div><div style="font-size: 14px; line-height: 1.7; color: #4A5568">시간 재고 푸는 예상 문제 [N]회</div></div>
+<div style="padding: 24px; background: #F2F4F7; display: flex; flex-direction: column; gap: 10px"><div style="font-family: 'Gothic A1',sans-serif; font-size: 22px; font-weight: 800; color: {{accent}}">시험 후</div><div style="font-size: 15px; font-weight: 700">결과 분석</div><div style="font-size: 14px; line-height: 1.7; color: #4A5568">학부모님께 개별 분석표 발송</div></div>
+</div>
+</section>
+
+<section id="curriculum" style="padding: 120px 80px 0; display: flex; flex-direction: column; gap: 32px">
+<h2 style="margin: 0; font-family: 'Gothic A1',sans-serif; font-size: 40px; font-weight: 800; letter-spacing: -1px">학년별 커리큘럼</h2>
+<div style="border: 1px solid #E2E6EC; border-radius: 10px; overflow: hidden">
+<table style="width: 100%; border-collapse: collapse; font-size: 15px; table-layout: fixed">
+<thead><tr style="background: #F2F4F7; text-align: left"><th style="padding: 16px 20px; width: 120px">학년</th><th style="padding: 16px 20px">1학기</th><th style="padding: 16px 20px">여름방학</th><th style="padding: 16px 20px">2학기</th><th style="padding: 16px 20px">겨울방학</th></tr></thead>
+<tbody>
+<tr style="border-top: 1px solid #E2E6EC"><td style="padding: 18px 20px; font-weight: 700">고1</td><td style="padding: 18px 20px">[공통수학1 내신]</td><td style="padding: 18px 20px">[공통수학2 선행]</td><td style="padding: 18px 20px">[공통수학2 내신]</td><td style="padding: 18px 20px">[대수 선행]</td></tr>
+<tr style="border-top: 1px solid #E2E6EC"><td style="padding: 18px 20px; font-weight: 700">고2</td><td style="padding: 18px 20px">[대수 내신]</td><td style="padding: 18px 20px">[미적분Ⅰ 선행]</td><td style="padding: 18px 20px">[미적분Ⅰ 내신]</td><td style="padding: 18px 20px">[수능 기출 입문]</td></tr>
+<tr style="border-top: 1px solid #E2E6EC"><td style="padding: 18px 20px; font-weight: 700">고3</td><td style="padding: 18px 20px">[선택과목 내신]</td><td style="padding: 18px 20px">[수능 실전]</td><td style="padding: 18px 20px" colspan="2">[수능 파이널 · 면접 대비]</td></tr>
+</tbody>
+</table>
+</div>
+<div style="font-size: 13px; color: #4A5568">[과목명은 실제 교육과정에 맞춰 교체]</div>
+</section>
+
+<section style="padding: 120px 80px 0; display: flex; flex-direction: column; gap: 32px">
+<h2 style="margin: 0; font-family: 'Gothic A1',sans-serif; font-size: 40px; font-weight: 800; letter-spacing: -1px">성적 변화 사례</h2>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+<div style="padding: 28px; border: 1px solid #E2E6EC; border-radius: 10px; display: flex; flex-direction: column; gap: 14px"><div style="font-size: 14px; color: #4A5568">[OO고 2학년 · 재원 6개월]</div><div style="display: flex; align-items: baseline; gap: 12px; font-family: 'Gothic A1',sans-serif; font-weight: 800"><span style="font-size: 40px; color: #8A94A6">[4]등급</span><span style="font-size: 20px">→</span><span style="font-size: 40px; color: {{accent}}">[2]등급</span></div><p style="margin: 0; font-size: 15px; line-height: 1.7; color: #4A5568">[강사 코멘트: 무엇을 바꿨는지]</p></div>
+<div style="padding: 28px; border: 1px solid #E2E6EC; border-radius: 10px; display: flex; flex-direction: column; gap: 14px"><div style="font-size: 14px; color: #4A5568">[OO여고 1학년 · 재원 4개월]</div><div style="display: flex; align-items: baseline; gap: 12px; font-family: 'Gothic A1',sans-serif; font-weight: 800"><span style="font-size: 40px; color: #8A94A6">[00]점</span><span style="font-size: 20px">→</span><span style="font-size: 40px; color: {{accent}}">[00]점</span></div><p style="margin: 0; font-size: 15px; line-height: 1.7; color: #4A5568">[강사 코멘트]</p></div>
+<div style="padding: 28px; border: 1px solid #E2E6EC; border-radius: 10px; display: flex; flex-direction: column; gap: 14px"><div style="font-size: 14px; color: #4A5568">[OO고 3학년 · 재원 1년]</div><div style="display: flex; align-items: baseline; gap: 12px; font-family: 'Gothic A1',sans-serif; font-weight: 800"><span style="font-size: 40px; color: #8A94A6">[0]등급</span><span style="font-size: 20px">→</span><span style="font-size: 40px; color: {{accent}}">[0]등급</span></div><p style="margin: 0; font-size: 15px; line-height: 1.7; color: #4A5568">[강사 코멘트]</p></div>
+</div>
+<div style="font-size: 13px; color: #4A5568">학생·학부모 서면 동의를 받은 사례만 게재합니다.</div>
+</section>
+
+<section id="teachers" style="padding: 120px 80px 0; display: flex; flex-direction: column; gap: 32px">
+<h2 style="margin: 0; font-family: 'Gothic A1',sans-serif; font-size: 40px; font-weight: 800; letter-spacing: -1px">강사진</h2>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+<div style="display: flex; gap: 20px; padding: 24px; border: 1px solid #E2E6EC; border-radius: 10px"><div style="width: 100px; height: 124px; flex-shrink: 0; border-radius: 8px; background: #E6EAF0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #4A5568">[사진]</div><div style="display: flex; flex-direction: column; gap: 6px"><div style="font-size: 13px; font-weight: 700; color: {{accent}}">원장 · 고2·고3</div><div style="font-size: 19px; font-weight: 700">[이름]</div><div style="font-size: 14px; line-height: 1.6; color: #4A5568">[학력 · 경력 한 줄]</div></div></div>
+<div style="display: flex; gap: 20px; padding: 24px; border: 1px solid #E2E6EC; border-radius: 10px"><div style="width: 100px; height: 124px; flex-shrink: 0; border-radius: 8px; background: #E6EAF0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #4A5568">[사진]</div><div style="display: flex; flex-direction: column; gap: 6px"><div style="font-size: 13px; font-weight: 700; color: {{accent}}">강사 · 고1</div><div style="font-size: 19px; font-weight: 700">[이름]</div><div style="font-size: 14px; line-height: 1.6; color: #4A5568">[학력 · 경력 한 줄]</div></div></div>
+<div style="display: flex; gap: 20px; padding: 24px; border: 1px solid #E2E6EC; border-radius: 10px"><div style="width: 100px; height: 124px; flex-shrink: 0; border-radius: 8px; background: #E6EAF0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #4A5568">[사진]</div><div style="display: flex; flex-direction: column; gap: 6px"><div style="font-size: 13px; font-weight: 700; color: {{accent}}">강사 · 중3 선행</div><div style="font-size: 19px; font-weight: 700">[이름]</div><div style="font-size: 14px; line-height: 1.6; color: #4A5568">[학력 · 경력 한 줄]</div></div></div>
+</div>
+</section>
+
+<section id="apply" style="margin: 120px 80px 0; display: flex; gap: 24px">
+<div id="fee" style="flex: 1; padding: 36px; border: 1px solid #E2E6EC; border-radius: 12px; display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-size: 24px; font-weight: 700">교습비 · 위치</h2>
+<div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #E2E6EC; font-size: 16px"><span>[고1 내신반 · 주 2회]</span><b>월 [000,000]원</b></div>
+<div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #E2E6EC; font-size: 16px"><span>[고2 내신반 · 주 2회]</span><b>월 [000,000]원</b></div>
+<div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #E2E6EC; font-size: 16px"><span>[고3 수능반 · 주 3회]</span><b>월 [000,000]원</b></div>
+<div style="font-size: 13px; color: #4A5568">[관할 교육지원청] 신고 교습비 · 교재비 별도</div>
+<div id="visit" style="margin-top: 12px; height: 160px; border-radius: 8px; background: #E6EAF0; display: flex; align-items: center; justify-content: center; color: #4A5568; font-size: 14px">[지도]</div>
+<div style="font-size: 15px">[주소] · [OO역 N번 출구 도보 N분]</div>
+</div>
+<div style="width: 560px; padding: 36px; border-radius: 12px; background: #0F1B2D; color: #FFFFFF; display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-size: 24px; font-weight: 700">레벨테스트 신청</h2>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="b-name" style="font-size: 13px; color: #C7D0DE">학부모 성함</label><input id="b-name" type="text" style="height: 48px; padding: 0 12px; border: 1px solid #3A4A66; border-radius: 6px; background: #17263F; color: #FFFFFF; font: inherit; font-size: 15px"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="b-tel" style="font-size: 13px; color: #C7D0DE">연락처</label><input id="b-tel" type="tel" style="height: 48px; padding: 0 12px; border: 1px solid #3A4A66; border-radius: 6px; background: #17263F; color: #FFFFFF; font: inherit; font-size: 15px"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="b-school" style="font-size: 13px; color: #C7D0DE">학교·학년</label><input id="b-school" type="text" placeholder="OO고 1학년" style="height: 48px; padding: 0 12px; border: 1px solid #3A4A66; border-radius: 6px; background: #17263F; color: #FFFFFF; font: inherit; font-size: 15px"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="b-score" style="font-size: 13px; color: #C7D0DE">최근 내신 (선택)</label><input id="b-score" type="text" placeholder="3등급" style="height: 48px; padding: 0 12px; border: 1px solid #3A4A66; border-radius: 6px; background: #17263F; color: #FFFFFF; font: inherit; font-size: 15px"></div>
+</div>
+<div style="display: flex; align-items: center; gap: 10px"><input id="b-a1" type="checkbox" style="width: 20px; height: 20px"><label for="b-a1" style="font-size: 14px">[필수] 개인정보 수집·이용 동의</label></div>
+<div style="display: flex; align-items: center; gap: 10px"><input id="b-a2" type="checkbox" style="width: 20px; height: 20px"><label for="b-a2" style="font-size: 14px">[선택] 설명회·모집 안내 수신 (카톡·문자)</label></div>
+<button type="button" style="margin-top: 8px; height: 56px; border: none; border-radius: 6px; background: {{accent}}; color: #FFFFFF; font: inherit; font-size: 17px; font-weight: 700">신청하기</button>
+</div>
+</section>
+
+<footer style="flex-grow: 1; margin-top: 120px; padding: 48px 80px; background: #F2F4F7; color: #4A5568; font-size: 14px; line-height: 1.9">
+<div style="font-family: 'Gothic A1',sans-serif; font-size: 20px; font-weight: 800; color: #0F1B2D; margin-bottom: 8px">[학원명]</div>
+<div>대표 [이름] · 학원등록번호 [제0000호] · 교습과목 [수학] · [주소] · [000-0000-0000]</div>
+<div><a href="#">개인정보처리방침</a></div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#1D3FA8","options":["#1D3FA8","#0F5F5A","#7A1F3D"]},"$preview":{"width":1440,"height":4300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#1D3FA8' };
+  }
+}
+</script>
+</body>
+</html>

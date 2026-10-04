@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>M-06 소식 목록 · 모바일</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&amp;family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#F6F3EC}a{color:#1E5645}a:hover{color:#123A2E}</style>
+</helmet>
+<div style="width: 390px; height: 1390px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #F6F3EC; color: #1B2430; font-family: 'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif">
+<dc-import name="MHeader" hint-size="390px,60px"></dc-import>
+<section style="padding: 32px 20px 24px; display: flex; flex-direction: column; gap: 10px"><div style="font-size: 14px; font-weight: 700; color: #1E5645">소식</div><h1 style="margin: 0; font-family: 'Gowun Batang',serif; font-size: 30px; line-height: 1.35">학원 소식</h1></section>
+<div style="padding: 0 20px 20px; display: flex; gap: 8px; overflow-x: auto"><button type="button" style="flex-shrink: 0; height: 40px; padding: 0 16px; border-radius: 20px; font: inherit; font-size: 14px; border: none; background: #1B2430; color: #FFFFFF; font-weight: 600">전체</button><button type="button" style="flex-shrink: 0; height: 40px; padding: 0 16px; border-radius: 20px; font: inherit; font-size: 14px; border: 1px solid #C9C2B4; background: transparent; color: #1B2430">모집</button><button type="button" style="flex-shrink: 0; height: 40px; padding: 0 16px; border-radius: 20px; font: inherit; font-size: 14px; border: 1px solid #C9C2B4; background: transparent; color: #1B2430">공지</button><button type="button" style="flex-shrink: 0; height: 40px; padding: 0 16px; border-radius: 20px; font: inherit; font-size: 14px; border: 1px solid #C9C2B4; background: transparent; color: #1B2430">시험 대비</button></div>
+<section style="padding: 0 20px; display: flex; flex-direction: column"><a href="MNewsDetail.dc.html" style="padding: 16px; background: #FFFFFF; border-radius: 16px; color: #1B2430; text-decoration: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px"><div style="height: 170px; border-radius: 12px; background: #E4DFD3; display: flex; align-items: center; justify-content: center; color: #5A6270; font-size: 14px; text-align: center">[안내문 이미지]</div><div style="display: flex; gap: 6px"><span style="padding: 3px 8px; border-radius: 6px; background: #F3E3DC; color: #8A3A1C; font-size: 12px; font-weight: 700">모집</span><span style="padding: 3px 8px; border-radius: 6px; background: #FBF1CF; color: #5A4A12; font-size: 12px; font-weight: 700">마감 [D-12]</span></div><div style="font-size: 18px; font-weight: 700">[겨울방학 특강 안내]</div><div style="font-size: 13px; color: #5A6270">[2026.09.25]</div></a><a href="MNewsDetail.dc.html" style="padding: 16px 4px; border-bottom: 1px solid #D9D3C6; color: #1B2430; text-decoration: none; display: flex; flex-direction: column; gap: 6px"><span style="align-self: flex-start; padding: 2px 8px; border-radius: 6px; background: #E4EEE9;color:#1E5645; font-size: 12px; font-weight: 700">공지</span><span style="font-size: 16px">[추석 연휴 휴강 안내]</span><span style="font-size: 13px; color: #5A6270">[09.18]</span></a><a href="MNewsDetail.dc.html" style="padding: 16px 4px; border-bottom: 1px solid #D9D3C6; color: #1B2430; text-decoration: none; display: flex; flex-direction: column; gap: 6px"><span style="align-self: flex-start; padding: 2px 8px; border-radius: 6px; background: #E6E9EE;color:#2C3747; font-size: 12px; font-weight: 700">시험 대비</span><span style="font-size: 16px">[2학기 중간고사 대비 일정]</span><span style="font-size: 13px; color: #5A6270">[09.10]</span></a><a href="MNewsDetail.dc.html" style="padding: 16px 4px; border-bottom: 1px solid #D9D3C6; color: #1B2430; text-decoration: none; display: flex; flex-direction: column; gap: 6px"><span style="align-self: flex-start; padding: 2px 8px; border-radius: 6px; background: #E4EEE9;color:#1E5645; font-size: 12px; font-weight: 700">공지</span><span style="font-size: 16px">[셔틀 노선 변경 안내]</span><span style="font-size: 13px; color: #5A6270">[09.01]</span></a><a href="MNewsDetail.dc.html" style="padding: 16px 4px; border-bottom: 1px solid #D9D3C6; color: #1B2430; text-decoration: none; display: flex; flex-direction: column; gap: 6px"><span style="align-self: flex-start; padding: 2px 8px; border-radius: 6px; background: #F3E3DC;color:#8A3A1C; font-size: 12px; font-weight: 700">모집</span><span style="font-size: 16px">[중1 기본반 신규 개설]</span><span style="font-size: 13px; color: #5A6270">[08.20]</span></a><button type="button" style="margin-top: 20px; height: 48px; border: 1px solid #C9C2B4; border-radius: 12px; background: #FFFFFF; font: inherit; font-size: 15px; font-weight: 600">이전 소식 더 보기</button></section>
+
+<footer style="flex-grow: 1; margin-top: 56px; padding: 32px 20px 120px; background: #1B2430; color: #C8CDD5; font-size: 13px; line-height: 1.8"><div style="font-family: 'Gowun Batang',serif; font-size: 19px; color: #FFFFFF; margin-bottom: 8px">[학원명]</div><div>대표 [이름] · 학원등록번호 [제0000호]</div><div>교습과목 [수학] · [000-0000-0000]</div><div style="margin-top: 8px"><a href="#" style="color: #FFFFFF">개인정보처리방침</a></div></footer>
+<div style="position: absolute; left: 0; right: 0; bottom: 0"><dc-import name="MBar" hint-size="390px,92px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1390}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

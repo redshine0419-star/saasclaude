@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>M-07 소식 상세 · 모바일</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&amp;family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#F6F3EC}a{color:#1E5645}a:hover{color:#123A2E}</style>
+</helmet>
+<div style="width: 390px; height: 1220px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #F6F3EC; color: #1B2430; font-family: 'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif">
+<dc-import name="MHeader" hint-size="390px,60px"></dc-import>
+<article style="padding: 20px 20px 0; display: flex; flex-direction: column; gap: 16px"><a href="MNews.dc.html" style="font-size: 14px; text-decoration: none">← 소식 목록</a><div style="display: flex; gap: 6px"><span style="padding: 3px 8px; border-radius: 6px; background: #F3E3DC; color: #8A3A1C; font-size: 12px; font-weight: 700">모집</span><span style="padding: 3px 8px; border-radius: 6px; background: #FBF1CF; color: #5A4A12; font-size: 12px; font-weight: 700">마감 [D-12]</span></div><h1 style="margin: 0; font-family: 'Gowun Batang',serif; font-size: 28px; line-height: 1.4">[겨울방학 특강 안내]</h1><div style="font-size: 13px; color: #5A6270; padding-bottom: 16px; border-bottom: 1px solid #D9D3C6">[2026.09.25] · 원장 [이름]</div><div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px"><div style="padding: 14px; background: #FFFFFF; border-radius: 16px"><div style="font-size: 12px; color: #5A6270">기간</div><div style="font-size: 15px; font-weight: 700; margin-top: 4px">[12.29 – 2.20]</div></div><div style="padding: 14px; background: #FFFFFF; border-radius: 16px"><div style="font-size: 12px; color: #5A6270">대상</div><div style="font-size: 15px; font-weight: 700; margin-top: 4px">[예비 중1·고1]</div></div><div style="padding: 14px; background: #FFFFFF; border-radius: 16px"><div style="font-size: 12px; color: #5A6270">모집 인원</div><div style="font-size: 15px; font-weight: 700; margin-top: 4px">[반별 8명]</div></div><div style="padding: 14px; background: #FFFFFF; border-radius: 16px"><div style="font-size: 12px; color: #5A6270">교습비</div><div style="font-size: 15px; font-weight: 700; margin-top: 4px">[000,000원]</div></div></div><div style="height: 300px; border-radius: 14px; background: #E4DFD3; display: flex; align-items: center; justify-content: center; color: #5A6270; font-size: 14px; text-align: center">[안내문 이미지]</div><p style="margin: 0; font-size: 16px; line-height: 1.85; color: #2E3540">[본문. 목표, 주차별 진도, 준비물, 신청 방법. 핵심 정보는 이미지가 아니라 글로 적습니다.]</p><div style="display: flex; flex-direction: column; border-top: 1px solid #D9D3C6"><a href="MNewsDetail.dc.html" style="display: flex; gap: 16px; padding: 14px 0; border-bottom: 1px solid #D9D3C6; color: #1B2430; text-decoration: none; font-size: 15px"><span style="width: 52px; color: #5A6270">이전 글</span>[추석 연휴 휴강 안내]</a></div></article>
+
+<footer style="flex-grow: 1; margin-top: 56px; padding: 32px 20px 120px; background: #1B2430; color: #C8CDD5; font-size: 13px; line-height: 1.8"><div style="font-family: 'Gowun Batang',serif; font-size: 19px; color: #FFFFFF; margin-bottom: 8px">[학원명]</div><div>대표 [이름] · 학원등록번호 [제0000호]</div><div>교습과목 [수학] · [000-0000-0000]</div><div style="margin-top: 8px"><a href="#" style="color: #FFFFFF">개인정보처리방침</a></div></footer>
+<div style="position: absolute; left: 0; right: 0; bottom: 0"><dc-import name="MBar" hint-size="390px,92px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1220}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

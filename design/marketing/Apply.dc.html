@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>첫등원 · 베타 신청</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#FFFFFF}a{color:#14213D}a:hover{color:#2B3F6B}</style>
+</helmet>
+<div style="width: 100%; background: #FFFFFF; color: #14213D; font-family: 'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif">
+<dc-import name="FdHeader" active="apply" hint-size="100%,76px"></dc-import>
+<section style="padding: clamp(48px, 6vw, 80px) clamp(20px, 4vw, 56px) clamp(28px, 3vw, 40px)">
+<div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px">
+<div style="font-size: 15px; font-weight: 700; color: #8A6400">신청</div>
+<h1 style="margin: 0; font-size: clamp(32px, 4vw, 50px); line-height: 1.25; letter-spacing: -1px">베타 신청 · 3개월 무료</h1>
+<p style="margin: 0; font-size: 17px; color: #3C4659">지금 없는 자료는 신청 후 [2주] 안에 보내주시면 됩니다. 신청 순서대로 제작하며, 담당자가 [하루] 안에 예상 시작일을 알려드립니다.</p>
+</div>
+</section>
+<section style="padding: 0 clamp(20px, 4vw, 56px) clamp(64px, 8vw, 104px)">
+<div style="max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+<div style="flex: 1 1 560px; display: flex; flex-direction: column; gap: 20px">
+
+<div style="padding: clamp(20px, 3vw, 28px); border-radius: 20px; background: #FFF3CC; display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: center">
+<div><div style="font-size: 18px; font-weight: 700">베타 · 3개월 무료</div><div style="font-size: 15px; color: #3D2F00; margin-top: 4px">성장 플랜 전체 기능 · 제작비와 월 관리비 없음 · 자동 결제 없음</div></div>
+<a href="Pricing.dc.html" style="font-size: 15px; font-weight: 700">베타 조건 자세히</a>
+</div>
+
+<fieldset style="margin: 0; padding: clamp(20px, 3vw, 32px); border: 1px solid #E3E7EE; border-radius: 20px; display: flex; flex-direction: column; gap: 14px">
+<legend style="padding: 0 8px; font-size: 18px; font-weight: 700">1. 학원 정보</legend>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="a-name" style="font-size: 14px; font-weight: 600">학원명</label><input id="a-name" type="text" style="height: 48px; padding: 0 14px; border: 1px solid #CDD3DD; border-radius: 10px; font: inherit; font-size: 16px"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="a-reg" style="font-size: 14px; font-weight: 600">학원등록번호 (선택)</label><input id="a-reg" type="text" placeholder="제0000호" style="height: 48px; padding: 0 14px; border: 1px solid #CDD3DD; border-radius: 10px; font: inherit; font-size: 16px"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="a-subj" style="font-size: 14px; font-weight: 600">과목·대상</label><input id="a-subj" type="text" placeholder="중·고등 수학" style="height: 48px; padding: 0 14px; border: 1px solid #CDD3DD; border-radius: 10px; font: inherit; font-size: 16px"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="a-tel" style="font-size: 14px; font-weight: 600">원장님 연락처</label><input id="a-tel" type="tel" placeholder="010-0000-0000" style="height: 48px; padding: 0 14px; border: 1px solid #CDD3DD; border-radius: 10px; font: inherit; font-size: 16px"></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="a-addr" style="font-size: 14px; font-weight: 600">주소</label><input id="a-addr" type="text" style="height: 48px; padding: 0 14px; border: 1px solid #CDD3DD; border-radius: 10px; font: inherit; font-size: 16px"></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="a-domain" style="font-size: 14px; font-weight: 600">기존 홈페이지·도메인</label><input id="a-domain" type="text" placeholder="없으면 비워두세요" style="height: 48px; padding: 0 14px; border: 1px solid #CDD3DD; border-radius: 10px; font: inherit; font-size: 16px"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="a-open" style="font-size: 14px; font-weight: 600">희망 오픈 시기</label><select id="a-open" style="height: 48px; padding: 0 10px; border: 1px solid #CDD3DD; border-radius: 10px; font: inherit; font-size: 16px; background: #FFFFFF"><option>가능한 빨리</option><option>겨울방학 모집 전</option><option>상담 후 정하기</option></select></div>
+</div>
+</fieldset>
+
+<fieldset style="margin: 0; padding: clamp(20px, 3vw, 32px); border: 1px solid #E3E7EE; border-radius: 20px; display: flex; flex-direction: column; gap: 14px">
+<legend style="padding: 0 8px; font-size: 18px; font-weight: 700">2. 자료 (신청 후 [2주] 안에 보내셔도 됩니다)</legend>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px">
+<button type="button" style="height: 88px; border: 1px dashed #A9B2C2; border-radius: 12px; background: #FAFBFC; font: inherit; font-size: 14px">학원 로고</button>
+<button type="button" style="height: 88px; border: 1px dashed #A9B2C2; border-radius: 12px; background: #FAFBFC; font: inherit; font-size: 14px">원장님 사진</button>
+<button type="button" style="height: 88px; border: 1px dashed #A9B2C2; border-radius: 12px; background: #FAFBFC; font: inherit; font-size: 14px">교실 사진</button>
+<button type="button" style="height: 88px; border: 1px dashed #A9B2C2; border-radius: 12px; background: #FAFBFC; font: inherit; font-size: 14px">교습비·시간표</button>
+<button type="button" style="height: 88px; border: 1px dashed #A9B2C2; border-radius: 12px; background: #FAFBFC; font: inherit; font-size: 14px">받은 후기 캡처</button>
+<button type="button" style="height: 88px; border: 1px dashed #A9B2C2; border-radius: 12px; background: #FAFBFC; font: inherit; font-size: 14px">기타 안내문</button>
+</div>
+<div style="display: flex; align-items: center; gap: 10px"><input id="a-photo" type="checkbox" style="width: 20px; height: 20px"><label for="a-photo" style="font-size: 15px">현장 사진 촬영도 원해요 (베타 미포함, 유료 [00]만원)</label></div>
+</fieldset>
+
+<div style="display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: 14px; background: #F3F5F8">
+<div style="display: flex; align-items: center; gap: 10px"><input id="a-t1" type="checkbox" style="width: 20px; height: 20px"><label for="a-t1" style="font-size: 15px"><b>[필수]</b> 서비스 이용약관 동의</label><a href="#" style="margin-left: auto; font-size: 13px">보기</a></div>
+<div style="display: flex; align-items: center; gap: 10px"><input id="a-t2" type="checkbox" style="width: 20px; height: 20px"><label for="a-t2" style="font-size: 15px"><b>[필수]</b> 개인정보 수집·이용 동의</label><a href="#" style="margin-left: auto; font-size: 13px">보기</a></div>
+<div style="display: flex; align-items: center; gap: 10px"><input id="a-t3" type="checkbox" style="width: 20px; height: 20px"><label for="a-t3" style="font-size: 15px"><b>[필수]</b> 베타 참여 조건 동의 (자료 제출, 카카오톡 채널 개설, 월 1회 피드백 통화)</label></div>
+<div style="display: flex; align-items: center; gap: 10px"><input id="a-t4" type="checkbox" style="width: 20px; height: 20px"><label for="a-t4" style="font-size: 15px"><b>[필수]</b> 3개월 뒤 학원명 없는 결과 사례 공개 동의</label></div>
+</div>
+</div>
+
+<aside style="flex: 1 1 320px; max-width: 400px; padding: 28px; border-radius: 20px; background: #14213D; color: #FFFFFF; display: flex; flex-direction: column; gap: 18px; position: sticky; top: 24px">
+<div style="font-size: 18px; font-weight: 700">신청 내용</div>
+<div style="display: flex; justify-content: space-between; font-size: 15px"><span style="color: #C9D0DC">이용 방식</span><b>베타 3개월</b></div>
+<div style="display: flex; justify-content: space-between; font-size: 15px"><span style="color: #C9D0DC">베타 기간 비용</span><b style="color: #F5B700">0원</b></div>
+<div style="display: flex; justify-content: space-between; font-size: 15px"><span style="color: #C9D0DC">종료 후 (선택 시)</span><b>월 [00]만원에서 [00]% 할인</b></div>
+<div style="font-size: 13px; line-height: 1.6; color: #B8C0CF">카드 정보를 받지 않으며 자동 결제가 없습니다. 계속 쓸지는 종료 [2주] 전에 여쭤봅니다.</div>
+<div style="display: flex; flex-direction: column; gap: 10px; padding-top: 16px; border-top: 1px solid #2E4068; font-size: 14px; line-height: 1.5">
+<div style="font-weight: 700">진행 일정</div>
+<div style="display: flex; justify-content: space-between"><span>예상 시작일 안내</span><span style="color: #C9D0DC">신청 후 [1]일</span></div>
+<div style="display: flex; justify-content: space-between"><span>첫 시안</span><span style="color: #C9D0DC">자료 받은 후 [N]일</span></div>
+<div style="display: flex; justify-content: space-between"><span>오픈 · 3개월 시작</span><span style="color: #C9D0DC">약 [N]주</span></div>
+</div>
+<a href="ApplyDone.dc.html" style="height: 56px; border-radius: 12px; background: #F5B700; color: #14213D; text-decoration: none; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center">베타 신청하기</a>
+<div style="font-size: 13px; color: #B8C0CF; text-align: center">3개월은 홈페이지 오픈일부터 셉니다</div>
+</aside>
+</div>
+</section>
+<dc-import name="FdFooter" hint-size="100%,220px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

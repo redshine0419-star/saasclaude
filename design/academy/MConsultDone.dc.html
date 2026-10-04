@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>M-10 접수 완료 · 모바일</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&amp;family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#F6F3EC}a{color:#1E5645}a:hover{color:#123A2E}</style>
+</helmet>
+<div style="width: 390px; height: 920px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #F6F3EC; color: #1B2430; font-family: 'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif">
+<dc-import name="MHeader" hint-size="390px,60px"></dc-import>
+<section style="padding: 56px 20px 0; display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center"><div style="width: 68px; height: 68px; border-radius: 34px; background: #1E5645; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg></div><h1 style="margin: 0; font-family: 'Gowun Batang',serif; font-size: 26px; line-height: 1.4">상담 신청이<br>접수되었습니다</h1><p style="margin: 0; font-size: 15px; line-height: 1.7; color: #3E4652">카카오톡으로 확인 메시지를 보냈습니다.<br>원장이 [영업일 하루] 안에 전화드릴게요.</p><div style="width: 100%; box-sizing: border-box; padding: 20px; background: #FFFFFF; border-radius: 16px; display: flex; flex-direction: column; gap: 12px; text-align: left; font-size: 15px"><div style="display: flex; justify-content: space-between"><span style="color: #5A6270">상담 유형</span><b>레벨테스트 예약</b></div><div style="display: flex; justify-content: space-between"><span style="color: #5A6270">희망 시간</span><b>[10/1(목) 17:00]</b></div><div style="display: flex; justify-content: space-between"><span style="color: #5A6270">학년</span><b>[중2]</b></div></div><div style="width: 100%; box-sizing: border-box; padding: 16px; border-radius: 12px; background: #FBF1CF; color: #3E3510; font-size: 14px; line-height: 1.7; text-align: left">필기구와 최근 시험지(있다면)를 가져오시면 상담이 더 정확해집니다.</div><div style="width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px"><a href="MobileHome.dc.html" style="height: 52px; border: 1px solid #1B2430; border-radius: 12px; color: #1B2430; text-decoration: none; font-weight: 600; display: flex; align-items: center; justify-content: center">홈으로</a><a href="MClasses.dc.html" style="height: 52px; border-radius: 12px; background: #1E5645; color: #FFFFFF; text-decoration: none; font-weight: 700; display: flex; align-items: center; justify-content: center">수업 둘러보기</a></div></section>
+
+<footer style="flex-grow: 1; margin-top: 56px; padding: 32px 20px 40px; background: #1B2430; color: #C8CDD5; font-size: 13px; line-height: 1.8"><div style="font-family: 'Gowun Batang',serif; font-size: 19px; color: #FFFFFF; margin-bottom: 8px">[학원명]</div><div>대표 [이름] · 학원등록번호 [제0000호]</div><div>교습과목 [수학] · [000-0000-0000]</div><div style="margin-top: 8px"><a href="#" style="color: #FFFFFF">개인정보처리방침</a></div></footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":920}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

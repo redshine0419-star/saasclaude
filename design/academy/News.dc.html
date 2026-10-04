@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>S-06 소식 목록</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&amp;family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#F6F3EC}a{color:#1E5645}a:hover{color:#123A2E}</style>
+</helmet>
+<div style="width: 1440px; height: 1600px; display: flex; flex-direction: column; background: #F6F3EC; color: #1B2430; font-family: 'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif">
+<dc-import name="SiteHeader" active="news" hint-size="1440px,84px"></dc-import>
+<section style="padding: 72px 80px 40px; display: flex; justify-content: space-between; align-items: flex-end">
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 15px; font-weight: 700; color: #1E5645">소식</div>
+<h1 style="margin: 0; font-family: 'Gowun Batang',serif; font-size: 52px">학원 소식</h1>
+</div>
+<div style="display: flex; gap: 8px">
+<button type="button" style="height: 44px; padding: 0 20px; border: none; border-radius: 22px; background: #1B2430; color: #FFFFFF; font: inherit; font-weight: 600">전체</button>
+<button type="button" style="height: 44px; padding: 0 20px; border: 1px solid #C9C2B4; border-radius: 22px; background: transparent; font: inherit">모집</button>
+<button type="button" style="height: 44px; padding: 0 20px; border: 1px solid #C9C2B4; border-radius: 22px; background: transparent; font: inherit">공지</button>
+<button type="button" style="height: 44px; padding: 0 20px; border: 1px solid #C9C2B4; border-radius: 22px; background: transparent; font: inherit">시험 대비</button>
+</div>
+</section>
+<section style="padding: 0 80px; display: flex; flex-direction: column">
+<a href="NewsDetail.dc.html" style="display: flex; gap: 32px; align-items: center; padding: 28px 0; border-top: 2px solid #1B2430; color: #1B2430; text-decoration: none">
+<div style="width: 220px; height: 132px; flex-shrink: 0; border-radius: 12px; background: #E4DFD3; display: flex; align-items: center; justify-content: center; color: #5A6270; font-size: 14px">[안내문 이미지]</div>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 10px"><div style="display: flex; gap: 10px; align-items: center"><span style="padding: 3px 10px; border-radius: 6px; background: #F3E3DC; color: #8A3A1C; font-size: 13px; font-weight: 700">모집</span><span style="padding: 3px 10px; border-radius: 6px; background: #FBF1CF; color: #5A4A12; font-size: 13px; font-weight: 700">마감 [D-12]</span></div><div style="font-size: 22px; font-weight: 700">[겨울방학 특강 안내]</div><div style="font-size: 15px; color: #5A6270">[기간 · 대상 한 줄 요약]</div></div>
+<div style="font-size: 15px; color: #5A6270">[2026.09.25]</div>
+</a>
+<a href="NewsDetail.dc.html" style="display: flex; gap: 32px; align-items: center; padding: 24px 0; border-top: 1px solid #D9D3C6; color: #1B2430; text-decoration: none; font-size: 18px"><span style="width: 220px; flex-shrink: 0"><span style="padding: 3px 10px; border-radius: 6px; background: #E4EEE9; color: #1E5645; font-size: 13px; font-weight: 700">공지</span></span><span style="flex: 1">[추석 연휴 휴강 안내]</span><span style="font-size: 15px; color: #5A6270">[2026.09.18]</span></a>
+<a href="NewsDetail.dc.html" style="display: flex; gap: 32px; align-items: center; padding: 24px 0; border-top: 1px solid #D9D3C6; color: #1B2430; text-decoration: none; font-size: 18px"><span style="width: 220px; flex-shrink: 0"><span style="padding: 3px 10px; border-radius: 6px; background: #E6E9EE; color: #2C3747; font-size: 13px; font-weight: 700">시험 대비</span></span><span style="flex: 1">[2학기 중간고사 대비 일정 · OO중 / OO중]</span><span style="font-size: 15px; color: #5A6270">[2026.09.10]</span></a>
+<a href="NewsDetail.dc.html" style="display: flex; gap: 32px; align-items: center; padding: 24px 0; border-top: 1px solid #D9D3C6; color: #1B2430; text-decoration: none; font-size: 18px"><span style="width: 220px; flex-shrink: 0"><span style="padding: 3px 10px; border-radius: 6px; background: #E4EEE9; color: #1E5645; font-size: 13px; font-weight: 700">공지</span></span><span style="flex: 1">[셔틀 노선 변경 안내]</span><span style="font-size: 15px; color: #5A6270">[2026.09.01]</span></a>
+<a href="NewsDetail.dc.html" style="display: flex; gap: 32px; align-items: center; padding: 24px 0; border-top: 1px solid #D9D3C6; color: #1B2430; text-decoration: none; font-size: 18px"><span style="width: 220px; flex-shrink: 0"><span style="padding: 3px 10px; border-radius: 6px; background: #F3E3DC; color: #8A3A1C; font-size: 13px; font-weight: 700">모집</span></span><span style="flex: 1">[중1 기본반 신규 개설]</span><span style="font-size: 15px; color: #5A6270">[2026.08.20]</span></a>
+<a href="NewsDetail.dc.html" style="display: flex; gap: 32px; align-items: center; padding: 24px 0; border-top: 1px solid #D9D3C6; border-bottom: 1px solid #D9D3C6; color: #1B2430; text-decoration: none; font-size: 18px"><span style="width: 220px; flex-shrink: 0"><span style="padding: 3px 10px; border-radius: 6px; background: #E6E9EE; color: #2C3747; font-size: 13px; font-weight: 700">시험 대비</span></span><span style="flex: 1">[1학기 기말고사 결과 안내]</span><span style="font-size: 15px; color: #5A6270">[2026.07.15]</span></a>
+</section>
+<nav aria-label="페이지" style="padding: 40px 80px 0; display: flex; justify-content: center; gap: 8px">
+<a href="#" style="width: 44px; height: 44px; border-radius: 10px; background: #1B2430; color: #FFFFFF; text-decoration: none; display: flex; align-items: center; justify-content: center; font-weight: 600">1</a>
+<a href="#" style="width: 44px; height: 44px; border-radius: 10px; border: 1px solid #C9C2B4; color: #1B2430; text-decoration: none; display: flex; align-items: center; justify-content: center">2</a>
+<a href="#" style="width: 44px; height: 44px; border-radius: 10px; border: 1px solid #C9C2B4; color: #1B2430; text-decoration: none; display: flex; align-items: center; justify-content: center">3</a>
+</nav>
+<div style="flex-grow: 1; margin-top: 120px; background: #1B2430"><dc-import name="SiteFooter" hint-size="1440px,200px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

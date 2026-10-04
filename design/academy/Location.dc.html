@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>S-08 오시는 길</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&amp;family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#F6F3EC}a{color:#1E5645}a:hover{color:#123A2E}</style>
+</helmet>
+<div style="width: 1440px; height: 1800px; display: flex; flex-direction: column; background: #F6F3EC; color: #1B2430; font-family: 'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif">
+<dc-import name="SiteHeader" active="location" hint-size="1440px,84px"></dc-import>
+<section style="padding: 72px 80px 40px; display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 15px; font-weight: 700; color: #1E5645">오시는 길</div>
+<h1 style="margin: 0; font-family: 'Gowun Batang',serif; font-size: 52px">[OO역 3번 출구에서 걸어서 5분]</h1>
+</section>
+<section style="padding: 0 80px; display: flex; gap: 24px">
+<div style="flex: 1; height: 480px; border-radius: 20px; background: #E4DFD3; display: flex; align-items: center; justify-content: center; color: #5A6270">[네이버 지도 임베드]</div>
+<div style="width: 420px; padding: 32px; background: #FFFFFF; border-radius: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 6px"><div style="font-size: 14px; color: #5A6270">주소</div><div style="font-size: 18px; font-weight: 600; line-height: 1.5">[도로명 주소]<br>[OO빌딩 N층]</div></div>
+<div style="display: flex; gap: 8px"><button type="button" style="height: 44px; padding: 0 16px; border: 1px solid #C9C2B4; border-radius: 10px; background: #FFFFFF; font: inherit; font-size: 14px">주소 복사</button><a href="#" style="height: 44px; padding: 0 16px; border-radius: 10px; background: #1E5645; color: #FFFFFF; text-decoration: none; font-size: 14px; font-weight: 600; display: flex; align-items: center">네이버 지도로 길찾기</a></div>
+<div style="display: flex; flex-direction: column; gap: 6px; padding-top: 16px; border-top: 1px solid #EDE9E0"><div style="font-size: 14px; color: #5A6270">운영 시간</div><div style="font-size: 16px; line-height: 1.7">평일 [14:00 – 22:00]<br>토요일 [10:00 – 18:00] · 일요일 휴무</div></div>
+<div style="display: flex; flex-direction: column; gap: 6px; padding-top: 16px; border-top: 1px solid #EDE9E0"><div style="font-size: 14px; color: #5A6270">전화</div><div style="font-size: 18px; font-weight: 700">[000-0000-0000]</div></div>
+</div>
+</section>
+<section style="padding: 72px 80px 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px">
+<div style="padding: 32px; background: #FFFFFF; border-radius: 16px; display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-size: 22px; font-weight: 700">대중교통·주차</h2>
+<div style="font-size: 16px; line-height: 1.9"><b>지하철</b> [OO선 OO역 3번 출구, 도보 5분]<br><b>버스</b> [OO정류장 하차 · 000, 000번]<br><b>주차</b> [건물 지하 주차장 · 상담 시 1시간 무료]</div>
+</div>
+<div style="padding: 32px; background: #FFFFFF; border-radius: 16px; display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-size: 22px; font-weight: 700">셔틀 노선</h2>
+<table style="width: 100%; border-collapse: collapse; font-size: 15px">
+<thead><tr style="text-align: left; color: #5A6270"><th style="padding: 8px 0; font-weight: 500">정류장</th><th style="padding: 8px 0; font-weight: 500">등원</th><th style="padding: 8px 0; font-weight: 500">하원</th></tr></thead>
+<tbody>
+<tr style="border-top: 1px solid #EDE9E0"><td style="padding: 12px 0">[OO아파트 정문]</td><td style="padding: 12px 0">[16:40]</td><td style="padding: 12px 0">[21:10]</td></tr>
+<tr style="border-top: 1px solid #EDE9E0"><td style="padding: 12px 0">[OO아파트 후문]</td><td style="padding: 12px 0">[16:48]</td><td style="padding: 12px 0">[21:18]</td></tr>
+<tr style="border-top: 1px solid #EDE9E0"><td style="padding: 12px 0">[OO초 앞]</td><td style="padding: 12px 0">[16:55]</td><td style="padding: 12px 0">[21:25]</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+<div style="flex-grow: 1; margin-top: 120px; background: #1B2430"><dc-import name="SiteFooter" hint-size="1440px,200px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

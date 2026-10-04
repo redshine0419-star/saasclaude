@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>첫등원 · 무료 진단 접수 완료</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#FFFFFF}a{color:#14213D}a:hover{color:#2B3F6B}</style>
+</helmet>
+<div style="width: 100%; background: #FFFFFF; color: #14213D; font-family: 'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif">
+<dc-import name="FdHeader" active="consult" hint-size="100%,76px"></dc-import>
+<section style="padding: clamp(56px, 8vw, 112px) clamp(20px, 4vw, 56px)">
+<div style="max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center">
+<div style="width: 76px; height: 76px; border-radius: 38px; background: #F5B700; color: #14213D; display: flex; align-items: center; justify-content: center"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg></div>
+<h1 style="margin: 0; font-size: clamp(30px, 4vw, 44px); line-height: 1.3; letter-spacing: -1px">무료 진단을 접수했습니다</h1>
+<p style="margin: 0; font-size: 18px; line-height: 1.75; color: #3C4659">[2영업일] 안에 진단 결과를 카카오톡으로 보내드립니다.<br>그 전에 전화를 드리지는 않습니다.</p>
+<div style="width: 100%; box-sizing: border-box; padding: 28px; border-radius: 16px; background: #F3F5F8; display: flex; flex-direction: column; gap: 14px; text-align: left">
+<div style="font-size: 16px; font-weight: 700">진단 결과에 담기는 것</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; font-size: 15px">
+<div style="padding: 14px 16px; border-radius: 10px; background: #FFFFFF">네이버 플레이스 정보 점검</div>
+<div style="padding: 14px 16px; border-radius: 10px; background: #FFFFFF">지역·과목 검색 노출 위치</div>
+<div style="padding: 14px 16px; border-radius: 10px; background: #FFFFFF">AI 검색 언급 여부</div>
+<div style="padding: 14px 16px; border-radius: 10px; background: #FFFFFF">상담 신청 경로 점검</div>
+</div>
+</div>
+<div style="width: 100%; box-sizing: border-box; padding: 24px 28px; border-radius: 16px; border: 1px solid #E3E7EE; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; text-align: left">
+<div><div style="font-size: 16px; font-weight: 700">기다리시는 동안</div><div style="font-size: 15px; color: #4A5568; margin-top: 4px">학부모 화면과 관리 화면을 직접 눌러보세요.</div></div>
+<a href="Demo.dc.html" style="height: 50px; padding: 0 20px; border-radius: 12px; background: #14213D; color: #FFFFFF; text-decoration: none; font-weight: 700; display: flex; align-items: center">데모 보기</a>
+</div>
+<a href="Main.dc.html" style="font-size: 15px; font-weight: 600">메인으로</a>
+</div>
+</section>
+<dc-import name="FdFooter" hint-size="100%,220px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
