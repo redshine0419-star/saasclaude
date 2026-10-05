@@ -17,6 +17,7 @@ export type AcademyTenant = {
   locationHeadline: string | null;
   transitInfo: string | null;
   parkingInfo: string | null;
+  ga4MeasurementId: string | null;
 };
 
 export type AcademyDirector = {
@@ -157,6 +158,7 @@ export const DEMO_DATA: AcademyPageData = {
     locationHeadline: '상계역 3번 출구에서 걸어서 5분',
     transitInfo: '**지하철** 4호선 상계역 3번 출구, 도보 5분\n**버스** 상계주공 5단지 하차 · 1161, 1167번\n**주차** 건물 지하 주차장 · 상담 시 1시간 무료',
     parkingInfo: null,
+    ga4MeasurementId: null,
   },
   sections: ['hero', 'quick_info', 'director', 'classes', 'fees', 'reviews', 'news', 'consult_form'],
   director: {
@@ -281,6 +283,7 @@ export const DEMO_DATA_RESULT: AcademyPageData = {
     locationHeadline: '역삼역 1번 출구 도보 3분',
     transitInfo: '**지하철** 2호선 역삼역 1번 출구, 도보 3분\n**버스** 역삼역 하차 · 146, 341번\n**주차** 건물 지하 1~2층',
     parkingInfo: null,
+    ga4MeasurementId: null,
   },
   sections: ['hero', 'results_stats', 'exam_system', 'curriculum', 'score_cases', 'teachers', 'fees', 'consult_form'],
   director: {
@@ -359,6 +362,7 @@ export const DEMO_DATA_BRIGHT: AcademyPageData = {
     locationHeadline: '홍대입구역 6번 출구 도보 5분',
     transitInfo: '**지하철** 2호선·공항철도 홍대입구역 6번 출구, 도보 5분\n**버스** 동교동 하차 · 271, 370번',
     parkingInfo: null,
+    ga4MeasurementId: null,
   },
   sections: ['hero', 'day_flow', 'classes', 'gallery', 'safety', 'consult_form'],
   director: {
@@ -462,6 +466,7 @@ export async function getAcademyPageData(slug: string): Promise<AcademyPageData 
         locationHeadline: null,
         transitInfo: null,
         parkingInfo: null,
+        ga4MeasurementId: tenant.ga4MeasurementId,
       },
       sections: enabledSections,
       director: tenant.directorProfile

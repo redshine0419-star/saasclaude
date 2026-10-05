@@ -28,7 +28,16 @@ export default function ConsultFormSection({ tenant, slots }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, phone, grade, slotId: slotId || null }),
       });
-      if (res.ok) setSubmitted(true);
+      if (res.ok) {
+        setSubmitted(true);
+        // GA4 generate_lead conversion event
+        if (typeof window !== 'undefined' && typeof (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag === 'function') {
+          (window as unknown as { gtag: (...args: unknown[]) => void }).gtag('event', 'generate_lead', {
+            event_category: 'consult',
+            event_label: tenant.slug,
+          });
+        }
+      }
     } finally {
       setLoading(false);
     }
