@@ -21,19 +21,28 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: '잘못된 요청입니다.' }, { status: 400 });
 
+  const kind = body.kind === 'score_case' ? 'score_case' : 'review';
   const consentConfirmed = body.consentConfirmed === true;
+  const consentFile: string | null = (body.consentFile ?? '').trim() || null;
+
+  // 성적 사례: consent_file 없으면 공개 불가 (SPEC line 160)
+  const visible = consentConfirmed && (kind === 'review' || !!consentFile);
 
   const review = await prisma.review.create({
     data: {
       tenantId: tenant.id,
-      kind: body.kind === 'score_case' ? 'score_case' : 'review',
+      kind,
       body: body.body ?? null,
       authorLabel: body.authorLabel ?? null,
       source: body.source ?? null,
       consentConfirmed,
-      showOnHome: consentConfirmed ? (body.showOnHome === true) : false,
-      // 동의 없으면 비공개 강제 (SPEC 절대 원칙 5)
-      visible: consentConfirmed,
+      consentFile,
+      beforeValue: kind === 'score_case' ? (body.beforeValue ?? null) : null,
+      afterValue: kind === 'score_case' ? (body.afterValue ?? null) : null,
+      periodLabel: kind === 'score_case' ? (body.periodLabel ?? null) : null,
+      comment: body.comment ?? null,
+      showOnHome: visible ? (body.showOnHome === true) : false,
+      visible,
     },
   });
 
@@ -45,6 +54,11 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
       authorLabel: review.authorLabel,
       source: review.source,
       consentConfirmed: review.consentConfirmed,
+      consentFile: review.consentFile,
+      beforeValue: review.beforeValue,
+      afterValue: review.afterValue,
+      periodLabel: review.periodLabel,
+      comment: review.comment,
       showOnHome: review.showOnHome,
       visible: review.visible,
     },

@@ -9,6 +9,11 @@ interface Review {
   authorLabel: string | null;
   source: string | null;
   consentConfirmed: boolean;
+  consentFile: string | null;
+  beforeValue: string | null;
+  afterValue: string | null;
+  periodLabel: string | null;
+  comment: string | null;
   showOnHome: boolean;
   visible: boolean;
 }
@@ -46,6 +51,11 @@ export function ReviewsClient({ slug, reviews: initialReviews }: Props) {
     authorLabel: '',
     source: SOURCE_OPTIONS[0],
     consentConfirmed: false,
+    consentFile: '',
+    beforeValue: '',
+    afterValue: '',
+    periodLabel: '',
+    comment: '',
     showOnHome: false,
   });
   const [addSaving, setAddSaving] = useState(false);
@@ -62,12 +72,19 @@ export function ReviewsClient({ slug, reviews: initialReviews }: Props) {
     if (!selectedId) return;
     setSaving(true);
     try {
-      const payload = {
+      const payload: Partial<Review> & { kind?: string } = {
         body: fieldVal('body'),
         authorLabel: fieldVal('authorLabel'),
         source: fieldVal('source'),
         consentConfirmed: fieldVal('consentConfirmed'),
+        consentFile: fieldVal('consentFile'),
+        comment: fieldVal('comment'),
         showOnHome: fieldVal('showOnHome'),
+        ...(selected?.kind === 'score_case' && {
+          beforeValue: fieldVal('beforeValue'),
+          afterValue: fieldVal('afterValue'),
+          periodLabel: fieldVal('periodLabel'),
+        }),
       };
       const res = await fetch(`/api/${slug}/admin/reviews/${selectedId}`, {
         method: 'PATCH',
@@ -99,7 +116,7 @@ export function ReviewsClient({ slug, reviews: initialReviews }: Props) {
         setReviews((prev) => [data.review, ...prev]);
         setSelectedId(data.review.id);
         setShowAdd(false);
-        setNewForm({ body: '', authorLabel: '', source: SOURCE_OPTIONS[0], consentConfirmed: false, showOnHome: false });
+        setNewForm({ body: '', authorLabel: '', source: SOURCE_OPTIONS[0], consentConfirmed: false, consentFile: '', beforeValue: '', afterValue: '', periodLabel: '', comment: '', showOnHome: false });
       }
     } finally {
       setAddSaving(false);
@@ -197,7 +214,9 @@ export function ReviewsClient({ slug, reviews: initialReviews }: Props) {
               >
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 15, fontWeight: 600 }}>
-                    "{r.body ? r.body.slice(0, 40) + (r.body.length > 40 ? '…' : '') : '(내용 없음)'}"
+                    {r.kind === 'score_case' && (r.beforeValue || r.afterValue)
+                      ? `${r.beforeValue ?? '?'} → ${r.afterValue ?? '?'}${r.periodLabel ? ` (${r.periodLabel})` : ''}`
+                      : `"${r.body ? r.body.slice(0, 40) + (r.body.length > 40 ? '…' : '') : '(내용 없음)'}"`}
                   </div>
                   <div
                     style={{
@@ -206,8 +225,11 @@ export function ReviewsClient({ slug, reviews: initialReviews }: Props) {
                       marginTop: 4,
                     }}
                   >
-                    {r.authorLabel ?? '작성자 미기재'} · {r.source ?? '출처 미기재'} ·{' '}
+                    {r.authorLabel ?? '작성자 미기재'} ·{' '}
                     {r.consentConfirmed ? '동의 확인됨' : '동의 미확인'}
+                    {r.kind === 'score_case' && !r.consentFile && (
+                      <span style={{ color: '#8A3A1C', marginLeft: 6 }}>동의서 없음</span>
+                    )}
                   </div>
                 </div>
                 <span
@@ -276,6 +298,28 @@ export function ReviewsClient({ slug, reviews: initialReviews }: Props) {
                   </select>
                 </div>
               </div>
+              {tab === 'score_case' && (
+                <>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>변화 전</label>
+                      <input type="text" value={newForm.beforeValue} onChange={(e) => setNewForm((p) => ({ ...p, beforeValue: e.target.value }))} placeholder="예: 45점" style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>변화 후</label>
+                      <input type="text" value={newForm.afterValue} onChange={(e) => setNewForm((p) => ({ ...p, afterValue: e.target.value }))} placeholder="예: 88점" style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>기간</label>
+                      <input type="text" value={newForm.periodLabel} onChange={(e) => setNewForm((p) => ({ ...p, periodLabel: e.target.value }))} placeholder="예: 3개월" style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }} />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>동의서 파일 URL <span style={{ color: '#8A3A1C' }}>*필수 (없으면 비공개)</span></label>
+                    <input type="text" value={newForm.consentFile} onChange={(e) => setNewForm((p) => ({ ...p, consentFile: e.target.value }))} placeholder="Blob URL 또는 파일 경로" style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }} />
+                  </div>
+                </>
+              )}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 16, background: '#F4F2EE', borderRadius: 10 }}>
                 <label style={{ display: 'flex', gap: 10, alignItems: 'center', fontSize: 14 }}>
                   <input type="checkbox" checked={newForm.consentConfirmed} onChange={(e) => setNewForm((p) => ({ ...p, consentConfirmed: e.target.checked }))} style={{ width: 20, height: 20 }} />
@@ -287,7 +331,9 @@ export function ReviewsClient({ slug, reviews: initialReviews }: Props) {
                 </label>
               </div>
               <div style={{ fontSize: 13, lineHeight: 1.7, color: '#5A6270' }}>
-                동의가 체크되지 않은 후기는 게시되지 않습니다.
+                {tab === 'score_case'
+                  ? '동의 확인 + 동의서 파일이 모두 있어야 공개됩니다.'
+                  : '동의가 체크되지 않은 후기는 게시되지 않습니다.'}
               </div>
               <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
                 <button type="button" onClick={() => setShowAdd(false)} style={{ flex: 1, height: 48, border: '1px solid #D5D0C6', borderRadius: 10, background: '#FFFFFF', font: 'inherit', fontSize: 14, cursor: 'pointer' }}>취소</button>
@@ -344,6 +390,52 @@ export function ReviewsClient({ slug, reviews: initialReviews }: Props) {
                   </select>
                 </div>
               </div>
+              {selected.kind === 'score_case' && (
+                <>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>변화 전</label>
+                      <input
+                        type="text"
+                        value={(fieldVal('beforeValue') as string) ?? ''}
+                        onChange={(e) => setForm((p) => ({ ...p, [selected.id]: { ...(p[selected.id] ?? {}), beforeValue: e.target.value } }))}
+                        placeholder="예: 45점"
+                        style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>변화 후</label>
+                      <input
+                        type="text"
+                        value={(fieldVal('afterValue') as string) ?? ''}
+                        onChange={(e) => setForm((p) => ({ ...p, [selected.id]: { ...(p[selected.id] ?? {}), afterValue: e.target.value } }))}
+                        placeholder="예: 88점"
+                        style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>기간</label>
+                      <input
+                        type="text"
+                        value={(fieldVal('periodLabel') as string) ?? ''}
+                        onChange={(e) => setForm((p) => ({ ...p, [selected.id]: { ...(p[selected.id] ?? {}), periodLabel: e.target.value } }))}
+                        placeholder="예: 3개월"
+                        style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
+                      />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>동의서 파일 URL <span style={{ color: '#8A3A1C' }}>*필수 (없으면 비공개)</span></label>
+                    <input
+                      type="text"
+                      value={(fieldVal('consentFile') as string) ?? ''}
+                      onChange={(e) => setForm((p) => ({ ...p, [selected.id]: { ...(p[selected.id] ?? {}), consentFile: e.target.value } }))}
+                      placeholder="Blob URL 또는 파일 경로"
+                      style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
+                    />
+                  </div>
+                </>
+              )}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 16, background: '#F4F2EE', borderRadius: 10 }}>
                 <label style={{ display: 'flex', gap: 10, alignItems: 'center', fontSize: 14 }}>
                   <input
@@ -380,7 +472,9 @@ export function ReviewsClient({ slug, reviews: initialReviews }: Props) {
                 </label>
               </div>
               <div style={{ fontSize: 13, lineHeight: 1.7, color: '#5A6270' }}>
-                동의가 체크되지 않은 후기는 게시되지 않습니다. 성적 사례는 동의서 파일 첨부가 필수입니다.
+                {selected.kind === 'score_case'
+                  ? '동의 확인 + 동의서 파일이 모두 있어야 공개됩니다.'
+                  : '동의가 체크되지 않은 후기는 게시되지 않습니다.'}
               </div>
               <button
                 type="button"

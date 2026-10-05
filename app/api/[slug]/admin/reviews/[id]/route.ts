@@ -27,16 +27,34 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
   const consentConfirmed =
     body.consentConfirmed !== undefined ? body.consentConfirmed === true : existing.consentConfirmed;
 
+  const consentFile: string | null =
+    body.consentFile !== undefined
+      ? (body.consentFile ?? '').trim() || null
+      : existing.consentFile;
+
+  // 성적 사례: consent_file 없으면 공개 불가 (SPEC line 160)
+  const visible = consentConfirmed && (existing.kind === 'review' || !!consentFile);
+
   const review = await prisma.review.update({
     where: { id },
     data: {
-      body: body.body ?? existing.body,
-      authorLabel: body.authorLabel ?? existing.authorLabel,
-      source: body.source ?? existing.source,
+      body: body.body !== undefined ? body.body : existing.body,
+      authorLabel: body.authorLabel !== undefined ? body.authorLabel : existing.authorLabel,
+      source: body.source !== undefined ? body.source : existing.source,
       consentConfirmed,
-      showOnHome: consentConfirmed ? (body.showOnHome ?? existing.showOnHome) : false,
-      // 동의 없으면 비공개 강제 (SPEC 절대 원칙 5)
-      visible: consentConfirmed,
+      consentFile,
+      beforeValue: existing.kind === 'score_case'
+        ? (body.beforeValue !== undefined ? body.beforeValue : existing.beforeValue)
+        : null,
+      afterValue: existing.kind === 'score_case'
+        ? (body.afterValue !== undefined ? body.afterValue : existing.afterValue)
+        : null,
+      periodLabel: existing.kind === 'score_case'
+        ? (body.periodLabel !== undefined ? body.periodLabel : existing.periodLabel)
+        : null,
+      comment: body.comment !== undefined ? body.comment : existing.comment,
+      showOnHome: visible ? (body.showOnHome !== undefined ? body.showOnHome : existing.showOnHome) : false,
+      visible,
     },
   });
 
@@ -48,6 +66,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
       authorLabel: review.authorLabel,
       source: review.source,
       consentConfirmed: review.consentConfirmed,
+      consentFile: review.consentFile,
+      beforeValue: review.beforeValue,
+      afterValue: review.afterValue,
+      periodLabel: review.periodLabel,
+      comment: review.comment,
       showOnHome: review.showOnHome,
       visible: review.visible,
     },

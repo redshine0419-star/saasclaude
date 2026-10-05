@@ -34,6 +34,11 @@ export default async function AdminReviewsPage({
     authorLabel: r.authorLabel,
     source: r.source,
     consentConfirmed: r.consentConfirmed,
+    consentFile: r.consentFile,
+    beforeValue: r.beforeValue,
+    afterValue: r.afterValue,
+    periodLabel: r.periodLabel,
+    comment: r.comment,
     showOnHome: r.showOnHome,
     visible: r.visible,
   }));
