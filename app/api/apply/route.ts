@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   if (!body) return NextResponse.json({ error: '입력 오류' }, { status: 400 });
 
   const { academyName, area, subject, directorName, phone, currentUrl,
-    consentTerms, consentPrivacy, consentBeta, consentCase } = body;
+    wantsPhotoShoot, consentTerms, consentPrivacy, consentBeta, consentCase } = body;
 
   if (!academyName || !area || !subject || !directorName || !phone) {
     return NextResponse.json({ error: '필수 항목을 모두 입력해주세요.' }, { status: 400 });
@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
       directorName: directorName.trim(),
       phone: phone.trim(),
       currentUrl: currentUrl?.trim() || null,
+      wantsPhotoShoot: Boolean(wantsPhotoShoot),
       queueOrder: count + 1,
       consentTerms: Boolean(consentTerms),
       consentPrivacy: Boolean(consentPrivacy),

@@ -11,6 +11,9 @@ type Application = {
   subject: string;
   area: string;
   phone: string;
+  currentUrl: string | null;
+  wantsPhotoShoot: boolean;
+  uploadedFiles: string[];
   status: string;
   expectedStartDate: string | null;
   createdAt: string;
@@ -179,7 +182,36 @@ export function QueueClient({ apps }: { apps: Application[] }) {
           <div style={{ fontSize: 13, color: '#5A6270', lineHeight: 1.7 }}>
             <div>{selected.directorName} 원장 · {selected.subject} · {selected.area}</div>
             <div>신청 {new Date(selected.createdAt).toLocaleDateString('ko-KR')}</div>
+            {selected.currentUrl && (
+              <div><a href={selected.currentUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#1D3FA8' }}>현재 홈페이지 ↗</a></div>
+            )}
+            {selected.wantsPhotoShoot && (
+              <div style={{ marginTop: 4, padding: '4px 8px', borderRadius: 6, background: '#FBF1CF', color: '#5A4A12', display: 'inline-block', fontWeight: 600 }}>📷 사진 촬영 요청</div>
+            )}
           </div>
+
+          {/* Uploaded files */}
+          {selected.uploadedFiles.length > 0 && (
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>제출 자료 ({selected.uploadedFiles.length}개)</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {selected.uploadedFiles.map((url, i) => {
+                  const name = url.startsWith('http') ? url.split('/').pop() ?? url : url;
+                  return (
+                    <a
+                      key={i}
+                      href={url.startsWith('http') ? url : undefined}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ fontSize: 13, color: '#1D3FA8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}
+                    >
+                      {name}
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <div>
             <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>진행 상태</label>

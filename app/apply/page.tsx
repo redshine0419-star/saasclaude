@@ -13,6 +13,7 @@ export default function ApplyPage() {
     directorName: '',
     phone: '',
     currentUrl: '',
+    wantsPhotoShoot: false,
     consentTerms: false,
     consentPrivacy: false,
     consentBeta: false,
@@ -39,7 +40,7 @@ export default function ApplyPage() {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error ?? '오류가 발생했습니다.'); return; }
-      window.location.href = '/apply/done';
+      window.location.href = `/apply/done?id=${data.id}`;
     } catch {
       setError('네트워크 오류가 발생했습니다. 다시 시도해주세요.');
     } finally {
@@ -125,6 +126,19 @@ export default function ApplyPage() {
                 placeholder="https://..."
                 style={{ height: 48, padding: '0 14px', borderRadius: 10, border: '1px solid #CDD3DD', fontSize: 15, outline: 'none', fontFamily: 'inherit' }}
               />
+            </label>
+
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', padding: '16px 18px', borderRadius: 10, border: '1px solid #CDD3DD', background: form.wantsPhotoShoot ? '#F0F4FF' : '#FAFBFC' }}>
+              <input
+                type="checkbox"
+                checked={form.wantsPhotoShoot}
+                onChange={(e) => set('wantsPhotoShoot', e.target.checked)}
+                style={{ marginTop: 3, flexShrink: 0, width: 16, height: 16, accentColor: '#14213D' }}
+              />
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>학원 사진 촬영 요청 <span style={{ fontSize: 12, color: '#8A93A8', fontWeight: 400 }}>(선택)</span></div>
+                <div style={{ fontSize: 13, color: '#5A6270', marginTop: 4, lineHeight: 1.6 }}>제작팀이 학원을 방문해 홈페이지용 사진을 촬영합니다. 일정은 담당자가 개별 안내드립니다.</div>
+              </div>
             </label>
 
             {/* Consents */}
