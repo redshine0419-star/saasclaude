@@ -29,9 +29,10 @@ import HeroSectionBright from '@/components/academy/sections/HeroSectionBright';
 import DayFlowSection from '@/components/academy/sections/DayFlowSection';
 import GallerySection from '@/components/academy/sections/GallerySection';
 import SafetySection from '@/components/academy/sections/SafetySection';
+import LocationSection from '@/components/academy/sections/LocationSection';
 
 const SECTION_ORDERS = {
-  warm: ['hero', 'quick_info', 'director', 'classes', 'fees', 'reviews', 'news', 'consult_form'],
+  warm: ['hero', 'quick_info', 'director', 'classes', 'fees', 'reviews', 'news', 'consult_form', 'location'],
   result: ['hero', 'results_stats', 'exam_system', 'curriculum', 'score_cases', 'teachers', 'fees', 'consult_form'],
   bright: ['hero', 'day_flow', 'classes', 'gallery', 'safety', 'consult_form'],
 } as const;
@@ -159,6 +160,9 @@ export default async function AcademyPage({
         const safetyItems = data!.reviews.filter((r) => r.kind === 'review');
         return safetyItems.length > 0 ? <SafetySection key="safety" reviews={data!.reviews} /> : null;
       }
+
+      case 'location':
+        return <LocationSection key="location" tenant={data!.tenant} shuttle={data!.shuttle} slug={slug} />;
 
       default:
         return null;
