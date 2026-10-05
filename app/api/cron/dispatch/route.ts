@@ -1,0 +1,115 @@
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { sendMessage } from '@/lib/messaging/send';
+import { hashPhone } from '@/lib/messaging/hash';
+
+// Vercel Cron: */5 * * * * — 5분마다 실행
+// 1) 야간 차단으로 deferred된 Messages 재시도
+// 2) 카카오 예약 발송이 있는 Posts 처리
+
+export async function GET(req: Request) {
+  // Vercel Cron은 Authorization: Bearer <CRON_SECRET> 헤더를 붙임
+  const auth = req.headers.get('authorization');
+  if (process.env.CRON_SECRET && auth !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const now = new Date();
+  let dispatched = 0;
+  let failed = 0;
+
+  // ── 1. Deferred messages ─────────────────────────────────────────
+  const deferredMessages = await prisma.message.findMany({
+    where: {
+      status: 'deferred',
+      scheduledAt: { lte: now },
+    },
+    include: { lead: true },
+    take: 50,
+  });
+
+  for (const msg of deferredMessages) {
+    if (!msg.lead?.phone) {
+      await prisma.message.update({ where: { id: msg.id }, data: { status: 'failed', error: 'no_phone', sentAt: now } });
+      failed++;
+      continue;
+    }
+
+    // Fetch current consent for this lead
+    const consents = await prisma.consent.findMany({
+      where: { tenantId: msg.tenantId, leadId: msg.leadId ?? '', revokedAt: null, grantedAt: { not: null } },
+    });
+    const consentSet = new Set(consents.map((c) => c.type));
+
+    const isAd = msg.kind === 'ad';
+    const result = await sendMessage({
+      tenantId: msg.tenantId,
+      recipientId: msg.leadId ?? msg.id,
+      recipientHash: msg.recipientHash,
+      phone: msg.lead.phone,
+      kind: msg.scenario as Parameters<typeof sendMessage>[0]['kind'],
+      body: '',
+      isAdvertisement: isAd,
+      consent: { marketing: consentSet.has('marketing'), night: consentSet.has('night') },
+      requestedAt: now,
+    });
+
+    if (result.dispatched && 'status' in result && result.status === 'sent') {
+      await prisma.message.update({ where: { id: msg.id }, data: { status: 'sent', sentAt: now } });
+      dispatched++;
+    } else if (!result.dispatched && result.reason === 'no_marketing_consent') {
+      await prisma.message.update({ where: { id: msg.id }, data: { status: 'failed', error: result.reason, sentAt: now } });
+      failed++;
+    }
+    // If still deferred (e.g. still night), leave as is
+  }
+
+  // ── 2. Post kakao scheduled dispatch ─────────────────────────────
+  const pendingPosts = await prisma.post.findMany({
+    where: {
+      sendKakao: true,
+      kakaoScheduledAt: { lte: now },
+      kakaoSentAt: null,
+      status: 'published',
+    },
+    include: { tenant: true },
+    take: 20,
+  });
+
+  for (const post of pendingPosts) {
+    // Find marketing-consented leads for this tenant
+    const consentedLeads = await prisma.consent.findMany({
+      where: {
+        tenantId: post.tenantId,
+        type: 'marketing',
+        grantedAt: { not: null },
+        revokedAt: null,
+      },
+      include: { lead: { select: { id: true, phone: true } } },
+    });
+
+    let postDispatched = 0;
+    for (const consent of consentedLeads) {
+      if (!consent.lead?.phone) continue;
+      const recipientHash = hashPhone(consent.lead.phone);
+
+      await sendMessage({
+        tenantId: post.tenantId,
+        recipientId: consent.leadId,
+        recipientHash,
+        phone: consent.lead.phone,
+        kind: 'campaign',
+        body: `[${post.tenant.name}] ${post.title}\n\n${post.body.slice(0, 200)}`,
+        isAdvertisement: true,
+        consent: { marketing: true, night: true }, // already validated consent; scheduledAt was cleared for night
+        requestedAt: now,
+      });
+      postDispatched++;
+    }
+
+    await prisma.post.update({ where: { id: post.id }, data: { kakaoSentAt: now } });
+    dispatched += postDispatched;
+  }
+
+  return NextResponse.json({ ok: true, dispatched, failed, at: now.toISOString() });
+}

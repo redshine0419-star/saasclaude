@@ -368,6 +368,7 @@ model Post {
   publishedAt     DateTime?
   sendKakao       Boolean    @default(false)
   kakaoScheduledAt DateTime?
+  kakaoSentAt     DateTime?  // 카카오 발송 완료 시각 (null이면 미발송)
 
   tenant          Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
@@ -492,6 +493,7 @@ model Message {
   channel       MessageChannel @default(alimtalk)
   recipientHash String   // HMAC-SHA256(phone) — 원문 저장 안 함
   status        MessageStatus @default(pending)
+  scheduledAt   DateTime?    // 발송 예정 시각 (야간 지연 시 다음날 08:00)
   cost          Int?     // 원 단위
   sentAt        DateTime?
   error         String?
