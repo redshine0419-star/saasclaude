@@ -31,7 +31,15 @@ const SETTING_DEFS = [
   },
 ];
 
-export function SettingsClient({ initialSettings }: { initialSettings: Record<string, string> }) {
+interface ProxyLog {
+  id: string;
+  accessedAt: string;
+  adminEmail: string;
+  tenantName: string;
+  tenantSlug: string;
+}
+
+export function SettingsClient({ initialSettings, proxyLogs = [] }: { initialSettings: Record<string, string>; proxyLogs?: ProxyLog[] }) {
   const router = useRouter();
   const [values, setValues] = useState<Record<string, string>>(initialSettings);
   const [saving, setSaving] = useState(false);
@@ -145,6 +153,39 @@ export function SettingsClient({ initialSettings }: { initialSettings: Record<st
         >
           {saving ? '저장 중…' : '설정 저장'}
         </button>
+      </div>
+
+      {/* 대행 접속 기록 */}
+      <div style={{ padding: 24, borderRadius: 14, background: '#FFFFFF' }}>
+        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 16 }}>대행 접속 기록 (최근 50건)</div>
+        {proxyLogs.length === 0 ? (
+          <div style={{ fontSize: 14, color: '#9AA3AF' }}>대행 접속 기록이 없습니다.</div>
+        ) : (
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid #EEEAE2' }}>
+                <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>시각</th>
+                <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>운영자</th>
+                <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>학원</th>
+              </tr>
+            </thead>
+            <tbody>
+              {proxyLogs.map((l) => (
+                <tr key={l.id} style={{ borderBottom: '1px solid #F5F3EF' }}>
+                  <td style={{ padding: '8px 12px', color: '#8A93A8' }}>
+                    {new Date(l.accessedAt).toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short' })}
+                  </td>
+                  <td style={{ padding: '8px 12px', color: '#5A6270' }}>{l.adminEmail}</td>
+                  <td style={{ padding: '8px 12px' }}>
+                    <a href={`/platform/academies/${l.tenantSlug}`} style={{ color: '#1D3FA8', textDecoration: 'none', fontWeight: 600 }}>
+                      {l.tenantName}
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

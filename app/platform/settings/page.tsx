@@ -13,8 +13,23 @@ export default async function PlatformSettingsPage() {
   });
   if (!platformMembership) redirect('/');
 
-  const rows = await prisma.platformSetting.findMany();
+  const [rows, recentProxyLogs] = await Promise.all([
+    prisma.platformSetting.findMany(),
+    prisma.proxyAccessLog.findMany({
+      orderBy: { accessedAt: 'desc' },
+      take: 50,
+      include: { tenant: { select: { name: true, slug: true } } },
+    }),
+  ]);
   const initialSettings = Object.fromEntries(rows.map((r) => [r.key, r.value]));
+
+  const proxyLogs = recentProxyLogs.map((l) => ({
+    id: l.id,
+    accessedAt: l.accessedAt.toISOString(),
+    adminEmail: l.adminEmail,
+    tenantName: l.tenant.name,
+    tenantSlug: l.tenant.slug,
+  }));
 
   return (
     <div style={{ display: 'flex', flex: 1 }}>
@@ -36,7 +51,7 @@ export default async function PlatformSettingsPage() {
           </div>
         </div>
 
-        <SettingsClient initialSettings={initialSettings} />
+        <SettingsClient initialSettings={initialSettings} proxyLogs={proxyLogs} />
       </main>
     </div>
   );

@@ -71,6 +71,8 @@ model Tenant {
   automationSettings AutomationSetting[]
   messages      Message[]
   monthlyReports MonthlyReport[]
+  contactLogs   TenantContactLog[]
+  proxyAccessLogs ProxyAccessLog[]
 
   @@map("tenants")
 }
@@ -593,6 +595,35 @@ model Application {
   consentCase      Boolean  @default(false)
 
   @@map("applications")
+}
+
+model TenantContactLog {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+
+  authorEmail String  // platform_admin email
+  channel     String  // 'phone' | 'kakao' | 'email' | 'visit' | 'other'
+  note        String  // 내용 메모
+
+  @@index([tenantId])
+  @@map("tenant_contact_logs")
+}
+
+model ProxyAccessLog {
+  id          String   @id @default(cuid())
+  accessedAt  DateTime @default(now())
+
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+
+  adminEmail  String   // platform_admin email
+
+  @@index([tenantId])
+  @@index([adminEmail])
+  @@map("proxy_access_logs")
 }
 
 enum ApplicationStatus {

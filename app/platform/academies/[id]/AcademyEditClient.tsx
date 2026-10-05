@@ -22,6 +22,14 @@ interface OverlapAcademy {
   address: string | null;
 }
 
+interface ContactLog {
+  id: string;
+  createdAt: string;
+  authorEmail: string;
+  channel: string;
+  note: string;
+}
+
 interface Props {
   id: string;
   name: string;
@@ -36,6 +44,7 @@ interface Props {
   sections: SectionState[];
   allSections: SectionDef[];
   overlaps: OverlapAcademy[];
+  contactLogs: ContactLog[];
 }
 
 const THEMES = [
@@ -59,8 +68,32 @@ export function AcademyEditClient(props: Props) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  const [logs, setLogs] = useState<ContactLog[]>(props.contactLogs);
+  const [logChannel, setLogChannel] = useState('phone');
+  const [logNote, setLogNote] = useState('');
+  const [addingLog, setAddingLog] = useState(false);
+
   const currentTheme = THEMES.find((t) => t.value === theme) ?? THEMES[0];
   const themeSections = props.allSections.filter((s) => s.themes.includes(theme));
+
+  async function addContactLog() {
+    if (!logNote.trim()) return;
+    setAddingLog(true);
+    try {
+      const res = await fetch(`/api/platform/academies/${props.id}/contact-log`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ channel: logChannel, note: logNote }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setLogs((prev) => [data.log, ...prev]);
+        setLogNote('');
+      }
+    } finally {
+      setAddingLog(false);
+    }
+  }
 
   function toggleSection(key: string) {
     setSections((prev) => prev.map((s) => s.key === key ? { ...s, enabled: !s.enabled } : s));
@@ -255,6 +288,59 @@ export function AcademyEditClient(props: Props) {
               <Link href={`/${props.slug}/admin`} style={{ marginTop: 14, display: 'block', fontSize: 13, color: '#1E5645', fontWeight: 600, textDecoration: 'none' }}>학원 관리자 →</Link>
             </div>
           </div>
+        </div>
+        {/* 원장 연락 기록 */}
+        <div style={{ padding: 24, borderRadius: 14, background: '#FFFFFF' }}>
+          <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 16 }}>원장 연락 기록</div>
+
+          {/* Add entry */}
+          <div style={{ display: 'flex', gap: 10, marginBottom: 20, alignItems: 'flex-start' }}>
+            <select
+              value={logChannel}
+              onChange={(e) => setLogChannel(e.target.value)}
+              style={{ height: 40, padding: '0 10px', borderRadius: 8, border: '1px solid #D5D0C6', fontSize: 13, fontFamily: 'inherit', flexShrink: 0 }}
+            >
+              <option value="phone">전화</option>
+              <option value="kakao">카카오</option>
+              <option value="email">이메일</option>
+              <option value="visit">방문</option>
+              <option value="other">기타</option>
+            </select>
+            <textarea
+              value={logNote}
+              onChange={(e) => setLogNote(e.target.value)}
+              placeholder="연락 내용 메모..."
+              rows={2}
+              style={{ flex: 1, padding: '9px 12px', border: '1px solid #D5D0C6', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', resize: 'vertical' }}
+            />
+            <button
+              onClick={addContactLog}
+              disabled={addingLog || !logNote.trim()}
+              style={{ height: 40, padding: '0 16px', borderRadius: 8, border: 'none', background: '#1D3FA8', color: '#FFFFFF', fontSize: 13, fontWeight: 700, cursor: (addingLog || !logNote.trim()) ? 'not-allowed' : 'pointer', opacity: (addingLog || !logNote.trim()) ? 0.5 : 1, flexShrink: 0 }}
+            >
+              기록
+            </button>
+          </div>
+
+          {logs.length === 0 ? (
+            <div style={{ fontSize: 14, color: '#9AA3AF' }}>연락 기록이 없습니다.</div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+              {logs.map((l) => (
+                <div key={l.id} style={{ padding: '12px 0', borderBottom: '1px solid #F0EDE7', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                  <div style={{ flexShrink: 0, width: 50, fontSize: 12, fontWeight: 700, color: '#5A6270', paddingTop: 2 }}>
+                    {{ phone: '전화', kakao: '카카오', email: '이메일', visit: '방문', other: '기타' }[l.channel] ?? l.channel}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, lineHeight: 1.6 }}>{l.note}</div>
+                    <div style={{ fontSize: 12, color: '#9AA3AF', marginTop: 2 }}>
+                      {new Date(l.createdAt).toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short' })} · {l.authorEmail}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </main>

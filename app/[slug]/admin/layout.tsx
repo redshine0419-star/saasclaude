@@ -31,6 +31,16 @@ export default async function AdminLayout({
 
   const isProxy = !membership && !!platformMembership;
 
+  // Record proxy access for audit log (fire-and-forget, don't block render)
+  if (isProxy) {
+    const tenant = await prisma.tenant.findUnique({ where: { slug }, select: { id: true } });
+    if (tenant) {
+      prisma.proxyAccessLog.create({
+        data: { tenantId: tenant.id, adminEmail: session.user.email! },
+      }).catch(() => {});
+    }
+  }
+
   return (
     <>
       {isProxy && (

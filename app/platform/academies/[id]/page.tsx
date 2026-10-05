@@ -33,18 +33,25 @@ export default async function AcademyEditPage({ params }: Props) {
   if (!tenant) notFound();
 
   // 같은 지역·과목 경고: 동일 subjects + address(시/구 기준) 다른 활성 학원
-  const overlaps = tenant.subjects && tenant.address
-    ? await prisma.tenant.findMany({
-        where: {
-          id: { not: tenant.id },
-          status: 'active',
-          subjects: tenant.subjects,
-          address: { contains: tenant.address.split(' ').slice(0, 2).join(' ') },
-        },
-        select: { id: true, name: true, slug: true, address: true },
-        take: 5,
-      })
-    : [];
+  const [overlaps, contactLogs] = await Promise.all([
+    tenant.subjects && tenant.address
+      ? prisma.tenant.findMany({
+          where: {
+            id: { not: tenant.id },
+            status: 'active',
+            subjects: tenant.subjects,
+            address: { contains: tenant.address.split(' ').slice(0, 2).join(' ') },
+          },
+          select: { id: true, name: true, slug: true, address: true },
+          take: 5,
+        })
+      : Promise.resolve([]),
+    prisma.tenantContactLog.findMany({
+      where: { tenantId: tenant.id },
+      orderBy: { createdAt: 'desc' },
+      take: 30,
+    }),
+  ]);
 
   const sections = tenant.sections.map((s) => ({ key: s.sectionKey, enabled: s.enabled, sortOrder: s.sortOrder }));
 
@@ -65,6 +72,13 @@ export default async function AcademyEditPage({ params }: Props) {
         sections={sections}
         allSections={ALL_SECTIONS}
         overlaps={overlaps}
+        contactLogs={contactLogs.map((l) => ({
+          id: l.id,
+          createdAt: l.createdAt.toISOString(),
+          authorEmail: l.authorEmail,
+          channel: l.channel,
+          note: l.note,
+        }))}
       />
     </div>
   );
