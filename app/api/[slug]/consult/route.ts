@@ -20,8 +20,9 @@ export async function POST(
     return NextResponse.json({ error: '필수 항목을 입력해주세요.' }, { status: 400 });
   }
 
-  // 데모 테넌트: DB 저장 없이 mock 발송만
-  if (slug === 'demo') {
+  // 데모 테넌트: DB 저장 없이 mock 응답
+  const DEMO_SLUGS = new Set(['demo', 'demo-warm', 'demo-result', 'demo-bright']);
+  if (DEMO_SLUGS.has(slug)) {
     return NextResponse.json({ ok: true, demo: true });
   }
 

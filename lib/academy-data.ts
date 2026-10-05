@@ -504,10 +504,12 @@ export async function getAcademyPageData(slug: string): Promise<AcademyPageData 
         afterValue: r.afterValue, periodLabel: r.periodLabel, comment: r.comment,
       })),
       posts: tenant.posts.map((p: {
-        id: string; category: string; title: string; publishedAt: Date | null;
+        id: string; category: string; title: string; publishedAt: Date | null; images: string[];
       }) => ({
         id: p.id, category: p.category, title: p.title,
-        summary: null, body: null, imageUrl: null, summaryFields: null,
+        summary: null, body: null,
+        imageUrl: p.images.length > 0 ? p.images[0] : null,
+        summaryFields: null,
         publishedAt: p.publishedAt,
       })),
       shuttle: [],
@@ -531,8 +533,14 @@ export async function getAcademyPageData(slug: string): Promise<AcademyPageData 
 
 // ─── 소식 상세 조회 ───────────────────────────────────────────
 export async function getPostData(slug: string, postId: string): Promise<AcademyPost | null> {
-  if (slug === 'demo') {
+  if (slug === 'demo' || slug === 'demo-warm') {
     return DEMO_DATA.posts.find((p) => p.id === postId) ?? null;
+  }
+  if (slug === 'demo-result') {
+    return DEMO_DATA_RESULT.posts.find((p) => p.id === postId) ?? null;
+  }
+  if (slug === 'demo-bright') {
+    return DEMO_DATA_BRIGHT.posts.find((p) => p.id === postId) ?? null;
   }
   try {
     const post = await prisma.post.findFirst({
@@ -541,7 +549,8 @@ export async function getPostData(slug: string, postId: string): Promise<Academy
     if (!post) return null;
     return {
       id: post.id, category: post.category, title: post.title,
-      summary: null, body: post.body ?? null, imageUrl: null,
+      summary: null, body: post.body ?? null,
+      imageUrl: post.images.length > 0 ? post.images[0] : null,
       summaryFields: post.summaryFields as Record<string, string> | null,
       publishedAt: post.publishedAt,
     };
