@@ -22,7 +22,7 @@ export default async function AdminInfoPage({
   });
   if (!membership) redirect('/auth/signin');
 
-  const [director, fees, feeChangeLogs, principles, facilities, refundPolicyText] = await Promise.all([
+  const [director, fees, feeChangeLogs, principles, facilities, refundPolicyText, shuttleStops] = await Promise.all([
     prisma.directorProfile.findUnique({ where: { tenantId: tenant.id } }),
     prisma.fee.findMany({ where: { tenantId: tenant.id }, orderBy: { id: 'asc' } }),
     prisma.feeChangeLog.findMany({
@@ -33,6 +33,7 @@ export default async function AdminInfoPage({
     prisma.teachingPrinciple.findMany({ where: { tenantId: tenant.id }, orderBy: { sortOrder: 'asc' } }),
     prisma.facility.findMany({ where: { tenantId: tenant.id }, orderBy: { sortOrder: 'asc' } }),
     prisma.refundPolicyText.findUnique({ where: { tenantId: tenant.id } }),
+    prisma.shuttleStop.findMany({ where: { tenantId: tenant.id }, orderBy: { sortOrder: 'asc' } }),
   ]);
 
   return (
@@ -52,42 +53,44 @@ export default async function AdminInfoPage({
       >
         <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>학원 정보·교습비</h1>
 
-        {/* Naver Place mismatch warning — placeholder until GA4/Naver API available */}
-        <div
-          style={{
-            padding: '16px 20px',
-            background: '#FBF1CF',
-            borderRadius: 12,
-            display: 'flex',
-            gap: 16,
-            alignItems: 'center',
-          }}
-        >
-          <div style={{ flex: 1, fontSize: 14, lineHeight: 1.6, color: '#5A4A12' }}>
-            네이버 플레이스와 홈페이지 정보가 일치하는지 직접 확인해 주세요. 불일치 시 검색 신뢰도가 떨어질 수 있습니다.
-          </div>
-          <a
-            href={tenant.naverPlaceUrl ?? '#'}
-            target="_blank"
-            rel="noopener noreferrer"
+        {/* Naver Place mismatch warning — shown only when naverPlaceUrl is set */}
+        {tenant.naverPlaceUrl && (
+          <div
             style={{
-              height: 40,
-              padding: '0 14px',
-              border: '1px solid #8A6A10',
-              borderRadius: 8,
-              background: '#FFFFFF',
-              color: '#5A4A12',
-              textDecoration: 'none',
-              fontSize: 14,
-              fontWeight: 600,
+              padding: '16px 20px',
+              background: '#FBF1CF',
+              borderRadius: 12,
               display: 'flex',
+              gap: 16,
               alignItems: 'center',
-              whiteSpace: 'nowrap',
             }}
           >
-            플레이스 확인하기
-          </a>
-        </div>
+            <div style={{ flex: 1, fontSize: 14, lineHeight: 1.6, color: '#5A4A12' }}>
+              <b>네이버 플레이스 정보 확인 필요</b> — 플레이스에 등록된 학원명·주소·전화번호가 아래 정보와 일치하는지 직접 확인해 주세요. 불일치 시 검색 신뢰도가 낮아질 수 있습니다.
+            </div>
+            <a
+              href={tenant.naverPlaceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                height: 40,
+                padding: '0 14px',
+                border: '1px solid #8A6A10',
+                borderRadius: 8,
+                background: '#FFFFFF',
+                color: '#5A4A12',
+                textDecoration: 'none',
+                fontSize: 14,
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              플레이스 확인하기
+            </a>
+          </div>
+        )}
 
         <InfoClient
           slug={slug}
@@ -118,6 +121,7 @@ export default async function AdminInfoPage({
           principles={principles.map((p) => ({ id: p.id, number: p.number, title: p.title, description: p.description, sortOrder: p.sortOrder }))}
           facilities={facilities.map((f) => ({ id: f.id, label: f.label, photo: f.photo, sortOrder: f.sortOrder }))}
           refundPolicyText={refundPolicyText?.body ?? null}
+          shuttleStops={shuttleStops.map((s) => ({ id: s.id, stop: s.stop, pickup: s.pickup, dropoff: s.dropoff, sortOrder: s.sortOrder }))}
         />
       </main>
     </div>

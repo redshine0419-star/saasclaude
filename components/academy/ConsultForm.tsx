@@ -23,10 +23,17 @@ export default function ConsultForm({ slug, slots }: { slug: string; slots: Leve
     content: searchParams.get('utm_content'),
     term: searchParams.get('utm_term'),
   };
+  const waitlistClass = searchParams.get('class');
+  const isWaitlist = searchParams.get('waitlist') === '1';
+  const defaultMessage = waitlistClass && isWaitlist
+    ? `대기 신청합니다 — ${waitlistClass}`
+    : '';
+
   const [consultType, setConsultType] = useState(CONSULT_TYPES[0]);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(slots[0]?.id ?? null);
   const [customTime, setCustomTime] = useState(false);
   const [grade, setGrade] = useState('');
+  const [message, setMessage] = useState(defaultMessage);
   const [agree1, setAgree1] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -48,7 +55,7 @@ export default function ConsultForm({ slug, slots }: { slug: string; slots: Leve
       school: fd.get('school') as string,
       consultType,
       slotId: customTime ? 'custom' : selectedSlot,
-      message: fd.get('message') as string,
+      message: message || (fd.get('message') as string),
       agreeMarketing: !!(fd.get('agree2')),
       agreeNight: !!(fd.get('agree3')),
       utm: Object.values(utm).some(Boolean) ? utm : undefined,
@@ -191,6 +198,8 @@ export default function ConsultForm({ slug, slots }: { slug: string; slots: Leve
           id="c-msg"
           name="message"
           placeholder="아이의 현재 상황이나 궁금한 점을 적어주세요"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
           className="h-24 px-4 py-3 rounded-[10px] border border-input-line text-[16px] bg-bg resize-none focus:outline-none focus:border-accent"
         />
       </div>

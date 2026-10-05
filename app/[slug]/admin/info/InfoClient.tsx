@@ -54,6 +54,14 @@ interface FacilityRow {
   sortOrder: number;
 }
 
+interface ShuttleRow {
+  id: string;
+  stop: string;
+  pickup: string | null;
+  dropoff: string | null;
+  sortOrder: number;
+}
+
 interface Props {
   slug: string;
   tenant: TenantInfo;
@@ -63,6 +71,7 @@ interface Props {
   principles: PrincipleRow[];
   facilities: FacilityRow[];
   refundPolicyText: string | null;
+  shuttleStops: ShuttleRow[];
 }
 
 const INPUT = {
@@ -76,7 +85,7 @@ const TEXTAREA = {
 };
 const LABEL = { fontSize: 13, fontWeight: 600, color: '#5A6270' };
 
-export function InfoClient({ slug, tenant: initialTenant, director: initialDirector, fees: initialFees, feeChangeLogs, principles: initialPrinciples, facilities: initialFacilities, refundPolicyText: initialRefundPolicyText }: Props) {
+export function InfoClient({ slug, tenant: initialTenant, director: initialDirector, fees: initialFees, feeChangeLogs, principles: initialPrinciples, facilities: initialFacilities, refundPolicyText: initialRefundPolicyText, shuttleStops: initialShuttleStops }: Props) {
   const [info, setInfo] = useState(initialTenant);
   const [director, setDirector] = useState<DirectorInfo>(
     initialDirector ?? { headline: null, career: null, philosophy: null, education: null }
@@ -106,6 +115,12 @@ export function InfoClient({ slug, tenant: initialTenant, director: initialDirec
   const [refundPolicyText, setRefundPolicyText] = useState(initialRefundPolicyText ?? '');
   const [refundSaving, setRefundSaving] = useState(false);
   const [refundSaved, setRefundSaved] = useState(false);
+
+  // Shuttle stops state
+  const [shuttleStops, setShuttleStops] = useState(initialShuttleStops);
+  const [shuttleForm, setShuttleForm] = useState<{ stop: string; pickup: string; dropoff: string }>({ stop: '', pickup: '', dropoff: '' });
+  const [showAddShuttle, setShowAddShuttle] = useState(false);
+  const [shuttleSaving, setShuttleSaving] = useState(false);
 
   const feeChanged = fees.some((f) => {
     const orig = initialFees.find((o) => o.id === f.id);
@@ -233,6 +248,31 @@ export function InfoClient({ slug, tenant: initialTenant, director: initialDirec
     } finally {
       setRefundSaving(false);
     }
+  }
+
+  async function addShuttleStop() {
+    if (!shuttleForm.stop.trim()) return;
+    setShuttleSaving(true);
+    try {
+      const res = await fetch(`/api/${slug}/admin/shuttle`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(shuttleForm),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setShuttleStops((p) => [...p, data.stop]);
+        setShuttleForm({ stop: '', pickup: '', dropoff: '' });
+        setShowAddShuttle(false);
+      }
+    } finally {
+      setShuttleSaving(false);
+    }
+  }
+
+  async function deleteShuttleStop(id: string) {
+    await fetch(`/api/${slug}/admin/shuttle/${id}`, { method: 'DELETE' });
+    setShuttleStops((p) => p.filter((x) => x.id !== id));
   }
 
   return (
@@ -567,6 +607,72 @@ export function InfoClient({ slug, tenant: initialTenant, director: initialDirec
         >
           {refundSaved ? '저장 완료 ✓' : refundSaving ? '저장 중…' : '환불 정책 저장'}
         </button>
+      </div>
+
+      {/* 셔틀 노선 */}
+      <div style={{ padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontSize: 16, fontWeight: 700 }}>셔틀 노선</div>
+          <button
+            type="button"
+            onClick={() => setShowAddShuttle(true)}
+            style={{ height: 36, padding: '0 14px', border: '1px dashed #B7B0A2', borderRadius: 8, background: '#FFFFFF', font: 'inherit', fontSize: 13, cursor: 'pointer' }}
+          >
+            + 정류장 추가
+          </button>
+        </div>
+
+        {showAddShuttle && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: 8, alignItems: 'end' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={LABEL}>정류장명</label>
+              <input type="text" value={shuttleForm.stop} onChange={(e) => setShuttleForm((p) => ({ ...p, stop: e.target.value }))} placeholder="역삼역 1번 출구" style={INPUT} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={LABEL}>등원 시간</label>
+              <input type="text" value={shuttleForm.pickup} onChange={(e) => setShuttleForm((p) => ({ ...p, pickup: e.target.value }))} placeholder="08:00" style={INPUT} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={LABEL}>하원 시간</label>
+              <input type="text" value={shuttleForm.dropoff} onChange={(e) => setShuttleForm((p) => ({ ...p, dropoff: e.target.value }))} placeholder="21:00" style={INPUT} />
+            </div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button type="button" onClick={addShuttleStop} disabled={shuttleSaving} style={{ height: 44, padding: '0 14px', border: 'none', borderRadius: 8, background: '#1E5645', color: '#FFFFFF', font: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                추가
+              </button>
+              <button type="button" onClick={() => setShowAddShuttle(false)} style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, background: '#FFFFFF', font: 'inherit', fontSize: 13, cursor: 'pointer' }}>
+                취소
+              </button>
+            </div>
+          </div>
+        )}
+
+        {shuttleStops.length === 0 && !showAddShuttle ? (
+          <p style={{ margin: 0, fontSize: 13, color: '#8A93A8' }}>등록된 셔틀 정류장이 없습니다. 위치 페이지에 노선표가 표시됩니다.</p>
+        ) : (
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid #EEEAE2', color: '#5A6270' }}>
+                <th style={{ padding: '8px 0', textAlign: 'left', fontWeight: 600 }}>정류장</th>
+                <th style={{ padding: '8px 0', textAlign: 'left', fontWeight: 600 }}>등원</th>
+                <th style={{ padding: '8px 0', textAlign: 'left', fontWeight: 600 }}>하원</th>
+                <th style={{ padding: '8px 0', width: 40 }} />
+              </tr>
+            </thead>
+            <tbody>
+              {shuttleStops.map((s) => (
+                <tr key={s.id} style={{ borderBottom: '1px solid #F5F3EF' }}>
+                  <td style={{ padding: '10px 0', fontWeight: 500 }}>{s.stop}</td>
+                  <td style={{ padding: '10px 0', color: '#5A6270' }}>{s.pickup ?? '–'}</td>
+                  <td style={{ padding: '10px 0', color: '#5A6270' }}>{s.dropoff ?? '–'}</td>
+                  <td style={{ padding: '10px 0' }}>
+                    <button type="button" onClick={() => deleteShuttleStop(s.id)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#C0392B', fontSize: 16, padding: 0 }}>✕</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {/* 교습비 변경 이력 */}
