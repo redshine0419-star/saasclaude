@@ -149,6 +149,14 @@ export async function POST(
       marketingConsent: body.agreeMarketing ?? false,
       nightConsent: body.agreeNight ?? false,
     });
+  } else {
+    await prisma.leadEvent.create({
+      data: {
+        leadId: lead.id,
+        type: 'receipt_skipped',
+        payload: { reason: receiptTemplate ? `review_status:${receiptTemplate.reviewStatus}` : 'no_template' },
+      },
+    });
   }
 
   // ── owner_alert 발송 (notify_recipients에게) ──────────────────────────

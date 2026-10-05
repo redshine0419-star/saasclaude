@@ -119,7 +119,7 @@ export default async function NewsDetailPage({
         </div>
       </main>
       <SiteFooter tenant={tenant} slug={slug} />
-      <MobileBottomBar tenant={tenant} />
+      <MobileBottomBar tenant={tenant} slug={slug} />
     </>
   );
 }

@@ -214,7 +214,7 @@ export default async function AcademyPage({
         {displayOrder.map(renderSection)}
       </main>
       <SiteFooter tenant={data.tenant} slug={slug} />
-      <MobileBottomBar tenant={data.tenant} />
+      <MobileBottomBar tenant={data.tenant} slug={slug} />
     </>
   );
 }

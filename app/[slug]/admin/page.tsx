@@ -65,7 +65,7 @@ export default async function AdminDashboardPage({
     prisma.lead.count({ where: { tenantId: tenant.id, createdAt: { gte: monthStart }, status: 'enrolled' } }),
     prisma.lead.count({ where: { tenantId: tenant.id, createdAt: { gte: monthStart }, status: 'test_booked' } }),
     prisma.lead.findMany({
-      where: { tenantId: tenant.id, status: 'new' },
+      where: { tenantId: tenant.id, status: 'new', createdAt: { gte: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000) } },
       orderBy: { createdAt: 'desc' },
       include: { consents: { where: { type: 'marketing' } } },
     }),

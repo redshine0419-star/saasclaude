@@ -290,7 +290,7 @@ export default async function ReviewsPage({
         )}
       </main>
       <SiteFooter tenant={tenant} slug={slug} />
-      <MobileBottomBar tenant={tenant} />
+      <MobileBottomBar tenant={tenant} slug={slug} />
     </>
   );
 }

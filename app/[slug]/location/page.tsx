@@ -142,7 +142,7 @@ export default async function LocationPage({
         </section>
       </main>
       <SiteFooter tenant={tenant} slug={slug} />
-      <MobileBottomBar tenant={tenant} />
+      <MobileBottomBar tenant={tenant} slug={slug} />
     </>
   );
 }

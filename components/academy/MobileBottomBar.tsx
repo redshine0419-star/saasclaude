@@ -1,8 +1,8 @@
 import type { AcademyTenant } from '@/lib/academy-data';
 
-type Props = { tenant: AcademyTenant };
+type Props = { tenant: AcademyTenant; slug: string };
 
-export default function MobileBottomBar({ tenant }: Props) {
+export default function MobileBottomBar({ tenant, slug }: Props) {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-bg border-t border-line md:hidden">
       <div className="flex h-16 items-center gap-2 px-4">
@@ -38,7 +38,7 @@ export default function MobileBottomBar({ tenant }: Props) {
 
         {/* CTA */}
         <a
-          href="#consult"
+          href={`/${slug}/consult`}
           className="flex-1 h-12 flex items-center justify-center rounded-xl bg-accent text-on-accent font-bold text-[15px]"
         >
           무료 레벨테스트 신청
