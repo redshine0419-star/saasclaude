@@ -54,7 +54,10 @@ export default async function AdminDashboardPage({
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  const [thisMonthLeads, enrolledCount, testBookedCount, recentNew] = await Promise.all([
+  // SPEC 6장: 오늘 연락할 상담 = new 전부 + not_enrolled 후 3일 지난 건
+  const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
+
+  const [thisMonthLeads, enrolledCount, testBookedCount, newLeads, followupLeads] = await Promise.all([
     prisma.lead.findMany({
       where: { tenantId: tenant.id, createdAt: { gte: monthStart } },
       orderBy: { createdAt: 'desc' },
@@ -62,15 +65,22 @@ export default async function AdminDashboardPage({
     prisma.lead.count({ where: { tenantId: tenant.id, createdAt: { gte: monthStart }, status: 'enrolled' } }),
     prisma.lead.count({ where: { tenantId: tenant.id, createdAt: { gte: monthStart }, status: 'test_booked' } }),
     prisma.lead.findMany({
+      where: { tenantId: tenant.id, status: 'new' },
+      orderBy: { createdAt: 'desc' },
+      include: { consents: { where: { type: 'marketing' } } },
+    }),
+    prisma.lead.findMany({
       where: {
         tenantId: tenant.id,
-        status: { in: ['new', 'not_enrolled'] },
+        status: 'not_enrolled',
+        statusChangedAt: { lte: threeDaysAgo },
       },
-      orderBy: { createdAt: 'desc' },
-      take: 5,
+      orderBy: { statusChangedAt: 'asc' },
       include: { consents: { where: { type: 'marketing' } } },
     }),
   ]);
+
+  const recentNew = [...newLeads, ...followupLeads];
 
   const totalLeads = thisMonthLeads.length;
   const conversionRate =
@@ -307,7 +317,23 @@ export default async function AdminDashboardPage({
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ fontSize: 16, fontWeight: 700 }}>연락이 필요한 상담</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ fontSize: 16, fontWeight: 700 }}>연락이 필요한 상담</div>
+                {recentNew.length > 0 && (
+                  <span
+                    style={{
+                      background: '#C8433A',
+                      color: '#FFFFFF',
+                      borderRadius: 10,
+                      fontSize: 12,
+                      fontWeight: 700,
+                      padding: '2px 7px',
+                    }}
+                  >
+                    {recentNew.length}
+                  </span>
+                )}
+              </div>
               <Link
                 href={`/${slug}/admin/leads`}
                 style={{ fontSize: 14, color: '#1E5645', textDecoration: 'none' }}
