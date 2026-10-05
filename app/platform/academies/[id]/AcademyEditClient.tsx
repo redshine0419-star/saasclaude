@@ -3,6 +3,27 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
+// WCAG 2.1 relative luminance + contrast ratio
+function relativeLuminance(hex: string): number {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const toLinear = (c: number) => c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+}
+
+function contrastRatio(hex: string, bgHex: string): number {
+  const l1 = relativeLuminance(hex);
+  const l2 = relativeLuminance(bgHex);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function isValidHex(hex: string): boolean {
+  return /^#[0-9A-Fa-f]{6}$/.test(hex);
+}
+
 interface SectionDef {
   key: string;
   label: string;
@@ -97,6 +118,20 @@ export function AcademyEditClient(props: Props) {
 
   function toggleSection(key: string) {
     setSections((prev) => prev.map((s) => s.key === key ? { ...s, enabled: !s.enabled } : s));
+  }
+
+  function moveSection(key: string, dir: -1 | 1) {
+    setSections((prev) => {
+      const themeKeys = props.allSections.filter((d) => d.themes.includes(theme)).map((d) => d.key);
+      const ordered = [...prev].sort((a, b) => a.sortOrder - b.sortOrder).filter((s) => themeKeys.includes(s.key));
+      const idx = ordered.findIndex((s) => s.key === key);
+      const swapIdx = idx + dir;
+      if (swapIdx < 0 || swapIdx >= ordered.length) return prev;
+      const newOrder = [...ordered];
+      [newOrder[idx], newOrder[swapIdx]] = [newOrder[swapIdx], newOrder[idx]];
+      const updatedKeys = new Map(newOrder.map((s, i) => [s.key, i]));
+      return prev.map((s) => updatedKeys.has(s.key) ? { ...s, sortOrder: updatedKeys.get(s.key)! } : s);
+    });
   }
 
   async function handleSave() {
@@ -226,29 +261,71 @@ export function AcademyEditClient(props: Props) {
                   </button>
                 )}
               </div>
+              {/* WCAG contrast check */}
+              {(() => {
+                const hex = accentColor || currentTheme.color;
+                if (!isValidHex(hex)) return null;
+                const onWhite = contrastRatio(hex, '#FFFFFF');
+                const onBg = contrastRatio(hex, '#F4F2EE');
+                const aaWhite = onWhite >= 4.5;
+                const aaBg = onBg >= 4.5;
+                const badge = (pass: boolean, ratio: number, label: string) => (
+                  <span key={label} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 6, background: pass ? '#D8E8E0' : '#FDE8E8', color: pass ? '#1E5645' : '#B91C1C', fontSize: 12, fontWeight: 600 }}>
+                    {pass ? '✓' : '✗'} {label} {ratio.toFixed(1)}:1
+                  </span>
+                );
+                return (
+                  <div style={{ marginTop: 10, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                    <span style={{ fontSize: 12, color: '#5A6270' }}>WCAG AA (4.5:1):</span>
+                    {badge(aaWhite, onWhite, '흰 배경')}
+                    {badge(aaBg, onBg, '종이 배경')}
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Sections */}
             <div style={{ padding: 24, borderRadius: 14, background: '#FFFFFF' }}>
               <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>섹션 구성</div>
-              <div style={{ fontSize: 13, color: '#5A6270', marginBottom: 16 }}>현재 테마({currentTheme.label})에서 사용 가능한 섹션입니다.</div>
+              <div style={{ fontSize: 13, color: '#5A6270', marginBottom: 16 }}>현재 테마({currentTheme.label})에서 사용 가능한 섹션입니다. ↑↓ 버튼으로 순서를 변경하세요.</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-                {themeSections.map((def) => {
-                  const state = sections.find((s) => s.key === def.key);
-                  const enabled = state?.enabled ?? false;
-                  return (
-                    <label key={def.key} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderBottom: '1px solid #F0EDE7', cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={enabled}
-                        onChange={() => toggleSection(def.key)}
-                        style={{ width: 16, height: 16, accentColor: currentTheme.color, flexShrink: 0 }}
-                      />
-                      <span style={{ fontSize: 14, fontWeight: enabled ? 600 : 400, color: enabled ? '#1B2430' : '#8A93A8' }}>{def.label}</span>
-                      <span style={{ marginLeft: 'auto', fontSize: 12, color: '#C9CFDA', fontFamily: 'monospace' }}>{def.key}</span>
-                    </label>
-                  );
-                })}
+                {(() => {
+                  const ordered = [...sections]
+                    .filter((s) => themeSections.some((d) => d.key === s.key))
+                    .sort((a, b) => a.sortOrder - b.sortOrder);
+                  return ordered.map((state, i) => {
+                    const def = themeSections.find((d) => d.key === state.key);
+                    if (!def) return null;
+                    return (
+                      <div key={state.key} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid #F0EDE7' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flexShrink: 0 }}>
+                          <button
+                            type="button"
+                            onClick={() => moveSection(state.key, -1)}
+                            disabled={i === 0}
+                            style={{ width: 22, height: 20, border: '1px solid #E2DDD2', borderRadius: 4, background: '#FAFAF8', fontSize: 11, cursor: i === 0 ? 'default' : 'pointer', opacity: i === 0 ? 0.3 : 1, lineHeight: 1 }}
+                          >▲</button>
+                          <button
+                            type="button"
+                            onClick={() => moveSection(state.key, 1)}
+                            disabled={i === ordered.length - 1}
+                            style={{ width: 22, height: 20, border: '1px solid #E2DDD2', borderRadius: 4, background: '#FAFAF8', fontSize: 11, cursor: i === ordered.length - 1 ? 'default' : 'pointer', opacity: i === ordered.length - 1 ? 0.3 : 1, lineHeight: 1 }}
+                          >▼</button>
+                        </div>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={state.enabled}
+                            onChange={() => toggleSection(state.key)}
+                            style={{ width: 16, height: 16, accentColor: currentTheme.color, flexShrink: 0 }}
+                          />
+                          <span style={{ fontSize: 14, fontWeight: state.enabled ? 600 : 400, color: state.enabled ? '#1B2430' : '#8A93A8' }}>{def.label}</span>
+                          <span style={{ marginLeft: 'auto', fontSize: 12, color: '#C9CFDA', fontFamily: 'monospace' }}>{def.key}</span>
+                        </label>
+                      </div>
+                    );
+                  });
+                })()}
               </div>
             </div>
           </div>

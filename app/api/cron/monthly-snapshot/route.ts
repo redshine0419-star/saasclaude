@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { sendMessage } from '@/lib/messaging/send';
+import { hashPhone } from '@/lib/messaging/hash';
 
 // Vercel Cron: 0 1 1 * * — 매월 1일 01:00 UTC (KST 10:00)
 // 전월 통계 스냅샷을 모든 활성 테넌트의 monthly_reports에 저장
@@ -85,6 +87,36 @@ export async function GET(req: Request) {
       update: { snapshot },
       create: { tenantId: tenant.id, month: monthKey, snapshot },
     });
+
+    // ── 월간 요약 카톡 발송 (notify_recipients에게) ────────────────
+    const tenantFull = await prisma.tenant.findUnique({
+      where: { id: tenant.id },
+      select: { name: true, slug: true, notifyRecipients: true },
+    });
+
+    if (tenantFull && tenantFull.notifyRecipients.length > 0) {
+      const summaryBody =
+        `[${tenantFull.name}] ${monthKey} 월간 리포트\n\n` +
+        `상담 신청: ${totalLeads}건\n` +
+        `등록 전환: ${enrolledLeads}건 (${conversionRate}%)\n` +
+        `카톡 발송: ${messagesSent}건\n` +
+        `마케팅 동의: ${marketingConsents}명\n\n` +
+        `상세 리포트: ${process.env.NEXT_PUBLIC_BASE_URL ?? 'https://growweb.me'}/${tenantFull.slug}/admin/report`;
+
+      for (const recipient of tenantFull.notifyRecipients) {
+        await sendMessage({
+          tenantId: tenant.id,
+          recipientId: recipient.id,
+          recipientHash: hashPhone(recipient.phone),
+          phone: recipient.phone,
+          kind: 'owner_alert',
+          body: summaryBody,
+          isAdvertisement: false,
+          consent: { marketing: true, night: false },
+          requestedAt: now,
+        }).catch(() => {});
+      }
+    }
 
     generated++;
   }
