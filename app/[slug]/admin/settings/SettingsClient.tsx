@@ -8,6 +8,12 @@ interface Recipient {
   phone: string;
 }
 
+interface ProxyLog {
+  id: string;
+  accessedAt: string;
+  adminEmail: string;
+}
+
 interface Props {
   slug: string;
   recipients: Recipient[];
@@ -16,6 +22,8 @@ interface Props {
   ga4Connected: boolean;
   plan: string;
   betaEndsAt: string | null;
+  accentColor: string;
+  proxyLogs: ProxyLog[];
 }
 
 function maskPhone(phone: string) {
@@ -32,11 +40,16 @@ export function SettingsClient({
   ga4Connected,
   plan,
   betaEndsAt,
+  accentColor: initialAccentColor,
+  proxyLogs,
 }: Props) {
   const [recipients, setRecipients] = useState(initialRecipients);
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState('');
   const [newPhone, setNewPhone] = useState('');
+  const [accentColor, setAccentColor] = useState(initialAccentColor);
+  const [accentSaving, setAccentSaving] = useState(false);
+  const [accentSaved, setAccentSaved] = useState(false);
   const [addSaving, setAddSaving] = useState(false);
 
   async function addRecipient() {
@@ -62,6 +75,24 @@ export function SettingsClient({
   async function removeRecipient(id: string) {
     await fetch(`/api/${slug}/admin/settings/notify/${id}`, { method: 'DELETE' });
     setRecipients((p) => p.filter((r) => r.id !== id));
+  }
+
+  async function saveAccentColor() {
+    setAccentSaving(true);
+    setAccentSaved(false);
+    try {
+      const res = await fetch(`/api/${slug}/admin/settings/accent`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accentColor }),
+      });
+      if (res.ok) {
+        setAccentSaved(true);
+        setTimeout(() => setAccentSaved(false), 3000);
+      }
+    } finally {
+      setAccentSaving(false);
+    }
   }
 
   return (
@@ -213,6 +244,72 @@ export function SettingsClient({
         <a href={`mailto:contact@growweb.me`} style={{ fontSize: 14, fontWeight: 600, color: '#1E5645', textDecoration: 'none' }}>
           관리 담당자에게 문의
         </a>
+      </div>
+
+      {/* 강조색 */}
+      <div style={{ padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ fontSize: 16, fontWeight: 700 }}>강조색</div>
+        <div style={{ fontSize: 13, color: '#5A6270' }}>홈페이지 버튼·링크 색상을 변경합니다. 비워두면 테마 기본색이 사용됩니다.</div>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={accentColor || '#1E5645'}
+            onChange={(e) => setAccentColor(e.target.value)}
+            style={{ width: 44, height: 44, borderRadius: 8, border: '1px solid #D5D0C6', cursor: 'pointer' }}
+          />
+          <input
+            type="text"
+            value={accentColor}
+            onChange={(e) => setAccentColor(e.target.value)}
+            placeholder="HEX 코드 (예: #2563EB)"
+            style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, fontSize: 14, fontFamily: 'monospace', width: 160 }}
+          />
+          {accentColor && (
+            <button type="button" onClick={() => setAccentColor('')} style={{ fontSize: 13, border: 'none', background: 'transparent', color: '#8A3A1C', cursor: 'pointer' }}>
+              초기화
+            </button>
+          )}
+        </div>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <button
+            onClick={saveAccentColor}
+            disabled={accentSaving}
+            style={{ height: 40, padding: '0 20px', borderRadius: 8, border: 'none', background: '#1E5645', color: '#FFFFFF', fontSize: 14, fontWeight: 700, cursor: accentSaving ? 'not-allowed' : 'pointer', opacity: accentSaving ? 0.6 : 1 }}
+          >
+            {accentSaving ? '저장 중…' : '저장'}
+          </button>
+          {accentSaved && <span style={{ fontSize: 13, color: '#1E5645', fontWeight: 600 }}>저장됨 ✓</span>}
+        </div>
+      </div>
+
+      {/* 대행 접속 기록 */}
+      <div style={{ gridColumn: '1 / -1', padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div>
+          <div style={{ fontSize: 16, fontWeight: 700 }}>대행 접속 기록</div>
+          <div style={{ fontSize: 13, color: '#5A6270', marginTop: 4 }}>첫등원 운영자가 이 학원 관리자에 접속한 기록입니다.</div>
+        </div>
+        {proxyLogs.length === 0 ? (
+          <div style={{ fontSize: 14, color: '#9AA3AF' }}>대행 접속 기록이 없습니다.</div>
+        ) : (
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid #EEEAE2' }}>
+                <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>접속 시각</th>
+                <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>운영자</th>
+              </tr>
+            </thead>
+            <tbody>
+              {proxyLogs.map((l) => (
+                <tr key={l.id} style={{ borderBottom: '1px solid #F5F3EF' }}>
+                  <td style={{ padding: '8px 12px', color: '#8A93A8' }}>
+                    {new Date(l.accessedAt).toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short' })}
+                  </td>
+                  <td style={{ padding: '8px 12px', color: '#5A6270' }}>{l.adminEmail}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

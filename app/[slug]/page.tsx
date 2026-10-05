@@ -110,49 +110,55 @@ export default async function AcademyPage({
           <DirectorSection key="director" tenant={data!.tenant} director={data!.director} />
         ) : null;
       case 'classes':
-        return <ClassesSection key="classes" classes={data!.classes} />;
+        return data!.classes.length > 0 ? <ClassesSection key="classes" classes={data!.classes} /> : null;
       case 'reviews':
-        return <ReviewsSection key="reviews" reviews={data!.reviews} />;
+        return data!.reviews.filter((r) => r.kind === 'review').length > 0 ? (
+          <ReviewsSection key="reviews" reviews={data!.reviews} />
+        ) : null;
       case 'news':
-        return <NewsSection key="news" posts={data!.posts} />;
+        return data!.posts.length > 0 ? <NewsSection key="news" posts={data!.posts} /> : null;
 
       // ── Theme B sections ──
       case 'results_stats':
-        return (
+        return data!.resultStats.length > 0 ? (
           <ResultsStatsSection
             key="results_stats"
             tenant={data!.tenant}
             resultStats={data!.resultStats}
           />
-        );
+        ) : null;
       case 'exam_system':
         return <ExamSystemSection key="exam_system" tenant={data!.tenant} />;
       case 'curriculum':
-        return <CurriculumSection key="curriculum" classes={data!.classes} />;
-      case 'score_cases':
-        return (
+        return data!.classes.length > 0 ? <CurriculumSection key="curriculum" classes={data!.classes} /> : null;
+      case 'score_cases': {
+        const scoreCases = data!.reviews.filter((r) => r.kind === 'score_case' || r.kind === 'score');
+        return scoreCases.length > 0 ? (
           <ScoreCasesSection
             key="score_cases"
             tenant={data!.tenant}
             reviews={data!.reviews}
           />
-        );
+        ) : null;
+      }
       case 'teachers':
-        return (
+        return data!.staff.length > 0 ? (
           <TeachersSection
             key="teachers"
             tenant={data!.tenant}
             staff={data!.staff}
           />
-        );
+        ) : null;
 
       // ── Theme C sections ──
       case 'day_flow':
         return <DayFlowSection key="day_flow" tenant={data!.tenant} />;
       case 'gallery':
-        return <GallerySection key="gallery" posts={data!.posts} />;
-      case 'safety':
-        return <SafetySection key="safety" reviews={data!.reviews} />;
+        return data!.posts.length > 0 ? <GallerySection key="gallery" posts={data!.posts} /> : null;
+      case 'safety': {
+        const safetyItems = data!.reviews.filter((r) => r.kind === 'review');
+        return safetyItems.length > 0 ? <SafetySection key="safety" reviews={data!.reviews} /> : null;
+      }
 
       default:
         return null;

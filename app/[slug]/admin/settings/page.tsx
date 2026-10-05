@@ -22,10 +22,17 @@ export default async function AdminSettingsPage({
   });
   if (!membership) redirect('/auth/signin');
 
-  const recipients = await prisma.notifyRecipient.findMany({
-    where: { tenantId: tenant.id },
-    orderBy: { id: 'asc' },
-  });
+  const [recipients, proxyLogs] = await Promise.all([
+    prisma.notifyRecipient.findMany({
+      where: { tenantId: tenant.id },
+      orderBy: { id: 'asc' },
+    }),
+    prisma.proxyAccessLog.findMany({
+      where: { tenantId: tenant.id },
+      orderBy: { accessedAt: 'desc' },
+      take: 20,
+    }),
+  ]);
 
   return (
     <div
@@ -51,6 +58,8 @@ export default async function AdminSettingsPage({
           ga4Connected={!!tenant.ga4MeasurementId}
           plan={tenant.planStatus}
           betaEndsAt={tenant.betaEndsAt?.toISOString() ?? null}
+          accentColor={tenant.accentColor ?? ''}
+          proxyLogs={proxyLogs.map((l) => ({ id: l.id, accessedAt: l.accessedAt.toISOString(), adminEmail: l.adminEmail }))}
         />
       </main>
     </div>
