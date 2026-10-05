@@ -68,6 +68,15 @@ export default async function KakaoLogPage({
       },
       orderBy: { createdAt: 'desc' },
       take: 100,
+      include: {
+        lead: {
+          include: {
+            consents: {
+              where: { type: { in: ['marketing', 'night'] } },
+            },
+          },
+        },
+      },
     }),
     prisma.consent.count({
       where: {
@@ -191,11 +200,35 @@ export default async function KakaoLogPage({
                       <th style={{ padding: '14px 16px', fontWeight: 600 }}>받는 사람</th>
                       <th style={{ padding: '14px 16px', fontWeight: 600 }}>메시지</th>
                       <th style={{ padding: '14px 16px', fontWeight: 600 }}>유형</th>
+                      <th style={{ padding: '14px 16px', fontWeight: 600 }}>수신 동의</th>
                       <th style={{ padding: '14px 16px', fontWeight: 600 }}>결과</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {messages.map((msg) => (
+                    {messages.map((msg) => {
+                      const consents = msg.lead?.consents ?? [];
+                      const hasMarketing = consents.some(
+                        (c) => c.type === 'marketing' && c.grantedAt && !c.revokedAt,
+                      );
+                      const hasNight = consents.some(
+                        (c) => c.type === 'night' && c.grantedAt && !c.revokedAt,
+                      );
+                      const consentLabel =
+                        msg.kind !== 'ad'
+                          ? null
+                          : hasMarketing
+                          ? hasNight
+                            ? '동의·야간'
+                            : '동의'
+                          : '미동의';
+                      const consentStyle =
+                        consentLabel === null
+                          ? {}
+                          : consentLabel === '미동의'
+                          ? { background: '#FCE4DC', color: '#8A3A1C' }
+                          : { background: '#D8E8E0', color: '#1E5645' };
+
+                      return (
                       <tr key={msg.id} style={{ borderTop: '1px solid #EEEAE2' }}>
                         <td style={{ padding: '14px 16px' }}>
                           {msg.sentAt ? formatKST(msg.sentAt) : formatKST(msg.createdAt)}
@@ -208,6 +241,23 @@ export default async function KakaoLogPage({
                         </td>
                         <td style={{ padding: '14px 16px' }}>
                           {msg.kind === 'ad' ? '광고성' : '정보성'}
+                        </td>
+                        <td style={{ padding: '14px 16px' }}>
+                          {consentLabel ? (
+                            <span
+                              style={{
+                                padding: '3px 8px',
+                                borderRadius: 5,
+                                fontSize: 12,
+                                fontWeight: 700,
+                                ...consentStyle,
+                              }}
+                            >
+                              {consentLabel}
+                            </span>
+                          ) : (
+                            <span style={{ color: '#9AA3AF', fontSize: 13 }}>—</span>
+                          )}
                         </td>
                         <td
                           style={{
@@ -232,7 +282,8 @@ export default async function KakaoLogPage({
                             : '처리 중'}
                         </td>
                       </tr>
-                    ))}
+                      );
+                    })}
                   </tbody>
                 </table>
               )}

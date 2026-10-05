@@ -27,7 +27,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
   }
 
   const body = await req.json().catch(() => null);
-  if (typeof body?.enabled !== 'boolean') {
+  if (!body || (typeof body.enabled !== 'boolean' && typeof body.templateBody !== 'string')) {
     return NextResponse.json({ error: '잘못된 요청입니다.' }, { status: 400 });
   }
 
@@ -39,6 +39,23 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const scenarioEnum = scenario as any;
 
+  // Template body update (sets reviewStatus to pending)
+  if (typeof body.templateBody === 'string') {
+    const template = await prisma.messageTemplate.upsert({
+      where: { tenantId_scenario: { tenantId: tenant.id, scenario: scenarioEnum } },
+      update: { body: body.templateBody, reviewStatus: 'pending' },
+      create: {
+        tenantId: tenant.id,
+        scenario: scenarioEnum,
+        kind: 'info',
+        body: body.templateBody,
+        reviewStatus: 'pending',
+      },
+    });
+    return NextResponse.json({ ok: true, reviewStatus: template.reviewStatus });
+  }
+
+  // Enabled toggle
   const setting = await prisma.automationSetting.upsert({
     where: { tenantId_scenario: { tenantId: tenant.id, scenario: scenarioEnum } },
     update: { enabled: body.enabled },

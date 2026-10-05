@@ -108,6 +108,13 @@ export function KakaoAutomationClient({
   );
   const [selectedScenario, setSelectedScenario] = useState<string>('receipt');
   const [loading, setLoading] = useState<string | null>(null);
+  const [editBodies, setEditBodies] = useState<Record<string, string>>(
+    Object.fromEntries(templates.map((t) => [t.scenario, t.body ?? '']))
+  );
+  const [templateSaving, setTemplateSaving] = useState(false);
+  const [templateReviewStatus, setTemplateReviewStatus] = useState<Record<string, string>>(
+    Object.fromEntries(templates.map((t) => [t.scenario, t.reviewStatus]))
+  );
 
   const scenarios = ['receipt', 'reminder', 'followup', 'campaign'];
   const templateMap = Object.fromEntries(templates.map((t) => [t.scenario, t]));
@@ -129,9 +136,27 @@ export function KakaoAutomationClient({
     }
   }
 
+  async function submitTemplateBody() {
+    setTemplateSaving(true);
+    try {
+      const res = await fetch(`/api/${slug}/admin/automation/${selectedScenario}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ templateBody: editBodies[selectedScenario] ?? '' }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setTemplateReviewStatus((p) => ({ ...p, [selectedScenario]: data.reviewStatus }));
+      }
+    } finally {
+      setTemplateSaving(false);
+    }
+  }
+
   const selectedTemplate = templateMap[selectedScenario];
   const selectedMeta = SCENARIO_META[selectedScenario];
   const previewBody = selectedTemplate?.approvedBody ?? selectedTemplate?.body ?? '';
+  const currentReviewStatus = templateReviewStatus[selectedScenario] ?? selectedTemplate?.reviewStatus ?? 'draft';
 
   return (
     <div style={{ display: 'flex', gap: 20, flex: 1, minHeight: 0 }}>
@@ -289,66 +314,84 @@ export function KakaoAutomationClient({
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ fontSize: 16, fontWeight: 700 }}>{selectedMeta?.label}</div>
-          {selectedTemplate?.reviewStatus && (
-            <span
-              style={{
-                padding: '3px 8px',
-                borderRadius: 5,
-                fontSize: 12,
-                fontWeight: 700,
-                ...(REVIEW_STATUS_STYLE[selectedTemplate.reviewStatus] ?? {}),
-              }}
-            >
-              {REVIEW_STATUS_LABEL[selectedTemplate.reviewStatus] ?? selectedTemplate.reviewStatus}
-            </span>
-          )}
-        </div>
-
-        {/* Kakao-style bubble */}
-        <div
-          style={{
-            padding: 20,
-            background: '#E8E4DB',
-            borderRadius: 12,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 8,
-          }}
-        >
-          <div style={{ fontSize: 12, color: '#3E4652' }}>학부모에게 보이는 미리보기</div>
-          <div
+          <span
             style={{
-              padding: 16,
-              background: '#FFFFFF',
-              borderRadius: 12,
-              fontSize: 14,
-              lineHeight: 1.75,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 12,
+              padding: '3px 8px',
+              borderRadius: 5,
+              fontSize: 12,
+              fontWeight: 700,
+              ...(REVIEW_STATUS_STYLE[currentReviewStatus] ?? {}),
             }}
           >
-            {previewBody ? (
-              <div style={{ whiteSpace: 'pre-wrap' }}>{renderBody(previewBody)}</div>
-            ) : (
-              <div style={{ color: '#9AA3AF' }}>템플릿이 아직 없습니다.</div>
-            )}
+            {REVIEW_STATUS_LABEL[currentReviewStatus] ?? currentReviewStatus}
+          </span>
+        </div>
+
+        {/* Editable template body */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>문구 편집</div>
+          <textarea
+            value={editBodies[selectedScenario] ?? ''}
+            onChange={(e) => setEditBodies((p) => ({ ...p, [selectedScenario]: e.target.value }))}
+            rows={6}
+            placeholder={`안녕하세요, #{학부모명}님. ${selectedMeta?.label ?? ''}…`}
+            style={{
+              padding: '10px 12px',
+              border: '1px solid #D5D0C6',
+              borderRadius: 8,
+              font: 'inherit',
+              fontSize: 14,
+              lineHeight: 1.7,
+              resize: 'vertical',
+              width: '100%',
+              boxSizing: 'border-box',
+            }}
+          />
+        </div>
+
+        {/* Kakao-style approved body preview */}
+        {previewBody && (
+          <div
+            style={{
+              padding: 20,
+              background: '#E8E4DB',
+              borderRadius: 12,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 8,
+            }}
+          >
+            <div style={{ fontSize: 12, color: '#3E4652' }}>승인된 문구 미리보기</div>
             <div
               style={{
-                height: 40,
-                border: '1px solid #D5D0C6',
-                borderRadius: 8,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 600,
+                padding: 16,
+                background: '#FFFFFF',
+                borderRadius: 12,
                 fontSize: 14,
+                lineHeight: 1.75,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 12,
               }}
             >
-              학원 소개 보기
+              <div style={{ whiteSpace: 'pre-wrap' }}>{renderBody(previewBody)}</div>
+              <div
+                style={{
+                  height: 40,
+                  border: '1px solid #D5D0C6',
+                  borderRadius: 8,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 600,
+                  fontSize: 14,
+                }}
+              >
+                학원 소개 보기
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Variable chips */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -392,6 +435,8 @@ export function KakaoAutomationClient({
 
         <button
           type="button"
+          disabled={templateSaving}
+          onClick={submitTemplateBody}
           style={{
             marginTop: 'auto',
             height: 48,
@@ -402,10 +447,11 @@ export function KakaoAutomationClient({
             font: 'inherit',
             fontSize: 15,
             fontWeight: 700,
-            cursor: 'pointer',
+            cursor: templateSaving ? 'wait' : 'pointer',
+            opacity: templateSaving ? 0.6 : 1,
           }}
         >
-          수정 후 재검수 요청
+          {templateSaving ? '저장 중…' : '수정 후 재검수 요청'}
         </button>
       </div>
     </div>
