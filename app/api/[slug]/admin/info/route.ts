@@ -29,10 +29,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
         where: { id: tenant.id },
         data: {
           name: body.info.name ?? tenant.name,
-          regNo: body.info.regNo ?? tenant.regNo,
-          phone: body.info.phone ?? tenant.phone,
-          hours: body.info.hours ?? tenant.hours,
-          address: body.info.address ?? tenant.address,
+          regNo: body.info.regNo ?? undefined,
+          phone: body.info.phone ?? undefined,
+          hours: body.info.hours ?? undefined,
+          address: body.info.address ?? undefined,
+          subjects: body.info.subjects ?? undefined,
+          targetGrades: body.info.targetGrades ?? undefined,
+          kakaoChannelUrl: body.info.kakaoChannelUrl ?? undefined,
+          ga4MeasurementId: body.info.ga4MeasurementId ?? undefined,
         },
       }),
     );
@@ -45,25 +49,37 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
         update: {
           headline: body.director.headline ?? null,
           career: body.director.career ?? null,
+          philosophy: body.director.philosophy ?? null,
+          education: body.director.education ?? null,
         },
         create: {
           tenantId: tenant.id,
           headline: body.director.headline ?? null,
           career: body.director.career ?? null,
+          philosophy: body.director.philosophy ?? null,
+          education: body.director.education ?? null,
         },
       }),
     );
   }
 
   if (Array.isArray(body.fees)) {
-    for (const fee of body.fees as { id: string; amount: number }[]) {
+    for (const fee of body.fees as { id: string; label?: string; amount: number }[]) {
       if (!fee.id || typeof fee.amount !== 'number') continue;
-      updates.push(
-        prisma.fee.updateMany({
-          where: { id: fee.id, tenantId: tenant.id },
-          data: { amount: fee.amount },
-        }),
-      );
+      if (fee.id.startsWith('new-')) {
+        updates.push(
+          prisma.fee.create({
+            data: { tenantId: tenant.id, label: fee.label ?? '과정', amount: fee.amount },
+          }),
+        );
+      } else {
+        updates.push(
+          prisma.fee.updateMany({
+            where: { id: fee.id, tenantId: tenant.id },
+            data: { amount: fee.amount, label: fee.label },
+          }),
+        );
+      }
     }
   }
 

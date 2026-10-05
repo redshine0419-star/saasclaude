@@ -89,10 +89,14 @@ export default async function AdminInfoPage({
             phone: tenant.phone,
             hours: tenant.hours,
             address: tenant.address,
+            subjects: tenant.subjects,
+            targetGrades: tenant.targetGrades,
+            kakaoChannelUrl: tenant.kakaoChannelUrl,
+            ga4MeasurementId: tenant.ga4MeasurementId,
           }}
           director={
             director
-              ? { headline: director.headline, career: director.career }
+              ? { headline: director.headline, career: director.career, philosophy: director.philosophy, education: director.education }
               : null
           }
           fees={fees.map((f) => ({ id: f.id, label: f.label, amount: f.amount }))}

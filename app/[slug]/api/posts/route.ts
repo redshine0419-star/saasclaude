@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { put } from '@vercel/blob';
 
 type Params = Promise<{ slug: string }>;
 
@@ -22,6 +23,7 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
 
   // Parse multipart/form-data or JSON
   let title: string, body: string, category: string, sendKakao: boolean;
+  let imageUrls: string[] = [];
   const contentType = req.headers.get('content-type') ?? '';
 
   if (contentType.includes('multipart/form-data')) {
@@ -30,7 +32,22 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
     body = String(fd.get('body') ?? '').trim();
     category = String(fd.get('category') ?? 'notice');
     sendKakao = fd.get('sendKakao') === 'true';
-    // image upload: TODO — Vercel Blob 연동 후 처리
+
+    // Upload images to Vercel Blob (only if BLOB_READ_WRITE_TOKEN is set)
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      const imageFiles = fd.getAll('images') as File[];
+      for (const file of imageFiles) {
+        if (!(file instanceof File) || !file.type.startsWith('image/')) continue;
+        if (file.size > 5 * 1024 * 1024) continue; // 5MB limit per image
+        const ext = file.name.split('.').pop() ?? 'jpg';
+        const blob = await put(
+          `posts/${tenant.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`,
+          file,
+          { access: 'public', contentType: file.type },
+        );
+        imageUrls.push(blob.url);
+      }
+    }
   } else {
     const data = await req.json().catch(() => ({}));
     title = String(data.title ?? '').trim();
@@ -67,6 +84,7 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
       publishedAt: now,
       sendKakao,
       kakaoScheduledAt,
+      images: imageUrls,
     },
   });
 
