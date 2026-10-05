@@ -6,6 +6,10 @@
     },
     {
       "path": "/api/cron/beta-check",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/reminder",
       "schedule": "0 9 * * *"
     }
   ]
