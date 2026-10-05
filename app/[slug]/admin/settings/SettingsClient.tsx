@@ -20,6 +20,7 @@ interface Props {
   userEmail: string;
   kakaoConnected: boolean;
   ga4Connected: boolean;
+  naverVerified: boolean;
   plan: string;
   betaEndsAt: string | null;
   accentColor: string;
@@ -38,6 +39,7 @@ export function SettingsClient({
   userEmail,
   kakaoConnected,
   ga4Connected,
+  naverVerified,
   plan,
   betaEndsAt,
   accentColor: initialAccentColor,
@@ -184,7 +186,7 @@ export function SettingsClient({
         {[
           { label: '카카오톡 채널', connected: kakaoConnected, connectedText: '연결됨 · 알림톡 사용 가능' },
           { label: 'GA4 방문 분석', connected: ga4Connected, connectedText: '연결됨' },
-          { label: '네이버 서치어드바이저', connected: false, connectedText: '확인 필요' },
+          { label: '네이버 서치어드바이저', connected: naverVerified, connectedText: '인증 코드 등록됨' },
         ].map((item) => (
           <div
             key={item.label}

@@ -15,12 +15,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }).catch(() => []),
   ]);
 
-  const tenantUrls = tenants.map((t) => ({
-    url: `${baseUrl}/${t.slug}`,
-    lastModified: t.updatedAt,
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }));
+  const TENANT_SUBPAGES = ['about', 'classes', 'fee', 'reviews', 'news', 'location', 'consult'];
+
+  const tenantUrls = tenants.flatMap((t) => [
+    {
+      url: `${baseUrl}/${t.slug}`,
+      lastModified: t.updatedAt,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    },
+    ...TENANT_SUBPAGES.map((page) => ({
+      url: `${baseUrl}/${t.slug}/${page}`,
+      lastModified: t.updatedAt,
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+    })),
+  ]);
 
   const postUrls = posts.map((p) => ({
     url: `${baseUrl}/${p.tenant.slug}/news/${p.id}`,

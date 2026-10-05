@@ -51,7 +51,9 @@ export default async function NewsDetailPage({
 
           {/* 배지 + 날짜 */}
           <div className="flex items-center gap-3 mb-4">
-            <span className="h-7 px-3 rounded-full bg-white text-[13px] font-semibold text-body">{post.category}</span>
+            <span className="h-7 px-3 rounded-full bg-white text-[13px] font-semibold text-body">
+            {{ notice: '공지', recruit: '특강 모집', exam: '시험 대비', gallery: '갤러리' }[post.category] ?? post.category}
+          </span>
             <span className="text-[14px] text-body">{formatDate(post.publishedAt)}</span>
           </div>
 
