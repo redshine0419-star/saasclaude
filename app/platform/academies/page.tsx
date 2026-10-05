@@ -109,7 +109,10 @@ export default async function PlatformAcademiesPage() {
                     </td>
                     <td style={{ padding: '14px 16px', color: '#5A6270' }}>{t._count.leads}</td>
                     <td style={{ padding: '14px 16px' }}>
-                      <Link href={`/platform/academies/${t.id}`} style={{ color: '#1E5645', fontWeight: 600, textDecoration: 'none', fontSize: 13 }}>편집</Link>
+                      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                        <Link href={`/platform/academies/${t.id}`} style={{ color: '#1E5645', fontWeight: 600, textDecoration: 'none', fontSize: 13 }}>편집</Link>
+                        <Link href={`/${t.slug}/admin`} target="_blank" rel="noopener noreferrer" style={{ color: '#1D3FA8', fontWeight: 600, textDecoration: 'none', fontSize: 13 }}>대행 접속 ↗</Link>
+                      </div>
                     </td>
                   </tr>
                 );
