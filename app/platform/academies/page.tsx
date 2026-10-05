@@ -24,12 +24,31 @@ function statusBadge(status: string) {
 }
 
 export default async function PlatformAcademiesPage() {
-  const tenants = await prisma.tenant.findMany({
-    orderBy: { createdAt: 'desc' },
-    include: {
-      _count: { select: { leads: true, memberships: true } },
-    },
-  });
+  const now = new Date();
+  const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+
+  const [tenants, kakaoLimitSetting, recentPostCounts, monthlyMessageCounts] = await Promise.all([
+    prisma.tenant.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: { _count: { select: { leads: true, memberships: true } } },
+    }),
+    prisma.platformSetting.findUnique({ where: { key: 'kakao_monthly_limit' } }),
+    prisma.post.groupBy({
+      by: ['tenantId'],
+      where: { createdAt: { gte: twoWeeksAgo }, status: 'published' },
+      _count: { id: true },
+    }),
+    prisma.message.groupBy({
+      by: ['tenantId'],
+      where: { createdAt: { gte: monthStart }, status: 'sent' },
+      _count: { id: true },
+    }),
+  ]);
+
+  const kakaoLimit = parseInt(kakaoLimitSetting?.value ?? '300', 10);
+  const recentPostMap = new Map(recentPostCounts.map((r) => [r.tenantId, r._count.id]));
+  const monthlyMsgMap = new Map(monthlyMessageCounts.map((r) => [r.tenantId, r._count.id]));
 
   const totalActive = tenants.filter((t) => t.status === 'active').length;
   const totalBeta = tenants.filter((t) => t.planStatus === 'beta').length;
@@ -83,6 +102,7 @@ export default async function PlatformAcademiesPage() {
                 <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>상태</th>
                 <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>베타 남은 일수</th>
                 <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>상담 수</th>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>카톡 (이번달)</th>
                 <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}></th>
               </tr>
             </thead>
@@ -92,10 +112,26 @@ export default async function PlatformAcademiesPage() {
                 const st = statusBadge(t.status);
                 const daysLeft = betaDaysLeft(t.betaEndsAt);
                 const isExpiring = daysLeft !== null && daysLeft <= 14 && daysLeft >= 0;
+                const msgCount = monthlyMsgMap.get(t.id) ?? 0;
+                const kakaoOverload = msgCount >= kakaoLimit * 0.9;
+                const noRecentPost = t.status === 'active' && (recentPostMap.get(t.id) ?? 0) === 0;
+                const alerts: string[] = [];
+                if (isExpiring) alerts.push('베타 만료 임박');
+                if (noRecentPost) alerts.push('자료 2주 미제출');
+                if (kakaoOverload) alerts.push('카톡 90%↑');
                 return (
                   <tr key={t.id} style={{ borderBottom: '1px solid #F0EDE7' }}>
                     <td style={{ padding: '14px 20px', fontWeight: 600 }}>
-                      <Link href={`/${t.slug}`} target="_blank" rel="noopener noreferrer" style={{ color: '#1B2430', textDecoration: 'none' }}>{t.name}</Link>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        <Link href={`/${t.slug}`} target="_blank" rel="noopener noreferrer" style={{ color: '#1B2430', textDecoration: 'none' }}>{t.name}</Link>
+                        {alerts.length > 0 && (
+                          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                            {alerts.map((a) => (
+                              <span key={a} style={{ fontSize: 11, padding: '1px 6px', borderRadius: 4, background: '#FDECEA', color: '#8A3A1C', fontWeight: 600 }}>{a}</span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td style={{ padding: '14px 16px', color: '#5A6270', fontFamily: 'monospace' }}>{t.slug}</td>
                     <td style={{ padding: '14px 16px' }}>
@@ -108,6 +144,9 @@ export default async function PlatformAcademiesPage() {
                       {daysLeft === null ? '—' : daysLeft < 0 ? '만료됨' : `${daysLeft}일`}
                     </td>
                     <td style={{ padding: '14px 16px', color: '#5A6270' }}>{t._count.leads}</td>
+                    <td style={{ padding: '14px 16px', color: kakaoOverload ? '#8A3A1C' : '#5A6270', fontWeight: kakaoOverload ? 700 : 400 }}>
+                      {msgCount} / {kakaoLimit}
+                    </td>
                     <td style={{ padding: '14px 16px' }}>
                       <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                         <Link href={`/platform/academies/${t.id}`} style={{ color: '#1E5645', fontWeight: 600, textDecoration: 'none', fontSize: 13 }}>편집</Link>
@@ -118,7 +157,7 @@ export default async function PlatformAcademiesPage() {
                 );
               })}
               {tenants.length === 0 && (
-                <tr><td colSpan={7} style={{ padding: '40px 20px', textAlign: 'center', color: '#9AA3AF' }}>등록된 학원이 없습니다.</td></tr>
+                <tr><td colSpan={8} style={{ padding: '40px 20px', textAlign: 'center', color: '#9AA3AF' }}>등록된 학원이 없습니다.</td></tr>
               )}
             </tbody>
           </table>
