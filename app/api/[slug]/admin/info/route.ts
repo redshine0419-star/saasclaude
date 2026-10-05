@@ -106,6 +106,23 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
     }
   }
 
+  if (body.refundPolicyText !== undefined) {
+    const text = String(body.refundPolicyText ?? '').trim();
+    if (text) {
+      updates.push(
+        prisma.refundPolicyText.upsert({
+          where: { tenantId: tenant.id },
+          update: { body: text },
+          create: { tenantId: tenant.id, body: text },
+        }),
+      );
+    } else {
+      updates.push(
+        prisma.refundPolicyText.deleteMany({ where: { tenantId: tenant.id } }),
+      );
+    }
+  }
+
   await Promise.all(updates);
 
   return NextResponse.json({ ok: true, feeChangeLogged: feeChanging });

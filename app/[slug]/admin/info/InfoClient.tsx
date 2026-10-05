@@ -39,12 +39,30 @@ interface FeeChangeLog {
   actorEmail: string;
 }
 
+interface PrincipleRow {
+  id: string;
+  number: string;
+  title: string;
+  description: string | null;
+  sortOrder: number;
+}
+
+interface FacilityRow {
+  id: string;
+  label: string;
+  photo: string | null;
+  sortOrder: number;
+}
+
 interface Props {
   slug: string;
   tenant: TenantInfo;
   director: DirectorInfo | null;
   fees: FeeRow[];
   feeChangeLogs: FeeChangeLog[];
+  principles: PrincipleRow[];
+  facilities: FacilityRow[];
+  refundPolicyText: string | null;
 }
 
 const INPUT = {
@@ -58,7 +76,7 @@ const TEXTAREA = {
 };
 const LABEL = { fontSize: 13, fontWeight: 600, color: '#5A6270' };
 
-export function InfoClient({ slug, tenant: initialTenant, director: initialDirector, fees: initialFees, feeChangeLogs }: Props) {
+export function InfoClient({ slug, tenant: initialTenant, director: initialDirector, fees: initialFees, feeChangeLogs, principles: initialPrinciples, facilities: initialFacilities, refundPolicyText: initialRefundPolicyText }: Props) {
   const [info, setInfo] = useState(initialTenant);
   const [director, setDirector] = useState<DirectorInfo>(
     initialDirector ?? { headline: null, career: null, philosophy: null, education: null }
@@ -67,6 +85,27 @@ export function InfoClient({ slug, tenant: initialTenant, director: initialDirec
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showFeeConfirm, setShowFeeConfirm] = useState(false);
+
+  // Principles state
+  const [principles, setPrinciples] = useState(initialPrinciples);
+  const [principleForm, setPrincipleForm] = useState<{ number: string; title: string; description: string }>({ number: '', title: '', description: '' });
+  const [showAddPrinciple, setShowAddPrinciple] = useState(false);
+  const [principleEditId, setPrincipleEditId] = useState<string | null>(null);
+  const [principleEditForm, setPrincipleEditForm] = useState<{ number: string; title: string; description: string }>({ number: '', title: '', description: '' });
+  const [principleSaving, setPrincipleSaving] = useState(false);
+
+  // Facilities state
+  const [facilities, setFacilities] = useState(initialFacilities);
+  const [facilityForm, setFacilityForm] = useState<{ label: string; photo: string }>({ label: '', photo: '' });
+  const [showAddFacility, setShowAddFacility] = useState(false);
+  const [facilityEditId, setFacilityEditId] = useState<string | null>(null);
+  const [facilityEditForm, setFacilityEditForm] = useState<{ label: string; photo: string }>({ label: '', photo: '' });
+  const [facilitySaving, setFacilitySaving] = useState(false);
+
+  // Refund policy state
+  const [refundPolicyText, setRefundPolicyText] = useState(initialRefundPolicyText ?? '');
+  const [refundSaving, setRefundSaving] = useState(false);
+  const [refundSaved, setRefundSaved] = useState(false);
 
   const feeChanged = fees.some((f) => {
     const orig = initialFees.find((o) => o.id === f.id);
@@ -93,6 +132,106 @@ export function InfoClient({ slug, tenant: initialTenant, director: initialDirec
     } finally {
       setSaving(false);
       setShowFeeConfirm(false);
+    }
+  }
+
+  async function addPrinciple() {
+    setPrincipleSaving(true);
+    try {
+      const res = await fetch(`/api/${slug}/admin/principles`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(principleForm),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPrinciples((p) => [...p, data.principle]);
+        setShowAddPrinciple(false);
+        setPrincipleForm({ number: '', title: '', description: '' });
+      }
+    } finally {
+      setPrincipleSaving(false);
+    }
+  }
+
+  async function savePrinciple(id: string) {
+    setPrincipleSaving(true);
+    try {
+      const res = await fetch(`/api/${slug}/admin/principles/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(principleEditForm),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPrinciples((p) => p.map((x) => x.id === id ? { ...x, ...data.principle } : x));
+        setPrincipleEditId(null);
+      }
+    } finally {
+      setPrincipleSaving(false);
+    }
+  }
+
+  async function deletePrinciple(id: string) {
+    await fetch(`/api/${slug}/admin/principles/${id}`, { method: 'DELETE' });
+    setPrinciples((p) => p.filter((x) => x.id !== id));
+    if (principleEditId === id) setPrincipleEditId(null);
+  }
+
+  async function addFacility() {
+    setFacilitySaving(true);
+    try {
+      const res = await fetch(`/api/${slug}/admin/facilities`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(facilityForm),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setFacilities((p) => [...p, data.facility]);
+        setShowAddFacility(false);
+        setFacilityForm({ label: '', photo: '' });
+      }
+    } finally {
+      setFacilitySaving(false);
+    }
+  }
+
+  async function saveFacility(id: string) {
+    setFacilitySaving(true);
+    try {
+      const res = await fetch(`/api/${slug}/admin/facilities/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(facilityEditForm),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setFacilities((p) => p.map((x) => x.id === id ? { ...x, ...data.facility } : x));
+        setFacilityEditId(null);
+      }
+    } finally {
+      setFacilitySaving(false);
+    }
+  }
+
+  async function deleteFacility(id: string) {
+    await fetch(`/api/${slug}/admin/facilities/${id}`, { method: 'DELETE' });
+    setFacilities((p) => p.filter((x) => x.id !== id));
+    if (facilityEditId === id) setFacilityEditId(null);
+  }
+
+  async function saveRefundPolicy() {
+    setRefundSaving(true);
+    try {
+      const res = await fetch(`/api/${slug}/admin/info`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refundPolicyText }),
+      });
+      if (res.ok) { setRefundSaved(true); setTimeout(() => setRefundSaved(false), 2500); }
+    } finally {
+      setRefundSaving(false);
     }
   }
 
@@ -276,6 +415,160 @@ export function InfoClient({ slug, tenant: initialTenant, director: initialDirec
           </button>
         </div>
       </div>
+      {/* 수업 원칙 */}
+      <div style={{ padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontSize: 16, fontWeight: 700 }}>수업 원칙</div>
+          <button type="button" onClick={() => { setShowAddPrinciple(true); setPrincipleEditId(null); }} style={{ height: 36, padding: '0 14px', border: '1px solid #D5D0C6', borderRadius: 8, background: '#FFFFFF', font: 'inherit', fontSize: 13, cursor: 'pointer' }}>+ 추가</button>
+        </div>
+        <div style={{ fontSize: 13, color: '#9AA3AF' }}>홈페이지 소개 페이지에 표시됩니다. 번호·제목·설명 순서로 입력하세요.</div>
+
+        {showAddPrinciple && (
+          <div style={{ padding: 16, background: '#F4F2EE', borderRadius: 10, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: 10 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label style={LABEL}>번호</label>
+                <input type="text" value={principleForm.number} onChange={(e) => setPrincipleForm((p) => ({ ...p, number: e.target.value }))} placeholder="01" style={INPUT} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label style={LABEL}>제목</label>
+                <input type="text" value={principleForm.title} onChange={(e) => setPrincipleForm((p) => ({ ...p, title: e.target.value }))} placeholder="틀린 문제 반드시 재풀이" style={INPUT} />
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={LABEL}>설명 (선택)</label>
+              <textarea rows={2} value={principleForm.description} onChange={(e) => setPrincipleForm((p) => ({ ...p, description: e.target.value }))} placeholder="오답 노트를 만들어 다음 수업 전에 반드시 복습합니다." style={TEXTAREA} />
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button type="button" onClick={() => setShowAddPrinciple(false)} style={{ flex: 1, height: 40, border: '1px solid #D5D0C6', borderRadius: 8, background: '#FFFFFF', font: 'inherit', fontSize: 14, cursor: 'pointer' }}>취소</button>
+              <button type="button" onClick={addPrinciple} disabled={principleSaving || !principleForm.title.trim()} style={{ flex: 2, height: 40, border: 'none', borderRadius: 8, background: '#1E5645', color: '#FFFFFF', font: 'inherit', fontSize: 14, fontWeight: 700, cursor: principleSaving ? 'wait' : 'pointer' }}>저장</button>
+            </div>
+          </div>
+        )}
+
+        {principles.length === 0 && !showAddPrinciple && (
+          <div style={{ padding: 24, textAlign: 'center', color: '#9AA3AF', fontSize: 14 }}>등록된 수업 원칙이 없습니다.</div>
+        )}
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {principles.map((p) => (
+            <div key={p.id}>
+              {principleEditId === p.id ? (
+                <div style={{ padding: 16, background: '#F4F2EE', borderRadius: 10, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: 10 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      <label style={LABEL}>번호</label>
+                      <input type="text" value={principleEditForm.number} onChange={(e) => setPrincipleEditForm((x) => ({ ...x, number: e.target.value }))} style={INPUT} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      <label style={LABEL}>제목</label>
+                      <input type="text" value={principleEditForm.title} onChange={(e) => setPrincipleEditForm((x) => ({ ...x, title: e.target.value }))} style={INPUT} />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <label style={LABEL}>설명 (선택)</label>
+                    <textarea rows={2} value={principleEditForm.description} onChange={(e) => setPrincipleEditForm((x) => ({ ...x, description: e.target.value }))} style={TEXTAREA} />
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button type="button" onClick={() => deletePrinciple(p.id)} style={{ height: 40, padding: '0 14px', border: '1px solid #D5D0C6', borderRadius: 8, background: '#FFFFFF', color: '#8A3A1C', font: 'inherit', fontSize: 14, cursor: 'pointer' }}>삭제</button>
+                    <button type="button" onClick={() => setPrincipleEditId(null)} style={{ flex: 1, height: 40, border: '1px solid #D5D0C6', borderRadius: 8, background: '#FFFFFF', font: 'inherit', fontSize: 14, cursor: 'pointer' }}>취소</button>
+                    <button type="button" onClick={() => savePrinciple(p.id)} disabled={principleSaving} style={{ flex: 2, height: 40, border: 'none', borderRadius: 8, background: '#1E5645', color: '#FFFFFF', font: 'inherit', fontSize: 14, fontWeight: 700, cursor: principleSaving ? 'wait' : 'pointer' }}>저장</button>
+                  </div>
+                </div>
+              ) : (
+                <div onClick={() => { setPrincipleEditId(p.id); setPrincipleEditForm({ number: p.number, title: p.title, description: p.description ?? '' }); }} style={{ padding: '12px 16px', border: '1px solid #E8E4DB', borderRadius: 10, cursor: 'pointer', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#1E5645', minWidth: 28 }}>{p.number}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600, fontSize: 14 }}>{p.title}</div>
+                    {p.description && <div style={{ fontSize: 13, color: '#5A6270', marginTop: 2 }}>{p.description}</div>}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 교실·시설 */}
+      <div style={{ padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontSize: 16, fontWeight: 700 }}>교실·시설</div>
+          <button type="button" onClick={() => { setShowAddFacility(true); setFacilityEditId(null); }} style={{ height: 36, padding: '0 14px', border: '1px solid #D5D0C6', borderRadius: 8, background: '#FFFFFF', font: 'inherit', fontSize: 13, cursor: 'pointer' }}>+ 추가</button>
+        </div>
+        <div style={{ fontSize: 13, color: '#9AA3AF' }}>홈페이지 소개 페이지에 표시됩니다. 사진 URL을 입력하거나 레이블만 입력해도 됩니다.</div>
+
+        {showAddFacility && (
+          <div style={{ padding: 16, background: '#F4F2EE', borderRadius: 10, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={LABEL}>공간 이름</label>
+              <input type="text" value={facilityForm.label} onChange={(e) => setFacilityForm((p) => ({ ...p, label: e.target.value }))} placeholder="자기주도학습실, 수업 교실, 도서관 등" style={INPUT} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={LABEL}>사진 URL (선택)</label>
+              <input type="url" value={facilityForm.photo} onChange={(e) => setFacilityForm((p) => ({ ...p, photo: e.target.value }))} placeholder="https://..." style={INPUT} />
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button type="button" onClick={() => setShowAddFacility(false)} style={{ flex: 1, height: 40, border: '1px solid #D5D0C6', borderRadius: 8, background: '#FFFFFF', font: 'inherit', fontSize: 14, cursor: 'pointer' }}>취소</button>
+              <button type="button" onClick={addFacility} disabled={facilitySaving || !facilityForm.label.trim()} style={{ flex: 2, height: 40, border: 'none', borderRadius: 8, background: '#1E5645', color: '#FFFFFF', font: 'inherit', fontSize: 14, fontWeight: 700, cursor: facilitySaving ? 'wait' : 'pointer' }}>저장</button>
+            </div>
+          </div>
+        )}
+
+        {facilities.length === 0 && !showAddFacility && (
+          <div style={{ padding: 24, textAlign: 'center', color: '#9AA3AF', fontSize: 14 }}>등록된 시설이 없습니다.</div>
+        )}
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
+          {facilities.map((f) => (
+            <div key={f.id}>
+              {facilityEditId === f.id ? (
+                <div style={{ padding: 14, background: '#F4F2EE', borderRadius: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <input type="text" value={facilityEditForm.label} onChange={(e) => setFacilityEditForm((x) => ({ ...x, label: e.target.value }))} placeholder="공간 이름" style={INPUT} />
+                  <input type="url" value={facilityEditForm.photo} onChange={(e) => setFacilityEditForm((x) => ({ ...x, photo: e.target.value }))} placeholder="사진 URL (선택)" style={INPUT} />
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button type="button" onClick={() => deleteFacility(f.id)} style={{ height: 36, padding: '0 10px', border: '1px solid #D5D0C6', borderRadius: 8, background: '#FFFFFF', color: '#8A3A1C', font: 'inherit', fontSize: 13, cursor: 'pointer' }}>삭제</button>
+                    <button type="button" onClick={() => setFacilityEditId(null)} style={{ flex: 1, height: 36, border: '1px solid #D5D0C6', borderRadius: 8, background: '#FFFFFF', font: 'inherit', fontSize: 13, cursor: 'pointer' }}>취소</button>
+                    <button type="button" onClick={() => saveFacility(f.id)} disabled={facilitySaving} style={{ flex: 2, height: 36, border: 'none', borderRadius: 8, background: '#1E5645', color: '#FFFFFF', font: 'inherit', fontSize: 13, fontWeight: 700, cursor: facilitySaving ? 'wait' : 'pointer' }}>저장</button>
+                  </div>
+                </div>
+              ) : (
+                <div onClick={() => { setFacilityEditId(f.id); setFacilityEditForm({ label: f.label, photo: f.photo ?? '' }); }} style={{ borderRadius: 10, border: '1px solid #E8E4DB', overflow: 'hidden', cursor: 'pointer' }}>
+                  {f.photo ? (
+                    <div style={{ height: 100, background: `#E8E4DB url(${f.photo}) center/cover no-repeat` }} />
+                  ) : (
+                    <div style={{ height: 100, background: '#F4F2EE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, color: '#9AA3AF' }}>사진 없음</div>
+                  )}
+                  <div style={{ padding: '8px 12px', fontSize: 13, fontWeight: 600 }}>{f.label}</div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 환불 정책 */}
+      <div style={{ padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ fontSize: 16, fontWeight: 700 }}>환불 정책</div>
+        <div style={{ padding: '14px 16px', background: '#FBF1CF', borderRadius: 10, fontSize: 13, lineHeight: 1.7, color: '#3E3510' }}>
+          학원법 시행령 제18조에 따른 기준을 참고하여 작성하세요. 홈페이지 수강료 안내 페이지에 표시됩니다.
+        </div>
+        <textarea
+          rows={6}
+          value={refundPolicyText}
+          onChange={(e) => setRefundPolicyText(e.target.value)}
+          placeholder={'수업 시작 전: 이미 낸 교습비 전액\n총 교습시간 1/3 지나기 전: 2/3 환불\n총 교습시간 1/2 지나기 전: 1/2 환불\n총 교습시간 1/2 지난 후: 환불 없음'}
+          style={TEXTAREA}
+        />
+        <button
+          type="button"
+          onClick={saveRefundPolicy}
+          disabled={refundSaving}
+          style={{ height: 44, border: 'none', borderRadius: 10, background: refundSaved ? '#2F6E5A' : '#1E5645', color: '#FFFFFF', font: 'inherit', fontSize: 14, fontWeight: 700, cursor: refundSaving ? 'wait' : 'pointer', transition: 'background 0.3s' }}
+        >
+          {refundSaved ? '저장 완료 ✓' : refundSaving ? '저장 중…' : '환불 정책 저장'}
+        </button>
+      </div>
+
       {/* 교습비 변경 이력 */}
       {feeChangeLogs.length > 0 && (
         <div style={{ padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 12 }}>

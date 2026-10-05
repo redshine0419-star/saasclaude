@@ -22,7 +22,7 @@ export default async function AdminInfoPage({
   });
   if (!membership) redirect('/auth/signin');
 
-  const [director, fees, feeChangeLogs] = await Promise.all([
+  const [director, fees, feeChangeLogs, principles, facilities, refundPolicyText] = await Promise.all([
     prisma.directorProfile.findUnique({ where: { tenantId: tenant.id } }),
     prisma.fee.findMany({ where: { tenantId: tenant.id }, orderBy: { id: 'asc' } }),
     prisma.feeChangeLog.findMany({
@@ -30,6 +30,9 @@ export default async function AdminInfoPage({
       orderBy: { createdAt: 'desc' },
       take: 10,
     }),
+    prisma.teachingPrinciple.findMany({ where: { tenantId: tenant.id }, orderBy: { sortOrder: 'asc' } }),
+    prisma.facility.findMany({ where: { tenantId: tenant.id }, orderBy: { sortOrder: 'asc' } }),
+    prisma.refundPolicyText.findUnique({ where: { tenantId: tenant.id } }),
   ]);
 
   return (
@@ -112,6 +115,9 @@ export default async function AdminInfoPage({
           }
           fees={fees.map((f) => ({ id: f.id, label: f.label, amount: f.amount }))}
           feeChangeLogs={feeChangeLogs.map((l) => ({ id: l.id, createdAt: l.createdAt.toISOString(), actorEmail: l.actorEmail }))}
+          principles={principles.map((p) => ({ id: p.id, number: p.number, title: p.title, description: p.description, sortOrder: p.sortOrder }))}
+          facilities={facilities.map((f) => ({ id: f.id, label: f.label, photo: f.photo, sortOrder: f.sortOrder }))}
+          refundPolicyText={refundPolicyText?.body ?? null}
         />
       </main>
     </div>
