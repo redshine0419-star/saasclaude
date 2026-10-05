@@ -20,6 +20,7 @@ interface Props {
   userEmail: string;
   kakaoConnected: boolean;
   ga4Connected: boolean;
+  ga4MeasurementId: string;
   naverVerified: boolean;
   plan: string;
   betaEndsAt: string | null;
@@ -38,7 +39,8 @@ export function SettingsClient({
   recipients: initialRecipients,
   userEmail,
   kakaoConnected,
-  ga4Connected,
+  ga4Connected: initialGa4Connected,
+  ga4MeasurementId: initialGa4MeasurementId,
   naverVerified,
   plan,
   betaEndsAt,
@@ -53,6 +55,11 @@ export function SettingsClient({
   const [accentSaving, setAccentSaving] = useState(false);
   const [accentSaved, setAccentSaved] = useState(false);
   const [addSaving, setAddSaving] = useState(false);
+  const [ga4Id, setGa4Id] = useState(initialGa4MeasurementId);
+  const [ga4Connected, setGa4Connected] = useState(initialGa4Connected);
+  const [ga4Saving, setGa4Saving] = useState(false);
+  const [ga4Saved, setGa4Saved] = useState(false);
+  const [ga4Error, setGa4Error] = useState('');
 
   async function addRecipient() {
     setAddSaving(true);
@@ -77,6 +84,26 @@ export function SettingsClient({
   async function removeRecipient(id: string) {
     await fetch(`/api/${slug}/admin/settings/notify/${id}`, { method: 'DELETE' });
     setRecipients((p) => p.filter((r) => r.id !== id));
+  }
+
+  async function saveGa4() {
+    setGa4Saving(true);
+    setGa4Saved(false);
+    setGa4Error('');
+    try {
+      const res = await fetch(`/api/${slug}/admin/settings/ga4`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ measurementId: ga4Id }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setGa4Error(data.error ?? '저장 실패'); return; }
+      setGa4Connected(data.ga4Connected);
+      setGa4Saved(true);
+      setTimeout(() => setGa4Saved(false), 3000);
+    } finally {
+      setGa4Saving(false);
+    }
   }
 
   async function saveAccentColor() {
@@ -185,7 +212,7 @@ export function SettingsClient({
         <div style={{ fontSize: 16, fontWeight: 700 }}>연결 상태</div>
         {[
           { label: '카카오톡 채널', connected: kakaoConnected, connectedText: '연결됨 · 알림톡 사용 가능' },
-          { label: 'GA4 방문 분석', connected: ga4Connected, connectedText: '연결됨' },
+          { label: 'GA4 방문 분석', connected: ga4Connected, connectedText: `연결됨 · ${ga4Id}` },
           { label: '네이버 서치어드바이저', connected: naverVerified, connectedText: '인증 코드 등록됨' },
         ].map((item) => (
           <div
@@ -198,6 +225,30 @@ export function SettingsClient({
             </span>
           </div>
         ))}
+      </div>
+
+      {/* GA4 측정 ID */}
+      <div style={{ padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ fontSize: 16, fontWeight: 700 }}>GA4 측정 ID</div>
+        <div style={{ fontSize: 13, color: '#5A6270' }}>Google Analytics 4 측정 ID를 입력하면 방문자 분석이 연결됩니다. (예: G-XXXXXXXXXX)</div>
+        <input
+          type="text"
+          value={ga4Id}
+          onChange={(e) => setGa4Id(e.target.value)}
+          placeholder="G-XXXXXXXXXX"
+          style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, fontSize: 14, fontFamily: 'monospace', width: '100%', boxSizing: 'border-box' }}
+        />
+        {ga4Error && <div style={{ fontSize: 13, color: '#B91C1C' }}>{ga4Error}</div>}
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <button
+            onClick={saveGa4}
+            disabled={ga4Saving}
+            style={{ height: 40, padding: '0 20px', borderRadius: 8, border: 'none', background: '#1E5645', color: '#FFFFFF', fontSize: 14, fontWeight: 700, cursor: ga4Saving ? 'not-allowed' : 'pointer', opacity: ga4Saving ? 0.6 : 1 }}
+          >
+            {ga4Saving ? '저장 중…' : '저장'}
+          </button>
+          {ga4Saved && <span style={{ fontSize: 13, color: '#1E5645', fontWeight: 600 }}>저장됨 ✓</span>}
+        </div>
       </div>
 
       {/* Account */}

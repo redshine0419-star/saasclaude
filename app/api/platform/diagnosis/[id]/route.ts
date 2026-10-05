@@ -27,6 +27,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
   const data: Record<string, unknown> = {};
   if (body.status) data.status = body.status;
   if (body.resultNote !== undefined) data.resultNote = body.resultNote;
+  if (body.scores !== undefined) data.scores = body.scores;
 
   const updated = await prisma.diagnosticRequest.update({ where: { id }, data });
   return NextResponse.json({ ok: true, request: updated });

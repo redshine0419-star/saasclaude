@@ -14,6 +14,8 @@ export default async function PlatformDiagnosisPage() {
     currentUrl: r.currentUrl,
     status: r.status,
     resultNote: r.resultNote,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    scores: (r.scores as any) ?? null,
     createdAt: r.createdAt.toISOString(),
   }));
 

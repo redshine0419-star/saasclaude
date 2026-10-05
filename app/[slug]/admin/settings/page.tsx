@@ -56,6 +56,7 @@ export default async function AdminSettingsPage({
           userEmail={session.user.email}
           kakaoConnected={!!process.env.KAKAO_API_KEY}
           ga4Connected={!!tenant.ga4MeasurementId}
+          ga4MeasurementId={tenant.ga4MeasurementId ?? ''}
           naverVerified={!!tenant.naverSiteVerification}
           plan={tenant.planStatus}
           betaEndsAt={tenant.betaEndsAt?.toISOString() ?? null}

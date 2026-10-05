@@ -619,6 +619,7 @@ model DiagnosticRequest {
   currentUrl  String?
   status      DiagnosticStatus @default(pending)
   resultNote  String?
+  scores      Json?    // { item1: {score:1-3, note:""}, item2: ..., item3: ..., item4: ... }
 
   @@map("diagnostic_requests")
 }
