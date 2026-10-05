@@ -30,9 +30,11 @@ import DayFlowSection from '@/components/academy/sections/DayFlowSection';
 import GallerySection from '@/components/academy/sections/GallerySection';
 import SafetySection from '@/components/academy/sections/SafetySection';
 import LocationSection from '@/components/academy/sections/LocationSection';
+import PrinciplesSection from '@/components/academy/sections/PrinciplesSection';
+import TimetableSection from '@/components/academy/sections/TimetableSection';
 
 const SECTION_ORDERS = {
-  warm: ['hero', 'quick_info', 'director', 'classes', 'fees', 'reviews', 'news', 'consult_form', 'location'],
+  warm: ['hero', 'quick_info', 'director', 'principles', 'classes', 'timetable', 'fees', 'reviews', 'news', 'consult_form', 'location'],
   result: ['hero', 'results_stats', 'exam_system', 'curriculum', 'score_cases', 'teachers', 'fees', 'consult_form'],
   bright: ['hero', 'day_flow', 'classes', 'gallery', 'safety', 'consult_form'],
 } as const;
@@ -163,6 +165,16 @@ export default async function AcademyPage({
 
       case 'location':
         return <LocationSection key="location" tenant={data!.tenant} shuttle={data!.shuttle} slug={slug} />;
+
+      case 'principles':
+        return data!.principles.length > 0 ? (
+          <PrinciplesSection key="principles" principles={data!.principles} slug={slug} />
+        ) : null;
+
+      case 'timetable':
+        return data!.classes.length > 0 ? (
+          <TimetableSection key="timetable" classes={data!.classes} slug={slug} />
+        ) : null;
 
       default:
         return null;
