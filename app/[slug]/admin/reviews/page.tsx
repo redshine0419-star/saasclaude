@@ -22,10 +22,16 @@ export default async function AdminReviewsPage({
   });
   if (!membership) redirect('/auth/signin');
 
-  const reviews = await prisma.review.findMany({
-    where: { tenantId: tenant.id },
-    orderBy: { createdAt: 'desc' },
-  });
+  const [reviews, resultStats] = await Promise.all([
+    prisma.review.findMany({
+      where: { tenantId: tenant.id },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.resultStat.findMany({
+      where: { tenantId: tenant.id },
+      orderBy: { id: 'desc' },
+    }),
+  ]);
 
   const serialized = reviews.map((r) => ({
     id: r.id,
@@ -43,6 +49,14 @@ export default async function AdminReviewsPage({
     visible: r.visible,
   }));
 
+  const serializedStats = resultStats.map((s) => ({
+    id: s.id,
+    termLabel: s.termLabel,
+    metrics: s.metrics as { label: string; value: string; unit: string }[],
+    basisText: s.basisText,
+    published: s.published,
+  }));
+
   return (
     <div
       style={{
@@ -58,7 +72,7 @@ export default async function AdminReviewsPage({
       <main
         style={{ flex: 1, padding: '32px 40px', display: 'flex', flexDirection: 'column', gap: 20 }}
       >
-        <ReviewsClient slug={slug} reviews={serialized} />
+        <ReviewsClient slug={slug} reviews={serialized} resultStats={serializedStats} />
       </main>
     </div>
   );

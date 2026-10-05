@@ -18,9 +18,18 @@ interface Review {
   visible: boolean;
 }
 
+interface ResultStat {
+  id: string;
+  termLabel: string;
+  metrics: { label: string; value: string; unit: string }[];
+  basisText: string;
+  published: boolean;
+}
+
 interface Props {
   slug: string;
   reviews: Review[];
+  resultStats: ResultStat[];
 }
 
 const VISIBLE_BADGE = {
@@ -37,9 +46,10 @@ function getBadge(r: Review) {
 
 const SOURCE_OPTIONS = ['네이버 플레이스', '카카오톡 채널', '직접 전달', '기타'];
 
-export function ReviewsClient({ slug, reviews: initialReviews }: Props) {
+export function ReviewsClient({ slug, reviews: initialReviews, resultStats: initialStats }: Props) {
   const [reviews, setReviews] = useState(initialReviews);
-  const [tab, setTab] = useState<'review' | 'score_case'>('review');
+  const [resultStats, setResultStats] = useState(initialStats);
+  const [tab, setTab] = useState<'review' | 'score_case' | 'result_stat'>('review');
   const [selectedId, setSelectedId] = useState<string | null>(
     initialReviews.find((r) => r.kind === 'review')?.id ?? null,
   );
@@ -59,6 +69,92 @@ export function ReviewsClient({ slug, reviews: initialReviews }: Props) {
     showOnHome: false,
   });
   const [addSaving, setAddSaving] = useState(false);
+
+  // result_stat state
+  const [selectedStatId, setSelectedStatId] = useState<string | null>(initialStats[0]?.id ?? null);
+  const [statForm, setStatForm] = useState<Partial<ResultStat> & { metricsRaw?: string }>({});
+  const [showAddStat, setShowAddStat] = useState(false);
+  const [newStatForm, setNewStatForm] = useState({ termLabel: '', metricsRaw: '', basisText: '', published: false });
+  const [statSaving, setStatSaving] = useState(false);
+  const [statAddSaving, setStatAddSaving] = useState(false);
+  const [statError, setStatError] = useState('');
+
+  const selectedStat = resultStats.find((s) => s.id === selectedStatId) ?? null;
+
+  function statFieldVal<K extends keyof ResultStat>(key: K): ResultStat[K] {
+    return ((statForm as Partial<ResultStat>)[key] as ResultStat[K]) ?? (selectedStat?.[key] as ResultStat[K]);
+  }
+
+  function metricsToRaw(m: { label: string; value: string; unit: string }[]): string {
+    return m.map((r) => `${r.label}|${r.value}|${r.unit}`).join('\n');
+  }
+
+  function rawToMetrics(raw: string): { label: string; value: string; unit: string }[] {
+    return raw
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean)
+      .map((l) => {
+        const [label = '', value = '', unit = ''] = l.split('|');
+        return { label: label.trim(), value: value.trim(), unit: unit.trim() };
+      });
+  }
+
+  async function saveStat() {
+    if (!selectedStatId) return;
+    setStatSaving(true);
+    setStatError('');
+    try {
+      const metricsRaw = statForm.metricsRaw ?? metricsToRaw(selectedStat?.metrics ?? []);
+      const res = await fetch(`/api/${slug}/admin/result-stats/${selectedStatId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          termLabel: statFieldVal('termLabel'),
+          metrics: rawToMetrics(metricsRaw),
+          basisText: statFieldVal('basisText'),
+          published: statFieldVal('published'),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setStatError(data.error ?? '저장 실패'); return; }
+      setResultStats((prev) => prev.map((s) => s.id === selectedStatId ? { ...s, ...data.stat } : s));
+      setStatForm({});
+    } finally {
+      setStatSaving(false);
+    }
+  }
+
+  async function addStat() {
+    setStatAddSaving(true);
+    setStatError('');
+    try {
+      const res = await fetch(`/api/${slug}/admin/result-stats`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          termLabel: newStatForm.termLabel,
+          metrics: rawToMetrics(newStatForm.metricsRaw),
+          basisText: newStatForm.basisText,
+          published: newStatForm.published,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setStatError(data.error ?? '저장 실패'); return; }
+      setResultStats((prev) => [data.stat, ...prev]);
+      setSelectedStatId(data.stat.id);
+      setShowAddStat(false);
+      setNewStatForm({ termLabel: '', metricsRaw: '', basisText: '', published: false });
+    } finally {
+      setStatAddSaving(false);
+    }
+  }
+
+  async function deleteStat(id: string) {
+    await fetch(`/api/${slug}/admin/result-stats/${id}`, { method: 'DELETE' });
+    setResultStats((prev) => prev.filter((s) => s.id !== id));
+    if (selectedStatId === id) setSelectedStatId(resultStats.find((s) => s.id !== id)?.id ?? null);
+  }
 
   const filtered = reviews.filter((r) => r.kind === tab);
   const selected = reviews.find((r) => r.id === selectedId) ?? null;
@@ -126,6 +222,7 @@ export function ReviewsClient({ slug, reviews: initialReviews }: Props) {
   const tabCounts = {
     review: reviews.filter((r) => r.kind === 'review').length,
     score_case: reviews.filter((r) => r.kind === 'score_case').length,
+    result_stat: resultStats.length,
   };
 
   return (
@@ -133,33 +230,38 @@ export function ReviewsClient({ slug, reviews: initialReviews }: Props) {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', gap: 8 }}>
-          {(['review', 'score_case'] as const).map((t) => (
+          {([
+            { key: 'review', label: '학부모 후기' },
+            { key: 'score_case', label: '성적 변화 사례' },
+            { key: 'result_stat', label: '성과 통계' },
+          ] as const).map(({ key, label }) => (
             <button
-              key={t}
+              key={key}
               type="button"
               onClick={() => {
-                setTab(t);
-                setSelectedId(reviews.find((r) => r.kind === t)?.id ?? null);
+                setTab(key);
+                if (key !== 'result_stat') setSelectedId(reviews.find((r) => r.kind === key)?.id ?? null);
+                else setSelectedStatId(resultStats[0]?.id ?? null);
               }}
               style={{
                 height: 44,
                 padding: '0 18px',
-                border: tab === t ? 'none' : '1px solid #D5D0C6',
+                border: tab === key ? 'none' : '1px solid #D5D0C6',
                 borderRadius: 22,
-                background: tab === t ? '#1B2430' : '#FFFFFF',
-                color: tab === t ? '#FFFFFF' : '#1B2430',
+                background: tab === key ? '#1B2430' : '#FFFFFF',
+                color: tab === key ? '#FFFFFF' : '#1B2430',
                 font: 'inherit',
-                fontWeight: tab === t ? 600 : 400,
+                fontWeight: tab === key ? 600 : 400,
                 cursor: 'pointer',
               }}
             >
-              {t === 'review' ? '학부모 후기' : '성적 변화 사례'} {tabCounts[t]}
+              {label} {tabCounts[key]}
             </button>
           ))}
         </div>
         <button
           type="button"
-          onClick={() => setShowAdd(true)}
+          onClick={() => tab === 'result_stat' ? setShowAddStat(true) : setShowAdd(true)}
           style={{
             height: 44,
             padding: '0 18px',
@@ -177,6 +279,98 @@ export function ReviewsClient({ slug, reviews: initialReviews }: Props) {
         </button>
       </div>
 
+      {tab === 'result_stat' ? (
+        <div style={{ display: 'flex', gap: 20, flex: 1 }}>
+          {/* Result stats list */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {resultStats.length === 0 && !showAddStat && (
+              <div style={{ padding: 48, background: '#FFFFFF', borderRadius: 12, textAlign: 'center', color: '#9AA3AF', fontSize: 14 }}>
+                등록된 성과 통계가 없습니다.
+              </div>
+            )}
+            {resultStats.map((s) => (
+              <div
+                key={s.id}
+                onClick={() => setSelectedStatId(s.id)}
+                style={{ padding: 20, background: '#FFFFFF', border: selectedStatId === s.id ? '2px solid #1E5645' : '1px solid #E2DDD2', borderRadius: 12, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+              >
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 600 }}>{s.termLabel}</div>
+                  <div style={{ fontSize: 13, color: '#5A6270', marginTop: 4 }}>
+                    {s.metrics.length}개 지표 · {s.basisText ? '근거 있음' : <span style={{ color: '#8A3A1C' }}>근거 없음 (비공개)</span>}
+                  </div>
+                </div>
+                <span style={{ padding: '3px 8px', borderRadius: 5, background: s.published ? '#D8E8E0' : '#F3E3DC', color: s.published ? '#1E5645' : '#8A3A1C', fontSize: 12, fontWeight: 700 }}>
+                  {s.published ? '공개' : '비공개'}
+                </span>
+              </div>
+            ))}
+          </div>
+          {/* Result stat edit panel */}
+          <div style={{ width: 440, padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 16, alignSelf: 'flex-start' }}>
+            {showAddStat ? (
+              <>
+                <div style={{ fontSize: 16, fontWeight: 700 }}>성과 통계 추가</div>
+                {statError && <div style={{ fontSize: 13, color: '#8A3A1C', background: '#FDE8E0', padding: '10px 14px', borderRadius: 8 }}>{statError}</div>}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>기간 레이블</label>
+                  <input type="text" value={newStatForm.termLabel} onChange={(e) => setNewStatForm((p) => ({ ...p, termLabel: e.target.value }))} placeholder="예: 2024 수능" style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>지표 (레이블|값|단위, 한 줄씩)</label>
+                  <textarea value={newStatForm.metricsRaw} onChange={(e) => setNewStatForm((p) => ({ ...p, metricsRaw: e.target.value }))} rows={4} placeholder={'수능 1등급|12|명\n최상위권 진학|85|%'} style={{ padding: 12, border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 13, fontFamily: 'monospace', resize: 'none' }} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>근거 출처 <span style={{ color: '#8A3A1C' }}>*필수 (없으면 비공개)</span></label>
+                  <input type="text" value={newStatForm.basisText} onChange={(e) => setNewStatForm((p) => ({ ...p, basisText: e.target.value }))} placeholder="예: 2024 수능 성적 통지표 취합" style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }} />
+                </div>
+                <label style={{ display: 'flex', gap: 10, alignItems: 'center', fontSize: 14 }}>
+                  <input type="checkbox" checked={newStatForm.published} onChange={(e) => setNewStatForm((p) => ({ ...p, published: e.target.checked }))} style={{ width: 20, height: 20 }} />
+                  홈페이지에 공개
+                </label>
+                <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
+                  <button type="button" onClick={() => { setShowAddStat(false); setStatError(''); }} style={{ flex: 1, height: 48, border: '1px solid #D5D0C6', borderRadius: 10, background: '#FFFFFF', font: 'inherit', fontSize: 14, cursor: 'pointer' }}>취소</button>
+                  <button type="button" onClick={addStat} disabled={statAddSaving} style={{ flex: 2, height: 48, border: 'none', borderRadius: 10, background: '#1E5645', color: '#FFFFFF', font: 'inherit', fontSize: 15, fontWeight: 700, cursor: statAddSaving ? 'wait' : 'pointer' }}>저장</button>
+                </div>
+              </>
+            ) : selectedStat ? (
+              <>
+                <div style={{ fontSize: 16, fontWeight: 700 }}>성과 통계 편집</div>
+                {statError && <div style={{ fontSize: 13, color: '#8A3A1C', background: '#FDE8E0', padding: '10px 14px', borderRadius: 8 }}>{statError}</div>}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>기간 레이블</label>
+                  <input type="text" value={(statFieldVal('termLabel') as string) ?? ''} onChange={(e) => setStatForm((p) => ({ ...p, termLabel: e.target.value }))} placeholder="예: 2024 수능" style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>지표 (레이블|값|단위, 한 줄씩)</label>
+                  <textarea
+                    value={statForm.metricsRaw ?? metricsToRaw(selectedStat.metrics)}
+                    onChange={(e) => setStatForm((p) => ({ ...p, metricsRaw: e.target.value }))}
+                    rows={4}
+                    placeholder={'수능 1등급|12|명\n최상위권 진학|85|%'}
+                    style={{ padding: 12, border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 13, fontFamily: 'monospace', resize: 'none' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>근거 출처 <span style={{ color: '#8A3A1C' }}>*필수 (없으면 비공개)</span></label>
+                  <input type="text" value={(statFieldVal('basisText') as string) ?? ''} onChange={(e) => setStatForm((p) => ({ ...p, basisText: e.target.value }))} placeholder="예: 2024 수능 성적 통지표 취합" style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }} />
+                </div>
+                <label style={{ display: 'flex', gap: 10, alignItems: 'center', fontSize: 14 }}>
+                  <input type="checkbox" checked={(statFieldVal('published') as boolean) ?? false} onChange={(e) => setStatForm((p) => ({ ...p, published: e.target.checked }))} style={{ width: 20, height: 20 }} />
+                  홈페이지에 공개
+                </label>
+                <div style={{ fontSize: 13, color: '#5A6270', lineHeight: 1.6 }}>근거 출처가 없으면 공개로 설정해도 비공개 처리됩니다.</div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
+                  <button type="button" onClick={() => deleteStat(selectedStat.id)} style={{ height: 48, padding: '0 20px', border: '1px solid #D5D0C6', borderRadius: 10, background: '#FFFFFF', font: 'inherit', fontSize: 14, color: '#8A3A1C', cursor: 'pointer' }}>삭제</button>
+                  <button type="button" onClick={saveStat} disabled={statSaving} style={{ flex: 1, height: 48, border: 'none', borderRadius: 10, background: '#1E5645', color: '#FFFFFF', font: 'inherit', fontSize: 15, fontWeight: 700, cursor: statSaving ? 'wait' : 'pointer' }}>저장</button>
+                </div>
+              </>
+            ) : (
+              <div style={{ color: '#9AA3AF', fontSize: 14, padding: 24, textAlign: 'center' }}>왼쪽 목록에서 항목을 선택하거나 새로 추가하세요.</div>
+            )}
+          </div>
+        </div>
+      ) : (
       <div style={{ display: 'flex', gap: 20, flex: 1 }}>
         {/* Left: list */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -492,6 +686,7 @@ export function ReviewsClient({ slug, reviews: initialReviews }: Props) {
           )}
         </div>
       </div>
+      )}
     </div>
   );
 }

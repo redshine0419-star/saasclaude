@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type { LevelTestSlot } from '@/lib/academy-data';
 
 const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
@@ -15,6 +15,14 @@ function slotLabel(s: LevelTestSlot) {
 
 export default function ConsultForm({ slug, slots }: { slug: string; slots: LevelTestSlot[] }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const utm = {
+    source: searchParams.get('utm_source'),
+    medium: searchParams.get('utm_medium'),
+    campaign: searchParams.get('utm_campaign'),
+    content: searchParams.get('utm_content'),
+    term: searchParams.get('utm_term'),
+  };
   const [consultType, setConsultType] = useState(CONSULT_TYPES[0]);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(slots[0]?.id ?? null);
   const [customTime, setCustomTime] = useState(false);
@@ -43,6 +51,7 @@ export default function ConsultForm({ slug, slots }: { slug: string; slots: Leve
       message: fd.get('message') as string,
       agreeMarketing: !!(fd.get('agree2')),
       agreeNight: !!(fd.get('agree3')),
+      utm: Object.values(utm).some(Boolean) ? utm : undefined,
     };
 
     try {

@@ -39,6 +39,20 @@ export async function POST(
   const recipientHash = hashPhone(phone);
   const consultType = CONSULT_TYPE_MAP[body.consultType as string] ?? 'level_test';
 
+  // UTM 파라미터 — 클라이언트가 JSON으로 전달 (SPEC line 99)
+  const utm =
+    body.utm &&
+    typeof body.utm === 'object' &&
+    !Array.isArray(body.utm)
+      ? {
+          source: body.utm.source ?? null,
+          medium: body.utm.medium ?? null,
+          campaign: body.utm.campaign ?? null,
+          content: body.utm.content ?? null,
+          term: body.utm.term ?? null,
+        }
+      : undefined;
+
   // ── Lead 생성 ─────────────────────────────────────────────────────────
   const lead = await prisma.lead.create({
     data: {
@@ -50,7 +64,8 @@ export async function POST(
       consultType,
       preferredSlotId: body.slotId && body.slotId !== 'custom' ? body.slotId : null,
       message: body.message ?? null,
-      source: req.headers.get('referer') ?? 'web',
+      source: (body.utm?.source as string | undefined) ?? req.headers.get('referer') ?? 'web',
+      utm,
     },
   });
 
