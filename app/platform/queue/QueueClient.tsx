@@ -97,60 +97,72 @@ export function QueueClient({ apps }: { apps: Application[] }) {
 
   return (
     <div style={{ display: 'flex', gap: 20 }}>
-      {/* Table */}
-      <div style={{ flex: 1, borderRadius: 12, background: '#FFFFFF', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid #E2DDD2', background: '#F9F8F5' }}>
-              <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>#</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>학원명</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>원장</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>과목·지역</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>연락처</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>상태</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>예상 시작일</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {apps.map((a) => {
-              const st = STATUS_STYLE[a.status] ?? { bg: '#F0F1F3', color: '#3C4659' };
-              const stLabel = STATUS_OPTIONS.find((o) => o.value === a.status)?.label ?? a.status;
-              return (
-                <tr
-                  key={a.id}
-                  style={{
-                    borderBottom: '1px solid #F0EDE7',
-                    background: selected?.id === a.id ? '#F4FAF7' : undefined,
-                  }}
-                >
-                  <td style={{ padding: '14px 20px', color: '#8A93A8', fontWeight: 600 }}>{a.queueOrder ?? '—'}</td>
-                  <td style={{ padding: '14px 16px', fontWeight: 600 }}>{a.academyName}</td>
-                  <td style={{ padding: '14px 16px', color: '#5A6270' }}>{a.directorName}</td>
-                  <td style={{ padding: '14px 16px', color: '#5A6270' }}>{a.subject} · {a.area}</td>
-                  <td style={{ padding: '14px 16px', color: '#5A6270' }}>{maskPhone(a.phone)}</td>
-                  <td style={{ padding: '14px 16px' }}>
-                    <span style={{ padding: '3px 8px', borderRadius: 6, fontSize: 12, fontWeight: 700, background: st.bg, color: st.color }}>{stLabel}</span>
-                  </td>
-                  <td style={{ padding: '14px 16px', color: '#5A6270', fontSize: 13 }}>
-                    {a.expectedStartDate ? new Date(a.expectedStartDate).toLocaleDateString('ko-KR') : '—'}
-                  </td>
-                  <td style={{ padding: '14px 16px' }}>
-                    <button
-                      onClick={() => openPanel(a)}
-                      style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #D5D0C6', background: '#FFFFFF', color: '#1E5645', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
-                    >
-                      편집
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-            {apps.length === 0 && (
-              <tr><td colSpan={8} style={{ padding: '40px 20px', textAlign: 'center', color: '#9AA3AF' }}>접수된 신청이 없습니다.</td></tr>
-            )}
-          </tbody>
-        </table>
+      {/* Kanban board */}
+      <div style={{ flex: 1, display: 'flex', gap: 12, overflowX: 'auto', alignItems: 'flex-start', minWidth: 0 }}>
+        {STATUS_OPTIONS.map((stage) => {
+          const stStyle = STATUS_STYLE[stage.value] ?? { bg: '#F0F1F3', color: '#3C4659' };
+          const stageApps = apps.filter((a) => a.status === stage.value);
+          return (
+            <div
+              key={stage.value}
+              style={{
+                minWidth: 220,
+                flex: 1,
+                background: '#F4F2EE',
+                borderRadius: 12,
+                padding: 12,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
+              }}
+            >
+              {/* Column header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 4px 8px', borderBottom: `2px solid ${stStyle.color}22` }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: stStyle.color }}>{stage.label}</span>
+                <span style={{ fontSize: 12, background: stStyle.bg, color: stStyle.color, borderRadius: 10, padding: '1px 7px', fontWeight: 700 }}>{stageApps.length}</span>
+              </div>
+
+              {/* Cards */}
+              {stageApps.length === 0 ? (
+                <div style={{ fontSize: 12, color: '#B0A9A0', textAlign: 'center', padding: '16px 0' }}>없음</div>
+              ) : (
+                stageApps.map((a) => (
+                  <button
+                    key={a.id}
+                    onClick={() => openPanel(a)}
+                    style={{
+                      width: '100%',
+                      textAlign: 'left',
+                      padding: '12px 14px',
+                      background: selected?.id === a.id ? '#E4EEE9' : '#FFFFFF',
+                      border: selected?.id === a.id ? '1px solid #1E5645' : '1px solid transparent',
+                      borderRadius: 10,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 4,
+                      font: 'inherit',
+                    }}
+                  >
+                    <div style={{ fontSize: 14, fontWeight: 700 }}>{a.academyName}</div>
+                    <div style={{ fontSize: 12, color: '#5A6270' }}>{a.subject} · {a.area}</div>
+                    {a.queueOrder !== null && (
+                      <div style={{ fontSize: 11, color: '#9AA3AF' }}>순번 {a.queueOrder}</div>
+                    )}
+                    {a.expectedStartDate && (
+                      <div style={{ fontSize: 11, color: '#1E5645', fontWeight: 600 }}>
+                        시작 예정: {new Date(a.expectedStartDate).toLocaleDateString('ko-KR')}
+                      </div>
+                    )}
+                    {a.uploadedFiles.length === 0 && a.status === 'waiting_docs' && (
+                      <div style={{ fontSize: 11, color: '#C8433A', fontWeight: 600 }}>자료 미제출</div>
+                    )}
+                  </button>
+                ))
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Side panel */}

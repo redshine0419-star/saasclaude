@@ -313,7 +313,7 @@ export default async function AdminDashboardPage({
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ fontSize: 16, fontWeight: 700 }}>연락이 필요한 상담</div>
+                <div style={{ fontSize: 16, fontWeight: 700 }}>오늘 연락할 상담</div>
                 {recentNew.length > 0 && (
                   <span
                     style={{

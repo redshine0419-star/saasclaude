@@ -66,12 +66,25 @@ export default async function ConsultDonePage({
             )}
           </div>
 
-          {/* 팁 박스 */}
-          {consultType === '레벨테스트 예약' && (
-            <div className="w-full p-5 md:p-6 rounded-[12px] text-[15px] leading-[1.7] text-left" style={{ background: '#FBF1CF', color: '#3E3510' }}>
-              레벨테스트 날에는 필기구와 최근 시험지(있다면)를 가져오시면 상담이 더 정확해집니다.
-            </div>
-          )}
+          {/* 준비물 안내 */}
+          <div className="w-full p-5 md:p-6 rounded-[12px] text-[15px] leading-[1.7] text-left" style={{ background: '#FBF1CF', color: '#3E3510' }}>
+            {consultType === '레벨테스트 예약' ? (
+              <>
+                <b>준비물 안내</b><br />
+                레벨테스트 날에는 <b>필기구</b>와 <b>최근 시험지</b>(있다면)를 가져오시면 상담이 더 정확해집니다.
+              </>
+            ) : consultType === '방문 상담' ? (
+              <>
+                <b>방문 전 확인</b><br />
+                학원 운영 시간 중 방문해 주세요. 학생 현재 교재나 성적표가 있으면 가져오시면 도움이 됩니다.
+              </>
+            ) : (
+              <>
+                <b>전화 상담 안내</b><br />
+                원장이 등록하신 번호로 직접 연락드립니다. 편한 통화 가능 시간이 있으면 메시지로 미리 알려주세요.
+              </>
+            )}
+          </div>
 
           {/* 버튼 */}
           <div className="flex gap-3">

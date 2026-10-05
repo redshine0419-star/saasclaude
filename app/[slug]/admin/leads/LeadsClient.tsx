@@ -224,6 +224,7 @@ export function LeadsClient({ slug, leads: initialLeads, totalByStatus }: Props)
                 <tr style={{ textAlign: 'left', color: '#5A6270', background: '#FAF9F6' }}>
                   <th style={{ padding: '14px 16px', fontWeight: 600 }}>신청일</th>
                   <th style={{ padding: '14px 16px', fontWeight: 600 }}>학부모 · 학년</th>
+                  <th style={{ padding: '14px 16px', fontWeight: 600 }}>연락처</th>
                   <th style={{ padding: '14px 16px', fontWeight: 600 }}>희망</th>
                   <th style={{ padding: '14px 16px', fontWeight: 600 }}>유입</th>
                   <th style={{ padding: '14px 16px', fontWeight: 600 }}>상태</th>
@@ -248,6 +249,9 @@ export function LeadsClient({ slug, leads: initialLeads, totalByStatus }: Props)
                       <td style={{ padding: '14px 16px', fontWeight: 600 }}>
                         {maskName(lead.parentName)}
                         {lead.studentGrade ? ` · ${lead.studentGrade}` : ''}
+                      </td>
+                      <td style={{ padding: '14px 16px', color: '#5A6270', fontVariantNumeric: 'tabular-nums' }}>
+                        {maskPhone(lead.phone)}
                       </td>
                       <td style={{ padding: '14px 16px' }}>
                         {CONSULT_LABEL[lead.consultType] ?? lead.consultType}
@@ -305,7 +309,7 @@ export function LeadsClient({ slug, leads: initialLeads, totalByStatus }: Props)
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <div style={{ fontSize: 20, fontWeight: 700 }}>{maskName(selected.parentName)} 학부모</div>
             <div style={{ fontSize: 14, color: '#5A6270' }}>
-              {selected.studentGrade ?? '학년 미기재'} · {maskPhone(selected.phone)}
+              {selected.studentGrade ?? '학년 미기재'} · {selected.phone}
               {selected.source ? ` · ${selected.source}` : ''}
             </div>
           </div>
