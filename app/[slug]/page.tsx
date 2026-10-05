@@ -36,7 +36,7 @@ import TimetableSection from '@/components/academy/sections/TimetableSection';
 const SECTION_ORDERS = {
   warm: ['hero', 'quick_info', 'director', 'principles', 'classes', 'timetable', 'fees', 'reviews', 'news', 'consult_form', 'location'],
   result: ['hero', 'results_stats', 'exam_system', 'curriculum', 'score_cases', 'teachers', 'fees', 'consult_form'],
-  bright: ['hero', 'day_flow', 'classes', 'gallery', 'safety', 'consult_form'],
+  bright: ['hero', 'day_flow', 'classes', 'gallery', 'safety', 'reviews', 'consult_form'],
 } as const;
 
 export default async function AcademyPage({
@@ -49,11 +49,12 @@ export default async function AcademyPage({
   if (!data) notFound();
 
   const theme = data.tenant.theme as 'warm' | 'result' | 'bright';
-  const sectionOrder = SECTION_ORDERS[theme] ?? SECTION_ORDERS.warm;
-  const enabled = new Set(data.sections.length > 0 ? data.sections : sectionOrder);
+  const defaultOrder = SECTION_ORDERS[theme] ?? SECTION_ORDERS.warm;
+  // DB sections take priority (includes only enabled=true, sorted by sortOrder).
+  // Fall back to hardcoded theme default when no per-tenant config exists.
+  const displayOrder: string[] = data.sections.length > 0 ? data.sections : [...defaultOrder];
 
   function renderSection(key: string) {
-    if (!enabled.has(key)) return null;
     switch (key) {
       // ── Shared sections ──
       case 'hero':
@@ -210,7 +211,7 @@ export default async function AcademyPage({
         />
       )}
       <main>
-        {sectionOrder.map(renderSection)}
+        {displayOrder.map(renderSection)}
       </main>
       <SiteFooter tenant={data.tenant} slug={slug} />
       <MobileBottomBar tenant={data.tenant} />

@@ -23,6 +23,7 @@ const ALL_SECTIONS = [
   { key: 'day_flow', label: '하루 일과', themes: ['bright'] },
   { key: 'gallery', label: '갤러리', themes: ['bright'] },
   { key: 'safety', label: '안전·후기', themes: ['bright'] },
+  { key: 'location', label: '오시는 길', themes: ['warm'] },
   { key: 'consult_form', label: '상담 신청 폼', themes: ['warm', 'result', 'bright'] },
 ];
 
