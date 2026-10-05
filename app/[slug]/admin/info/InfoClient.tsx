@@ -17,6 +17,7 @@ interface TenantInfo {
   transitInfo: string | null;
   parkingInfo: string | null;
   ga4MeasurementId: string | null;
+  naverSiteVerification: string | null;
 }
 
 interface DirectorInfo {
@@ -184,6 +185,11 @@ export function InfoClient({ slug, tenant: initialTenant, director: initialDirec
               <label style={LABEL}>GA4 측정 ID</label>
               <input type="text" value={info.ga4MeasurementId ?? ''} onChange={(e) => setI('ga4MeasurementId', e.target.value)} placeholder="G-XXXXXXXXXX" style={INPUT} />
               <div style={{ fontSize: 12, color: '#9AA3AF' }}>Google Analytics 4 측정 ID. 학원 홈페이지 방문자 분석에 사용됩니다.</div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={LABEL}>네이버 서치어드바이저 인증 코드</label>
+              <input type="text" value={info.naverSiteVerification ?? ''} onChange={(e) => setI('naverSiteVerification', e.target.value)} placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" style={INPUT} />
+              <div style={{ fontSize: 12, color: '#9AA3AF' }}>네이버 서치어드바이저 &gt; 사이트 관리 &gt; 소유 확인에서 발급받은 코드를 입력하세요.</div>
             </div>
           </div>
 

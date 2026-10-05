@@ -18,6 +18,7 @@ const CATEGORY_OPTIONS = [
   { value: 'notice', label: '공지' },
   { value: 'recruit', label: '특강 모집' },
   { value: 'exam', label: '시험 대비' },
+  { value: 'gallery', label: '갤러리' },
 ];
 
 export function NewsEditClient({ slug, post }: { slug: string; post?: Post }) {
@@ -31,12 +32,17 @@ export function NewsEditClient({ slug, post }: { slug: string; post?: Post }) {
   const [kakaoScheduledAt, setKakaoScheduledAt] = useState(
     post?.kakaoScheduledAt ? post.kakaoScheduledAt.slice(0, 16) : '',
   );
+  const [facePhotoConsent, setFacePhotoConsent] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
   async function submit(status: 'published' | 'draft') {
     if (!title.trim()) { setError('제목을 입력하세요.'); return; }
     if (!body.trim()) { setError('본문을 입력하세요.'); return; }
+    if (category === 'gallery' && !facePhotoConsent) {
+      setError('갤러리 사진 게시를 위해 보호자 동의 확인이 필요합니다.');
+      return;
+    }
     setError('');
     setSaving(true);
 
@@ -47,6 +53,7 @@ export function NewsEditClient({ slug, post }: { slug: string; post?: Post }) {
       status,
       sendKakao,
       kakaoScheduledAt: sendKakao && kakaoScheduledAt ? kakaoScheduledAt : null,
+      facePhotoConsent: category === 'gallery' ? facePhotoConsent : undefined,
     };
 
     try {
@@ -159,6 +166,23 @@ export function NewsEditClient({ slug, post }: { slug: string; post?: Post }) {
         />
         <div style={{ fontSize: 12, color: '#9AA3AF', marginTop: 4 }}>{body.length}자</div>
       </div>
+
+      {/* Gallery photo consent — required for gallery category (SPEC line 166) */}
+      {category === 'gallery' && (
+        <div style={{ padding: '18px 20px', background: '#FBF1CF', border: '1px solid #E8C84A', borderRadius: 10 }}>
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={facePhotoConsent}
+              onChange={(e) => setFacePhotoConsent(e.target.checked)}
+              style={{ width: 18, height: 18, accentColor: '#1E5645', cursor: 'pointer', marginTop: 2, flexShrink: 0 }}
+            />
+            <span style={{ fontSize: 14, lineHeight: 1.6, color: '#3E3510' }}>
+              <strong>보호자 동의 확인</strong> — 이 사진의 학생 보호자에게 초상권 이용(홈페이지 게시)을 동의받았음을 확인합니다. 동의 없이 게시하는 경우 법적 책임이 발생할 수 있습니다.
+            </span>
+          </label>
+        </div>
+      )}
 
       {/* Kakao toggle */}
       <div

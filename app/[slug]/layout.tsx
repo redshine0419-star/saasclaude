@@ -36,6 +36,9 @@ export async function generateMetadata({
       locale: 'ko_KR',
     },
     alternates: { canonical: pageUrl },
+    ...(tenant.naverSiteVerification
+      ? { other: { 'naver-site-verification': tenant.naverSiteVerification } }
+      : {}),
   };
 }
 

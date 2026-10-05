@@ -42,6 +42,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
           transitInfo: body.info.transitInfo ?? undefined,
           parkingInfo: body.info.parkingInfo ?? undefined,
           ga4MeasurementId: body.info.ga4MeasurementId ?? undefined,
+          naverSiteVerification: body.info.naverSiteVerification ?? undefined,
         },
       }),
     );

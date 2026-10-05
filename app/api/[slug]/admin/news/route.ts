@@ -15,7 +15,7 @@ async function getAuthorizedTenant(slug: string) {
   return membership ? tenant : null;
 }
 
-const VALID_CATEGORIES = new Set(['notice', 'recruit', 'exam']);
+const VALID_CATEGORIES = new Set(['notice', 'recruit', 'exam', 'gallery']);
 const VALID_STATUSES = new Set(['draft', 'published', 'scheduled']);
 
 export async function POST(req: NextRequest, { params }: { params: Params }) {

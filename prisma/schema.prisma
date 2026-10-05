@@ -50,6 +50,7 @@ model Tenant {
   transitInfo         String?
   parkingInfo         String?
   ga4MeasurementId    String?
+  naverSiteVerification String? // 네이버 서치어드바이저 인증 코드
 
   // 관계
   sections      TenantSection[]
@@ -399,6 +400,7 @@ enum PostCategory {
   notice
   recruit
   exam
+  gallery
 }
 
 enum PostStatus {

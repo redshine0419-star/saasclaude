@@ -41,6 +41,26 @@ export async function GET(req: Request) {
     });
   }
 
+  // 카카오 월 한도 90% 이상 학원 감지 (SPEC line 184) — 베타 한도 300건/월
+  const BETA_KAKAO_LIMIT = 300;
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const activeBetaTenants = await prisma.tenant.findMany({
+    where: { status: 'active', planStatus: 'beta' },
+    select: { id: true, name: true, slug: true },
+  });
+  const kakaoCountsRaw = await Promise.all(
+    activeBetaTenants.map((t) =>
+      prisma.post.count({
+        where: {
+          tenantId: t.id,
+          sendKakao: true,
+          kakaoSentAt: { gte: startOfMonth },
+        },
+      }).then((count) => ({ ...t, sentCount: count }))
+    )
+  );
+  const kakaoNearing = kakaoCountsRaw.filter((t) => t.sentCount >= BETA_KAKAO_LIMIT * 0.9);
+
   // 플랫폼 관리자 이메일 조회 (알림 수신 대상)
   const platformAdmins = await prisma.membership.findMany({
     where: { role: 'platform_admin' },
@@ -49,6 +69,18 @@ export async function GET(req: Request) {
   const adminEmails = platformAdmins.map((m) => m.user.email).filter(Boolean);
 
   // 운영 로그 — 실제 이메일 발송은 외부 서비스 연동 후 교체
+  if (kakaoNearing.length > 0) {
+    console.log('[beta-check] 카카오 한도 90% 이상 학원 (운영자 알림 대상):', {
+      admins: adminEmails,
+      tenants: kakaoNearing.map((t) => ({
+        name: t.name,
+        slug: t.slug,
+        used: t.sentCount,
+        limit: BETA_KAKAO_LIMIT,
+        pct: Math.round((t.sentCount / BETA_KAKAO_LIMIT) * 100),
+      })),
+    });
+  }
   if (expiring.length > 0) {
     console.log('[beta-check] 만료 임박 학원 (운영자 알림 대상):', {
       admins: adminEmails,
@@ -66,6 +98,7 @@ export async function GET(req: Request) {
     ok: true,
     expiring: expiring.length,
     deactivated: toDeactivate.length,
+    kakaoNearing: kakaoNearing.length,
     adminCount: adminEmails.length,
     at: now.toISOString(),
   });

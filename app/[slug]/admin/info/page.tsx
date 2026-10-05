@@ -103,6 +103,7 @@ export default async function AdminInfoPage({
             transitInfo: tenant.transitInfo,
             parkingInfo: tenant.parkingInfo,
             ga4MeasurementId: tenant.ga4MeasurementId,
+            naverSiteVerification: tenant.naverSiteVerification,
           }}
           director={
             director
