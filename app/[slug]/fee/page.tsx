@@ -128,7 +128,7 @@ export default async function FeePage({
           </div>
         </section>
       </main>
-      <SiteFooter tenant={tenant} />
+      <SiteFooter tenant={tenant} slug={slug} />
       <MobileBottomBar tenant={tenant} />
     </>
   );

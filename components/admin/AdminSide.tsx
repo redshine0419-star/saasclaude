@@ -115,6 +115,7 @@ export function AdminSide({ slug, tenantName, active }: AdminSideProps) {
       />
 
       <SectionLabel>홈페이지 콘텐츠</SectionLabel>
+      <NavItem href={`${base}/mobile`} label="📱 모바일 글쓰기" active={false} />
       <NavItem href={`${base}/news`} label="소식" active={active === 'news'} />
       <NavItem href={`${base}/reviews`} label="후기·성과" active={active === 'reviews'} />
       <NavItem href={`${base}/classes`} label="수업·시간표" active={active === 'classes'} />

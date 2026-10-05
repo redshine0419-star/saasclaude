@@ -161,7 +161,7 @@ export default async function ClassesPage({
           </div>
         </section>
       </main>
-      <SiteFooter tenant={tenant} />
+      <SiteFooter tenant={tenant} slug={slug} />
       <MobileBottomBar tenant={tenant} />
     </>
   );

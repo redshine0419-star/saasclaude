@@ -116,7 +116,7 @@ export default async function NewsDetailPage({
           </div>
         </div>
       </main>
-      <SiteFooter tenant={tenant} />
+      <SiteFooter tenant={tenant} slug={slug} />
       <MobileBottomBar tenant={tenant} />
     </>
   );

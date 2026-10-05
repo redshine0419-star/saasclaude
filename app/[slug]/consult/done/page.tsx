@@ -90,7 +90,7 @@ export default async function ConsultDonePage({
           </div>
         </section>
       </main>
-      <SiteFooter tenant={tenant} />
+      <SiteFooter tenant={tenant} slug={slug} />
     </>
   );
 }

@@ -68,7 +68,7 @@ export default async function ConsultPage({
           </div>
         </section>
       </main>
-      <SiteFooter tenant={tenant} />
+      <SiteFooter tenant={tenant} slug={slug} />
     </>
   );
 }

@@ -190,7 +190,7 @@ export default async function AcademyPage({
       <main>
         {sectionOrder.map(renderSection)}
       </main>
-      <SiteFooter tenant={data.tenant} />
+      <SiteFooter tenant={data.tenant} slug={slug} />
       <MobileBottomBar tenant={data.tenant} />
     </>
   );

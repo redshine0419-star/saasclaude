@@ -138,7 +138,7 @@ export default async function AboutPage({
           </div>
         </section>
       </main>
-      <SiteFooter tenant={tenant} />
+      <SiteFooter tenant={tenant} slug={slug} />
       <MobileBottomBar tenant={tenant} />
     </>
   );
