@@ -418,7 +418,8 @@ export function weekdayLabel(n: number): string {
 
 // ─── DB 조회 ──────────────────────────────────────────────────
 export async function getAcademyPageData(slug: string): Promise<AcademyPageData | null> {
-  if (slug === 'demo') return DEMO_DATA;
+  // Static demo data — no DB required
+  if (slug === 'demo' || slug === 'demo-warm') return { ...DEMO_DATA, tenant: { ...DEMO_DATA.tenant, slug } };
   if (slug === 'demo-result') return DEMO_DATA_RESULT;
   if (slug === 'demo-bright') return DEMO_DATA_BRIGHT;
 
