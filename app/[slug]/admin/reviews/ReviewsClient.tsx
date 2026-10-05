@@ -16,6 +16,7 @@ interface Review {
   comment: string | null;
   showOnHome: boolean;
   visible: boolean;
+  gradeBand: string | null;
 }
 
 interface ResultStat {
@@ -67,6 +68,7 @@ export function ReviewsClient({ slug, reviews: initialReviews, resultStats: init
     periodLabel: '',
     comment: '',
     showOnHome: false,
+    gradeBand: '',
   });
   const [addSaving, setAddSaving] = useState(false);
 
@@ -176,6 +178,7 @@ export function ReviewsClient({ slug, reviews: initialReviews, resultStats: init
         consentFile: fieldVal('consentFile'),
         comment: fieldVal('comment'),
         showOnHome: fieldVal('showOnHome'),
+        gradeBand: fieldVal('gradeBand') || null,
         ...(selected?.kind === 'score_case' && {
           beforeValue: fieldVal('beforeValue'),
           afterValue: fieldVal('afterValue'),
@@ -212,7 +215,7 @@ export function ReviewsClient({ slug, reviews: initialReviews, resultStats: init
         setReviews((prev) => [data.review, ...prev]);
         setSelectedId(data.review.id);
         setShowAdd(false);
-        setNewForm({ body: '', authorLabel: '', source: SOURCE_OPTIONS[0], consentConfirmed: false, consentFile: '', beforeValue: '', afterValue: '', periodLabel: '', comment: '', showOnHome: false });
+        setNewForm({ body: '', authorLabel: '', source: SOURCE_OPTIONS[0], consentConfirmed: false, consentFile: '', beforeValue: '', afterValue: '', periodLabel: '', comment: '', showOnHome: false, gradeBand: '' });
       }
     } finally {
       setAddSaving(false);
@@ -514,6 +517,18 @@ export function ReviewsClient({ slug, reviews: initialReviews, resultStats: init
                   </div>
                 </>
               )}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>학년 구분</label>
+                <select
+                  value={newForm.gradeBand}
+                  onChange={(e) => setNewForm((p) => ({ ...p, gradeBand: e.target.value }))}
+                  style={{ height: 44, padding: '0 10px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
+                >
+                  <option value="">미지정</option>
+                  <option value="중등">중등</option>
+                  <option value="고등">고등</option>
+                </select>
+              </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 16, background: '#F4F2EE', borderRadius: 10 }}>
                 <label style={{ display: 'flex', gap: 10, alignItems: 'center', fontSize: 14 }}>
                   <input type="checkbox" checked={newForm.consentConfirmed} onChange={(e) => setNewForm((p) => ({ ...p, consentConfirmed: e.target.checked }))} style={{ width: 20, height: 20 }} />
@@ -630,6 +645,18 @@ export function ReviewsClient({ slug, reviews: initialReviews, resultStats: init
                   </div>
                 </>
               )}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>학년 구분</label>
+                <select
+                  value={(fieldVal('gradeBand') as string) ?? ''}
+                  onChange={(e) => setForm((p) => ({ ...p, [selected.id]: { ...(p[selected.id] ?? {}), gradeBand: e.target.value || null } }))}
+                  style={{ height: 44, padding: '0 10px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
+                >
+                  <option value="">미지정</option>
+                  <option value="중등">중등</option>
+                  <option value="고등">고등</option>
+                </select>
+              </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 16, background: '#F4F2EE', borderRadius: 10 }}>
                 <label style={{ display: 'flex', gap: 10, alignItems: 'center', fontSize: 14 }}>
                   <input

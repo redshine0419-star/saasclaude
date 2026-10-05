@@ -55,6 +55,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
       comment: body.comment !== undefined ? body.comment : existing.comment,
       showOnHome: visible ? (body.showOnHome !== undefined ? body.showOnHome : existing.showOnHome) : false,
       visible,
+      gradeBand: body.gradeBand !== undefined ? (body.gradeBand ?? null) : existing.gradeBand,
     },
   });
 
@@ -73,6 +74,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
       comment: review.comment,
       showOnHome: review.showOnHome,
       visible: review.visible,
+      gradeBand: review.gradeBand,
     },
   });
 }

@@ -47,6 +47,7 @@ export default async function AdminReviewsPage({
     comment: r.comment,
     showOnHome: r.showOnHome,
     visible: r.visible,
+    gradeBand: r.gradeBand,
   }));
 
   const serializedStats = resultStats.map((s) => ({

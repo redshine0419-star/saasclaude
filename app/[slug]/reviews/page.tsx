@@ -4,19 +4,51 @@ import SiteHeader from '@/components/academy/SiteHeader';
 import SiteFooter from '@/components/academy/SiteFooter';
 import MobileBottomBar from '@/components/academy/MobileBottomBar';
 
+const GRADE_BAND_FILTER_OPTIONS = [
+  { key: '', label: '전체' },
+  { key: '중등', label: '중등' },
+  { key: '고등', label: '고등' },
+  { key: 'score', label: '성적 변화 사례' },
+];
+
 export default async function ReviewsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ filter?: string }>;
 }) {
-  const { slug } = await params;
+  const [{ slug }, { filter }] = await Promise.all([params, searchParams]);
   const data = await getAcademyPageData(slug);
   if (!data) notFound();
 
   const { tenant, reviews } = data;
 
-  const textReviews = reviews.filter((r) => r.kind === 'review' || r.kind === 'text');
-  const scoreReviews = reviews.filter((r) => r.kind === 'score_case' || r.kind === 'score');
+  const activeFilter = filter ?? '';
+
+  const allTextReviews = reviews.filter((r) => r.kind === 'review' || r.kind === 'text');
+  const allScoreReviews = reviews.filter((r) => r.kind === 'score_case' || r.kind === 'score');
+
+  const filteredTextReviews =
+    activeFilter === 'score'
+      ? []
+      : activeFilter
+        ? allTextReviews.filter((r) => r.gradeBand === activeFilter)
+        : allTextReviews;
+
+  const filteredScoreReviews =
+    activeFilter === '' || activeFilter === 'score'
+      ? allScoreReviews
+      : allScoreReviews.filter((r) => r.gradeBand === activeFilter);
+
+  // only show grade tabs when there are reviews for that grade
+  const gradeBandsWithData = new Set(allTextReviews.map((r) => r.gradeBand).filter(Boolean));
+  const visibleFilters = GRADE_BAND_FILTER_OPTIONS.filter(
+    (opt) =>
+      opt.key === '' ||
+      opt.key === 'score' && allScoreReviews.length > 0 ||
+      gradeBandsWithData.has(opt.key),
+  );
 
   return (
     <>
@@ -39,29 +71,35 @@ export default async function ReviewsPage({
           <p className="text-[17px] text-body mt-4 m-0">모든 후기는 작성자 동의를 받아 원문 그대로 옮겼습니다.</p>
         </section>
 
-        {/* 필터 탭 */}
-        <div className="px-5 md:px-20 pb-7 flex gap-2 flex-wrap">
-          {['전체', '중등', '고등', '성적 변화 사례'].map((tab, i) => (
-            <button
-              key={tab}
-              type="button"
-              className={[
-                'h-11 px-5 rounded-full text-[15px] font-medium',
-                i === 0
-                  ? 'bg-ink text-white border-none'
-                  : 'border border-input-line bg-transparent text-ink',
-              ].join(' ')}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+        {/* 필터 탭 — 서버사이드 링크 */}
+        {visibleFilters.length > 1 && (
+          <div className="px-5 md:px-20 pb-7 flex gap-2 flex-wrap">
+            {visibleFilters.map((opt) => {
+              const isActive = activeFilter === opt.key;
+              const href = opt.key ? `/${slug}/reviews?filter=${opt.key}` : `/${slug}/reviews`;
+              return (
+                <a
+                  key={opt.key}
+                  href={href}
+                  className={[
+                    'h-11 px-5 rounded-full text-[15px] font-medium no-underline',
+                    isActive
+                      ? 'bg-ink text-white'
+                      : 'border border-input-line bg-transparent text-ink hover:bg-white transition-colors',
+                  ].join(' ')}
+                >
+                  {opt.label}
+                </a>
+              );
+            })}
+          </div>
+        )}
 
         {/* 후기 카드 그리드 */}
-        {textReviews.length > 0 && (
+        {filteredTextReviews.length > 0 && (
           <section className="px-5 md:px-20 pb-12">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {textReviews.map((r) => (
+              {filteredTextReviews.map((r) => (
                 <div key={r.id} className="p-8 bg-white rounded-[16px] flex flex-col gap-5">
                   <p className="font-serif text-[19px] leading-[1.75] m-0">"{r.body}"</p>
                   <div className="text-[14px] text-body">
@@ -70,7 +108,7 @@ export default async function ReviewsPage({
                   </div>
                 </div>
               ))}
-              {tenant.naverPlaceUrl && (
+              {activeFilter === '' && tenant.naverPlaceUrl && (
                 <a
                   href={tenant.naverPlaceUrl}
                   target="_blank"
@@ -86,11 +124,11 @@ export default async function ReviewsPage({
         )}
 
         {/* 성적 변화 사례 */}
-        {scoreReviews.length > 0 && (
+        {filteredScoreReviews.length > 0 && (
           <section className="px-5 md:px-20 pb-20">
             <h2 className="font-serif text-[28px] md:text-[36px] m-0 mb-6">성적 변화 사례</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {scoreReviews.map((r) => (
+              {filteredScoreReviews.map((r) => (
                 <div key={r.id} className="p-9 bg-accent text-on-accent rounded-[16px] flex flex-col gap-4">
                   <div className="text-[14px] font-semibold opacity-80">{r.authorLabel}</div>
                   <div className="flex items-baseline gap-4">
@@ -110,6 +148,12 @@ export default async function ReviewsPage({
             <p className="mt-4 text-[13px] text-body">
               성적 사례는 학생·학부모 서면 동의를 받은 경우에만 게재하며, 개인을 특정할 수 있는 정보는 싣지 않습니다.
             </p>
+          </section>
+        )}
+
+        {filteredTextReviews.length === 0 && filteredScoreReviews.length === 0 && (
+          <section className="px-5 md:px-20 pb-20 text-center text-body text-[16px] py-20">
+            {activeFilter ? '해당 조건의 후기가 없습니다.' : '아직 등록된 후기가 없습니다.'}
           </section>
         )}
       </main>

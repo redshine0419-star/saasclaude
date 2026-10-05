@@ -43,6 +43,7 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
       comment: body.comment ?? null,
       showOnHome: visible ? (body.showOnHome === true) : false,
       visible,
+      gradeBand: body.gradeBand ?? null,
     },
   });
 
@@ -61,6 +62,7 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
       comment: review.comment,
       showOnHome: review.showOnHome,
       visible: review.visible,
+      gradeBand: review.gradeBand,
     },
   });
 }

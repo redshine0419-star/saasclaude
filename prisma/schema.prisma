@@ -57,7 +57,9 @@ model Tenant {
   memberships   Membership[]
   notifyRecipients NotifyRecipient[]
   directorProfile  DirectorProfile?
-  staffProfiles    StaffProfile[]
+  teachingPrinciples TeachingPrinciple[]
+  facilities         Facility[]
+  staffProfiles      StaffProfile[]
   classes       ClassItem[]
   levelTestSlots LevelTestSlot[]
   fees          Fee[]
@@ -177,6 +179,33 @@ model DirectorProfile {
   tenant       Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@map("director_profiles")
+}
+
+model TeachingPrinciple {
+  id          String  @id @default(cuid())
+  tenantId    String
+  number      String  // "01", "02", "03"
+  title       String
+  description String?
+  sortOrder   Int     @default(0)
+
+  tenant      Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("teaching_principles")
+}
+
+model Facility {
+  id        String  @id @default(cuid())
+  tenantId  String
+  label     String
+  photo     String?
+  sortOrder Int     @default(0)
+
+  tenant    Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("facilities")
 }
 
 model StaffProfile {
@@ -424,6 +453,7 @@ model Review {
   afterValue       String?
   periodLabel      String?
   comment          String? // 원장 코멘트
+  gradeBand        String? // "중등" | "고등" — 필터용
   showOnHome       Boolean @default(false)
   visible          Boolean @default(false) // consent 조건 충족 후 true 가능
 

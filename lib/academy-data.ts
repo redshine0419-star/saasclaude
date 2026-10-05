@@ -433,10 +433,13 @@ export async function getAcademyPageData(slug: string): Promise<AcademyPageData 
       include: {
         sections: { orderBy: { sortOrder: 'asc' } },
         directorProfile: true,
+        teachingPrinciples: { orderBy: { sortOrder: 'asc' } },
+        facilities: { orderBy: { sortOrder: 'asc' } },
         staffProfiles: { orderBy: { sortOrder: 'asc' } },
         classes: { orderBy: { sortOrder: 'asc' } },
         fees: true,
         extraCosts: true,
+        refundPolicyText: true,
         reviews: { where: { visible: true } },
         posts: {
           where: { status: 'published' },
@@ -478,8 +481,12 @@ export async function getAcademyPageData(slug: string): Promise<AcademyPageData 
       director: tenant.directorProfile
         ? { ...tenant.directorProfile, name: null }
         : null,
-      principles: [],
-      facilities: [],
+      principles: tenant.teachingPrinciples.map((p: { id: string; number: string; title: string; description: string | null }) => ({
+        id: p.id, number: p.number, title: p.title, description: p.description,
+      })),
+      facilities: tenant.facilities.map((f: { id: string; label: string; photo: string | null }) => ({
+        id: f.id, label: f.label, photo: f.photo,
+      })),
       classes: tenant.classes.map((c: {
         id: string; name: string; gradeBand: string | null; days: string[]; startTime: string | null;
         endTime: string | null; textbook: string | null; description: string | null;
@@ -498,14 +505,14 @@ export async function getAcademyPageData(slug: string): Promise<AcademyPageData 
         monthlyHours: f.monthlyHours, amount: f.amount, note: f.note,
       })),
       extraCosts: tenant.extraCosts,
-      refundPolicyText: null,
+      refundPolicyText: tenant.refundPolicyText?.body ?? null,
       reviews: tenant.reviews.map((r: {
         id: string; kind: string; body: string | null; authorLabel: string | null;
-        source: string | null; beforeValue: string | null; afterValue: string | null;
-        periodLabel: string | null; comment: string | null;
+        gradeBand: string | null; source: string | null; beforeValue: string | null;
+        afterValue: string | null; periodLabel: string | null; comment: string | null;
       }) => ({
         id: r.id, kind: r.kind, body: r.body, authorLabel: r.authorLabel,
-        gradeBand: null, source: r.source, beforeValue: r.beforeValue,
+        gradeBand: r.gradeBand, source: r.source, beforeValue: r.beforeValue,
         afterValue: r.afterValue, periodLabel: r.periodLabel, comment: r.comment,
       })),
       posts: tenant.posts.map((p: {

@@ -257,7 +257,7 @@ export default async function AdminDashboardPage({
               )}
             </div>
 
-            {/* Source (GA4 placeholder) */}
+            {/* Source breakdown — uses classifyReferer-classified values */}
             <div
               style={{
                 padding: 24,
@@ -268,37 +268,32 @@ export default async function AdminDashboardPage({
                 gap: 14,
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <div style={{ fontSize: 16, fontWeight: 700 }}>상담 신청 유입 경로</div>
-                <div style={{ fontSize: 13, color: '#9AA3AF' }}>GA4 연동 전 · referer 기준</div>
-              </div>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>상담 신청 유입 경로</div>
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-                  gap: 12,
+                  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                  gap: 10,
                 }}
               >
-                {(['네이버 검색', '네이버 플레이스', '카톡 채널', '직접 접속'] as const).map(
-                  (src) => {
-                    const count = thisMonthLeads.filter((l) => {
-                      const s = (l.source ?? '').toLowerCase();
-                      if (src === '네이버 검색') return s.includes('naver') && !s.includes('place');
-                      if (src === '네이버 플레이스') return s.includes('place');
-                      if (src === '카톡 채널') return s.includes('kakao') || s.includes('channel');
-                      return !s.includes('naver') && !s.includes('kakao');
-                    }).length;
-                    return (
-                      <div
-                        key={src}
-                        style={{ padding: 14, borderRadius: 10, background: '#F4F2EE' }}
-                      >
-                        <div style={{ fontSize: 13, color: '#5A6270' }}>{src}</div>
-                        <div style={{ fontSize: 22, fontWeight: 700, marginTop: 4 }}>{count}</div>
-                      </div>
-                    );
-                  },
-                )}
+                {([
+                  { label: '네이버 검색', keys: ['naver_search', 'naver_blog'] },
+                  { label: '네이버 플레이스', keys: ['naver_place'] },
+                  { label: '카카오', keys: ['kakao'] },
+                  { label: 'AI 검색', keys: ['ai_chatgpt', 'ai_perplexity', 'ai_gemini'] },
+                  { label: '구글', keys: ['google'] },
+                  { label: '직접 접속', keys: ['direct'] },
+                  { label: '기타 유입', keys: ['referral', 'social', 'web'] },
+                ]).map(({ label, keys }) => {
+                  const count = thisMonthLeads.filter((l) => keys.includes(l.source ?? '')).length;
+                  if (count === 0) return null;
+                  return (
+                    <div key={label} style={{ padding: 14, borderRadius: 10, background: '#F4F2EE' }}>
+                      <div style={{ fontSize: 13, color: '#5A6270' }}>{label}</div>
+                      <div style={{ fontSize: 22, fontWeight: 700, marginTop: 4 }}>{count}</div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
