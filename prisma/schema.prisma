@@ -73,6 +73,7 @@ model Tenant {
   monthlyReports MonthlyReport[]
   contactLogs   TenantContactLog[]
   proxyAccessLogs ProxyAccessLog[]
+  feeChangeLogs FeeChangeLog[]
 
   @@map("tenants")
 }
@@ -240,6 +241,19 @@ model Fee {
   class            ClassItem? @relation(fields: [classId], references: [id])
 
   @@map("fees")
+}
+
+model FeeChangeLog {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  tenantId  String
+  actorEmail String
+  snapshot  Json     // 변경 전 fees + extra_costs 배열 전체
+
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("fee_change_logs")
 }
 
 model ExtraCost {

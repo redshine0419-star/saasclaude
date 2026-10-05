@@ -22,9 +22,14 @@ export default async function AdminInfoPage({
   });
   if (!membership) redirect('/auth/signin');
 
-  const [director, fees] = await Promise.all([
+  const [director, fees, feeChangeLogs] = await Promise.all([
     prisma.directorProfile.findUnique({ where: { tenantId: tenant.id } }),
     prisma.fee.findMany({ where: { tenantId: tenant.id }, orderBy: { id: 'asc' } }),
+    prisma.feeChangeLog.findMany({
+      where: { tenantId: tenant.id },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+    }),
   ]);
 
   return (
@@ -105,6 +110,7 @@ export default async function AdminInfoPage({
               : null
           }
           fees={fees.map((f) => ({ id: f.id, label: f.label, amount: f.amount }))}
+          feeChangeLogs={feeChangeLogs.map((l) => ({ id: l.id, createdAt: l.createdAt.toISOString(), actorEmail: l.actorEmail }))}
         />
       </main>
     </div>

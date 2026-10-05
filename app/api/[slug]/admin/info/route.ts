@@ -68,7 +68,24 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
     );
   }
 
+  let feeChanging = false;
+
   if (Array.isArray(body.fees)) {
+    // 변경 전 스냅샷 저장 (변경 이력, SPEC line 162)
+    const prevFees = await prisma.fee.findMany({ where: { tenantId: tenant.id } });
+    const prevExtras = await prisma.extraCost.findMany({ where: { tenantId: tenant.id } });
+    feeChanging = true;
+
+    updates.push(
+      prisma.feeChangeLog.create({
+        data: {
+          tenantId: tenant.id,
+          actorEmail: session.user.email,
+          snapshot: { fees: prevFees, extraCosts: prevExtras },
+        },
+      }),
+    );
+
     for (const fee of body.fees as { id: string; label?: string; amount: number }[]) {
       if (!fee.id || typeof fee.amount !== 'number') continue;
       if (fee.id.startsWith('new-')) {
@@ -90,5 +107,5 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
 
   await Promise.all(updates);
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, feeChangeLogged: feeChanging });
 }

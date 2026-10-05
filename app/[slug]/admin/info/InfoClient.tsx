@@ -32,11 +32,18 @@ interface FeeRow {
   amount: number;
 }
 
+interface FeeChangeLog {
+  id: string;
+  createdAt: string;
+  actorEmail: string;
+}
+
 interface Props {
   slug: string;
   tenant: TenantInfo;
   director: DirectorInfo | null;
   fees: FeeRow[];
+  feeChangeLogs: FeeChangeLog[];
 }
 
 const INPUT = {
@@ -50,7 +57,7 @@ const TEXTAREA = {
 };
 const LABEL = { fontSize: 13, fontWeight: 600, color: '#5A6270' };
 
-export function InfoClient({ slug, tenant: initialTenant, director: initialDirector, fees: initialFees }: Props) {
+export function InfoClient({ slug, tenant: initialTenant, director: initialDirector, fees: initialFees, feeChangeLogs }: Props) {
   const [info, setInfo] = useState(initialTenant);
   const [director, setDirector] = useState<DirectorInfo>(
     initialDirector ?? { headline: null, career: null, philosophy: null, education: null }
@@ -263,6 +270,31 @@ export function InfoClient({ slug, tenant: initialTenant, director: initialDirec
           </button>
         </div>
       </div>
+      {/* 교습비 변경 이력 */}
+      {feeChangeLogs.length > 0 && (
+        <div style={{ padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ fontSize: 15, fontWeight: 700 }}>교습비 변경 이력</div>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid #EEEAE2' }}>
+                <th style={{ padding: '8px 0', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>변경 시각</th>
+                <th style={{ padding: '8px 0', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>변경자</th>
+              </tr>
+            </thead>
+            <tbody>
+              {feeChangeLogs.map((l) => (
+                <tr key={l.id} style={{ borderBottom: '1px solid #F5F3EF' }}>
+                  <td style={{ padding: '8px 0', color: '#8A93A8' }}>
+                    {new Date(l.createdAt).toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short' })}
+                  </td>
+                  <td style={{ padding: '8px 0', color: '#5A6270' }}>{l.actorEmail}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div style={{ fontSize: 12, color: '#9AA3AF' }}>최근 10건. 변경 전 금액 전체는 DB에 보관됩니다.</div>
+        </div>
+      )}
     </>
   );
 }

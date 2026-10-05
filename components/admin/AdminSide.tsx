@@ -9,6 +9,7 @@ type ActiveKey =
   | 'reviews'
   | 'classes'
   | 'info'
+  | 'staff'
   | 'report'
   | 'settings';
 
@@ -120,6 +121,7 @@ export function AdminSide({ slug, tenantName, active }: AdminSideProps) {
       <NavItem href={`${base}/reviews`} label="후기·성과" active={active === 'reviews'} />
       <NavItem href={`${base}/classes`} label="수업·시간표" active={active === 'classes'} />
       <NavItem href={`${base}/info`} label="학원 정보·교습비" active={active === 'info'} />
+      <NavItem href={`${base}/staff`} label="강사진" active={active === 'staff'} />
 
       <SectionLabel>운영</SectionLabel>
       <NavItem href={`${base}/report`} label="월간 리포트" active={active === 'report'} />
