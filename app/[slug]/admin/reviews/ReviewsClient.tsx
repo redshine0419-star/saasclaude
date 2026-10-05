@@ -80,6 +80,7 @@ export function ReviewsClient({ slug, reviews: initialReviews, resultStats: init
   const [statSaving, setStatSaving] = useState(false);
   const [statAddSaving, setStatAddSaving] = useState(false);
   const [statError, setStatError] = useState('');
+  const [consentWarning, setConsentWarning] = useState('');
 
   const selectedStat = resultStats.find((s) => s.id === selectedStatId) ?? null;
 
@@ -168,6 +169,21 @@ export function ReviewsClient({ slug, reviews: initialReviews, resultStats: init
 
   async function save() {
     if (!selectedId) return;
+    setConsentWarning('');
+
+    // Gate: consent must be confirmed before making visible
+    const newConsentConfirmed = fieldVal('consentConfirmed');
+    const newShowOnHome = fieldVal('showOnHome');
+    const newConsentFile = (fieldVal('consentFile') ?? '').trim();
+    if (newShowOnHome && !newConsentConfirmed) {
+      setConsentWarning('동의 확인이 체크되지 않으면 홈에 노출할 수 없습니다. 동의를 먼저 확인해 주세요.');
+      return;
+    }
+    if (selected?.kind === 'score_case' && newConsentConfirmed && !newConsentFile) {
+      setConsentWarning('성적 변화 사례는 서면 동의 파일을 첨부해야 공개할 수 있습니다.');
+      return;
+    }
+
     setSaving(true);
     try {
       const payload: Partial<Review> & { kind?: string } = {
@@ -697,6 +713,20 @@ export function ReviewsClient({ slug, reviews: initialReviews, resultStats: init
                   ? '동의 확인 + 동의서 파일이 모두 있어야 공개됩니다.'
                   : '동의가 체크되지 않은 후기는 게시되지 않습니다.'}
               </div>
+              {consentWarning && (
+                <div
+                  style={{
+                    padding: '12px 16px',
+                    borderRadius: 10,
+                    background: '#FDE8E8',
+                    color: '#B91C1C',
+                    fontSize: 13,
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {consentWarning}
+                </div>
+              )}
               <button
                 type="button"
                 onClick={save}

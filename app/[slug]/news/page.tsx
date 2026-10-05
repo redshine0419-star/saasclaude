@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { prisma } from '@/lib/prisma';
 import { getAcademyPageData } from '@/lib/academy-data';
 import SiteHeader from '@/components/academy/SiteHeader';
 import SiteFooter from '@/components/academy/SiteFooter';
@@ -19,10 +20,20 @@ const FILTER_OPTIONS = [
   { key: 'gallery', label: '갤러리' },
 ];
 
+const PER_PAGE = 10;
+
 function formatDate(d: Date | string | null) {
   if (!d) return '';
   const dt = typeof d === 'string' ? new Date(d) : d;
   return `${dt.getFullYear()}.${String(dt.getMonth() + 1).padStart(2, '0')}.${String(dt.getDate()).padStart(2, '0')}`;
+}
+
+function pageHref(slug: string, cat: string, page: number) {
+  const params = new URLSearchParams();
+  if (cat) params.set('cat', cat);
+  if (page > 1) params.set('page', String(page));
+  const qs = params.toString();
+  return `/${slug}/news${qs ? `?${qs}` : ''}`;
 }
 
 export default async function NewsPage({
@@ -30,26 +41,71 @@ export default async function NewsPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ cat?: string }>;
+  searchParams: Promise<{ cat?: string; page?: string }>;
 }) {
-  const [{ slug }, { cat }] = await Promise.all([params, searchParams]);
+  const [{ slug }, sp] = await Promise.all([params, searchParams]);
   const data = await getAcademyPageData(slug);
   if (!data) notFound();
 
-  const { tenant, posts: allPosts } = data;
+  const { tenant } = data;
+  const activeCat = sp.cat ?? '';
+  const currentPage = Math.max(1, parseInt(sp.page ?? '1', 10) || 1);
 
-  const activeCat = cat ?? '';
-  const filteredPosts = activeCat
-    ? allPosts.filter((p) => p.category === activeCat)
-    : allPosts;
+  // For demo slugs use static data
+  const isDemoSlug = ['demo', 'demo-warm', 'demo-result', 'demo-bright'].includes(slug);
 
-  // only show filter tabs that have at least one post
-  const categoriesWithPosts = new Set(allPosts.map((p) => p.category));
+  let posts: typeof data.posts = [];
+  let totalCount = 0;
+
+  if (isDemoSlug) {
+    const all = activeCat ? data.posts.filter((p) => p.category === activeCat) : data.posts;
+    totalCount = all.length;
+    posts = all.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
+  } else {
+    const tenantRecord = await prisma.tenant.findUnique({ where: { slug, status: 'active' } });
+    if (!tenantRecord) notFound();
+
+    const where = {
+      tenantId: tenantRecord.id,
+      status: 'published' as const,
+      ...(activeCat ? { category: activeCat as 'notice' | 'recruit' | 'exam' | 'gallery' } : {}),
+    };
+
+    const [dbPosts, count] = await Promise.all([
+      prisma.post.findMany({
+        where,
+        orderBy: { publishedAt: 'desc' },
+        skip: (currentPage - 1) * PER_PAGE,
+        take: PER_PAGE,
+      }),
+      prisma.post.count({ where }),
+    ]);
+
+    totalCount = count;
+    posts = dbPosts.map((p) => ({
+      id: p.id,
+      category: p.category,
+      title: p.title,
+      summary: null,
+      body: null,
+      summaryFields: null,
+      imageUrl: p.images[0] ?? null,
+      publishedAt: p.publishedAt,
+    }));
+  }
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / PER_PAGE));
+  const [featured, ...rest] = posts;
+
+  // Category tabs: only show when there are posts in that category (use all of data.posts for demo)
+  const categoriesWithPosts = new Set(
+    isDemoSlug
+      ? data.posts.map((p) => p.category)
+      : posts.map((p) => p.category),
+  );
   const visibleFilters = FILTER_OPTIONS.filter(
     (opt) => opt.key === '' || categoriesWithPosts.has(opt.key),
   );
-
-  const [featured, ...rest] = filteredPosts;
 
   return (
     <>
@@ -71,7 +127,7 @@ export default async function NewsPage({
           </h1>
         </section>
 
-        {/* 카테고리 필터 탭 (서버사이드 링크) */}
+        {/* 카테고리 필터 탭 */}
         {visibleFilters.length > 1 && (
           <div className="px-5 md:px-20 pb-7 flex gap-2 flex-wrap">
             {visibleFilters.map((opt) => {
@@ -95,8 +151,8 @@ export default async function NewsPage({
           </div>
         )}
 
-        {/* 피처드 포스트 */}
-        {featured && (
+        {/* 피처드 포스트 (페이지 1만) */}
+        {featured && currentPage === 1 && (
           <section className="px-5 md:px-20 pb-8">
             <a
               href={`/${slug}/news/${featured.id}`}
@@ -124,7 +180,7 @@ export default async function NewsPage({
 
         {/* 목록 */}
         {rest.length > 0 && (
-          <section className="px-5 md:px-20 pb-12">
+          <section className="px-5 md:px-20 pb-6">
             <div className="flex flex-col gap-0">
               {rest.map((post, i) => (
                 <a
@@ -155,9 +211,45 @@ export default async function NewsPage({
           </section>
         )}
 
-        {filteredPosts.length === 0 && (
+        {posts.length === 0 && (
           <section className="px-5 md:px-20 pb-20 text-center text-body text-[16px] py-20">
             {activeCat ? '해당 카테고리의 소식이 없습니다.' : '아직 등록된 소식이 없습니다.'}
+          </section>
+        )}
+
+        {/* 페이지네이션 */}
+        {totalPages > 1 && (
+          <section className="px-5 md:px-20 pb-12 flex items-center justify-center gap-2">
+            {currentPage > 1 && (
+              <a
+                href={pageHref(slug, activeCat, currentPage - 1)}
+                className="h-11 px-5 rounded-full border border-input-line text-[15px] no-underline text-ink hover:bg-white transition-colors flex items-center"
+              >
+                ← 이전
+              </a>
+            )}
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <a
+                key={p}
+                href={pageHref(slug, activeCat, p)}
+                className={[
+                  'w-11 h-11 rounded-full text-[15px] no-underline flex items-center justify-center',
+                  p === currentPage
+                    ? 'bg-ink text-white font-bold'
+                    : 'border border-input-line text-ink hover:bg-white transition-colors',
+                ].join(' ')}
+              >
+                {p}
+              </a>
+            ))}
+            {currentPage < totalPages && (
+              <a
+                href={pageHref(slug, activeCat, currentPage + 1)}
+                className="h-11 px-5 rounded-full border border-input-line text-[15px] no-underline text-ink hover:bg-white transition-colors flex items-center"
+              >
+                다음 →
+              </a>
+            )}
           </section>
         )}
       </main>
