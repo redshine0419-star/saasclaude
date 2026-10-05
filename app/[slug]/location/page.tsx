@@ -3,6 +3,7 @@ import { getAcademyPageData } from '@/lib/academy-data';
 import SiteHeader from '@/components/academy/SiteHeader';
 import SiteFooter from '@/components/academy/SiteFooter';
 import MobileBottomBar from '@/components/academy/MobileBottomBar';
+import { CopyAddressButton } from '@/components/academy/CopyAddressButton';
 
 export default async function LocationPage({
   params,
@@ -65,13 +66,7 @@ export default async function LocationPage({
               )}
               <div className="flex gap-2 flex-wrap">
                 {tenant.address && (
-                  <button
-                    type="button"
-                    className="h-11 px-4 rounded-[10px] border border-input-line bg-white text-[14px] font-medium"
-                    onClick={undefined}
-                  >
-                    주소 복사
-                  </button>
+                  <CopyAddressButton address={tenant.address} />
                 )}
                 {tenant.naverPlaceUrl && (
                   <a

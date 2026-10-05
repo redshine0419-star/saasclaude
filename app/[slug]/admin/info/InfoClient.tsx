@@ -11,6 +11,11 @@ interface TenantInfo {
   subjects: string | null;
   targetGrades: string | null;
   kakaoChannelUrl: string | null;
+  naverPlaceUrl: string | null;
+  naverMapEmbedUrl: string | null;
+  locationHeadline: string | null;
+  transitInfo: string | null;
+  parkingInfo: string | null;
   ga4MeasurementId: string | null;
 }
 
@@ -132,6 +137,32 @@ export function InfoClient({ slug, tenant: initialTenant, director: initialDirec
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={LABEL}>주소</label>
               <input type="text" value={info.address ?? ''} onChange={(e) => setI('address', e.target.value)} placeholder="도로명 주소" style={INPUT} />
+            </div>
+          </div>
+
+          {/* Location */}
+          <div style={{ padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div style={{ fontSize: 16, fontWeight: 700 }}>오시는 길</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={LABEL}>위치 한 줄 소개</label>
+              <input type="text" value={info.locationHeadline ?? ''} onChange={(e) => setI('locationHeadline', e.target.value)} placeholder="역삼역 1번 출구 도보 3분" style={INPUT} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={LABEL}>대중교통 안내</label>
+              <textarea rows={3} value={info.transitInfo ?? ''} onChange={(e) => setI('transitInfo', e.target.value)} placeholder="지하철 2호선 역삼역 1번 출구 도보 3분&#10;버스 146, 341번 역삼역 하차" style={TEXTAREA} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={LABEL}>주차 안내</label>
+              <input type="text" value={info.parkingInfo ?? ''} onChange={(e) => setI('parkingInfo', e.target.value)} placeholder="건물 지하 1~2층, 1시간 무료" style={INPUT} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={LABEL}>네이버 지도 장소 URL</label>
+              <input type="url" value={info.naverPlaceUrl ?? ''} onChange={(e) => setI('naverPlaceUrl', e.target.value)} placeholder="https://naver.me/xxxxx" style={INPUT} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={LABEL}>네이버 지도 임베드 URL</label>
+              <input type="url" value={info.naverMapEmbedUrl ?? ''} onChange={(e) => setI('naverMapEmbedUrl', e.target.value)} placeholder="https://map.naver.com/p/entry/place/..." style={INPUT} />
+              <div style={{ fontSize: 12, color: '#9AA3AF' }}>홈페이지 오시는 길 페이지에 지도로 표시됩니다.</div>
             </div>
           </div>
 

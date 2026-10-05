@@ -92,6 +92,11 @@ export default async function AdminInfoPage({
             subjects: tenant.subjects,
             targetGrades: tenant.targetGrades,
             kakaoChannelUrl: tenant.kakaoChannelUrl,
+            naverPlaceUrl: tenant.naverPlaceUrl,
+            naverMapEmbedUrl: tenant.naverMapEmbedUrl,
+            locationHeadline: tenant.locationHeadline,
+            transitInfo: tenant.transitInfo,
+            parkingInfo: tenant.parkingInfo,
             ga4MeasurementId: tenant.ga4MeasurementId,
           }}
           director={

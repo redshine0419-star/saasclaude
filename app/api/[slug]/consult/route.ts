@@ -168,12 +168,14 @@ async function dispatchMessage(opts: {
   });
 
   // messages 테이블에 기록
+  const channel = result.dispatched ? (result as { channel?: string }).channel ?? 'alimtalk' : 'alimtalk';
   await prisma.message.create({
     data: {
       tenantId: opts.tenantId,
       leadId: opts.leadId,
       scenario: opts.scenario,
       kind: opts.kind === 'ad' ? 'ad' : 'info',
+      channel: channel as 'alimtalk' | 'sms_fallback',
       recipientHash: opts.recipientHash,
       status: !result.dispatched
         ? 'failed'

@@ -44,8 +44,12 @@ model Tenant {
   phone         String?
   hours         String?
   kakaoChannelUrl  String?
-  naverPlaceUrl    String?
-  ga4MeasurementId String?
+  naverPlaceUrl       String?
+  naverMapEmbedUrl    String?
+  locationHeadline    String?
+  transitInfo         String?
+  parkingInfo         String?
+  ga4MeasurementId    String?
 
   // 관계
   sections      TenantSection[]

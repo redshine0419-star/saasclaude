@@ -36,5 +36,10 @@ export async function sendMessage(req: SendRequest) {
     scheduledAt: result.scheduledAt,
   });
 
-  return { dispatched: true, ...adapterResult, scheduledAt: result.scheduledAt } as const;
+  // Determine channel from externalId prefix (set by KakaoAdapter)
+  const channel = adapterResult.status === 'sent' && adapterResult.externalId.startsWith('sms-')
+    ? ('sms_fallback' as const)
+    : ('alimtalk' as const);
+
+  return { dispatched: true, ...adapterResult, scheduledAt: result.scheduledAt, channel } as const;
 }
