@@ -15,6 +15,13 @@ interface SectionState {
   sortOrder: number;
 }
 
+interface OverlapAcademy {
+  id: string;
+  name: string;
+  slug: string;
+  address: string | null;
+}
+
 interface Props {
   id: string;
   name: string;
@@ -28,6 +35,7 @@ interface Props {
   betaEndsAt: string | null;
   sections: SectionState[];
   allSections: SectionDef[];
+  overlaps: OverlapAcademy[];
 }
 
 const THEMES = [
@@ -104,6 +112,22 @@ export function AcademyEditClient(props: Props) {
             </button>
           </div>
         </div>
+
+        {/* Overlap warning */}
+        {props.overlaps.length > 0 && (
+          <div style={{ padding: '14px 20px', background: '#FEF9C3', border: '1px solid #EAB308', borderRadius: 10, fontSize: 14, color: '#713F12' }}>
+            <b>⚠ 같은 지역·과목 학원이 있습니다:</b>{' '}
+            {props.overlaps.map((o, i) => (
+              <span key={o.id}>
+                {i > 0 && ', '}
+                <Link href={`/platform/academies/${o.id}`} style={{ color: '#713F12', fontWeight: 600 }}>
+                  {o.name}
+                </Link>
+                {o.address && <span style={{ fontWeight: 400 }}> ({o.address})</span>}
+              </span>
+            ))}
+          </div>
+        )}
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 20, alignItems: 'start' }}>
           {/* Main panel */}

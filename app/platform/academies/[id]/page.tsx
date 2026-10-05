@@ -32,6 +32,20 @@ export default async function AcademyEditPage({ params }: Props) {
   });
   if (!tenant) notFound();
 
+  // 같은 지역·과목 경고: 동일 subjects + address(시/구 기준) 다른 활성 학원
+  const overlaps = tenant.subjects && tenant.address
+    ? await prisma.tenant.findMany({
+        where: {
+          id: { not: tenant.id },
+          status: 'active',
+          subjects: tenant.subjects,
+          address: { contains: tenant.address.split(' ').slice(0, 2).join(' ') },
+        },
+        select: { id: true, name: true, slug: true, address: true },
+        take: 5,
+      })
+    : [];
+
   const sections = tenant.sections.map((s) => ({ key: s.sectionKey, enabled: s.enabled, sortOrder: s.sortOrder }));
 
   return (
@@ -50,6 +64,7 @@ export default async function AcademyEditPage({ params }: Props) {
         betaEndsAt={tenant.betaEndsAt?.toISOString() ?? null}
         sections={sections}
         allSections={ALL_SECTIONS}
+        overlaps={overlaps}
       />
     </div>
   );

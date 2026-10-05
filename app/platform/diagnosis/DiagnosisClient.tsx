@@ -31,12 +31,21 @@ function maskPhone(phone: string) {
   return phone.replace(/(\d{3})-?\d{4}-?(\d{4})/, '$1-****-$2');
 }
 
+const DIAGNOSIS_TEMPLATE = (r: DiagRequest, note: string) =>
+  `[첫등원] ${r.academyName} 무료 진단 결과입니다.\n\n` +
+  `과목: ${r.subject} / 지역: ${r.area}\n\n` +
+  `${note || '(진단 결과 메모를 입력해주세요.)'}\n\n` +
+  `첫등원 홈페이지 제작 서비스로 더 많은 원생을 모집해보세요.\n` +
+  `상담 신청: https://growweb.me/apply`;
+
 export function DiagnosisClient({ requests }: { requests: DiagRequest[] }) {
   const router = useRouter();
   const [selected, setSelected] = useState<DiagRequest | null>(null);
   const [status, setStatus] = useState('');
   const [resultNote, setResultNote] = useState('');
   const [saving, setSaving] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendResult, setSendResult] = useState<'sent' | 'error' | null>(null);
   const [error, setError] = useState('');
 
   function openPanel(r: DiagRequest) {
@@ -44,6 +53,7 @@ export function DiagnosisClient({ requests }: { requests: DiagRequest[] }) {
     setStatus(r.status);
     setResultNote(r.resultNote ?? '');
     setError('');
+    setSendResult(null);
   }
 
   async function save() {
@@ -66,6 +76,24 @@ export function DiagnosisClient({ requests }: { requests: DiagRequest[] }) {
       setError(e instanceof Error ? e.message : '오류 발생');
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function sendKakao() {
+    if (!selected) return;
+    setSending(true);
+    setSendResult(null);
+    try {
+      const res = await fetch(`/api/platform/diagnosis/${selected.id}/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resultNote }),
+      });
+      setSendResult(res.ok ? 'sent' : 'error');
+    } catch {
+      setSendResult('error');
+    } finally {
+      setSending(false);
     }
   }
 
@@ -207,29 +235,69 @@ export function DiagnosisClient({ requests }: { requests: DiagRequest[] }) {
             />
           </div>
 
+          {/* Kakao preview */}
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>카톡 메시지 미리보기</div>
+            <div style={{ padding: 14, borderRadius: 10, background: '#FAF9F6', border: '1px solid #E2DDD2', fontSize: 13, lineHeight: 1.8, whiteSpace: 'pre-wrap', color: '#1B2430', maxHeight: 180, overflow: 'auto' }}>
+              {DIAGNOSIS_TEMPLATE(selected, resultNote)}
+            </div>
+          </div>
+
+          {sendResult === 'sent' && (
+            <div style={{ padding: '10px 14px', borderRadius: 8, background: '#D8E8E0', color: '#1E5645', fontSize: 13, fontWeight: 600 }}>
+              발송 완료
+            </div>
+          )}
+          {sendResult === 'error' && (
+            <div style={{ padding: '10px 14px', borderRadius: 8, background: '#FDE8E8', color: '#B91C1C', fontSize: 13 }}>
+              발송 실패 — 어댑터 설정을 확인하세요.
+            </div>
+          )}
+
           {error && (
             <div style={{ padding: '10px 14px', borderRadius: 8, background: '#FDE8E8', color: '#B91C1C', fontSize: 13 }}>
               {error}
             </div>
           )}
 
-          <button
-            onClick={save}
-            disabled={saving}
-            style={{
-              height: 44,
-              borderRadius: 8,
-              background: '#1E5645',
-              color: '#FFFFFF',
-              border: 'none',
-              fontSize: 14,
-              fontWeight: 700,
-              cursor: saving ? 'not-allowed' : 'pointer',
-              opacity: saving ? 0.6 : 1,
-            }}
-          >
-            {saving ? '저장 중…' : '저장'}
-          </button>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button
+              onClick={sendKakao}
+              disabled={sending || sendResult === 'sent'}
+              style={{
+                flex: 1,
+                height: 44,
+                borderRadius: 8,
+                background: '#FEE500',
+                color: '#191919',
+                border: 'none',
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: (sending || sendResult === 'sent') ? 'not-allowed' : 'pointer',
+                opacity: (sending || sendResult === 'sent') ? 0.6 : 1,
+              }}
+            >
+              {sending ? '발송 중…' : sendResult === 'sent' ? '발송됨' : '카톡 발송'}
+            </button>
+            <button
+              onClick={save}
+              disabled={saving}
+              style={{
+                flex: 1,
+                height: 44,
+                borderRadius: 8,
+                background: '#1E5645',
+                color: '#FFFFFF',
+                border: 'none',
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: saving ? 'not-allowed' : 'pointer',
+                opacity: saving ? 0.6 : 1,
+              }}
+            >
+              {saving ? '저장 중…' : '저장'}
+            </button>
+          </div>
         </div>
       )}
     </div>
