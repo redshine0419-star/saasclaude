@@ -104,6 +104,22 @@ export type LevelTestSlot = {
   time: string | null;
 };
 
+export type AcademyStaff = {
+  id: string;
+  name: string;
+  roleLabel: string | null;
+  photo: string | null;
+  summary: string | null;
+  sortOrder: number;
+};
+
+export type AcademyResultStat = {
+  id: string;
+  termLabel: string;
+  metrics: { label: string; value: string; unit: string }[];
+  basisText: string;
+};
+
 export type AcademyPageData = {
   tenant: AcademyTenant;
   sections: string[];
@@ -118,6 +134,8 @@ export type AcademyPageData = {
   posts: AcademyPost[];
   shuttle: AcademyShuttleStop[];
   levelTestSlots: LevelTestSlot[];
+  staff: AcademyStaff[];
+  resultStats: AcademyResultStat[];
 };
 
 // ─── 데모 데이터 (warm theme) ────────────────────────────────
@@ -240,6 +258,152 @@ export const DEMO_DATA: AcademyPageData = {
     { id: 's2', weekday: 4, time: '17:00' },
     { id: 's3', weekday: 6, time: '11:00' },
   ],
+  staff: [],
+  resultStats: [],
+};
+
+// ─── 데모 데이터 (result theme) ──────────────────────────────
+export const DEMO_DATA_RESULT: AcademyPageData = {
+  tenant: {
+    slug: 'demo-result',
+    name: '하이탑수학학원',
+    theme: 'result',
+    accentColor: '#1D3FA8',
+    subjects: '수학',
+    targetGrades: 'OO고 · OO여고 · OO고',
+    address: '서울시 강남구 역삼로 200, 역삼빌딩 4층',
+    phone: '02-2345-6789',
+    hours: '평일 15:00~22:00 / 토 10:00~18:00',
+    kakaoChannelUrl: '#',
+    naverPlaceUrl: '#',
+    naverMapEmbedUrl: null,
+    regNo: '2345-강남-2024',
+    locationHeadline: '역삼역 1번 출구 도보 3분',
+    transitInfo: '**지하철** 2호선 역삼역 1번 출구, 도보 3분\n**버스** 역삼역 하차 · 146, 341번\n**주차** 건물 지하 1~2층',
+    parkingInfo: null,
+  },
+  sections: ['hero', 'results_stats', 'exam_system', 'curriculum', 'score_cases', 'teachers', 'fees', 'consult_form'],
+  director: {
+    photo: null,
+    name: '박수진',
+    headline: '"학교별 기출을 직접 분석합니다."',
+    philosophy: '시험 문제는 학교마다 다릅니다. 저는 매 시험마다 해당 학교 기출을 직접 분석하고 학생들에게 맞춤 대비를 제공합니다.',
+    education: 'OO대학교 수학과',
+    career: '대치동 OO학원 강사 7년, 현 하이탑수학학원 운영 5년',
+    subjectsTaught: '고1·고2·고3 수학 전 과정',
+  },
+  principles: [],
+  facilities: [],
+  classes: [
+    { id: 'c1', name: '고1 공통수학', gradeBand: '고1', days: ['화', '목'], startTime: '18:00', endTime: '20:30', textbook: '공통수학 1·2', description: '공통수학 내신 + 수능 기초 동시 진행', seatsLeft: 3, capacity: 8, waitlistCount: 0, sortOrder: 0 },
+    { id: 'c2', name: '고2 내신반', gradeBand: '고2', days: ['월', '수', '금'], startTime: '19:00', endTime: '21:30', textbook: '대수·미적분Ⅰ', description: '내신 중심, 기출 4주 대비 시스템 적용', seatsLeft: 0, capacity: 8, waitlistCount: 4, sortOrder: 1 },
+    { id: 'c3', name: '고3 수능반', gradeBand: '고3', days: ['월', '수', '금'], startTime: '19:30', endTime: '22:00', textbook: '수능 기출 문제집', description: '수능 실전 + 최저 등급 관리', seatsLeft: 2, capacity: 8, waitlistCount: 0, sortOrder: 2 },
+  ],
+  fees: [
+    { id: 'f1', classId: 'c1', label: '고1 공통수학 · 주 2회', sessionsPerWeek: 2, monthlyHours: 20, amount: 380000, note: '교재비 별도' },
+    { id: 'f2', classId: 'c2', label: '고2 내신반 · 주 3회', sessionsPerWeek: 3, monthlyHours: 30, amount: 420000, note: '교재비 별도' },
+    { id: 'f3', classId: 'c3', label: '고3 수능반 · 주 3회', sessionsPerWeek: 3, monthlyHours: 30, amount: 450000, note: '교재비 별도' },
+  ],
+  extraCosts: [
+    { id: 'e1', label: '교재비', amount: 15000, note: '실비 · 권당 약 15,000원' },
+    { id: 'e2', label: '레벨테스트', amount: 0, note: '무료' },
+  ],
+  refundPolicyText: null,
+  reviews: [
+    { id: 'r1', kind: 'score_case', body: null, authorLabel: 'OO고 2학년', gradeBand: '고2', source: null, beforeValue: '4등급', afterValue: '2등급', periodLabel: '재원 6개월', comment: '학교 기출 분석으로 출제 패턴을 잡고, D-7부터 실전 모의로 마무리했습니다.' },
+    { id: 'r2', kind: 'score_case', body: null, authorLabel: 'OO여고 1학년', gradeBand: '고1', source: null, beforeValue: '63점', afterValue: '88점', periodLabel: '재원 4개월', comment: '공통수학 개념 구멍을 먼저 메운 뒤, 기출 유형 분석으로 넘어갔습니다.' },
+    { id: 'r3', kind: 'score_case', body: null, authorLabel: 'OO고 3학년', gradeBand: '고3', source: null, beforeValue: '5등급', afterValue: '3등급', periodLabel: '재원 1년', comment: '수능 기출 반복과 약점 유형 집중 공략이 효과가 있었습니다.' },
+  ],
+  posts: [],
+  shuttle: [],
+  levelTestSlots: [
+    { id: 's1', weekday: 3, time: '17:00' },
+    { id: 's2', weekday: 6, time: '10:00' },
+  ],
+  staff: [
+    { id: 'st1', name: '박수진', roleLabel: '원장 · 고2·고3', photo: null, summary: 'OO대학교 수학과 · 대치동 강사 7년, 현 원장 5년', sortOrder: 0 },
+    { id: 'st2', name: '이지훈', roleLabel: '강사 · 고1', photo: null, summary: 'OO대학교 수학교육과 · 내신 전문 3년', sortOrder: 1 },
+    { id: 'st3', name: '최예원', roleLabel: '강사 · 중3 선행', photo: null, summary: 'OO대학교 수학과 · 선행·심화 전문 2년', sortOrder: 2 },
+  ],
+  resultStats: [
+    {
+      id: 'rs1',
+      termLabel: '2026 1학기 기말',
+      metrics: [
+        { label: '내신 1등급', value: '12', unit: '명' },
+        { label: '평균 상승 점수', value: '+18', unit: '점' },
+        { label: '재등록률', value: '91', unit: '%' },
+        { label: '대비한 학교', value: '7', unit: '곳' },
+      ],
+      basisText: '재원 3개월 이상 학생 전체 평균 · 개인 정보 비공개 · 학원 자체 집계',
+    },
+  ],
+};
+
+// ─── 데모 데이터 (bright theme) ──────────────────────────────
+export const DEMO_DATA_BRIGHT: AcademyPageData = {
+  tenant: {
+    slug: 'demo-bright',
+    name: '해피영어학원',
+    theme: 'bright',
+    accentColor: '#0F766E',
+    subjects: '영어',
+    targetGrades: '7세 ~ 초6',
+    address: '서울시 마포구 동교로 150, 홍대빌딩 2층',
+    phone: '02-3456-7890',
+    hours: '평일 14:00~20:00 / 토 10:00~14:00',
+    kakaoChannelUrl: '#',
+    naverPlaceUrl: '#',
+    naverMapEmbedUrl: null,
+    regNo: '3456-마포-2024',
+    locationHeadline: '홍대입구역 6번 출구 도보 5분',
+    transitInfo: '**지하철** 2호선·공항철도 홍대입구역 6번 출구, 도보 5분\n**버스** 동교동 하차 · 271, 370번',
+    parkingInfo: null,
+  },
+  sections: ['hero', 'day_flow', 'classes', 'gallery', 'safety', 'consult_form'],
+  director: {
+    photo: null,
+    name: '김지선',
+    headline: '"아이가 먼저 오고 싶은 학원"',
+    philosophy: '영어가 두렵지 않고 즐거운 언어가 되도록 돕습니다.',
+    education: 'OO대학교 영어교육과',
+    career: '어린이 영어 교육 8년',
+    subjectsTaught: '유치부·초등 영어 전 과정',
+  },
+  principles: [],
+  facilities: [],
+  classes: [
+    { id: 'c1', name: '유치부', gradeBand: '7세', days: ['월', '수', '금'], startTime: '14:00', endTime: '14:50', textbook: '파닉스 그림책', description: '노래와 그림책으로 소리에 익숙해지기', seatsLeft: 2, capacity: 6, waitlistCount: 0, sortOrder: 0 },
+    { id: 'c2', name: '초등 저학년', gradeBand: '초1~초3', days: ['화', '목', '금'], startTime: '15:00', endTime: '16:00', textbook: '파닉스·리더스', description: '파닉스 완성, 짧은 문장 말하기', seatsLeft: 4, capacity: 6, waitlistCount: 0, sortOrder: 1 },
+    { id: 'c3', name: '초등 고학년', gradeBand: '초4~초6', days: ['화', '목'], startTime: '16:30', endTime: '18:10', textbook: '리딩·라이팅 교재', description: '리딩·라이팅, 중등 영어 준비', seatsLeft: 0, capacity: 6, waitlistCount: 3, sortOrder: 2 },
+  ],
+  fees: [
+    { id: 'f1', classId: 'c1', label: '유치부 · 주 3회', sessionsPerWeek: 3, monthlyHours: 12, amount: 220000, note: '교재비 별도' },
+    { id: 'f2', classId: 'c2', label: '초등 저학년 · 주 3회', sessionsPerWeek: 3, monthlyHours: 12, amount: 240000, note: '교재비 별도' },
+    { id: 'f3', classId: 'c3', label: '초등 고학년 · 주 2회', sessionsPerWeek: 2, monthlyHours: 12, amount: 260000, note: '교재비 별도' },
+  ],
+  extraCosts: [
+    { id: 'e1', label: '교재비', amount: 12000, note: '실비 · 권당 약 12,000원' },
+    { id: 'e2', label: '체험 수업', amount: 0, note: '무료' },
+  ],
+  refundPolicyText: null,
+  reviews: [
+    { id: 'r1', kind: 'review', body: '"아이가 학원 가기 싫다는 말을 한 번도 안 했어요. 노래와 게임으로 배우니까 집에 와서도 영어 단어를 흥얼거려요."', authorLabel: '초2 학부모', gradeBand: '초등', source: '네이버 플레이스', beforeValue: null, afterValue: null, periodLabel: null, comment: null },
+    { id: 'r2', kind: 'review', body: '"한 반 6명이라 선생님이 아이 한 명 한 명을 이름으로 불러줘요. 수줍음이 많은 아이인데 여기 와서 발표도 자신감 있게 해요."', authorLabel: '7세 학부모', gradeBand: '유치부', source: '카카오톡', beforeValue: null, afterValue: null, periodLabel: null, comment: null },
+  ],
+  posts: [
+    { id: 'p1', category: 'gallery', title: '10월 핼러윈 파티', summary: '아이들과 함께한 핼러윈 영어 수업', body: null, imageUrl: null, summaryFields: null, publishedAt: new Date('2026-10-01') },
+    { id: 'p2', category: 'gallery', title: '9월 발표회', summary: '영어 발표회 모습', body: null, imageUrl: null, summaryFields: null, publishedAt: new Date('2026-09-15') },
+    { id: 'p3', category: 'gallery', title: '여름방학 특강', summary: '여름방학 특강 수업 모습', body: null, imageUrl: null, summaryFields: null, publishedAt: new Date('2026-08-10') },
+    { id: 'p4', category: 'gallery', title: '아이들 작품 전시', summary: '영어 작품 전시회', body: null, imageUrl: null, summaryFields: null, publishedAt: new Date('2026-07-20') },
+  ],
+  shuttle: [],
+  levelTestSlots: [
+    { id: 's1', weekday: 3, time: '15:00' },
+    { id: 's2', weekday: 6, time: '11:00' },
+  ],
+  staff: [],
+  resultStats: [],
 };
 
 // ─── 요일 숫자 → 한글 ────────────────────────────────────────
@@ -251,6 +415,8 @@ export function weekdayLabel(n: number): string {
 // ─── DB 조회 ──────────────────────────────────────────────────
 export async function getAcademyPageData(slug: string): Promise<AcademyPageData | null> {
   if (slug === 'demo') return DEMO_DATA;
+  if (slug === 'demo-result') return DEMO_DATA_RESULT;
+  if (slug === 'demo-bright') return DEMO_DATA_BRIGHT;
 
   try {
     const tenant = await prisma.tenant.findUnique({
@@ -258,6 +424,7 @@ export async function getAcademyPageData(slug: string): Promise<AcademyPageData 
       include: {
         sections: { orderBy: { sortOrder: 'asc' } },
         directorProfile: true,
+        staffProfiles: { orderBy: { sortOrder: 'asc' } },
         classes: { orderBy: { sortOrder: 'asc' } },
         fees: true,
         extraCosts: true,
@@ -268,6 +435,7 @@ export async function getAcademyPageData(slug: string): Promise<AcademyPageData 
           take: 10,
         },
         levelTestSlots: { where: { active: true } },
+        resultStats: { where: { published: true }, orderBy: { id: 'desc' }, take: 3 },
       },
     });
     if (!tenant) return null;
@@ -339,6 +507,15 @@ export async function getAcademyPageData(slug: string): Promise<AcademyPageData 
       shuttle: [],
       levelTestSlots: tenant.levelTestSlots.map((s: { id: string; weekday: number | null; time: string | null }) => ({
         id: s.id, weekday: s.weekday, time: s.time,
+      })),
+      staff: tenant.staffProfiles.map((s: { id: string; name: string; roleLabel: string | null; photo: string | null; summary: string | null; sortOrder: number }) => ({
+        id: s.id, name: s.name, roleLabel: s.roleLabel, photo: s.photo, summary: s.summary, sortOrder: s.sortOrder,
+      })),
+      resultStats: tenant.resultStats.map((rs: { id: string; termLabel: string; metrics: unknown; basisText: string }) => ({
+        id: rs.id,
+        termLabel: rs.termLabel,
+        metrics: Array.isArray(rs.metrics) ? rs.metrics as { label: string; value: string; unit: string }[] : [],
+        basisText: rs.basisText,
       })),
     };
   } catch {
