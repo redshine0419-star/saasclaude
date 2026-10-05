@@ -136,10 +136,31 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
 
   const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
 
+  const waitlistClasses = classes.filter((c) => c.waitlistCount > 0 && (c.seatsLeft ?? 1) <= 0);
+
   return (
     <div style={{ display: 'flex', gap: 20, flex: 1, minHeight: 0 }}>
       {/* Left */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {waitlistClasses.length > 0 && (
+          <div style={{ padding: '14px 18px', background: '#FEF3E2', borderRadius: 10, border: '1px solid #F5C67B', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+            <div>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#7A4E0A' }}>
+                마감 반 대기자 있음
+              </span>
+              <span style={{ fontSize: 13, color: '#7A4E0A', marginLeft: 8 }}>
+                {waitlistClasses.map((c) => `${c.name} (${c.waitlistCount}명)`).join(', ')}
+              </span>
+            </div>
+            <a
+              href={`/${slug}/admin/leads`}
+              style={{ fontSize: 13, fontWeight: 600, color: '#7A4E0A', textDecoration: 'underline', flexShrink: 0 }}
+            >
+              상담 관리에서 확인 →
+            </a>
+          </div>
+        )}
+
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>수업·시간표</h1>
           <button
@@ -240,11 +261,11 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
             gap: 14,
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
             <div style={{ fontSize: 16, fontWeight: 700 }}>레벨테스트 가능 시간</div>
-            <div style={{ fontSize: 13, color: '#5A6270' }}>
-              매주 월요일 오전, 이번 주 시간 확인 알림이 원장님께 갑니다
-            </div>
+            <span style={{ fontSize: 12, fontWeight: 600, color: '#1E5645', background: '#E4EEE9', padding: '4px 10px', borderRadius: 20 }}>
+              매주 월요일 확인 알림 자동 발송
+            </span>
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {slots.map((slot) => (

@@ -448,6 +448,7 @@ export async function getAcademyPageData(slug: string): Promise<AcademyPageData 
         },
         levelTestSlots: { where: { active: true } },
         resultStats: { where: { published: true }, orderBy: { id: 'desc' }, take: 3 },
+        shuttleStops: { orderBy: { sortOrder: 'asc' } },
       },
     });
     if (!tenant) return null;
@@ -524,7 +525,9 @@ export async function getAcademyPageData(slug: string): Promise<AcademyPageData 
         summaryFields: null,
         publishedAt: p.publishedAt,
       })),
-      shuttle: [],
+      shuttle: tenant.shuttleStops.map((s: { id: string; stop: string; pickup: string | null; dropoff: string | null }) => ({
+        id: s.id, stop: s.stop, pickup: s.pickup, dropoff: s.dropoff,
+      })),
       levelTestSlots: tenant.levelTestSlots.map((s: { id: string; weekday: number | null; time: string | null }) => ({
         id: s.id, weekday: s.weekday, time: s.time,
       })),

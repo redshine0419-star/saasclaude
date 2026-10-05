@@ -97,9 +97,21 @@ export default async function ClassesPage({
                         <span>총 {cls.capacity}명 중 {cls.capacity - cls.seatsLeft}명 등록</span>
                       </div>
                     )}
-                    {cls.waitlistCount > 0 && (
+                    {cls.seatsLeft === 0 ? (
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-[13px] text-warn-ink font-semibold m-0">
+                          마감 {cls.waitlistCount > 0 ? `· 대기 ${cls.waitlistCount}명` : ''}
+                        </p>
+                        <a
+                          href={`/${slug}/consult?class=${encodeURIComponent(cls.name)}&waitlist=1`}
+                          className="flex-shrink-0 h-8 px-4 rounded-full bg-warn-bg text-warn-ink text-[13px] font-semibold flex items-center no-underline hover:opacity-80 transition-opacity"
+                        >
+                          대기 신청
+                        </a>
+                      </div>
+                    ) : cls.waitlistCount > 0 ? (
                       <p className="text-[13px] text-body m-0">대기 {cls.waitlistCount}명</p>
-                    )}
+                    ) : null}
                   </div>
                 ))}
               </div>

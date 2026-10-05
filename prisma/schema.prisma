@@ -77,6 +77,7 @@ model Tenant {
   contactLogs   TenantContactLog[]
   proxyAccessLogs ProxyAccessLog[]
   feeChangeLogs FeeChangeLog[]
+  shuttleStops  ShuttleStop[]
 
   @@map("tenants")
 }
@@ -306,6 +307,22 @@ model RefundPolicyText {
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@map("refund_policy_texts")
+}
+
+model ShuttleStop {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenantId  String
+  stop      String  // 정류장명
+  pickup    String? // 등원 시간
+  dropoff   String? // 하원 시간
+  sortOrder Int     @default(0)
+
+  tenant    Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("shuttle_stops")
 }
 
 // ─────────────────────────────────────────────────────────
