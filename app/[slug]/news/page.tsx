@@ -4,6 +4,21 @@ import SiteHeader from '@/components/academy/SiteHeader';
 import SiteFooter from '@/components/academy/SiteFooter';
 import MobileBottomBar from '@/components/academy/MobileBottomBar';
 
+const CATEGORY_LABELS: Record<string, string> = {
+  notice: '공지',
+  recruit: '특강 모집',
+  exam: '시험 대비',
+  gallery: '갤러리',
+};
+
+const FILTER_OPTIONS = [
+  { key: '', label: '전체' },
+  { key: 'notice', label: '공지' },
+  { key: 'recruit', label: '특강 모집' },
+  { key: 'exam', label: '시험 대비' },
+  { key: 'gallery', label: '갤러리' },
+];
+
 function formatDate(d: Date | string | null) {
   if (!d) return '';
   const dt = typeof d === 'string' ? new Date(d) : d;
@@ -12,16 +27,29 @@ function formatDate(d: Date | string | null) {
 
 export default async function NewsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ cat?: string }>;
 }) {
-  const { slug } = await params;
+  const [{ slug }, { cat }] = await Promise.all([params, searchParams]);
   const data = await getAcademyPageData(slug);
   if (!data) notFound();
 
-  const { tenant, posts } = data;
+  const { tenant, posts: allPosts } = data;
 
-  const [featured, ...rest] = posts;
+  const activeCat = cat ?? '';
+  const filteredPosts = activeCat
+    ? allPosts.filter((p) => p.category === activeCat)
+    : allPosts;
+
+  // only show filter tabs that have at least one post
+  const categoriesWithPosts = new Set(allPosts.map((p) => p.category));
+  const visibleFilters = FILTER_OPTIONS.filter(
+    (opt) => opt.key === '' || categoriesWithPosts.has(opt.key),
+  );
+
+  const [featured, ...rest] = filteredPosts;
 
   return (
     <>
@@ -43,23 +71,29 @@ export default async function NewsPage({
           </h1>
         </section>
 
-        {/* 필터 탭 */}
-        <div className="px-5 md:px-20 pb-7 flex gap-2 flex-wrap">
-          {['전체', '시험 대비', '원장 칼럼', '학원 소식'].map((tab, i) => (
-            <button
-              key={tab}
-              type="button"
-              className={[
-                'h-11 px-5 rounded-full text-[15px] font-medium',
-                i === 0
-                  ? 'bg-ink text-white border-none'
-                  : 'border border-input-line bg-transparent text-ink',
-              ].join(' ')}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+        {/* 카테고리 필터 탭 (서버사이드 링크) */}
+        {visibleFilters.length > 1 && (
+          <div className="px-5 md:px-20 pb-7 flex gap-2 flex-wrap">
+            {visibleFilters.map((opt) => {
+              const isActive = activeCat === opt.key;
+              const href = opt.key ? `/${slug}/news?cat=${opt.key}` : `/${slug}/news`;
+              return (
+                <a
+                  key={opt.key}
+                  href={href}
+                  className={[
+                    'h-11 px-5 rounded-full text-[15px] font-medium no-underline',
+                    isActive
+                      ? 'bg-ink text-white'
+                      : 'border border-input-line bg-transparent text-ink hover:bg-white transition-colors',
+                  ].join(' ')}
+                >
+                  {opt.label}
+                </a>
+              );
+            })}
+          </div>
+        )}
 
         {/* 피처드 포스트 */}
         {featured && (
@@ -74,7 +108,9 @@ export default async function NewsPage({
               )}
               <div className="p-6 md:p-10">
                 <div className="flex items-center gap-3 mb-3">
-                  <span className="h-6 px-2 rounded-full bg-bg text-[12px] font-semibold text-body">{featured.category}</span>
+                  <span className="h-6 px-2 rounded-full bg-bg text-[12px] font-semibold text-body">
+                    {CATEGORY_LABELS[featured.category] ?? featured.category}
+                  </span>
                   <span className="text-[13px] text-body">{formatDate(featured.publishedAt)}</span>
                 </div>
                 <h2 className="font-serif text-[22px] md:text-[28px] m-0 mb-3">{featured.title}</h2>
@@ -104,7 +140,7 @@ export default async function NewsPage({
                   )}
                   <div className="flex flex-col gap-1.5 flex-1 min-w-0">
                     <div className="flex items-center gap-2 text-[13px] text-body">
-                      <span>{post.category}</span>
+                      <span>{CATEGORY_LABELS[post.category] ?? post.category}</span>
                       <span>·</span>
                       <span>{formatDate(post.publishedAt)}</span>
                     </div>
@@ -119,9 +155,9 @@ export default async function NewsPage({
           </section>
         )}
 
-        {posts.length === 0 && (
+        {filteredPosts.length === 0 && (
           <section className="px-5 md:px-20 pb-20 text-center text-body text-[16px] py-20">
-            아직 등록된 소식이 없습니다.
+            {activeCat ? '해당 카테고리의 소식이 없습니다.' : '아직 등록된 소식이 없습니다.'}
           </section>
         )}
       </main>

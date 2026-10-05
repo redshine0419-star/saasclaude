@@ -3,6 +3,29 @@ import { prisma } from '@/lib/prisma';
 import { sendMessage } from '@/lib/messaging/send';
 import { hashPhone } from '@/lib/messaging/hash';
 
+// SPEC line 137: UTM → referrer 분류 → direct
+function classifyReferer(referer: string | null): string {
+  if (!referer) return 'direct';
+  try {
+    const url = new URL(referer);
+    const host = url.hostname.replace(/^www\./, '');
+    if (host === 'naver.com' || host.endsWith('.naver.com')) {
+      if (url.pathname.includes('/place')) return 'naver_place';
+      return 'naver_search';
+    }
+    if (host === 'blog.naver.com') return 'naver_blog';
+    if (host === 'kakao.com' || host.endsWith('.kakao.com')) return 'kakao';
+    if (host === 'chatgpt.com' || host === 'chat.openai.com') return 'ai_chatgpt';
+    if (host === 'perplexity.ai') return 'ai_perplexity';
+    if (host === 'gemini.google.com') return 'ai_gemini';
+    if (host === 'google.com' || host.endsWith('.google.com')) return 'google';
+    if (host === 'instagram.com' || host === 't.co' || host === 'facebook.com') return 'social';
+    return 'referral';
+  } catch {
+    return 'direct';
+  }
+}
+
 const CONSULT_TYPE_MAP: Record<string, 'level_test' | 'phone' | 'visit'> = {
   '레벨테스트 예약': 'level_test',
   '전화 상담': 'phone',
@@ -64,7 +87,7 @@ export async function POST(
       consultType,
       preferredSlotId: body.slotId && body.slotId !== 'custom' ? body.slotId : null,
       message: body.message ?? null,
-      source: (body.utm?.source as string | undefined) ?? req.headers.get('referer') ?? 'web',
+      source: (body.utm?.source as string | undefined) ?? classifyReferer(req.headers.get('referer')),
       utm,
     },
   });
