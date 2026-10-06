@@ -407,6 +407,7 @@ enum LeadEventType {
   note
   message_sent
   call
+  receipt_skipped
 }
 
 model Consent {
