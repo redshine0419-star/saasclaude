@@ -15,6 +15,8 @@ export default function ConsultFormSection({ tenant, slots }: Props) {
   const [grade, setGrade] = useState('');
   const [slotId, setSlotId] = useState('');
   const [agreed, setAgreed] = useState(false);
+  const [agreeMarketing, setAgreeMarketing] = useState(false);
+  const [agreeNight, setAgreeNight] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -23,10 +25,18 @@ export default function ConsultFormSection({ tenant, slots }: Props) {
     if (!agreed) return;
     setLoading(true);
     try {
-      const res = await fetch(`/${tenant.slug}/api/consult`, {
+      const res = await fetch(`/api/${tenant.slug}/consult`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, grade, slotId: slotId || null }),
+        body: JSON.stringify({
+          name,
+          tel: phone,
+          grade,
+          consultType: '레벨테스트 예약',
+          slotId: slotId || null,
+          agreeMarketing,
+          agreeNight,
+        }),
       });
       if (res.ok) {
         setSubmitted(true);
@@ -127,17 +137,24 @@ export default function ConsultFormSection({ tenant, slots }: Props) {
               )}
 
               {/* 동의 */}
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={agreed}
-                  onChange={(e) => setAgreed(e.target.checked)}
-                  className="mt-1 w-4 h-4 accent-accent flex-shrink-0"
-                />
-                <span className="text-[13px] text-muted leading-[1.6]">
-                  개인정보 수집·이용에 동의합니다. 수집한 정보(이름, 연락처, 학년)는 상담 목적으로만 사용하며 1년 후 파기합니다.
-                </span>
-              </label>
+              <div className="flex flex-col gap-2.5">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-1 w-4 h-4 accent-accent flex-shrink-0" />
+                  <span className="text-[13px] text-muted leading-[1.6]">
+                    <b>[필수]</b> 개인정보 수집·이용 동의. 수집 항목(이름, 연락처, 학년)은 상담 목적으로만 사용하며 1년 후 파기합니다.
+                  </span>
+                </label>
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input type="checkbox" checked={agreeMarketing} onChange={(e) => setAgreeMarketing(e.target.checked)} className="mt-1 w-4 h-4 accent-accent flex-shrink-0" />
+                  <span className="text-[13px] text-muted leading-[1.6]">[선택] 특강·모집 안내 수신 동의 (카카오톡·문자)</span>
+                </label>
+                {agreeMarketing && (
+                  <label className="flex items-start gap-3 cursor-pointer pl-7">
+                    <input type="checkbox" checked={agreeNight} onChange={(e) => setAgreeNight(e.target.checked)} className="mt-1 w-4 h-4 accent-accent flex-shrink-0" />
+                    <span className="text-[13px] text-muted leading-[1.6]">[선택] 21시~08시 수신 동의</span>
+                  </label>
+                )}
+              </div>
 
               <button
                 type="submit"

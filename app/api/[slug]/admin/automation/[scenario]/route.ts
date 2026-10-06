@@ -41,6 +41,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
 
   // Template body update (sets reviewStatus to pending)
   if (typeof body.templateBody === 'string') {
+    if (body.templateBody.length > 1000) {
+      return NextResponse.json({ error: '템플릿 문구는 1000자를 초과할 수 없습니다.' }, { status: 400 });
+    }
     const template = await prisma.messageTemplate.upsert({
       where: { tenantId_scenario: { tenantId: tenant.id, scenario: scenarioEnum } },
       update: { body: body.templateBody, reviewStatus: 'pending' },

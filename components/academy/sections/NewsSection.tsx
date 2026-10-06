@@ -1,6 +1,6 @@
 import type { AcademyPost } from '@/lib/academy-data';
 
-type Props = { posts: AcademyPost[] };
+type Props = { posts: AcademyPost[]; slug: string };
 
 function formatDate(date: Date | string | null) {
   if (!date) return '';
@@ -14,7 +14,7 @@ const CATEGORY_LABEL: Record<string, string> = {
   news: '소식',
 };
 
-export default function NewsSection({ posts }: Props) {
+export default function NewsSection({ posts, slug }: Props) {
   if (posts.length === 0) return null;
 
   const featured = posts[0];
@@ -29,7 +29,7 @@ export default function NewsSection({ posts }: Props) {
             <div className="text-[14px] md:text-[15px] font-bold text-label">학원 소식</div>
             <h2 className="m-0 font-serif text-[28px] md:text-[40px] font-bold text-ink">새 소식</h2>
           </div>
-          <a href="#" className="text-[14px] text-accent font-semibold hover:underline hidden md:block">전체 보기 →</a>
+          <a href={`/${slug}/news`} className="text-[14px] text-accent font-semibold hover:underline hidden md:block">전체 보기 →</a>
         </div>
 
         {/* 피처드 + 목록 */}
@@ -74,7 +74,7 @@ export default function NewsSection({ posts }: Props) {
           </div>
         </div>
 
-        <a href="#" className="text-[14px] text-accent font-semibold hover:underline md:hidden self-start">전체 보기 →</a>
+        <a href={`/${slug}/news`} className="text-[14px] text-accent font-semibold hover:underline md:hidden self-start">전체 보기 →</a>
       </div>
     </section>
   );

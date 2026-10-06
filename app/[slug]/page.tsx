@@ -120,7 +120,7 @@ export default async function AcademyPage({
           <ReviewsSection key="reviews" reviews={data!.reviews} />
         ) : null;
       case 'news':
-        return data!.posts.length > 0 ? <NewsSection key="news" posts={data!.posts} /> : null;
+        return data!.posts.length > 0 ? <NewsSection key="news" posts={data!.posts} slug={slug} /> : null;
 
       // ── Theme B sections ──
       case 'results_stats':
@@ -158,7 +158,7 @@ export default async function AcademyPage({
       case 'day_flow':
         return <DayFlowSection key="day_flow" tenant={data!.tenant} />;
       case 'gallery':
-        return data!.posts.length > 0 ? <GallerySection key="gallery" posts={data!.posts} /> : null;
+        return data!.posts.length > 0 ? <GallerySection key="gallery" posts={data!.posts} slug={slug} /> : null;
       case 'safety': {
         const safetyItems = data!.reviews.filter((r) => r.kind === 'review');
         return safetyItems.length > 0 ? <SafetySection key="safety" reviews={data!.reviews} /> : null;

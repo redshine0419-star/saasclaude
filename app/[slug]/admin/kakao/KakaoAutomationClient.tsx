@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+
+const MAX_TEMPLATE_BODY = 1000;
 
 interface Template {
   scenario: string;
@@ -112,6 +114,21 @@ export function KakaoAutomationClient({
     Object.fromEntries(templates.map((t) => [t.scenario, t.body ?? '']))
   );
   const [templateSaving, setTemplateSaving] = useState(false);
+  const bodyTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  function insertVariable(variable: string) {
+    const ta = bodyTextareaRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart ?? 0;
+    const end = ta.selectionEnd ?? 0;
+    const current = editBodies[selectedScenario] ?? '';
+    const next = current.slice(0, start) + variable + current.slice(end);
+    setEditBodies((p) => ({ ...p, [selectedScenario]: next }));
+    requestAnimationFrame(() => {
+      ta.focus();
+      ta.setSelectionRange(start + variable.length, start + variable.length);
+    });
+  }
   const [templateReviewStatus, setTemplateReviewStatus] = useState<Record<string, string>>(
     Object.fromEntries(templates.map((t) => [t.scenario, t.reviewStatus]))
   );
@@ -331,8 +348,12 @@ export function KakaoAutomationClient({
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>문구 편집</div>
           <textarea
+            ref={bodyTextareaRef}
             value={editBodies[selectedScenario] ?? ''}
-            onChange={(e) => setEditBodies((p) => ({ ...p, [selectedScenario]: e.target.value }))}
+            onChange={(e) => {
+              if (e.target.value.length <= MAX_TEMPLATE_BODY)
+                setEditBodies((p) => ({ ...p, [selectedScenario]: e.target.value }));
+            }}
             rows={6}
             placeholder={`안녕하세요, #{학부모명}님. ${selectedMeta?.label ?? ''}…`}
             style={{
@@ -347,6 +368,9 @@ export function KakaoAutomationClient({
               boxSizing: 'border-box',
             }}
           />
+          <div style={{ fontSize: 12, color: (editBodies[selectedScenario] ?? '').length > MAX_TEMPLATE_BODY * 0.9 ? '#B91C1C' : '#9AA3AF', textAlign: 'right' }}>
+            {(editBodies[selectedScenario] ?? '').length} / {MAX_TEMPLATE_BODY}자
+          </div>
         </div>
 
         {/* Kakao-style approved body preview */}
@@ -401,6 +425,8 @@ export function KakaoAutomationClient({
               <button
                 key={v}
                 type="button"
+                onClick={() => insertVariable(v)}
+                title="클릭하면 커서 위치에 삽입됩니다"
                 style={{
                   height: 32,
                   padding: '0 10px',
@@ -409,7 +435,7 @@ export function KakaoAutomationClient({
                   background: '#FFFFFF',
                   font: 'inherit',
                   fontSize: 13,
-                  cursor: 'default',
+                  cursor: 'pointer',
                 }}
               >
                 {v}
