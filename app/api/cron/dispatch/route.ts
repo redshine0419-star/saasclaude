@@ -38,10 +38,23 @@ export async function GET(req: Request) {
     }
 
     // Fetch current consent for this lead
-    const consents = await prisma.consent.findMany({
-      where: { tenantId: msg.tenantId, leadId: msg.leadId ?? '', revokedAt: null, grantedAt: { not: null } },
-    });
+    const [consents, template, tenant] = await Promise.all([
+      prisma.consent.findMany({
+        where: { tenantId: msg.tenantId, leadId: msg.leadId ?? '', revokedAt: null, grantedAt: { not: null } },
+      }),
+      prisma.messageTemplate.findUnique({
+        where: { tenantId_scenario: { tenantId: msg.tenantId, scenario: msg.scenario } },
+      }),
+      prisma.tenant.findUnique({ where: { id: msg.tenantId }, select: { name: true } }),
+    ]);
     const consentSet = new Set(consents.map((c) => c.type));
+
+    const approvedBody = template?.approvedBody ?? template?.body ?? '';
+    const body = approvedBody
+      .replace(/#{학부모명}/g, msg.lead.parentName ?? '')
+      .replace(/#{학원명}/g, tenant?.name ?? '')
+      .replace(/#{학생학년}/g, msg.lead.studentGrade ?? '')
+      .replace(/#{상담유형}/g, '');
 
     const isAd = msg.kind === 'ad';
     const result = await sendMessage({
@@ -50,7 +63,7 @@ export async function GET(req: Request) {
       recipientHash: msg.recipientHash,
       phone: msg.lead.phone,
       kind: msg.scenario as Parameters<typeof sendMessage>[0]['kind'],
-      body: '',
+      body,
       isAdvertisement: isAd,
       consent: { marketing: consentSet.has('marketing'), night: consentSet.has('night') },
       requestedAt: now,

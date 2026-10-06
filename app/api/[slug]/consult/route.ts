@@ -138,6 +138,11 @@ export async function POST(
   });
 
   if (receiptTemplate?.reviewStatus === 'approved' && receiptTemplate.approvedBody) {
+    const receiptBody = receiptTemplate.approvedBody
+      .replace(/#{학부모명}/g, lead.parentName)
+      .replace(/#{학원명}/g, tenant.name)
+      .replace(/#{학생학년}/g, lead.studentGrade ?? '')
+      .replace(/#{상담유형}/g, body.consultType ?? '');
     await dispatchMessage({
       tenantId: tenant.id,
       leadId: lead.id,
@@ -145,7 +150,7 @@ export async function POST(
       phone,
       scenario: 'receipt',
       kind: 'info',
-      body: receiptTemplate.approvedBody,
+      body: receiptBody,
       marketingConsent: body.agreeMarketing ?? false,
       nightConsent: body.agreeNight ?? false,
     });

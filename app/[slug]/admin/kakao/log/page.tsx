@@ -350,21 +350,26 @@ export default async function KakaoLogPage({
               광고성 수신 동의는 2년마다 재확인해야 합니다. 만료 30일 전 확인 메시지가 자동
               발송됩니다.
             </div>
-            <button
-              type="button"
+            <a
+              href={`/api/${slug}/admin/kakao/consent-export`}
+              download
               style={{
                 height: 44,
+                padding: '0 16px',
                 border: '1px solid #D5D0C6',
                 borderRadius: 8,
                 background: '#FFFFFF',
-                font: 'inherit',
                 fontSize: 14,
                 fontWeight: 600,
                 cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                textDecoration: 'none',
+                color: '#1B2430',
               }}
             >
-              동의 이력 내려받기
-            </button>
+              동의 이력 내려받기 (CSV)
+            </a>
           </div>
         </div>
       </main>
