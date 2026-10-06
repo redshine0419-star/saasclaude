@@ -17,6 +17,7 @@ async function getAuthorizedTenant(slug: string) {
   return membership ? tenant : null;
 }
 
+const DEMO_SLUGS = new Set(['demo', 'demo-warm', 'demo-result', 'demo-bright']);
 const VALID_CATEGORIES = new Set(['notice', 'recruit', 'exam', 'gallery']);
 const VALID_STATUSES = new Set(['draft', 'published', 'scheduled']);
 
@@ -51,45 +52,59 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
 
   // 즉시 발행 + 카카오 발송 요청인 경우 마케팅 동의자 전체에게 발송
   if (stat === 'published' && sendKakao) {
-    const now = new Date();
-    const recipients = await prisma.leadConsent.findMany({
-      where: {
-        tenantId: tenant.id,
-        type: 'marketing',
-        revokedAt: null,
-      },
-      include: { lead: { select: { id: true, phone: true } } },
-      distinct: ['leadId'],
-    });
+    // 데모 테넌트는 실제 발송 금지 (SPEC §10)
+    if (!DEMO_SLUGS.has(slug)) {
+      const now = new Date();
+      // 마케팅 동의자 목록 + 각 수신자의 야간 동의 여부를 함께 조회
+      const marketingConsents = await prisma.consent.findMany({
+        where: {
+          tenantId: tenant.id,
+          type: 'marketing',
+          grantedAt: { not: null },
+          revokedAt: null,
+        },
+        include: {
+          lead: {
+            select: {
+              id: true,
+              phone: true,
+              consents: {
+                where: { type: 'night' },
+                select: { grantedAt: true, revokedAt: true },
+              },
+            },
+          },
+        },
+        distinct: ['leadId'],
+      });
 
-    const tenantWithRecipients = await prisma.tenant.findUnique({
-      where: { id: tenant.id },
-      include: { notifyRecipients: { take: 1 } },
-    });
+      const msgBody = `[${tenant.name}] ${title.trim()}\n\n${postBody.trim().slice(0, 200)}${postBody.trim().length > 200 ? '…' : ''}`;
 
-    const msgBody = `[${tenant.name}] ${title.trim()}\n\n${postBody.trim().slice(0, 200)}${postBody.trim().length > 200 ? '…' : ''}`;
+      for (const consent of marketingConsents) {
+        if (!consent.lead.phone) continue;
+        const nightConsent = consent.lead.consents.some(
+          (c) => c.grantedAt !== null && c.revokedAt === null,
+        );
+        const recipientHash = hashPhone(consent.lead.phone);
+        await sendMessage({
+          tenantId: tenant.id,
+          recipientId: consent.lead.id,
+          recipientHash,
+          phone: consent.lead.phone,
+          kind: 'campaign',
+          body: msgBody,
+          isAdvertisement: true,
+          consent: { marketing: true, night: nightConsent },
+          requestedAt: now,
+        }).catch(() => { /* 발송 실패 시 포스트는 유지 */ });
+      }
 
-    for (const consent of recipients) {
-      if (!consent.lead.phone) continue;
-      const recipientHash = hashPhone(consent.lead.phone);
-      await sendMessage({
-        tenantId: tenant.id,
-        recipientId: consent.lead.id,
-        recipientHash,
-        phone: consent.lead.phone,
-        kind: 'campaign',
-        body: msgBody,
-        isAdvertisement: true,
-        consent: { marketing: true, night: true },
-        requestedAt: now,
-      }).catch(() => { /* 발송 실패 시 포스트는 유지 */ });
-    }
-
-    // 포스트에 카카오 발송 완료 시각 기록
-    await prisma.post.update({
-      where: { id: post.id },
-      data: { kakaoSentAt: now },
-    });
+      // 포스트에 카카오 발송 완료 시각 기록
+      await prisma.post.update({
+        where: { id: post.id },
+        data: { kakaoSentAt: now },
+      });
+    } // end !DEMO_SLUGS
   }
 
   return NextResponse.json({ ok: true, id: post.id });
