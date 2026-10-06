@@ -180,9 +180,9 @@ export async function POST(
         scenario: 'owner_alert',
         kind: 'info',
         body: alertTemplate.approvedBody
-          .replace('{{parentName}}', lead.parentName)
-          .replace('{{grade}}', lead.studentGrade ?? '미기재')
-          .replace('{{consultType}}', body.consultType ?? ''),
+          .replace(/#{학부모명}/g, lead.parentName)
+          .replace(/#{학생학년}/g, lead.studentGrade ?? '미기재')
+          .replace(/#{상담유형}/g, body.consultType ?? ''),
         marketingConsent: true,  // 원장 알림은 동의 체크 불필요 (정보성)
         nightConsent: true,
       });

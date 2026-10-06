@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getAcademyPageData } from '@/lib/academy-data';
-import SiteHeader from '@/components/academy/SiteHeader';
+import ThemeHeader from '@/components/academy/ThemeHeader';
 import SiteFooter from '@/components/academy/SiteFooter';
 import MobileBottomBar from '@/components/academy/MobileBottomBar';
 import { CopyAddressButton } from '@/components/academy/CopyAddressButton';
@@ -26,7 +26,8 @@ export default async function LocationPage({
 
   return (
     <>
-      <SiteHeader
+      <ThemeHeader
+        theme={data.tenant.theme ?? 'warm'}
         name={tenant.name}
         slug={slug}
         activePage="location"
@@ -34,6 +35,7 @@ export default async function LocationPage({
         kakaoChannelUrl={tenant.kakaoChannelUrl}
         address={tenant.address}
         hours={tenant.hours}
+        accentColor={data.tenant.accentColor}
       />
       <main className="bg-bg min-h-screen">
         {/* 페이지 헤더 */}

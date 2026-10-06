@@ -440,7 +440,7 @@ export async function getAcademyPageData(slug: string): Promise<AcademyPageData 
         fees: true,
         extraCosts: true,
         refundPolicyText: true,
-        reviews: { where: { visible: true } },
+        reviews: { where: { visible: true, consentConfirmed: true } },
         posts: {
           where: { status: 'published' },
           orderBy: { publishedAt: 'desc' },

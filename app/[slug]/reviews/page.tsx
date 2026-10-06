@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { getAcademyPageData } from '@/lib/academy-data';
-import SiteHeader from '@/components/academy/SiteHeader';
+import ThemeHeader from '@/components/academy/ThemeHeader';
 import SiteFooter from '@/components/academy/SiteFooter';
 import MobileBottomBar from '@/components/academy/MobileBottomBar';
 
@@ -90,7 +90,7 @@ export default async function ReviewsPage({
     const tenantRecord = await prisma.tenant.findUnique({ where: { slug, status: 'active' } });
     if (!tenantRecord) notFound();
 
-    const baseWhere = { tenantId: tenantRecord.id, visible: true };
+    const baseWhere = { tenantId: tenantRecord.id, visible: true, consentConfirmed: true };
     const gradeBandWhere =
       activeFilter && activeFilter !== 'score' ? { gradeBand: activeFilter } : {};
 
@@ -156,7 +156,8 @@ export default async function ReviewsPage({
 
   return (
     <>
-      <SiteHeader
+      <ThemeHeader
+        theme={data.tenant.theme ?? 'warm'}
         name={tenant.name}
         slug={slug}
         activePage="reviews"
@@ -164,6 +165,7 @@ export default async function ReviewsPage({
         kakaoChannelUrl={tenant.kakaoChannelUrl}
         address={tenant.address}
         hours={tenant.hours}
+        accentColor={data.tenant.accentColor}
       />
       <main className="bg-bg min-h-screen">
         {/* 페이지 헤더 */}

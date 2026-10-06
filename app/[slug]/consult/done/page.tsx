@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation';
 import { getAcademyPageData } from '@/lib/academy-data';
-import SiteHeader from '@/components/academy/SiteHeader';
+import ThemeHeader from '@/components/academy/ThemeHeader';
 import SiteFooter from '@/components/academy/SiteFooter';
+import MobileBottomBar from '@/components/academy/MobileBottomBar';
 
 export default async function ConsultDonePage({
   params,
@@ -22,7 +23,8 @@ export default async function ConsultDonePage({
 
   return (
     <>
-      <SiteHeader
+      <ThemeHeader
+        theme={data.tenant.theme ?? 'warm'}
         name={tenant.name}
         slug={slug}
         activePage="consult"
@@ -30,6 +32,7 @@ export default async function ConsultDonePage({
         kakaoChannelUrl={tenant.kakaoChannelUrl}
         address={tenant.address}
         hours={tenant.hours}
+        accentColor={data.tenant.accentColor}
       />
       <main className="bg-bg min-h-screen">
         <section className="max-w-[720px] mx-auto px-5 pt-24 pb-20 flex flex-col items-center gap-6 text-center">
@@ -111,6 +114,7 @@ export default async function ConsultDonePage({
         </section>
       </main>
       <SiteFooter tenant={tenant} slug={slug} />
+      <MobileBottomBar tenant={tenant} slug={slug} />
     </>
   );
 }

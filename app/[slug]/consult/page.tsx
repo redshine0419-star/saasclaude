@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { getAcademyPageData } from '@/lib/academy-data';
-import SiteHeader from '@/components/academy/SiteHeader';
+import ThemeHeader from '@/components/academy/ThemeHeader';
 import SiteFooter from '@/components/academy/SiteFooter';
 import MobileBottomBar from '@/components/academy/MobileBottomBar';
 import ConsultForm from '@/components/academy/ConsultForm';
@@ -27,7 +27,8 @@ export default async function ConsultPage({
 
   return (
     <>
-      <SiteHeader
+      <ThemeHeader
+        theme={data.tenant.theme ?? 'warm'}
         name={tenant.name}
         slug={slug}
         activePage="consult"
@@ -35,6 +36,7 @@ export default async function ConsultPage({
         kakaoChannelUrl={tenant.kakaoChannelUrl}
         address={tenant.address}
         hours={tenant.hours}
+        accentColor={data.tenant.accentColor}
       />
       <main className="bg-bg min-h-screen">
         <section className="px-5 md:px-20 py-[72px] flex flex-col md:flex-row gap-10 md:gap-16">
