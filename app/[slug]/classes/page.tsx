@@ -23,9 +23,10 @@ export default async function ClassesPage({
   const data = await getAcademyPageData(slug);
   if (!data) notFound();
 
-  const { tenant, classes } = data;
+  const { tenant, classes, levelTestSlots } = data;
 
   const gradeBands = Array.from(new Set(classes.map((c) => c.gradeBand ?? '기타')));
+  const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
 
   return (
     <>
@@ -161,6 +162,35 @@ export default async function ClassesPage({
                   ))}
                 </tbody>
               </table>
+            </div>
+          </section>
+        )}
+
+        {/* 레벨테스트 가능 시간 */}
+        {levelTestSlots.length > 0 && (
+          <section className="px-5 md:px-20 pb-12">
+            <div className="bg-white rounded-[16px] p-8 md:p-10">
+              <h2 className="font-serif text-[22px] md:text-[28px] m-0 mb-4">레벨테스트 가능 시간</h2>
+              <p className="text-[15px] text-body mb-6">아래 시간 중 편하신 때 예약하시면 무료로 진행해드립니다.</p>
+              <div className="flex flex-wrap gap-3 mb-8">
+                {levelTestSlots.map((slot) => (
+                  <div
+                    key={slot.id}
+                    className="px-4 py-2 rounded-[10px] border border-line bg-surface text-[15px] font-semibold"
+                  >
+                    {slot.weekday !== null && slot.weekday !== undefined
+                      ? `매주 ${WEEKDAY_LABELS[slot.weekday]}요일`
+                      : ''}
+                    {slot.time ? ` ${slot.time}` : ''}
+                  </div>
+                ))}
+              </div>
+              <a
+                href={`/${slug}/consult?type=레벨테스트 예약`}
+                className="inline-flex h-[52px] px-8 rounded-[12px] bg-accent text-on-accent font-bold text-[17px] items-center no-underline hover:opacity-90 transition-opacity"
+              >
+                레벨테스트 예약하기
+              </a>
             </div>
           </section>
         )}
