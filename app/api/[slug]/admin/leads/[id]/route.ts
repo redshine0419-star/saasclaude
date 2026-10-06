@@ -64,5 +64,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
     });
   }
 
+  if (body.message !== undefined) {
+    await prisma.leadEvent.create({
+      data: {
+        leadId: id,
+        type: 'note',
+        payload: { note: String(body.message) },
+        actorId: session.user.email,
+      },
+    });
+  }
+
   return NextResponse.json({ ok: true });
 }

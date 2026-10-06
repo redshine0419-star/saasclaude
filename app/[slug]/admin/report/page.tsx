@@ -78,6 +78,16 @@ export default async function AdminReportPage({ params }: Props) {
     .slice(0, 6)
     .map(([keyword, count]) => ({ keyword, count }));
 
+  // Message sent count for current month
+  const monthStart = new Date(`${month}-01`);
+  const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 1);
+  const messageSentCount = await prisma.message.count({
+    where: {
+      tenantId: tenant.id,
+      createdAt: { gte: monthStart, lt: monthEnd },
+    },
+  });
+
   // MonthlyReport for current month
   const report = await prisma.monthlyReport.findUnique({
     where: { tenantId_month: { tenantId: tenant.id, month } },
@@ -100,6 +110,7 @@ export default async function AdminReportPage({ params }: Props) {
           keywords={keywords}
           aiCheck={aiCheck}
           managerNote={report?.managerNote ?? null}
+          messageSentCount={messageSentCount}
         />
       </main>
     </div>

@@ -33,9 +33,10 @@ interface Props {
   keywords: SearchKeyword[];
   aiCheck: AiCheck | null;
   managerNote: string | null;
+  messageSentCount: number;
 }
 
-export function ReportClient({ slug, month, monthLabel, history, keywords, aiCheck: initialAiCheck, managerNote: initialNote }: Props) {
+export function ReportClient({ slug, month, monthLabel, history, keywords, aiCheck: initialAiCheck, managerNote: initialNote, messageSentCount }: Props) {
   const [note, setNote] = useState(initialNote ?? '');
   const [noteSaving, setNoteSaving] = useState(false);
   const [aiCheck, setAiCheck] = useState<AiCheck>(
@@ -52,6 +53,9 @@ export function ReportClient({ slug, month, monthLabel, history, keywords, aiChe
 
   const maxLeads = Math.max(...history.map((h) => h.leads), 1);
   const current = history[history.length - 1];
+  const conversionRate = current.leads > 0
+    ? Math.round((current.enrolled / current.leads) * 100)
+    : null;
 
   async function saveNote() {
     setNoteSaving(true);
@@ -110,6 +114,23 @@ export function ReportClient({ slug, month, monthLabel, history, keywords, aiChe
         >
           PDF 저장 (인쇄)
         </button>
+      </div>
+
+      {/* KPI 요약 타일 */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+        {[
+          { label: '이달 상담 신청', value: current.leads, unit: '건' },
+          { label: '이달 등록', value: current.enrolled, unit: '명' },
+          { label: '전환율', value: conversionRate !== null ? `${conversionRate}%` : '—', unit: '' },
+          { label: '카카오 발송', value: messageSentCount, unit: '건' },
+        ].map(({ label, value, unit }) => (
+          <div key={label} style={{ padding: '18px 20px', background: '#FFFFFF', borderRadius: 12 }}>
+            <div style={{ fontSize: 13, color: '#5A6270', marginBottom: 6 }}>{label}</div>
+            <div style={{ fontSize: 28, fontWeight: 700 }}>
+              {value}<span style={{ fontSize: 15, fontWeight: 400, marginLeft: 4 }}>{unit}</span>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Top row: chart + keywords */}
