@@ -19,10 +19,29 @@ export default function ApplyPage() {
     consentBeta: false,
     consentCase: false,
   });
+  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const set = (field: string, value: string | boolean) => setForm((f) => ({ ...f, [field]: value }));
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (res.ok) setUploadedFiles((prev) => [...prev, data.url]);
+      else setError(data.error ?? '파일 업로드 실패');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  }
 
   const canSubmit = form.academyName && form.area && form.subject && form.directorName && form.phone
     && form.consentTerms && form.consentPrivacy && form.consentBeta;
@@ -36,7 +55,7 @@ export default function ApplyPage() {
       const res = await fetch('/api/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, uploadedFiles }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error ?? '오류가 발생했습니다.'); return; }
@@ -127,6 +146,28 @@ export default function ApplyPage() {
                 style={{ height: 48, padding: '0 14px', borderRadius: 10, border: '1px solid #CDD3DD', fontSize: 15, outline: 'none', fontFamily: 'inherit' }}
               />
             </label>
+
+            {/* File upload */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 14, fontWeight: 600 }}>자료 첨부 <span style={{ fontSize: 13, color: '#8A93A8', fontWeight: 400 }}>(선택 · 신청 후 2주 안에 제출 가능)</span></span>
+                <label style={{ height: 36, padding: '0 14px', borderRadius: 8, border: '1px solid #CDD3DD', background: '#FFFFFF', fontSize: 13, fontWeight: 600, cursor: uploading ? 'wait' : 'pointer', display: 'flex', alignItems: 'center' }}>
+                  {uploading ? '업로드 중…' : '파일 선택'}
+                  <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" onChange={handleFileChange} disabled={uploading} style={{ display: 'none' }} />
+                </label>
+              </div>
+              <div style={{ fontSize: 13, color: '#8A93A8' }}>학원 소개 자료, 강사 프로필, 수업 일정 등 PDF·이미지 (5MB 이하)</div>
+              {uploadedFiles.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {uploadedFiles.map((url, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 8, background: '#F3F5F8', fontSize: 13 }}>
+                      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1D3FA8' }}>{url.split('/').pop()}</span>
+                      <button type="button" onClick={() => setUploadedFiles((p) => p.filter((_, idx) => idx !== i))} style={{ background: 'none', border: 'none', color: '#B91C1C', cursor: 'pointer', fontSize: 15 }}>×</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', padding: '16px 18px', borderRadius: 10, border: '1px solid #CDD3DD', background: form.wantsPhotoShoot ? '#F0F4FF' : '#FAFBFC' }}>
               <input

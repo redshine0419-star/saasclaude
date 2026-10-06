@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   if (!body) return NextResponse.json({ error: '입력 오류' }, { status: 400 });
 
   const { academyName, area, subject, directorName, phone, currentUrl,
-    wantsPhotoShoot, consentTerms, consentPrivacy, consentBeta, consentCase } = body;
+    wantsPhotoShoot, consentTerms, consentPrivacy, consentBeta, consentCase, uploadedFiles } = body;
 
   if (!academyName || !area || !subject || !directorName || !phone) {
     return NextResponse.json({ error: '필수 항목을 모두 입력해주세요.' }, { status: 400 });
@@ -32,6 +32,7 @@ export async function POST(req: NextRequest) {
       consentPrivacy: Boolean(consentPrivacy),
       consentBeta: Boolean(consentBeta),
       consentCase: Boolean(consentCase),
+      uploadedFiles: Array.isArray(uploadedFiles) ? uploadedFiles.filter((u: unknown) => typeof u === 'string') : [],
     },
   });
 

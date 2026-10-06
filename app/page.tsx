@@ -166,6 +166,61 @@ export default function MarketingHome() {
         </div>
       </section>
 
+      {/* 3-theme preview */}
+      <section style={{ padding: 'clamp(56px, 7vw, 104px) clamp(20px, 4vw, 56px)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 40 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#8A6400' }}>3가지 테마</div>
+            <h2 style={{ margin: 0, fontSize: 'clamp(28px, 3.2vw, 42px)', lineHeight: 1.35, letterSpacing: '-0.8px' }}>학원 분위기에 맞게 고릅니다</h2>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20 }}>
+            {[
+              {
+                badge: '테마 A',
+                name: '원장 직강형',
+                desc: '따뜻한 종이색 바탕, 명조 제목. "원장이 직접 가르칩니다"를 강조할 때.',
+                accent: '#1E5645',
+                bg: '#F9F7F2',
+                preview: { heading: '원장이 직접 가르칩니다', btn: '무료 레벨테스트 신청', btnBg: '#1E5645' },
+              },
+              {
+                badge: '테마 B',
+                name: '성과 중심형',
+                desc: '남색·흰색, 굵은 고딕. 합격 실적과 성적 향상 사례를 앞에 내세울 때.',
+                accent: '#1D3FA8',
+                bg: '#F0F3FA',
+                preview: { heading: '합격 실적으로 증명합니다', btn: '성적 사례 보기', btnBg: '#1D3FA8' },
+              },
+              {
+                badge: '테마 C',
+                name: '밝은 친근형',
+                desc: '흰 바탕 파스텔 카드, 둥근 제목. 어린 학생·학부모에게 친근한 분위기.',
+                accent: '#0F766E',
+                bg: '#F0FDF8',
+                preview: { heading: '안심하고 보내세요', btn: '상담 신청하기', btnBg: '#0F766E' },
+              },
+            ].map((t) => (
+              <div key={t.badge} style={{ borderRadius: 20, overflow: 'hidden', border: '1px solid #E3E7EE' }}>
+                <div style={{ padding: 'clamp(20px, 2.5vw, 32px)', background: t.bg, display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <span style={{ padding: '3px 10px', borderRadius: 6, background: t.accent, color: '#FFFFFF', fontSize: 12, fontWeight: 700 }}>{t.badge}</span>
+                    <span style={{ fontSize: 15, fontWeight: 700 }}>{t.name}</span>
+                  </div>
+                  <div style={{ padding: 20, borderRadius: 14, background: '#FFFFFF', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <div style={{ fontSize: 17, fontWeight: 700, lineHeight: 1.4 }}>{t.preview.heading}</div>
+                    <div style={{ height: 38, borderRadius: 8, background: t.preview.btnBg, color: '#FFFFFF', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{t.preview.btn}</div>
+                  </div>
+                </div>
+                <div style={{ padding: '16px 24px', background: '#FFFFFF', fontSize: 14, lineHeight: 1.7, color: '#4A5568' }}>{t.desc}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <Link href="/demo" style={{ height: 48, padding: '0 24px', borderRadius: 10, border: '1px solid #14213D', color: '#14213D', textDecoration: 'none', fontSize: 15, fontWeight: 600, display: 'inline-flex', alignItems: 'center' }}>3가지 테마 데모 보기</Link>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section style={{ padding: 'clamp(56px, 7vw, 104px) clamp(20px, 4vw, 56px)', background: '#F3F5F8' }}>
         <div style={{ maxWidth: 640, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, textAlign: 'center' }}>
