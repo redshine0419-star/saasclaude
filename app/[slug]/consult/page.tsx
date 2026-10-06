@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { getAcademyPageData } from '@/lib/academy-data';
 import SiteHeader from '@/components/academy/SiteHeader';
@@ -72,7 +73,9 @@ export default async function ConsultPage({
 
           {/* 오른쪽: 폼 */}
           <div className="flex-1">
-            <ConsultForm slug={slug} slots={levelTestSlots} />
+            <Suspense fallback={<div className="p-6 bg-white rounded-[24px] text-body text-[15px]">로딩 중...</div>}>
+              <ConsultForm slug={slug} slots={levelTestSlots} />
+            </Suspense>
           </div>
         </section>
       </main>

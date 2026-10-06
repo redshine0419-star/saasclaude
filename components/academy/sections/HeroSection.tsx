@@ -37,7 +37,7 @@ export default function HeroSection({ tenant, directorPhoto, levelTestSlots }: P
           {/* CTA 버튼 — 데스크톱만 */}
           <div className="hidden md:flex gap-3">
             <a
-              href="#consult"
+              href={`/${tenant.slug}/consult`}
               className="flex items-center h-14 px-7 rounded-xl bg-accent text-on-accent font-bold text-[17px] hover:opacity-90 transition-opacity no-underline"
             >
               무료 레벨테스트 신청

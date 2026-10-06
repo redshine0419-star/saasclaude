@@ -24,6 +24,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: '잘못된 요청입니다.' }, { status: 400 });
 
+  const newCapacity = body.capacity != null ? Number(body.capacity) : existing.capacity;
+  const newSeatsLeft = body.seatsLeft != null ? Number(body.seatsLeft) : existing.seatsLeft;
+  if (newCapacity !== null && newSeatsLeft !== null && newSeatsLeft > newCapacity) {
+    return NextResponse.json({ error: '잔여석은 정원을 초과할 수 없습니다.' }, { status: 400 });
+  }
+
   const cls = await prisma.classItem.update({
     where: { id },
     data: {
@@ -32,7 +38,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
       days: Array.isArray(body.days) ? body.days : existing.days,
       startTime: body.startTime ?? existing.startTime,
       endTime: body.endTime ?? existing.endTime,
-      capacity: body.capacity != null ? Number(body.capacity) : existing.capacity,
+      capacity: newCapacity,
+      seatsLeft: newSeatsLeft,
       textbook: body.textbook ?? existing.textbook,
       description: body.description ?? existing.description,
     },

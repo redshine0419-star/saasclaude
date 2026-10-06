@@ -19,6 +19,11 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   if (!membership) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const body = await req.json().catch(() => null);
+  const capacity = body?.capacity != null ? Number(body.capacity) : null;
+  const seatsLeft = body?.seatsLeft != null ? Number(body.seatsLeft) : capacity;
+  if (capacity !== null && seatsLeft !== null && seatsLeft > capacity) {
+    return NextResponse.json({ error: '잔여석은 정원을 초과할 수 없습니다.' }, { status: 400 });
+  }
   const cls = await prisma.classItem.create({
     data: {
       tenantId: tenant.id,
@@ -26,6 +31,8 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
       days: body?.days ?? [],
       startTime: body?.startTime ?? null,
       endTime: body?.endTime ?? null,
+      capacity,
+      seatsLeft,
     },
   });
 
