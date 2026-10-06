@@ -50,12 +50,32 @@ export function ReportClient({ slug, month, monthLabel, history, keywords, aiChe
     }
   );
   const [aiSaving, setAiSaving] = useState(false);
+  const [kakaoSending, setKakaoSending] = useState(false);
+  const [kakaoResult, setKakaoResult] = useState<string | null>(null);
 
   const maxLeads = Math.max(...history.map((h) => h.leads), 1);
   const current = history[history.length - 1];
   const conversionRate = current.leads > 0
     ? Math.round((current.enrolled / current.leads) * 100)
     : null;
+
+  async function sendKakaoSummary() {
+    setKakaoSending(true);
+    setKakaoResult(null);
+    try {
+      const res = await fetch(`/api/${slug}/admin/report/${month}`, { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        setKakaoResult(data.sent === 0 ? '수신자가 없습니다.' : `${data.sent}명에게 발송 완료`);
+      } else {
+        setKakaoResult(data.error ?? '발송 실패');
+      }
+    } catch {
+      setKakaoResult('네트워크 오류');
+    } finally {
+      setKakaoSending(false);
+    }
+  }
 
   async function saveNote() {
     setNoteSaving(true);
@@ -106,14 +126,26 @@ export function ReportClient({ slug, month, monthLabel, history, keywords, aiChe
           <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>{monthLabel} 리포트</h1>
           <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>매월 3일 원장님 카카오톡으로 요약본이 발송됩니다</div>
         </div>
-        <button
-          type="button"
-          data-print-hide
-          onClick={() => window.print()}
-          style={{ height: 44, padding: '0 18px', border: '1px solid #D5D0C6', borderRadius: 8, background: '#FFFFFF', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
-        >
-          PDF 저장 (인쇄)
-        </button>
+        <div data-print-hide style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {kakaoResult && (
+            <span style={{ fontSize: 13, color: '#1E5645', fontWeight: 600 }}>{kakaoResult}</span>
+          )}
+          <button
+            type="button"
+            disabled={kakaoSending}
+            onClick={sendKakaoSummary}
+            style={{ height: 44, padding: '0 18px', border: 'none', borderRadius: 8, background: '#1E5645', color: '#FFFFFF', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: kakaoSending ? 'wait' : 'pointer', opacity: kakaoSending ? 0.6 : 1 }}
+          >
+            {kakaoSending ? '발송 중…' : '카카오 요약 발송'}
+          </button>
+          <button
+            type="button"
+            onClick={() => window.print()}
+            style={{ height: 44, padding: '0 18px', border: '1px solid #D5D0C6', borderRadius: 8, background: '#FFFFFF', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
+          >
+            PDF 저장 (인쇄)
+          </button>
+        </div>
       </div>
 
       {/* KPI 요약 타일 */}

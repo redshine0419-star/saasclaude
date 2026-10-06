@@ -154,9 +154,11 @@ export function QueueClient({ apps }: { apps: Application[] }) {
                         시작 예정: {new Date(a.expectedStartDate).toLocaleDateString('ko-KR')}
                       </div>
                     )}
-                    {a.uploadedFiles.length === 0 && a.status === 'waiting_docs' && (
+                    {a.uploadedFiles.length > 0 ? (
+                      <div style={{ fontSize: 11, color: '#1E5645', fontWeight: 600 }}>자료 {a.uploadedFiles.length}개 제출</div>
+                    ) : a.status === 'waiting_docs' ? (
                       <div style={{ fontSize: 11, color: '#C8433A', fontWeight: 600 }}>자료 미제출</div>
-                    )}
+                    ) : null}
                   </button>
                 ))
               )}
