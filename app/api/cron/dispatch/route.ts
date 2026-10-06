@@ -158,10 +158,19 @@ export async function GET(req: Request) {
 
       const recipientHash = hashPhone(lead.phone);
 
-      const template = await prisma.messageTemplate.findUnique({
-        where: { tenantId_scenario: { tenantId: setting.tenantId, scenario: 'followup' } },
-      });
+      const [template, tenantRecord] = await Promise.all([
+        prisma.messageTemplate.findUnique({
+          where: { tenantId_scenario: { tenantId: setting.tenantId, scenario: 'followup' } },
+        }),
+        prisma.tenant.findUnique({ where: { id: setting.tenantId }, select: { name: true } }),
+      ]);
       if (!template?.approvedBody) continue;
+
+      const followupBody = template.approvedBody
+        .replace(/#{학부모명}/g, lead.parentName ?? '')
+        .replace(/#{학원명}/g, tenantRecord?.name ?? '')
+        .replace(/#{학생학년}/g, lead.studentGrade ?? '')
+        .replace(/#{상담유형}/g, '');
 
       const result = await sendMessage({
         tenantId: setting.tenantId,
@@ -169,7 +178,7 @@ export async function GET(req: Request) {
         recipientHash,
         phone: lead.phone,
         kind: 'followup',
-        body: template.approvedBody,
+        body: followupBody,
         isAdvertisement: true,
         consent: { marketing: true, night: consentSet.has('night') },
         requestedAt: now,
@@ -216,7 +225,7 @@ export async function GET(req: Request) {
       id: true,
       tenantId: true,
       leadId: true,
-      lead: { select: { id: true, phone: true, tenantId: true } },
+      lead: { select: { id: true, phone: true, tenantId: true, parentName: true } },
     },
     take: 100,
   });
@@ -237,10 +246,17 @@ export async function GET(req: Request) {
     });
     if (existing) continue;
 
-    const template = await prisma.messageTemplate.findUnique({
-      where: { tenantId_scenario: { tenantId, scenario: 'reconfirm' } },
-    });
+    const [template, reconfirmTenant] = await Promise.all([
+      prisma.messageTemplate.findUnique({
+        where: { tenantId_scenario: { tenantId, scenario: 'reconfirm' } },
+      }),
+      prisma.tenant.findUnique({ where: { id: tenantId }, select: { name: true } }),
+    ]);
     if (!template?.approvedBody) continue;
+
+    const reconfirmBody = template.approvedBody
+      .replace(/#{학부모명}/g, consent.lead.parentName ?? '')
+      .replace(/#{학원명}/g, reconfirmTenant?.name ?? '');
 
     const recipientHash = hashPhone(consent.lead.phone);
 
@@ -250,7 +266,7 @@ export async function GET(req: Request) {
       recipientHash,
       phone: consent.lead.phone,
       kind: 'reconfirm',
-      body: template.approvedBody,
+      body: reconfirmBody,
       isAdvertisement: false,
       consent: { marketing: true, night: true },
       requestedAt: now,

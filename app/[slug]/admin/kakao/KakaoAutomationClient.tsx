@@ -144,6 +144,26 @@ export function KakaoAutomationClient({
   const [templateReviewStatus, setTemplateReviewStatus] = useState<Record<string, string>>(
     Object.fromEntries(templates.map((t) => [t.scenario, t.reviewStatus]))
   );
+  const [samplePreview, setSamplePreview] = useState(false);
+
+  const SAMPLE_VALUES: Record<string, string> = {
+    '#{학부모명}': '홍길동',
+    '#{학원명}': '예시학원',
+    '#{학생학년}': '중3',
+    '#{상담유형}': '레벨테스트',
+    '#{테스트일시}': '10월 10일 오후 2시',
+  };
+
+  function renderPreviewBody(body: string) {
+    if (samplePreview) {
+      const substituted = Object.entries(SAMPLE_VALUES).reduce(
+        (s, [k, v]) => s.replace(new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), v),
+        body,
+      );
+      return <span style={{ whiteSpace: 'pre-wrap' }}>{substituted}</span>;
+    }
+    return <span style={{ whiteSpace: 'pre-wrap' }}>{renderBody(body)}</span>;
+  }
 
   const scenarios = ['receipt', 'reminder', 'followup', 'campaign', 'owner_alert', 'reconfirm'];
   const templateMap = Object.fromEntries(templates.map((t) => [t.scenario, t]));
@@ -397,7 +417,16 @@ export function KakaoAutomationClient({
               gap: 8,
             }}
           >
-            <div style={{ fontSize: 12, color: '#3E4652' }}>승인된 문구 미리보기</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ fontSize: 12, color: '#3E4652' }}>승인된 문구 미리보기</div>
+              <button
+                type="button"
+                onClick={() => setSamplePreview((p) => !p)}
+                style={{ fontSize: 12, padding: '3px 10px', border: '1px solid #D5D0C6', borderRadius: 6, background: samplePreview ? '#1E5645' : '#FFFFFF', color: samplePreview ? '#FFFFFF' : '#3E4652', cursor: 'pointer', font: 'inherit' }}
+              >
+                {samplePreview ? '샘플 ON' : '샘플 OFF'}
+              </button>
+            </div>
             <div
               style={{
                 padding: 16,
@@ -410,7 +439,7 @@ export function KakaoAutomationClient({
                 gap: 12,
               }}
             >
-              <div style={{ whiteSpace: 'pre-wrap' }}>{renderBody(previewBody)}</div>
+              <div>{renderPreviewBody(previewBody)}</div>
               <div
                 style={{
                   height: 40,
