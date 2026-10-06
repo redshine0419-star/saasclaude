@@ -24,6 +24,29 @@ export function StaffClient({ slug, initialStaff }: Props) {
   const [showAdd, setShowAdd] = useState(false);
   const [newForm, setNewForm] = useState({ name: '', roleLabel: '', summary: '' });
   const [addSaving, setAddSaving] = useState(false);
+  const [photoUploading, setPhotoUploading] = useState(false);
+
+  async function uploadPhoto(id: string, file: File) {
+    setPhotoUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const uploadRes = await fetch(`/api/${slug}/admin/upload`, { method: 'POST', body: fd });
+      const uploadData = await uploadRes.json();
+      if (!uploadRes.ok) return;
+      const res = await fetch(`/api/${slug}/admin/staff/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ photo: uploadData.url }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setStaff((prev) => prev.map((s) => s.id === id ? { ...s, ...data.staff } : s));
+      }
+    } finally {
+      setPhotoUploading(false);
+    }
+  }
 
   const selected = staff.find((s) => s.id === selectedId) ?? null;
 
@@ -42,6 +65,7 @@ export function StaffClient({ slug, initialStaff }: Props) {
           name: fieldVal('name'),
           roleLabel: fieldVal('roleLabel'),
           summary: fieldVal('summary'),
+          photo: fieldVal('photo'),
         }),
       });
       if (res.ok) {
@@ -148,6 +172,16 @@ export function StaffClient({ slug, initialStaff }: Props) {
         ) : selected ? (
           <>
             <div style={{ fontSize: 16, fontWeight: 700 }}>강사 편집</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {selected.photo
+                ? <img src={selected.photo} alt={selected.name} style={{ width: 56, height: 56, borderRadius: 28, objectFit: 'cover' }} />
+                : <div style={{ width: 56, height: 56, borderRadius: 28, background: '#E2DDD2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>👤</div>
+              }
+              <label style={{ height: 36, padding: '0 14px', border: '1px solid #D5D0C6', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: photoUploading ? 'wait' : 'pointer', display: 'inline-flex', alignItems: 'center' }}>
+                {photoUploading ? '업로드 중…' : '사진 변경'}
+                <input type="file" accept="image/*" disabled={photoUploading} onChange={(e) => { const f = e.target.files?.[0]; if (f && selected) uploadPhoto(selected.id, f); e.target.value = ''; }} style={{ display: 'none' }} />
+              </label>
+            </div>
             {(['name', 'roleLabel', 'summary'] as const).map((key) => (
               <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>

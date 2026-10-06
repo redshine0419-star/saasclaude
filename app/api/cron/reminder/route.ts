@@ -64,10 +64,25 @@ export async function GET(req: Request) {
     if (!isTestTomorrow) continue;
 
     // 해당 테넌트의 reminder 템플릿 조회
-    const template = await prisma.messageTemplate.findUnique({
-      where: { tenantId_scenario: { tenantId: lead.tenantId, scenario: 'reminder' } },
-    });
+    const [template, tenant] = await Promise.all([
+      prisma.messageTemplate.findUnique({
+        where: { tenantId_scenario: { tenantId: lead.tenantId, scenario: 'reminder' } },
+      }),
+      prisma.tenant.findUnique({ where: { id: lead.tenantId }, select: { name: true } }),
+    ]);
     if (!template?.approvedBody) { skipped++; continue; }
+
+    const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
+    const slotLabel = slot.date
+      ? `${new Date(slot.date.getTime() + 9 * 3600000).toISOString().slice(0, 10)} ${slot.time ?? ''}`
+      : slot.weekday !== null && slot.weekday !== undefined
+        ? `${WEEKDAY_LABELS[slot.weekday]}요일 ${slot.time ?? ''}`
+        : slot.time ?? '';
+
+    const reminderBody = template.approvedBody
+      .replace(/#{학부모명}/g, lead.parentName ?? '')
+      .replace(/#{학원명}/g, tenant?.name ?? '')
+      .replace(/#{테스트일시}/g, slotLabel.trim());
 
     const consentSet = new Set(lead.consents.map((c) => c.type));
     const recipientHash = hashPhone(lead.phone);
@@ -78,7 +93,7 @@ export async function GET(req: Request) {
       recipientHash,
       phone: lead.phone,
       kind: 'reminder',
-      body: template.approvedBody,
+      body: reminderBody,
       isAdvertisement: false, // reminder는 정보성
       consent: { marketing: consentSet.has('marketing'), night: consentSet.has('night') },
       requestedAt: now,

@@ -26,7 +26,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: '입력 오류' }, { status: 400 });
 
-  const { title, body: postBody, status, category } = body;
+  const { title, body: postBody, status, category, images } = body;
 
   const updated = await prisma.post.update({
     where: { id },
@@ -35,6 +35,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
       ...(postBody?.trim() && { body: postBody.trim() }),
       ...(status && { status, publishedAt: status === 'published' && !post.publishedAt ? new Date() : undefined }),
       ...(category && { category }),
+      ...(Array.isArray(images) && { images }),
     },
   });
 

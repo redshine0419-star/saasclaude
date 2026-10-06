@@ -120,7 +120,7 @@ export default async function AdminInfoPage({
             : null}
           director={
             director
-              ? { headline: director.headline, career: director.career, philosophy: director.philosophy, education: director.education }
+              ? { photo: director.photo, headline: director.headline, career: director.career, philosophy: director.philosophy, education: director.education }
               : null
           }
           fees={fees.map((f) => ({ id: f.id, label: f.label, amount: f.amount }))}

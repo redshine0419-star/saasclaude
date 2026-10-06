@@ -54,6 +54,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
       prisma.directorProfile.upsert({
         where: { tenantId: tenant.id },
         update: {
+          photo: body.director.photo ?? null,
           headline: body.director.headline ?? null,
           career: body.director.career ?? null,
           philosophy: body.director.philosophy ?? null,
@@ -61,6 +62,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
         },
         create: {
           tenantId: tenant.id,
+          photo: body.director.photo ?? null,
           headline: body.director.headline ?? null,
           career: body.director.career ?? null,
           philosophy: body.director.philosophy ?? null,

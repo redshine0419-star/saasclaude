@@ -29,7 +29,7 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: '입력 오류' }, { status: 400 });
 
-  const { title, body: postBody, category = 'notice', status = 'published', sendKakao = false, scheduledAt } = body;
+  const { title, body: postBody, category = 'notice', status = 'published', sendKakao = false, scheduledAt, images } = body;
   if (!title?.trim() || !postBody?.trim()) {
     return NextResponse.json({ error: '제목과 내용은 필수입니다.' }, { status: 400 });
   }
@@ -47,6 +47,7 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
       publishedAt: stat === 'published' ? new Date() : scheduledAt ? new Date(scheduledAt) : null,
       sendKakao: Boolean(sendKakao),
       kakaoScheduledAt: sendKakao && scheduledAt ? new Date(scheduledAt) : sendKakao ? new Date() : null,
+      ...(Array.isArray(images) && { images }),
     },
   });
 

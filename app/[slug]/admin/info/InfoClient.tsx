@@ -25,6 +25,7 @@ interface DirectorInfo {
   career: string | null;
   philosophy: string | null;
   education: string | null;
+  photo: string | null;
 }
 
 interface FeeRow {
@@ -99,8 +100,9 @@ export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: init
   );
   const [mirrorSaved, setMirrorSaved] = useState(false);
   const [director, setDirector] = useState<DirectorInfo>(
-    initialDirector ?? { headline: null, career: null, philosophy: null, education: null }
+    initialDirector ?? { headline: null, career: null, philosophy: null, education: null, photo: null }
   );
+  const [directorPhotoUploading, setDirectorPhotoUploading] = useState(false);
   const [fees, setFees] = useState(initialFees);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -437,9 +439,36 @@ export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: init
           <div style={{ padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div style={{ fontSize: 16, fontWeight: 700 }}>원장 소개</div>
             <div style={{ display: 'flex', gap: 14 }}>
-              <button type="button" style={{ width: 100, height: 130, flexShrink: 0, border: '1px dashed #B7B0A2', borderRadius: 10, background: '#FAF9F6', font: 'inherit', fontSize: 13, color: '#3E4652', cursor: 'pointer' }}>
-                사진<br />변경
-              </button>
+              <label style={{ width: 100, height: 130, flexShrink: 0, border: '1px dashed #B7B0A2', borderRadius: 10, background: '#FAF9F6', overflow: 'hidden', cursor: directorPhotoUploading ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                {director.photo ? (
+                  <img src={director.photo} alt="원장 사진" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <span style={{ fontSize: 13, color: '#3E4652', textAlign: 'center', lineHeight: 1.5 }}>{directorPhotoUploading ? '업로드 중…' : '사진\n변경'}</span>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  disabled={directorPhotoUploading}
+                  style={{ display: 'none' }}
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setDirectorPhotoUploading(true);
+                    try {
+                      const fd = new FormData();
+                      fd.append('file', file);
+                      const res = await fetch(`/api/${slug}/admin/upload`, { method: 'POST', body: fd });
+                      if (res.ok) {
+                        const data = await res.json();
+                        setDirector((p) => ({ ...p, photo: data.url }));
+                      }
+                    } finally {
+                      setDirectorPhotoUploading(false);
+                      e.target.value = '';
+                    }
+                  }}
+                />
+              </label>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   <label style={LABEL}>한 줄 소개</label>

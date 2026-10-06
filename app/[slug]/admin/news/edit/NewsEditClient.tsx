@@ -32,6 +32,8 @@ export function NewsEditClient({ slug, post }: { slug: string; post?: Post }) {
   const [kakaoScheduledAt, setKakaoScheduledAt] = useState(
     post?.kakaoScheduledAt ? post.kakaoScheduledAt.slice(0, 16) : '',
   );
+  const [images, setImages] = useState<string[]>((post as (Post & { images?: string[] }) | undefined)?.images ?? []);
+  const [imageUploading, setImageUploading] = useState(false);
   const [facePhotoConsent, setFacePhotoConsent] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -54,6 +56,7 @@ export function NewsEditClient({ slug, post }: { slug: string; post?: Post }) {
       sendKakao,
       kakaoScheduledAt: sendKakao && kakaoScheduledAt ? kakaoScheduledAt : null,
       facePhotoConsent: category === 'gallery' ? facePhotoConsent : undefined,
+      images,
     };
 
     try {
@@ -165,6 +168,53 @@ export function NewsEditClient({ slug, post }: { slug: string; post?: Post }) {
           style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.7 }}
         />
         <div style={{ fontSize: 12, color: '#9AA3AF', marginTop: 4 }}>{body.length}자</div>
+      </div>
+
+      {/* Image upload */}
+      <div>
+        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6, color: '#3E4652' }}>
+          사진 첨부 <span style={{ fontWeight: 400, color: '#9AA3AF' }}>(선택, 최대 5장)</span>
+        </label>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+          {images.map((url, i) => (
+            <div key={url} style={{ position: 'relative', width: 80, height: 80 }}>
+              <img src={url} alt={`첨부 ${i + 1}`} style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, border: '1px solid #D8D3CA' }} />
+              <button
+                type="button"
+                onClick={() => setImages((p) => p.filter((_, j) => j !== i))}
+                style={{ position: 'absolute', top: 2, right: 2, width: 20, height: 20, border: 'none', borderRadius: 10, background: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
+              >×</button>
+            </div>
+          ))}
+          {images.length < 5 && (
+            <label style={{ width: 80, height: 80, border: '1px dashed #B7B0A2', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: imageUploading ? 'wait' : 'pointer', fontSize: 24, color: '#9AA3AF', background: '#FAF9F6', flexShrink: 0 }}>
+              {imageUploading ? '…' : '+'}
+              <input
+                type="file"
+                accept="image/*"
+                disabled={imageUploading}
+                style={{ display: 'none' }}
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  setImageUploading(true);
+                  try {
+                    const fd = new FormData();
+                    fd.append('file', file);
+                    const res = await fetch(`/api/${slug}/admin/upload`, { method: 'POST', body: fd });
+                    if (res.ok) {
+                      const data = await res.json();
+                      setImages((p) => [...p, data.url]);
+                    }
+                  } finally {
+                    setImageUploading(false);
+                    e.target.value = '';
+                  }
+                }}
+              />
+            </label>
+          )}
+        </div>
       </div>
 
       {/* Gallery photo consent — required for gallery category (SPEC line 166) */}

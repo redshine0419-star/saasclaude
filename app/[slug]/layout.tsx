@@ -25,6 +25,8 @@ export async function generateMetadata({
     .filter(Boolean)
     .join(' · ');
 
+  const ogImage = `${baseUrl}/api/${slug}/og-image`;
+
   return {
     title: tenant.name,
     description,
@@ -34,7 +36,9 @@ export async function generateMetadata({
       url: pageUrl,
       type: 'website',
       locale: 'ko_KR',
+      images: [{ url: ogImage, width: 1200, height: 630, alt: tenant.name }],
     },
+    twitter: { card: 'summary_large_image', title: tenant.name, description, images: [ogImage] },
     alternates: { canonical: pageUrl },
     ...(tenant.naverSiteVerification
       ? { other: { 'naver-site-verification': tenant.naverSiteVerification } }
