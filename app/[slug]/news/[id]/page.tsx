@@ -1,8 +1,16 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getAcademyPageData, getPostData } from '@/lib/academy-data';
 import SiteHeader from '@/components/academy/SiteHeader';
 import SiteFooter from '@/components/academy/SiteFooter';
 import MobileBottomBar from '@/components/academy/MobileBottomBar';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string; id: string }> }): Promise<Metadata> {
+  const { slug, id } = await params;
+  const [data, post] = await Promise.all([getAcademyPageData(slug), getPostData(slug, id)]);
+  if (!data || !post) return {};
+  return { title: `${post.title} — ${data.tenant.name}` };
+}
 
 function formatDate(d: Date | string | null) {
   if (!d) return '';

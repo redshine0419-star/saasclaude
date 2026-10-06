@@ -1,8 +1,16 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getAcademyPageData } from '@/lib/academy-data';
 import SiteHeader from '@/components/academy/SiteHeader';
 import SiteFooter from '@/components/academy/SiteFooter';
 import ConsultForm from '@/components/academy/ConsultForm';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const data = await getAcademyPageData(slug);
+  if (!data) return {};
+  return { title: `상담 신청 — ${data.tenant.name}` };
+}
 
 export default async function ConsultPage({
   params,

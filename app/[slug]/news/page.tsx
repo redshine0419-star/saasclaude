@@ -1,9 +1,17 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { getAcademyPageData } from '@/lib/academy-data';
 import SiteHeader from '@/components/academy/SiteHeader';
 import SiteFooter from '@/components/academy/SiteFooter';
 import MobileBottomBar from '@/components/academy/MobileBottomBar';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const data = await getAcademyPageData(slug);
+  if (!data) return {};
+  return { title: `소식 — ${data.tenant.name}` };
+}
 
 const CATEGORY_LABELS: Record<string, string> = {
   notice: '공지',

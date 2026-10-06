@@ -1,8 +1,16 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getAcademyPageData } from '@/lib/academy-data';
 import SiteHeader from '@/components/academy/SiteHeader';
 import SiteFooter from '@/components/academy/SiteFooter';
 import MobileBottomBar from '@/components/academy/MobileBottomBar';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const data = await getAcademyPageData(slug);
+  if (!data) return {};
+  return { title: `수업 안내 — ${data.tenant.name}` };
+}
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
