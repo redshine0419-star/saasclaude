@@ -35,11 +35,11 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
       where: { tenantId: tenant.id },
       orderBy: { createdAt: 'desc' },
     }),
-    prisma.class.findMany({
+    prisma.classItem.findMany({
       where: { tenantId: tenant.id },
       orderBy: { sortOrder: 'asc' },
     }),
-    prisma.staffMember.findMany({
+    prisma.staffProfile.findMany({
       where: { tenantId: tenant.id },
       orderBy: { sortOrder: 'asc' },
     }),
@@ -70,7 +70,6 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
       source: l.source,
       status: l.status,
       statusChangedAt: l.statusChangedAt,
-      marketingConsent: l.marketingConsent,
       message: l.message,
       events: l.events,
     })),
@@ -93,21 +92,22 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
       body: p.body,
       summaryFields: p.summaryFields,
       images: p.images,
-      published: p.published,
+      publishedAt: p.publishedAt,
       createdAt: p.createdAt,
     })),
     classes: classes.map((c) => ({
       name: c.name,
       gradeBand: c.gradeBand,
-      schedule: c.schedule,
+      days: c.days,
+      startTime: c.startTime,
+      endTime: c.endTime,
       seatsLeft: c.seatsLeft,
-      monthlyFee: c.monthlyFee,
       description: c.description,
     })),
     staff: staff.map((s) => ({
       name: s.name,
       roleLabel: s.roleLabel,
-      bio: s.bio,
+      summary: s.summary,
     })),
     messageSummary: {
       total: messages.length,

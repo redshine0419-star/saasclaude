@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { LeadStatus } from '@prisma/client';
 
 type Params = Promise<{ slug: string }>;
 
@@ -21,13 +22,15 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
   const url = new URL(req.url);
   const statusFilter = url.searchParams.get('status');
 
+  const validStatuses = Object.values(LeadStatus) as string[];
   const leads = await prisma.lead.findMany({
     where: {
       tenantId: tenant.id,
-      ...(statusFilter ? { status: statusFilter } : {}),
+      ...(statusFilter && validStatuses.includes(statusFilter) ? { status: statusFilter as LeadStatus } : {}),
     },
     orderBy: { createdAt: 'desc' },
     select: {
+      id: true,
       createdAt: true,
       parentName: true,
       phone: true,
@@ -36,10 +39,21 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
       source: true,
       status: true,
       statusChangedAt: true,
-      marketingConsent: true,
       message: true,
     },
   });
+
+  // 마케팅 동의 여부 조회 (Consent 테이블)
+  const consentMap = new Map<string, boolean>();
+  if (leads.length > 0) {
+    const consents = await prisma.consent.findMany({
+      where: { tenantId: tenant.id, leadId: { in: leads.map((l) => l.id) }, type: 'marketing' },
+      select: { leadId: true, grantedAt: true, revokedAt: true },
+    });
+    for (const c of consents) {
+      consentMap.set(c.leadId, !!c.grantedAt && !c.revokedAt);
+    }
+  }
 
   const STATUS_KO: Record<string, string> = {
     new: '신규',
@@ -68,7 +82,7 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
     l.source ?? '',
     STATUS_KO[l.status] ?? l.status,
     toKST(l.statusChangedAt),
-    l.marketingConsent ? 'Y' : 'N',
+    consentMap.get(l.id) ? 'Y' : 'N',
     (l.message ?? '').replace(/"/g, '""'),
   ]);
 
