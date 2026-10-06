@@ -60,6 +60,8 @@ interface Props {
   subjects: string;
   address: string;
   phone: string;
+  hours: string;
+  kakaoChannelUrl: string;
   status: string;
   betaEndsAt: string | null;
   sections: SectionState[];
@@ -78,6 +80,10 @@ export function AcademyEditClient(props: Props) {
   const [theme, setTheme] = useState(props.theme);
   const [accentColor, setAccentColor] = useState(props.accentColor);
   const [status, setStatus] = useState(props.status);
+  const [phone, setPhone] = useState(props.phone);
+  const [address, setAddress] = useState(props.address);
+  const [hours, setHours] = useState(props.hours);
+  const [kakaoChannelUrl, setKakaoChannelUrl] = useState(props.kakaoChannelUrl);
   const [sections, setSections] = useState<SectionState[]>(() => {
     const existingMap = new Map(props.sections.map((s) => [s.key, s]));
     return props.allSections.map((def, i) => ({
@@ -141,7 +147,7 @@ export function AcademyEditClient(props: Props) {
       await fetch(`/api/platform/academies/${props.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ theme, accentColor, status, sections }),
+        body: JSON.stringify({ theme, accentColor, status, sections, phone, address, hours, kakaoChannelUrl }),
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
@@ -357,10 +363,27 @@ export function AcademyEditClient(props: Props) {
 
             <div style={{ padding: 20, borderRadius: 14, background: '#FFFFFF' }}>
               <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 14 }}>학원 정보</div>
-              <div style={{ fontSize: 13, color: '#5A6270', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {props.subjects && <div><b>과목:</b> {props.subjects}</div>}
-                {props.phone && <div><b>전화:</b> {props.phone}</div>}
-                {props.address && <div><b>주소:</b> {props.address}</div>}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {[
+                  { label: '전화번호', value: phone, setter: setPhone, placeholder: '02-1234-5678' },
+                  { label: '주소', value: address, setter: setAddress, placeholder: '서울시 강남구...' },
+                  { label: '운영 시간', value: hours, setter: setHours, placeholder: '평일 14:00~22:00' },
+                  { label: '카카오 채널 URL', value: kakaoChannelUrl, setter: setKakaoChannelUrl, placeholder: 'https://pf.kakao.com/...' },
+                ].map(({ label, value, setter, placeholder }) => (
+                  <label key={label} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: '#5A6270' }}>{label}</span>
+                    <input
+                      type="text"
+                      value={value}
+                      onChange={(e) => setter(e.target.value)}
+                      placeholder={placeholder}
+                      style={{ height: 36, padding: '0 10px', borderRadius: 8, border: '1px solid #D5D0C6', fontSize: 13, fontFamily: 'inherit' }}
+                    />
+                  </label>
+                ))}
+                {props.subjects && (
+                  <div style={{ fontSize: 12, color: '#5A6270', paddingTop: 4 }}>과목: {props.subjects}</div>
+                )}
               </div>
               <Link href={`/${props.slug}/admin`} style={{ marginTop: 14, display: 'block', fontSize: 13, color: '#1E5645', fontWeight: 600, textDecoration: 'none' }}>학원 관리자 →</Link>
             </div>

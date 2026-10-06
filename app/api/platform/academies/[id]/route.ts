@@ -23,7 +23,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
   const tenant = await prisma.tenant.findUnique({ where: { id } });
   if (!tenant) return NextResponse.json({ error: '학원을 찾을 수 없습니다.' }, { status: 404 });
 
-  const { theme, accentColor, status, sections } = body;
+  const { theme, accentColor, status, sections, phone, address, hours, kakaoChannelUrl } = body;
 
   await prisma.tenant.update({
     where: { id },
@@ -31,6 +31,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
       ...(theme && { theme }),
       ...(accentColor !== undefined && { accentColor: accentColor || null }),
       ...(status && { status }),
+      ...(phone !== undefined && { phone: phone || null }),
+      ...(address !== undefined && { address: address || null }),
+      ...(hours !== undefined && { hours: hours || null }),
+      ...(kakaoChannelUrl !== undefined && { kakaoChannelUrl: kakaoChannelUrl || null }),
     },
   });
 

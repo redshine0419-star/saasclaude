@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 interface Review {
   id: string;
@@ -81,6 +81,22 @@ export function ReviewsClient({ slug, reviews: initialReviews, resultStats: init
   const [statAddSaving, setStatAddSaving] = useState(false);
   const [statError, setStatError] = useState('');
   const [consentWarning, setConsentWarning] = useState('');
+  const [consentUploading, setConsentUploading] = useState(false);
+  const consentFileRef = useRef<HTMLInputElement>(null);
+
+  async function uploadConsentFile(file: File, onSuccess: (url: string) => void) {
+    setConsentUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch(`/api/${slug}/admin/upload`, { method: 'POST', body: fd });
+      if (!res.ok) { const d = await res.json(); alert(d.error ?? '업로드 실패'); return; }
+      const { url } = await res.json();
+      onSuccess(url);
+    } finally {
+      setConsentUploading(false);
+    }
+  }
 
   const selectedStat = resultStats.find((s) => s.id === selectedStatId) ?? null;
 
@@ -528,8 +544,18 @@ export function ReviewsClient({ slug, reviews: initialReviews, resultStats: init
                     </div>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>동의서 파일 URL <span style={{ color: '#8A3A1C' }}>*필수 (없으면 비공개)</span></label>
-                    <input type="text" value={newForm.consentFile} onChange={(e) => setNewForm((p) => ({ ...p, consentFile: e.target.value }))} placeholder="Blob URL 또는 파일 경로" style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }} />
+                    <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>동의서 파일 <span style={{ color: '#8A3A1C' }}>*필수 (없으면 비공개)</span></label>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <input ref={consentFileRef} type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" style={{ display: 'none' }}
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadConsentFile(f, (url) => setNewForm((p) => ({ ...p, consentFile: url }))); }} />
+                      <button type="button" onClick={() => consentFileRef.current?.click()} disabled={consentUploading}
+                        style={{ height: 40, padding: '0 14px', border: '1px solid #D5D0C6', borderRadius: 8, background: '#FAFAF8', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
+                        {consentUploading ? '업로드 중...' : '파일 선택'}
+                      </button>
+                      {newForm.consentFile
+                        ? <a href={newForm.consentFile} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: '#1E5645' }}>업로드됨 ↗</a>
+                        : <span style={{ fontSize: 12, color: '#9AA3AF' }}>PDF, JPG, PNG (5MB 이하)</span>}
+                    </div>
                   </div>
                 </>
               )}
@@ -650,14 +676,18 @@ export function ReviewsClient({ slug, reviews: initialReviews, resultStats: init
                     </div>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>동의서 파일 URL <span style={{ color: '#8A3A1C' }}>*필수 (없으면 비공개)</span></label>
-                    <input
-                      type="text"
-                      value={(fieldVal('consentFile') as string) ?? ''}
-                      onChange={(e) => setForm((p) => ({ ...p, [selected.id]: { ...(p[selected.id] ?? {}), consentFile: e.target.value } }))}
-                      placeholder="Blob URL 또는 파일 경로"
-                      style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
-                    />
+                    <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>동의서 파일 <span style={{ color: '#8A3A1C' }}>*필수 (없으면 비공개)</span></label>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <input ref={consentFileRef} type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" style={{ display: 'none' }}
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadConsentFile(f, (url) => setForm((p) => ({ ...p, [selected.id]: { ...(p[selected.id] ?? {}), consentFile: url } }))); }} />
+                      <button type="button" onClick={() => consentFileRef.current?.click()} disabled={consentUploading}
+                        style={{ height: 40, padding: '0 14px', border: '1px solid #D5D0C6', borderRadius: 8, background: '#FAFAF8', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
+                        {consentUploading ? '업로드 중...' : '파일 선택'}
+                      </button>
+                      {(fieldVal('consentFile') as string)
+                        ? <a href={(fieldVal('consentFile') as string)} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: '#1E5645' }}>업로드됨 ↗</a>
+                        : <span style={{ fontSize: 12, color: '#9AA3AF' }}>PDF, JPG, PNG (5MB 이하)</span>}
+                    </div>
                   </div>
                 </>
               )}

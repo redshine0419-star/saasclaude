@@ -70,6 +70,8 @@ export default async function AcademyEditPage({ params }: Props) {
         subjects={tenant.subjects ?? ''}
         address={tenant.address ?? ''}
         phone={tenant.phone ?? ''}
+        hours={tenant.hours ?? ''}
+        kakaoChannelUrl={tenant.kakaoChannelUrl ?? ''}
         status={tenant.status}
         betaEndsAt={tenant.betaEndsAt?.toISOString() ?? null}
         sections={sections}
