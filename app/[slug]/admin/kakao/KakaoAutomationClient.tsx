@@ -53,6 +53,18 @@ const SCENARIO_META: Record<
     isAd: true,
     order: 4,
   },
+  owner_alert: {
+    label: '⑤ 원장 알림',
+    subtitle: '새 상담 신청 시 원장에게 발송',
+    isAd: false,
+    order: 5,
+  },
+  reconfirm: {
+    label: '⑥ 수신 동의 재확인',
+    subtitle: '동의 만료 2개월 전 자동 발송',
+    isAd: false,
+    order: 6,
+  },
 };
 
 const VARIABLE_CHIPS: Record<string, string[]> = {
@@ -133,7 +145,7 @@ export function KakaoAutomationClient({
     Object.fromEntries(templates.map((t) => [t.scenario, t.reviewStatus]))
   );
 
-  const scenarios = ['receipt', 'reminder', 'followup', 'campaign'];
+  const scenarios = ['receipt', 'reminder', 'followup', 'campaign', 'owner_alert', 'reconfirm'];
   const templateMap = Object.fromEntries(templates.map((t) => [t.scenario, t]));
 
   async function toggleScenario(scenario: string) {
