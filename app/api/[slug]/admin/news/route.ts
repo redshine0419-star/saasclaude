@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { sendMessage } from '@/lib/messaging/send';
+import { hashPhone } from '@/lib/messaging/hash';
 
 type Params = Promise<{ slug: string }>;
 
@@ -46,6 +48,49 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
       kakaoScheduledAt: sendKakao && scheduledAt ? new Date(scheduledAt) : sendKakao ? new Date() : null,
     },
   });
+
+  // 즉시 발행 + 카카오 발송 요청인 경우 마케팅 동의자 전체에게 발송
+  if (stat === 'published' && sendKakao) {
+    const now = new Date();
+    const recipients = await prisma.leadConsent.findMany({
+      where: {
+        tenantId: tenant.id,
+        type: 'marketing',
+        revokedAt: null,
+      },
+      include: { lead: { select: { id: true, phone: true } } },
+      distinct: ['leadId'],
+    });
+
+    const tenantWithRecipients = await prisma.tenant.findUnique({
+      where: { id: tenant.id },
+      include: { notifyRecipients: { take: 1 } },
+    });
+
+    const msgBody = `[${tenant.name}] ${title.trim()}\n\n${postBody.trim().slice(0, 200)}${postBody.trim().length > 200 ? '…' : ''}`;
+
+    for (const consent of recipients) {
+      if (!consent.lead.phone) continue;
+      const recipientHash = hashPhone(consent.lead.phone);
+      await sendMessage({
+        tenantId: tenant.id,
+        recipientId: consent.lead.id,
+        recipientHash,
+        phone: consent.lead.phone,
+        kind: 'campaign',
+        body: msgBody,
+        isAdvertisement: true,
+        consent: { marketing: true, night: true },
+        requestedAt: now,
+      }).catch(() => { /* 발송 실패 시 포스트는 유지 */ });
+    }
+
+    // 포스트에 카카오 발송 완료 시각 기록
+    await prisma.post.update({
+      where: { id: post.id },
+      data: { kakaoSentAt: now },
+    });
+  }
 
   return NextResponse.json({ ok: true, id: post.id });
 }

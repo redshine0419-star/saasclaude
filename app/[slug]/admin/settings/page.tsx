@@ -22,7 +22,7 @@ export default async function AdminSettingsPage({
   });
   if (!membership) redirect('/auth/signin');
 
-  const [recipients, proxyLogs] = await Promise.all([
+  const [recipients, proxyLogs, allMembers, pendingInvites] = await Promise.all([
     prisma.notifyRecipient.findMany({
       where: { tenantId: tenant.id },
       orderBy: { id: 'asc' },
@@ -31,6 +31,14 @@ export default async function AdminSettingsPage({
       where: { tenantId: tenant.id },
       orderBy: { accessedAt: 'desc' },
       take: 20,
+    }),
+    prisma.membership.findMany({
+      where: { tenantId: tenant.id },
+      include: { user: { select: { email: true, name: true } } },
+    }),
+    prisma.memberInvite.findMany({
+      where: { tenantId: tenant.id, expiresAt: { gte: new Date() } },
+      orderBy: { createdAt: 'desc' },
     }),
   ]);
 
@@ -62,6 +70,9 @@ export default async function AdminSettingsPage({
           betaEndsAt={tenant.betaEndsAt?.toISOString() ?? null}
           accentColor={tenant.accentColor ?? ''}
           proxyLogs={proxyLogs.map((l) => ({ id: l.id, accessedAt: l.accessedAt.toISOString(), adminEmail: l.adminEmail }))}
+          isOwner={membership.role === 'owner'}
+          members={allMembers.map((m) => ({ id: m.id, email: m.user.email ?? '', name: m.user.name, role: m.role }))}
+          pendingInvites={pendingInvites.map((i) => ({ id: i.id, email: i.email, role: i.role, expiresAt: i.expiresAt.toISOString() }))}
         />
       </main>
     </div>

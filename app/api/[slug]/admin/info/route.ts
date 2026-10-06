@@ -17,6 +17,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
     where: { tenantId: tenant.id, user: { email: session.user.email } },
   });
   if (!membership) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  if (membership.role !== 'owner') return NextResponse.json({ error: '원장만 학원 정보를 수정할 수 있습니다.' }, { status: 403 });
 
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: '잘못된 요청입니다.' }, { status: 400 });

@@ -72,6 +72,15 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
     }
   }
 
+  async function setSeatsAbsolute(classId: string, value: number) {
+    const cls = classes.find((c) => c.id === classId);
+    if (!cls) return;
+    const current = cls.seatsLeft ?? 0;
+    const delta = value - current;
+    if (delta === 0) return;
+    await adjustSeats(classId, delta);
+  }
+
   async function saveClass() {
     if (!selectedId) return;
     setSaving(true);
@@ -230,7 +239,18 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
                           >
                             −
                           </button>
-                          <b style={{ width: 20, textAlign: 'center' }}>{cls.seatsLeft ?? '?'}</b>
+                          <input
+                            type="number"
+                            min={0}
+                            max={999}
+                            disabled={seatsLoading === cls.id}
+                            defaultValue={cls.seatsLeft ?? 0}
+                            key={`${cls.id}-${cls.seatsLeft}`}
+                            onBlur={(e) => setSeatsAbsolute(cls.id, Number(e.target.value))}
+                            onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+                            onClick={(e) => e.stopPropagation()}
+                            style={{ width: 44, height: 36, textAlign: 'center', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
+                          />
                           <button
                             type="button"
                             aria-label="잔여석 늘리기"

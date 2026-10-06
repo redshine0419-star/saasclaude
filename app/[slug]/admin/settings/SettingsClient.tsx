@@ -14,6 +14,20 @@ interface ProxyLog {
   adminEmail: string;
 }
 
+interface MemberRow {
+  id: string;
+  email: string;
+  name: string | null;
+  role: string;
+}
+
+interface InviteRow {
+  id: string;
+  email: string;
+  role: string;
+  expiresAt: string;
+}
+
 interface Props {
   slug: string;
   recipients: Recipient[];
@@ -26,6 +40,9 @@ interface Props {
   betaEndsAt: string | null;
   accentColor: string;
   proxyLogs: ProxyLog[];
+  isOwner: boolean;
+  members: MemberRow[];
+  pendingInvites: InviteRow[];
 }
 
 function maskPhone(phone: string) {
@@ -46,6 +63,9 @@ export function SettingsClient({
   betaEndsAt,
   accentColor: initialAccentColor,
   proxyLogs,
+  isOwner,
+  members: initialMembers,
+  pendingInvites: initialInvites,
 }: Props) {
   const [recipients, setRecipients] = useState(initialRecipients);
   const [showAdd, setShowAdd] = useState(false);
@@ -60,6 +80,58 @@ export function SettingsClient({
   const [ga4Saving, setGa4Saving] = useState(false);
   const [ga4Saved, setGa4Saved] = useState(false);
   const [ga4Error, setGa4Error] = useState('');
+  const [members, setMembers] = useState<MemberRow[]>(initialMembers);
+  const [invites, setInvites] = useState<InviteRow[]>(initialInvites);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteSaving, setInviteSaving] = useState(false);
+  const [inviteError, setInviteError] = useState('');
+  const [inviteDone, setInviteDone] = useState('');
+
+  async function sendInvite() {
+    if (!inviteEmail.trim()) return;
+    setInviteSaving(true);
+    setInviteError('');
+    setInviteDone('');
+    try {
+      const res = await fetch(`/api/${slug}/admin/members`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: inviteEmail.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setInviteError(data.error ?? '초대 실패'); return; }
+      if (data.status === 'added') {
+        setInviteDone(`${inviteEmail.trim()}을(를) 직원으로 추가했습니다.`);
+      } else {
+        setInviteDone(`초대 링크를 ${inviteEmail.trim()}으로 발송했습니다.`);
+      }
+      setInviteEmail('');
+      // 목록 새로고침
+      const updated = await fetch(`/api/${slug}/admin/members`).then((r) => r.json());
+      setMembers(updated.members ?? []);
+      setInvites(updated.invites ?? []);
+    } finally {
+      setInviteSaving(false);
+    }
+  }
+
+  async function removeMember(memberId: string) {
+    await fetch(`/api/${slug}/admin/members`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ memberId }),
+    });
+    setMembers((p) => p.filter((m) => m.id !== memberId));
+  }
+
+  async function cancelInvite(inviteId: string) {
+    await fetch(`/api/${slug}/admin/members`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ inviteId }),
+    });
+    setInvites((p) => p.filter((i) => i.id !== inviteId));
+  }
 
   async function addRecipient() {
     setAddSaving(true);
@@ -364,6 +436,75 @@ export function SettingsClient({
           </table>
         )}
       </div>
+
+      {/* 직원 관리 — 원장만 */}
+      {isOwner && (
+        <div style={{ padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ fontSize: 16, fontWeight: 700 }}>직원 관리</div>
+          <div style={{ fontSize: 13, color: '#5A6270' }}>직원 계정은 상담 조회·메모 작성만 가능합니다. 학원 정보·설정 변경은 원장만 가능합니다.</div>
+
+          {/* 현재 멤버 목록 */}
+          {members.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {members.map((m) => (
+                <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderRadius: 8, background: '#FAF9F6', fontSize: 14 }}>
+                  <div>
+                    <span style={{ fontWeight: 600 }}>{m.name ?? m.email}</span>
+                    {m.name && <span style={{ color: '#8A93A8', marginLeft: 8, fontSize: 13 }}>{m.email}</span>}
+                    <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 5, background: m.role === 'owner' ? '#E8F4EE' : '#F0F4FA', color: m.role === 'owner' ? '#1E5645' : '#3A5A9A', fontSize: 12, fontWeight: 600 }}>
+                      {m.role === 'owner' ? '원장' : '직원'}
+                    </span>
+                  </div>
+                  {m.role !== 'owner' && (
+                    <button
+                      type="button"
+                      onClick={() => removeMember(m.id)}
+                      style={{ fontSize: 12, color: '#8A3A1C', border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: 'inherit' }}
+                    >
+                      삭제
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* 초대 대기 중 */}
+          {invites.length > 0 && (
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#5A6270', marginBottom: 6 }}>초대 대기 중</div>
+              {invites.map((inv) => (
+                <div key={inv.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 14px', borderRadius: 8, background: '#FFFBF0', fontSize: 13, marginBottom: 6 }}>
+                  <span>{inv.email} <span style={{ color: '#8A93A8' }}>(만료: {new Date(inv.expiresAt).toLocaleDateString('ko-KR')})</span></span>
+                  <button type="button" onClick={() => cancelInvite(inv.id)} style={{ fontSize: 12, color: '#8A3A1C', border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: 'inherit' }}>취소</button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* 초대 입력 */}
+          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+            <input
+              type="email"
+              value={inviteEmail}
+              onChange={(e) => setInviteEmail(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') sendInvite(); }}
+              placeholder="직원 Google 이메일"
+              style={{ flex: 1, height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
+            />
+            <button
+              type="button"
+              onClick={sendInvite}
+              disabled={inviteSaving || !inviteEmail.trim()}
+              style={{ height: 44, padding: '0 16px', borderRadius: 8, background: '#1E5645', color: '#FFFFFF', border: 'none', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: inviteSaving ? 'wait' : 'pointer', opacity: (!inviteEmail.trim() || inviteSaving) ? 0.6 : 1 }}
+            >
+              {inviteSaving ? '처리 중…' : '초대'}
+            </button>
+          </div>
+          {inviteError && <div style={{ fontSize: 13, color: '#8A3A1C' }}>{inviteError}</div>}
+          {inviteDone && <div style={{ fontSize: 13, color: '#1E5645' }}>{inviteDone}</div>}
+        </div>
+      )}
     </div>
   );
 }

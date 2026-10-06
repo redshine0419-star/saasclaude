@@ -56,6 +56,7 @@ model Tenant {
   // 관계
   sections      TenantSection[]
   memberships   Membership[]
+  memberInvites MemberInvite[]
   notifyRecipients NotifyRecipient[]
   directorProfile  DirectorProfile?
   teachingPrinciples TeachingPrinciple[]
@@ -150,6 +151,21 @@ enum MemberRole {
   platform_admin
   owner
   staff
+}
+
+model MemberInvite {
+  id        String     @id @default(cuid())
+  tenantId  String
+  email     String
+  role      MemberRole @default(staff)
+  token     String     @unique @default(cuid())
+  expiresAt DateTime
+  createdAt DateTime   @default(now())
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, email])
+  @@map("member_invites")
 }
 
 // 새 상담 알림 받을 번호

@@ -12,9 +12,7 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   const tenant = await prisma.tenant.findUnique({ where: { slug, status: 'active' } });
   if (!tenant) return NextResponse.json({ error: '학원을 찾을 수 없습니다.' }, { status: 404 });
 
-  const membership = await prisma.membership.findFirst({
-    where: { tenantId: tenant.id, user: { email: session.user.email } },
-  });
+  const membership = await prisma.membership.findFirst({ where: { tenantId: tenant.id, user: { email: session.user.email }, role: 'owner' } });
   if (!membership) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const body = await req.json().catch(() => null);
