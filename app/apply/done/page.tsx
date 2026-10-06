@@ -9,6 +9,7 @@ import { FdFooter } from '@/components/fd/FdFooter';
 export default function ApplyDonePage() {
   const searchParams = useSearchParams();
   const applicationId = searchParams.get('id');
+  const queueOrder = searchParams.get('queue');
 
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -46,6 +47,11 @@ export default function ApplyDonePage() {
             </svg>
           </div>
           <h1 style={{ margin: 0, fontSize: 34, fontWeight: 700, letterSpacing: '-0.5px' }}>신청이 완료됐습니다</h1>
+          {queueOrder && (
+            <div style={{ padding: '12px 24px', borderRadius: 10, background: '#FFF3CC', fontSize: 15, fontWeight: 600, color: '#5C4300' }}>
+              대기 순번 {queueOrder}번째
+            </div>
+          )}
           <p style={{ margin: 0, fontSize: 17, lineHeight: 1.75, color: '#4A5568' }}>
             영업일 기준 2일 이내 담당자가 직접 연락드리겠습니다.<br />
             신청해 주셔서 감사합니다.

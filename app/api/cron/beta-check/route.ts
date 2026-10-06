@@ -50,11 +50,11 @@ export async function GET(req: Request) {
   });
   const kakaoCountsRaw = await Promise.all(
     activeBetaTenants.map((t) =>
-      prisma.post.count({
+      prisma.message.count({
         where: {
           tenantId: t.id,
-          sendKakao: true,
-          kakaoSentAt: { gte: startOfMonth },
+          status: 'sent',
+          sentAt: { gte: startOfMonth },
         },
       }).then((count) => ({ ...t, sentCount: count }))
     )

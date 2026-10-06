@@ -59,7 +59,7 @@ export default function ApplyPage() {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error ?? '오류가 발생했습니다.'); return; }
-      window.location.href = `/apply/done?id=${data.id}`;
+      window.location.href = `/apply/done?id=${data.id}&queue=${data.queueOrder}`;
     } catch {
       setError('네트워크 오류가 발생했습니다. 다시 시도해주세요.');
     } finally {

@@ -14,7 +14,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Params }) {
   if (!tenant) return NextResponse.json({ error: '학원을 찾을 수 없습니다.' }, { status: 404 });
 
   const membership = await prisma.membership.findFirst({
-    where: { tenantId: tenant.id, user: { email: session.user.email } },
+    where: { tenantId: tenant.id, user: { email: session.user.email }, role: 'owner' },
   });
   if (!membership) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 

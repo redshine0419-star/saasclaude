@@ -36,5 +36,20 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  // 플랫폼 관리자에게 신청 접수 알림 (운영 로그 — 실제 이메일 연동 전까지)
+  const platformAdmins = await prisma.membership.findMany({
+    where: { role: 'platform_admin' },
+    include: { user: { select: { email: true } } },
+  });
+  const adminEmails = platformAdmins.map((m) => m.user.email).filter(Boolean);
+  console.log('[apply] 베타 신청 접수:', {
+    admins: adminEmails,
+    academy: application.academyName,
+    area: application.area,
+    subject: application.subject,
+    queueOrder: application.queueOrder,
+    id: application.id,
+  });
+
   return NextResponse.json({ ok: true, id: application.id, queueOrder: application.queueOrder });
 }

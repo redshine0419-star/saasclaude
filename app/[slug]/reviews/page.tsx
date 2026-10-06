@@ -65,12 +65,8 @@ export default async function ReviewsPage({
   let scoreTotal = 0;
 
   if (isDemoSlug) {
-    const allText = data.reviews.filter(
-      (r) => r.kind === 'review' || r.kind === 'text',
-    );
-    const allScore = data.reviews.filter(
-      (r) => r.kind === 'score_case' || r.kind === 'score',
-    );
+    const allText = data.reviews.filter((r) => r.kind === 'review');
+    const allScore = data.reviews.filter((r) => r.kind === 'score_case');
     const filteredText =
       activeFilter === 'score'
         ? []

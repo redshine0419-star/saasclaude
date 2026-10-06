@@ -136,7 +136,7 @@ export default async function AcademyPage({
       case 'curriculum':
         return data!.classes.length > 0 ? <CurriculumSection key="curriculum" classes={data!.classes} /> : null;
       case 'score_cases': {
-        const scoreCases = data!.reviews.filter((r) => r.kind === 'score_case' || r.kind === 'score');
+        const scoreCases = data!.reviews.filter((r) => r.kind === 'score_case');
         return scoreCases.length > 0 ? (
           <ScoreCasesSection
             key="score_cases"
