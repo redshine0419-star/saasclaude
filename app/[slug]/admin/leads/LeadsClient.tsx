@@ -106,6 +106,25 @@ export function LeadsClient({ slug, leads: initialLeads, totalByStatus }: Props)
   const [saving, setSaving] = useState(false);
   const [memoValue, setMemoValue] = useState<Record<string, string>>({});
   const [statusValue, setStatusValue] = useState<Record<string, string>>({});
+  const [exporting, setExporting] = useState(false);
+
+  async function handleExport() {
+    setExporting(true);
+    try {
+      const qs = filter !== 'all' ? `?status=${filter}` : '';
+      const res = await fetch(`/api/${slug}/admin/leads/export${qs}`);
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = res.headers.get('Content-Disposition')?.match(/filename="([^"]+)"/)?.[1] ?? 'leads.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setExporting(false);
+    }
+  }
 
   const filtered = leads.filter((l) => {
     if (filter !== 'all' && l.status !== filter) return false;
@@ -170,24 +189,46 @@ export function LeadsClient({ slug, leads: initialLeads, totalByStatus }: Props)
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>상담 관리</h1>
-          <input
-            type="search"
-            aria-label="학부모 이름·연락처 검색"
-            placeholder="이름·연락처 검색"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{
-              width: 240,
-              height: 44,
-              padding: '0 14px',
-              border: '1px solid #D5D0C6',
-              borderRadius: 8,
-              font: 'inherit',
-              fontSize: 14,
-              background: '#FFFFFF',
-              outline: 'none',
-            }}
-          />
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <input
+              type="search"
+              aria-label="학부모 이름·연락처 검색"
+              placeholder="이름·연락처 검색"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{
+                width: 200,
+                height: 44,
+                padding: '0 14px',
+                border: '1px solid #D5D0C6',
+                borderRadius: 8,
+                font: 'inherit',
+                fontSize: 14,
+                background: '#FFFFFF',
+                outline: 'none',
+              }}
+            />
+            <button
+              type="button"
+              onClick={handleExport}
+              disabled={exporting}
+              title="현재 필터 기준으로 CSV 내보내기"
+              style={{
+                height: 44,
+                padding: '0 14px',
+                border: '1px solid #D5D0C6',
+                borderRadius: 8,
+                background: '#FFFFFF',
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: exporting ? 'wait' : 'pointer',
+                color: '#1B2430',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {exporting ? '내보내는 중…' : 'CSV 내보내기'}
+            </button>
+          </div>
         </div>
 
         {/* Status filter tabs */}
