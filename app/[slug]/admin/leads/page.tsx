@@ -29,6 +29,11 @@ export default async function AdminLeadsPage({
     include: {
       events: { orderBy: { createdAt: 'asc' } },
       consents: { where: { type: 'marketing' } },
+      messages: {
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+        select: { id: true, scenario: true, status: true, sentAt: true, createdAt: true },
+      },
     },
   });
 
@@ -55,6 +60,13 @@ export default async function AdminLeadsPage({
       type: e.type,
       createdAt: e.createdAt.toISOString(),
       payload: e.payload,
+    })),
+    messages: l.messages.map((m) => ({
+      id: m.id,
+      scenario: m.scenario,
+      status: m.status,
+      sentAt: m.sentAt?.toISOString() ?? null,
+      createdAt: m.createdAt.toISOString(),
     })),
   }));
 

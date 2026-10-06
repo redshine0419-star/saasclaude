@@ -20,6 +20,13 @@ interface Lead {
     createdAt: string;
     payload: unknown;
   }[];
+  messages: {
+    id: string;
+    scenario: string;
+    status: string;
+    sentAt: string | null;
+    createdAt: string;
+  }[];
 }
 
 interface Props {
@@ -400,6 +407,22 @@ export function LeadsClient({ slug, leads: initialLeads, totalByStatus }: Props)
               }}
             />
           </div>
+
+          {/* Kakao message log */}
+          {selected.messages.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>카카오 발송 내역</div>
+              {selected.messages.map((msg) => (
+                <div key={msg.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: '#F4F2EE', borderRadius: 8, fontSize: 13 }}>
+                  <span>{EVENT_LABEL['message_sent']} · {msg.scenario}</span>
+                  <span style={{ color: msg.status === 'sent' ? '#1E5645' : msg.status === 'failed' ? '#8A3A1C' : '#5A6270', fontWeight: 600 }}>
+                    {msg.status === 'sent' ? '전달' : msg.status === 'failed' ? '실패' : '대기'}
+                    {' · '}{formatDate(msg.sentAt ?? msg.createdAt)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Event timeline */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>

@@ -2,6 +2,7 @@ import { applyRules } from './rules';
 import { MockAdapter } from './adapters/mock';
 import { KakaoAdapter } from './adapters/kakao';
 import type { SendRequest, MessagingAdapter } from './types';
+import { prisma } from '@/lib/prisma';
 
 function getAdapter(): MessagingAdapter {
   if (process.env.KAKAO_API_KEY) {
@@ -41,5 +42,18 @@ export async function sendMessage(req: SendRequest) {
     ? ('sms_fallback' as const)
     : ('alimtalk' as const);
 
-  return { dispatched: true, ...adapterResult, scheduledAt: result.scheduledAt, channel } as const;
+  const outcome = { dispatched: true, ...adapterResult, scheduledAt: result.scheduledAt, channel } as const;
+
+  // Write message_sent LeadEvent so the lead detail timeline shows Kakao sends
+  if (outcome.status === 'sent' && req.recipientId) {
+    prisma.leadEvent.create({
+      data: {
+        leadId: req.recipientId,
+        type: 'message_sent',
+        payload: { scenario: req.kind, channel },
+      },
+    }).catch(() => { /* non-critical */ });
+  }
+
+  return outcome;
 }

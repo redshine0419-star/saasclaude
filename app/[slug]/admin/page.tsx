@@ -57,7 +57,17 @@ export default async function AdminDashboardPage({
   // SPEC 6장: 오늘 연락할 상담 = new 전부 + not_enrolled 후 3일 지난 건
   const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
 
-  const [thisMonthLeads, enrolledCount, testBookedCount, newLeads, followupLeads] = await Promise.all([
+  const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
+
+  // Compute next KST weekday date from today
+  function nextWeekdayDate(weekday: number): Date {
+    const kstNow = new Date(now.getTime() + 9 * 3600000);
+    const todayW = kstNow.getUTCDay();
+    const diff = (weekday - todayW + 7) % 7 || 7;
+    return new Date(kstNow.getTime() + diff * 86400000);
+  }
+
+  const [thisMonthLeads, enrolledCount, testBookedCount, newLeads, followupLeads, upcomingTests] = await Promise.all([
     prisma.lead.findMany({
       where: { tenantId: tenant.id, createdAt: { gte: monthStart } },
       orderBy: { createdAt: 'desc' },
@@ -77,6 +87,12 @@ export default async function AdminDashboardPage({
       },
       orderBy: { statusChangedAt: 'asc' },
       include: { consents: { where: { type: 'marketing' } } },
+    }),
+    prisma.lead.findMany({
+      where: { tenantId: tenant.id, status: 'test_booked', preferredSlotId: { not: null } },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+      include: { preferredSlot: true },
     }),
   ]);
 
@@ -409,6 +425,54 @@ export default async function AdminDashboardPage({
             )}
           </div>
         </div>
+
+        {/* Upcoming level tests */}
+        {upcomingTests.length > 0 && (
+          <div
+            style={{
+              padding: 24,
+              background: '#FFFFFF',
+              borderRadius: 12,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 14,
+            }}
+          >
+            <div style={{ fontSize: 16, fontWeight: 700 }}>다가오는 레벨테스트</div>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+              <thead>
+                <tr style={{ textAlign: 'left', color: '#5A6270', background: '#FAF9F6' }}>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>학부모</th>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>학년</th>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>예정 일시</th>
+                </tr>
+              </thead>
+              <tbody>
+                {upcomingTests.map((lead) => {
+                  const slot = lead.preferredSlot;
+                  let slotLabel = '–';
+                  if (slot) {
+                    if (slot.date) {
+                      const kstDate = new Date(slot.date.getTime() + 9 * 3600000);
+                      slotLabel = `${kstDate.toISOString().slice(0, 10)} ${slot.time ?? ''}`.trim();
+                    } else if (slot.weekday !== null && slot.weekday !== undefined) {
+                      const next = nextWeekdayDate(slot.weekday);
+                      const kstNext = new Date(next);
+                      slotLabel = `${kstNext.toISOString().slice(0, 10)} (${WEEKDAY_LABELS[slot.weekday]}) ${slot.time ?? ''}`.trim();
+                    }
+                  }
+                  return (
+                    <tr key={lead.id} style={{ borderTop: '1px solid #EEEAE2' }}>
+                      <td style={{ padding: '12px 14px', fontWeight: 600 }}>{maskName(lead.parentName)} 학부모</td>
+                      <td style={{ padding: '12px 14px', color: '#5A6270' }}>{lead.studentGrade ?? '–'}</td>
+                      <td style={{ padding: '12px 14px' }}>{slotLabel}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </main>
     </div>
   );
