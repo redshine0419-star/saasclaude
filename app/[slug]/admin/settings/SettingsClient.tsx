@@ -86,6 +86,24 @@ export function SettingsClient({
   const [inviteSaving, setInviteSaving] = useState(false);
   const [inviteError, setInviteError] = useState('');
   const [inviteDone, setInviteDone] = useState('');
+  const [exporting, setExporting] = useState(false);
+
+  async function handleExport() {
+    setExporting(true);
+    try {
+      const res = await fetch(`/api/${slug}/admin/export`);
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = res.headers.get('Content-Disposition')?.match(/filename="([^"]+)"/)?.[1] ?? 'export.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setExporting(false);
+    }
+  }
 
   async function sendInvite() {
     if (!inviteEmail.trim()) return;
@@ -503,6 +521,26 @@ export function SettingsClient({
           </div>
           {inviteError && <div style={{ fontSize: 13, color: '#8A3A1C' }}>{inviteError}</div>}
           {inviteDone && <div style={{ fontSize: 13, color: '#1E5645' }}>{inviteDone}</div>}
+        </div>
+      )}
+
+      {/* 데이터 내보내기 */}
+      {isOwner && (
+        <div style={{ gridColumn: '1 / -1', padding: 24, borderRadius: 14, background: '#FFFFFF', border: '1px solid #E4DFD6', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>데이터 내보내기</div>
+            <div style={{ fontSize: 13, color: '#6B6357', lineHeight: 1.6 }}>
+              상담 기록, 후기, 소식, 수업, 강사 정보를 JSON 파일로 내려받습니다.
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleExport}
+            disabled={exporting}
+            style={{ height: 44, padding: '0 20px', borderRadius: 8, border: '1px solid #D5D0C6', background: '#FFFFFF', fontSize: 14, fontWeight: 600, cursor: exporting ? 'wait' : 'pointer', color: '#1B2430', whiteSpace: 'nowrap' }}
+          >
+            {exporting ? '내보내는 중…' : '전체 데이터 내보내기'}
+          </button>
         </div>
       )}
     </div>
