@@ -29,7 +29,10 @@ export default function ConsultForm({ slug, slots }: { slug: string; slots: Leve
     ? `대기 신청합니다 — ${waitlistClass}`
     : '';
 
-  const [consultType, setConsultType] = useState(CONSULT_TYPES[0]);
+  const typeParam = searchParams.get('type');
+  const [consultType, setConsultType] = useState(
+    typeParam && CONSULT_TYPES.includes(typeParam) ? typeParam : CONSULT_TYPES[0]
+  );
   const [selectedSlot, setSelectedSlot] = useState<string | null>(slots[0]?.id ?? null);
   const [customTime, setCustomTime] = useState(false);
   const [grade, setGrade] = useState('');
