@@ -88,6 +88,14 @@ export function ReportClient({ slug, month, monthLabel, history, keywords, aiChe
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <style>{`
+        @media print {
+          body { background: #fff !important; }
+          [data-print-hide] { display: none !important; }
+          [data-print-root] { padding: 0 !important; }
+          @page { size: A4; margin: 20mm; }
+        }
+      `}</style>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
@@ -96,10 +104,11 @@ export function ReportClient({ slug, month, monthLabel, history, keywords, aiChe
         </div>
         <button
           type="button"
+          data-print-hide
           onClick={() => window.print()}
           style={{ height: 44, padding: '0 18px', border: '1px solid #D5D0C6', borderRadius: 8, background: '#FFFFFF', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
         >
-          PDF 내려받기
+          PDF 저장 (인쇄)
         </button>
       </div>
 

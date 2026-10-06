@@ -90,8 +90,8 @@ export default async function AdminReportPage({ params }: Props) {
 
   return (
     <div style={{ display: 'flex', flex: 1, minHeight: '100vh', background: '#F4F2EE', color: '#1B2430', fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif" }}>
-      <AdminSide slug={slug} tenantName={tenant.name} active="report" />
-      <main style={{ flex: 1, padding: '32px 40px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div data-print-hide><AdminSide slug={slug} tenantName={tenant.name} active="report" /></div>
+      <main data-print-root style={{ flex: 1, padding: '32px 40px', display: 'flex', flexDirection: 'column', gap: 16 }}>
         <ReportClient
           slug={slug}
           month={month}
