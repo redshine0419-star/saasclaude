@@ -159,10 +159,8 @@ export default async function AcademyPage({
         return <DayFlowSection key="day_flow" tenant={data!.tenant} />;
       case 'gallery':
         return data!.posts.length > 0 ? <GallerySection key="gallery" posts={data!.posts} slug={slug} /> : null;
-      case 'safety': {
-        const safetyItems = data!.reviews.filter((r) => r.kind === 'review');
-        return safetyItems.length > 0 ? <SafetySection key="safety" reviews={data!.reviews} /> : null;
-      }
+      case 'safety':
+        return <SafetySection key="safety" reviews={data!.reviews} shuttle={data!.shuttle} />;
 
       case 'location':
         return <LocationSection key="location" tenant={data!.tenant} shuttle={data!.shuttle} slug={slug} />;

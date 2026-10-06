@@ -1,7 +1,8 @@
-import type { AcademyReview } from '@/lib/academy-data';
+import type { AcademyReview, AcademyShuttleStop } from '@/lib/academy-data';
 
 type Props = {
   reviews: AcademyReview[];
+  shuttle?: AcademyShuttleStop[];
 };
 
 const SAFETY_ITEMS = [
@@ -13,7 +14,7 @@ const SAFETY_ITEMS = [
 
 const REVIEW_COLORS = ['#FFF3C4', '#FFE3EC'];
 
-export default function SafetySection({ reviews }: Props) {
+export default function SafetySection({ reviews, shuttle = [] }: Props) {
   const reviewCards = reviews.filter((r) => r.kind === 'review').slice(0, 2);
 
   return (
@@ -30,6 +31,17 @@ export default function SafetySection({ reviews }: Props) {
             </div>
           ))}
         </div>
+        {shuttle.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <div className="text-[13px] font-semibold text-body">셔틀 노선</div>
+            {shuttle.map((s) => (
+              <div key={s.id} className="flex items-center justify-between px-4 py-2.5 rounded-[12px] bg-surface text-[14px]">
+                <span className="font-medium">{s.stop}</span>
+                <span className="text-body text-[13px]">{s.pickup && `승차 ${s.pickup}`}{s.pickup && s.dropoff && ' · '}{s.dropoff && `하차 ${s.dropoff}`}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 학부모 후기 */}

@@ -440,6 +440,20 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>학년 구분</label>
+            <select
+              value={(fieldVal('gradeBand') as string) ?? ''}
+              onChange={(e) => setForm((p) => ({ ...p, gradeBand: e.target.value || null }))}
+              style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14, background: '#FFFFFF' }}
+            >
+              <option value="">선택 안 함</option>
+              {['초등', '중등', '중1', '중2', '중3', '고등', '고1', '고2', '고3', '수능'].map((g) => (
+                <option key={g} value={g}>{g}</option>
+              ))}
+            </select>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>교재</label>
             <input
               type="text"
