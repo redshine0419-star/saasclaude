@@ -10,6 +10,8 @@ type ActiveKey =
   | 'classes'
   | 'info'
   | 'staff'
+  | 'result-stats'
+  | 'sections'
   | 'report'
   | 'settings';
 
@@ -119,9 +121,11 @@ export function AdminSide({ slug, tenantName, active }: AdminSideProps) {
       <NavItem href={`${base}/mobile`} label="📱 모바일 글쓰기" active={false} />
       <NavItem href={`${base}/news`} label="소식" active={active === 'news'} />
       <NavItem href={`${base}/reviews`} label="후기·성과" active={active === 'reviews'} />
+      <NavItem href={`${base}/result-stats`} label="입시 실적" active={active === 'result-stats'} />
       <NavItem href={`${base}/classes`} label="수업·시간표" active={active === 'classes'} />
       <NavItem href={`${base}/info`} label="학원 정보·교습비" active={active === 'info'} />
       <NavItem href={`${base}/staff`} label="강사진" active={active === 'staff'} />
+      <NavItem href={`${base}/sections`} label="홈페이지 구성" active={active === 'sections'} />
 
       <SectionLabel>운영</SectionLabel>
       <NavItem href={`${base}/report`} label="월간 리포트" active={active === 'report'} />
