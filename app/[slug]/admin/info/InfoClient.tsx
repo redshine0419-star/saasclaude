@@ -62,9 +62,16 @@ interface ShuttleRow {
   sortOrder: number;
 }
 
+interface NaverPlaceMirror {
+  phone: string;
+  hours: string;
+  address: string;
+}
+
 interface Props {
   slug: string;
   tenant: TenantInfo;
+  naverPlaceMirror: NaverPlaceMirror | null;
   director: DirectorInfo | null;
   fees: FeeRow[];
   feeChangeLogs: FeeChangeLog[];
@@ -85,8 +92,12 @@ const TEXTAREA = {
 };
 const LABEL = { fontSize: 13, fontWeight: 600, color: '#5A6270' };
 
-export function InfoClient({ slug, tenant: initialTenant, director: initialDirector, fees: initialFees, feeChangeLogs, principles: initialPrinciples, facilities: initialFacilities, refundPolicyText: initialRefundPolicyText, shuttleStops: initialShuttleStops }: Props) {
+export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: initialMirror, director: initialDirector, fees: initialFees, feeChangeLogs, principles: initialPrinciples, facilities: initialFacilities, refundPolicyText: initialRefundPolicyText, shuttleStops: initialShuttleStops }: Props) {
   const [info, setInfo] = useState(initialTenant);
+  const [mirror, setMirror] = useState<NaverPlaceMirror>(
+    initialMirror ?? { phone: '', hours: '', address: '' }
+  );
+  const [mirrorSaved, setMirrorSaved] = useState(false);
   const [director, setDirector] = useState<DirectorInfo>(
     initialDirector ?? { headline: null, career: null, philosophy: null, education: null }
   );
@@ -250,6 +261,17 @@ export function InfoClient({ slug, tenant: initialTenant, director: initialDirec
     }
   }
 
+  async function saveMirror() {
+    try {
+      const res = await fetch(`/api/${slug}/admin/info`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ naverPlaceMirror: mirror }),
+      });
+      if (res.ok) { setMirrorSaved(true); setTimeout(() => setMirrorSaved(false), 2500); }
+    } catch { /* ignore */ }
+  }
+
   async function addShuttleStop() {
     if (!shuttleForm.stop.trim()) return;
     setShuttleSaving(true);
@@ -346,6 +368,45 @@ export function InfoClient({ slug, tenant: initialTenant, director: initialDirec
               <label style={LABEL}>네이버 지도 장소 URL</label>
               <input type="url" value={info.naverPlaceUrl ?? ''} onChange={(e) => setI('naverPlaceUrl', e.target.value)} placeholder="https://naver.me/xxxxx" style={INPUT} />
             </div>
+
+            {/* 네이버 플레이스 불일치 경고 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: 16, background: '#F8F9FB', borderRadius: 10, border: '1px solid #E2DDD2' }}>
+              <div style={{ fontSize: 14, fontWeight: 700 }}>네이버 플레이스 정보 비교</div>
+              <div style={{ fontSize: 12, color: '#5A6270' }}>네이버 플레이스에 표시된 정보를 입력하면 홈페이지 정보와 불일치를 확인할 수 있습니다.</div>
+              {[
+                { label: '플레이스 전화번호', key: 'phone' as const, current: info.phone, placeholder: '02-1234-5678' },
+                { label: '플레이스 영업시간', key: 'hours' as const, current: info.hours, placeholder: '월~금 14:00~22:00' },
+                { label: '플레이스 주소', key: 'address' as const, current: info.address, placeholder: '서울시 강남구 역삼동 123' },
+              ].map(({ label, key, current, placeholder }) => {
+                const placeVal = mirror[key];
+                const mismatch = placeVal && current && placeVal.trim() !== current.trim();
+                return (
+                  <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <label style={{ ...LABEL, fontSize: 12 }}>{label}</label>
+                    <input
+                      type="text"
+                      value={placeVal}
+                      onChange={(e) => setMirror((p) => ({ ...p, [key]: e.target.value }))}
+                      placeholder={placeholder}
+                      style={{ ...INPUT, height: 38, fontSize: 13 }}
+                    />
+                    {mismatch && (
+                      <div style={{ fontSize: 12, color: '#8A3A1C', background: '#FEF3F0', padding: '6px 10px', borderRadius: 6 }}>
+                        ⚠ 불일치: 홈페이지 값은 &ldquo;{current}&rdquo;
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+              <button
+                type="button"
+                onClick={saveMirror}
+                style={{ alignSelf: 'flex-start', height: 36, padding: '0 14px', borderRadius: 8, border: '1px solid #D5D0C6', background: '#FFFFFF', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+              >
+                {mirrorSaved ? '저장됨 ✓' : '플레이스 정보 저장'}
+              </button>
+            </div>
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={LABEL}>네이버 지도 임베드 URL</label>
               <input type="url" value={info.naverMapEmbedUrl ?? ''} onChange={(e) => setI('naverMapEmbedUrl', e.target.value)} placeholder="https://map.naver.com/p/entry/place/..." style={INPUT} />

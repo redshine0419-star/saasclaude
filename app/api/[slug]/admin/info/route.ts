@@ -106,6 +106,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
     }
   }
 
+  if (body.naverPlaceMirror !== undefined) {
+    updates.push(
+      prisma.tenant.update({
+        where: { id: tenant.id },
+        data: { naverPlaceMirror: body.naverPlaceMirror },
+      }),
+    );
+  }
+
   if (body.refundPolicyText !== undefined) {
     const text = String(body.refundPolicyText ?? '').trim();
     if (text) {

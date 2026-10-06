@@ -8,7 +8,7 @@ export default async function ConsultDonePage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ type?: string; time?: string; grade?: string }>;
+  searchParams: Promise<{ type?: string; time?: string; grade?: string; ref?: string }>;
 }) {
   const [{ slug }, sp] = await Promise.all([params, searchParams]);
   const data = await getAcademyPageData(slug);
@@ -18,6 +18,7 @@ export default async function ConsultDonePage({
   const consultType = sp.type ?? '레벨테스트 예약';
   const time = sp.time ?? '';
   const grade = sp.grade ?? '';
+  const ref = sp.ref ?? '';
 
   return (
     <>
@@ -48,6 +49,12 @@ export default async function ConsultDonePage({
 
           {/* 신청 요약 */}
           <div className="w-full p-7 md:p-8 bg-white rounded-[16px] flex flex-col gap-4 text-left text-[16px]">
+            {ref && (
+              <div className="flex justify-between">
+                <span className="text-body">접수 번호</span>
+                <span className="font-semibold font-mono text-accent">{ref}</span>
+              </div>
+            )}
             <div className="flex justify-between">
               <span className="text-body">상담 유형</span>
               <span className="font-semibold">{consultType}</span>

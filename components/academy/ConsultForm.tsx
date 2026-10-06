@@ -68,12 +68,14 @@ export default function ConsultForm({ slug, slots }: { slug: string; slots: Leve
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error('서버 오류가 발생했습니다.');
+      const data = await res.json();
       // GA4 conversion event
       if (typeof window !== 'undefined' && (window as unknown as { gtag?: (e: string, n: string, p: object) => void }).gtag) {
         (window as unknown as { gtag: (e: string, n: string, p: object) => void }).gtag('event', 'generate_lead', { event_category: 'consultation', event_label: consultType });
       }
       const slotLabelStr = customTime ? '다른 시간' : (slots.find((s) => s.id === selectedSlot) ? slotLabel(slots.find((s) => s.id === selectedSlot)!) : '');
       const params = new URLSearchParams({ type: consultType, time: slotLabelStr, grade: body.grade });
+      if (data.leadId) params.set('ref', (data.leadId as string).slice(-8).toUpperCase());
       router.push(`/${slug}/consult/done?${params.toString()}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');

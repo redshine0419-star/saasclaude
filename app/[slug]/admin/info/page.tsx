@@ -111,6 +111,13 @@ export default async function AdminInfoPage({
             ga4MeasurementId: tenant.ga4MeasurementId,
             naverSiteVerification: tenant.naverSiteVerification,
           }}
+          naverPlaceMirror={(tenant.naverPlaceMirror as { phone?: string; hours?: string; address?: string } | null)
+            ? {
+                phone: (tenant.naverPlaceMirror as { phone?: string }).phone ?? '',
+                hours: (tenant.naverPlaceMirror as { hours?: string }).hours ?? '',
+                address: (tenant.naverPlaceMirror as { address?: string }).address ?? '',
+              }
+            : null}
           director={
             director
               ? { headline: director.headline, career: director.career, philosophy: director.philosophy, education: director.education }

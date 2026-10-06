@@ -184,7 +184,7 @@ export async function POST(
     }
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, leadId: lead.id });
 }
 
 // ── 내부 헬퍼: 규칙 적용 후 messages 테이블 기록 ─────────────────────────────

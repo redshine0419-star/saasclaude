@@ -209,7 +209,7 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
                   >
                     <td style={{ padding: '14px 16px', fontWeight: 600 }}>{cls.name}</td>
                     <td style={{ padding: '14px 16px' }}>
-                      {cls.days.join('·') || '–'} {cls.startTime ?? ''}
+                      {cls.days.join('·') || '–'} {cls.startTime ?? ''}{cls.endTime ? `~${cls.endTime}` : ''}
                     </td>
                     <td style={{ padding: '8px 16px' }}>
                       {isFull ? (
@@ -394,6 +394,19 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
                 style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
               />
             </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>종료 시간</label>
+              <input
+                type="text"
+                value={(fieldVal('endTime') as string) ?? ''}
+                onChange={(e) => setForm((p) => ({ ...p, endTime: e.target.value }))}
+                placeholder="19:00"
+                style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>정원</label>
               <input
