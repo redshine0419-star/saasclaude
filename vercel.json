@@ -3,22 +3,6 @@
     {
       "path": "/api/cron/dispatch",
       "schedule": "*/5 * * * *"
-    },
-    {
-      "path": "/api/cron/beta-check",
-      "schedule": "0 0 * * *"
-    },
-    {
-      "path": "/api/cron/reminder",
-      "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/cron/monthly-snapshot",
-      "schedule": "0 1 1 * *"
-    },
-    {
-      "path": "/api/cron/weekly-class-check",
-      "schedule": "0 0 * * 1"
     }
   ]
 }
