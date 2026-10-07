@@ -1,12 +1,12 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useState, useRef } from 'react';
+import { useState, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { FdHeader } from '@/components/fd/FdHeader';
 import { FdFooter } from '@/components/fd/FdFooter';
 
-export default function ApplyDonePage() {
+function ApplyDoneContent() {
   const searchParams = useSearchParams();
   const applicationId = searchParams.get('id');
   const queueOrder = searchParams.get('queue');
@@ -148,5 +148,13 @@ export default function ApplyDonePage() {
       </section>
       <FdFooter />
     </div>
+  );
+}
+
+export default function ApplyDonePage() {
+  return (
+    <Suspense fallback={null}>
+      <ApplyDoneContent />
+    </Suspense>
   );
 }
