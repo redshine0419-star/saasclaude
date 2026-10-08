@@ -1,8 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { prisma } from '@/lib/prisma';
 
-export const runtime = 'edge';
-
 type Params = Promise<{ slug: string }>;
 
 export async function GET(_req: Request, { params }: { params: Params }) {
