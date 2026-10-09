@@ -62,6 +62,7 @@ export default function ConsultForm({ slug, slots }: { slug: string; slots: Leve
       agreeMarketing: !!(fd.get('agree2')),
       agreeNight: !!(fd.get('agree3')),
       utm: Object.values(utm).some(Boolean) ? utm : undefined,
+      _hp: fd.get('_hp') as string, // honeypot: 봇이 채우면 서버에서 무시
     };
 
     try {
@@ -91,6 +92,8 @@ export default function ConsultForm({ slug, slots }: { slug: string; slots: Leve
       onSubmit={handleSubmit}
       className="p-6 md:p-[44px] bg-white rounded-[24px] flex flex-col gap-5"
     >
+      {/* 허니팟: 사람은 안 보이고 봇만 채운다 */}
+      <input name="_hp" type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, opacity: 0 }} />
       {/* 이름 + 연락처 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">

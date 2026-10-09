@@ -40,6 +40,8 @@ const STATUS_OPTIONS = [
   { value: 'new', label: '신규' },
   { value: 'contacted', label: '연락 완료' },
   { value: 'test_booked', label: '테스트 예약' },
+  { value: 'test_done', label: '테스트 완료' },
+  { value: 'no_show', label: '노쇼' },
   { value: 'enrolled', label: '등록' },
   { value: 'not_enrolled', label: '미등록' },
 ];
@@ -49,6 +51,8 @@ const STATUS_FILTER_LABELS: Record<string, string> = {
   new: '신규',
   contacted: '연락 완료',
   test_booked: '테스트 예약',
+  test_done: '테스트 완료',
+  no_show: '노쇼',
   enrolled: '등록',
   not_enrolled: '미등록',
 };
@@ -57,6 +61,8 @@ const STATUS_BADGE: Record<string, { bg: string; color: string }> = {
   new: { bg: '#FBF1CF', color: '#5A4A12' },
   contacted: { bg: '#E6E9EE', color: '#2C3747' },
   test_booked: { bg: '#D8E8E0', color: '#1E5645' },
+  test_done: { bg: '#C5DDD5', color: '#1E5645' },
+  no_show: { bg: '#ECECEC', color: '#666666' },
   enrolled: { bg: '#1E5645', color: '#FFFFFF' },
   not_enrolled: { bg: '#F3E3DC', color: '#8A3A1C' },
 };
@@ -65,6 +71,7 @@ const CONSULT_LABEL: Record<string, string> = {
   level_test: '레벨테스트',
   phone: '전화 상담',
   visit: '방문 상담',
+  waitlist: '대기 신청',
 };
 
 const EVENT_LABEL: Record<string, string> = {
@@ -234,7 +241,7 @@ export function LeadsClient({ slug, leads: initialLeads, totalByStatus }: Props)
 
         {/* Status filter tabs */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {['all', 'new', 'contacted', 'test_booked', 'enrolled', 'not_enrolled'].map((s) => {
+          {['all', 'new', 'contacted', 'test_booked', 'test_done', 'no_show', 'enrolled', 'not_enrolled'].map((s) => {
             const count = s === 'all' ? totalAll : (totalByStatus[s] ?? 0);
             const active = filter === s;
             return (

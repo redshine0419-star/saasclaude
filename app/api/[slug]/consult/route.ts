@@ -43,6 +43,11 @@ export async function POST(
     return NextResponse.json({ error: '필수 항목을 입력해주세요.' }, { status: 400 });
   }
 
+  // 허니팟 필드: 봇은 채우고 사람은 비운다 (필드명은 _hp로 숨김)
+  if (body._hp) {
+    return NextResponse.json({ ok: true }); // 봇에게는 성공처럼 보임
+  }
+
   // 데모 테넌트: DB 저장 없이 mock 응답
   const DEMO_SLUGS = new Set(['demo', 'demo-warm', 'demo-result', 'demo-bright']);
   if (DEMO_SLUGS.has(slug)) {
@@ -59,6 +64,23 @@ export async function POST(
   }
 
   const phone: string = body.tel as string;
+
+  // ── 중복 신청 체크: 같은 번호로 7일 안에 재신청 → 기존 lead에 event 추가 ──
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const existingLead = await prisma.lead.findFirst({
+    where: { tenantId: tenant.id, phone, createdAt: { gte: sevenDaysAgo } },
+    orderBy: { createdAt: 'desc' },
+  });
+  if (existingLead) {
+    await prisma.leadEvent.create({
+      data: {
+        leadId: existingLead.id,
+        type: 'note',
+        payload: { note: '동일 번호 재신청 (7일 이내 중복)', consultType: body.consultType ?? '' },
+      },
+    });
+    return NextResponse.json({ ok: true, leadId: existingLead.id });
+  }
   const recipientHash = hashPhone(phone);
   const consultType = CONSULT_TYPE_MAP[body.consultType as string] ?? 'level_test';
 

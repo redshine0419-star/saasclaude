@@ -24,6 +24,8 @@ const STATUS_LABEL: Record<string, string> = {
   new: '신규',
   contacted: '연락 완료',
   test_booked: '테스트 예약',
+  test_done: '테스트 완료',
+  no_show: '노쇼',
   enrolled: '등록',
   not_enrolled: '미등록',
 };

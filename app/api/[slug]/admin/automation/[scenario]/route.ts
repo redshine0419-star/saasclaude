@@ -33,7 +33,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
     return NextResponse.json({ error: '잘못된 요청입니다.' }, { status: 400 });
   }
 
-  const validScenarios = ['receipt', 'reminder', 'followup', 'campaign', 'owner_alert', 'reconfirm'];
+  const validScenarios = ['receipt', 'reminder', 'followup', 'campaign', 'owner_alert', 'owner_reminder', 'reconfirm'];
   if (!validScenarios.includes(scenario)) {
     return NextResponse.json({ error: '잘못된 시나리오입니다.' }, { status: 400 });
   }
