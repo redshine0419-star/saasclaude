@@ -1,15 +1,20 @@
 #!/usr/bin/env node
 /**
  * Ensures _prisma_migrations exists and, if the DB already has tables,
- * baselines all pre-existing migrations so that `prisma migrate deploy`
- * only runs the newly added ones.
+ * baselines all pre-existing migrations by inserting records directly via SQL.
  *
- * Without this, an existing DB (populated before migration tracking was added)
- * would cause every build to fail: prisma would try to CREATE TABLE on tables
- * that already exist.
+ * This avoids relying on `prisma migrate resolve` (which needs a separate
+ * DB connection via the schema datasource url) and instead uses the same
+ * Neon HTTP connection that the build already has.
  */
 import { neon } from '@neondatabase/serverless';
-import { execSync } from 'child_process';
+import { createHash } from 'crypto';
+import { readFileSync, existsSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const MIGRATIONS_DIR = join(__dirname, '..', 'prisma', 'migrations');
 
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) {
@@ -19,8 +24,8 @@ if (!DATABASE_URL) {
 
 const sql = neon(DATABASE_URL);
 
-// All migrations that predate 20261009 — these should already exist in the DB.
-// `prisma migrate resolve --applied` marks them without re-running the SQL.
+// All migrations that predate the 2026-10-09 spec improvements.
+// These should already exist in the DB; we mark them as applied without re-running SQL.
 const PRE_EXISTING_MIGRATIONS = [
   '20261004000000_init',
   '20261005000000_add_scheduled_at',
@@ -36,6 +41,10 @@ const PRE_EXISTING_MIGRATIONS = [
   '20261006000003_add_receipt_skipped_event_type',
 ];
 
+function sha256(content) {
+  return createHash('sha256').update(content).digest('hex');
+}
+
 async function tableExists(name) {
   const r = await sql`
     SELECT EXISTS (
@@ -50,7 +59,6 @@ async function main() {
   const migrationsTableExists = await tableExists('_prisma_migrations');
 
   if (migrationsTableExists) {
-    // Check if it's empty (edge case: table was created but resolve never ran)
     const rows = await sql`SELECT COUNT(*)::int AS n FROM "_prisma_migrations"`;
     const count = rows[0].n;
     if (count > 0) {
@@ -74,17 +82,15 @@ async function main() {
     `;
   }
 
-  // If the tenants table already exists the DB is not fresh —
-  // baseline all pre-existing migrations so prisma won't re-run them.
+  // Only baseline if DB already has tables (i.e. not a fresh DB)
   const dbHasData = await tableExists('tenants');
   if (!dbHasData) {
     console.log('Fresh DB — all migrations will be applied from scratch.');
     return;
   }
 
-  console.log('Existing DB detected — baselining pre-existing migrations...');
+  console.log('Existing DB detected — baselining pre-existing migrations via SQL...');
   for (const name of PRE_EXISTING_MIGRATIONS) {
-    // Skip if already recorded (idempotent)
     const already = await sql`
       SELECT 1 FROM "_prisma_migrations" WHERE migration_name = ${name} LIMIT 1
     `;
@@ -92,10 +98,28 @@ async function main() {
       console.log(`  Already recorded: ${name}`);
       continue;
     }
-    execSync(`npx prisma migrate resolve --applied ${name}`, {
-      stdio: 'inherit',
-      env: { ...process.env },
-    });
+
+    const sqlFile = join(MIGRATIONS_DIR, name, 'migration.sql');
+    if (!existsSync(sqlFile)) {
+      console.warn(`  Migration file not found, skipping: ${name}`);
+      continue;
+    }
+
+    const content = readFileSync(sqlFile, 'utf8');
+    const checksum = sha256(content);
+
+    await sql`
+      INSERT INTO "_prisma_migrations"
+        (id, checksum, finished_at, migration_name, started_at, applied_steps_count)
+      VALUES (
+        gen_random_uuid()::text,
+        ${checksum},
+        now(),
+        ${name},
+        now(),
+        1
+      )
+    `;
     console.log(`  Baselined: ${name}`);
   }
 
