@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Baselines Prisma migrations when DB has existing tables but no migration history.
- * Uses @neondatabase/serverless (HTTP) so it works in restricted network environments.
+ * If core tables are missing, resets baseline so migrate deploy runs all migrations fresh.
  */
 import { neon } from '@neondatabase/serverless';
 import { readdir } from 'fs/promises';
@@ -19,70 +19,94 @@ if (!DATABASE_URL) {
 
 const sql = neon(DATABASE_URL);
 
-async function main() {
-  // Check if _prisma_migrations table exists
+async function tableExists(name) {
   const result = await sql`
     SELECT EXISTS (
       SELECT 1 FROM information_schema.tables
-      WHERE table_schema = 'public' AND table_name = '_prisma_migrations'
+      WHERE table_schema = 'public' AND table_name = ${name}
     ) AS exists
   `;
-  const migrationTableExists = result[0].exists;
+  return result[0].exists;
+}
 
-  if (migrationTableExists) {
-    console.log('Migration table already exists, skipping baseline.');
+async function main() {
+  const migrationTableExists = await tableExists('_prisma_migrations');
+  const tenantsExists = await tableExists('tenants');
+  const membershipsExists = await tableExists('memberships');
+
+  console.log(`_prisma_migrations: ${migrationTableExists}, tenants: ${tenantsExists}, memberships: ${membershipsExists}`);
+
+  // If core tables are missing, the DB is incomplete — drop migration history so migrate deploy runs fresh
+  if (migrationTableExists && (!tenantsExists || !membershipsExists)) {
+    console.log('Core tables missing despite migration history. Resetting migration table...');
+    await sql`DROP TABLE IF EXISTS "_prisma_migrations"`;
+    // Also drop any partial tables/enums to let migrate deploy start clean
+    // Drop in reverse dependency order
+    const dropTables = [
+      'lead_events', 'messages', 'consents', 'leads',
+      'posts', 'memberships', 'apply_requests',
+      'platform_settings', 'tenants',
+    ];
+    for (const t of dropTables) {
+      await sql`DROP TABLE IF EXISTS ${sql(t)} CASCADE`;
+    }
+    // Drop enums
+    const enums = ['Theme', 'PlanStatus', 'TenantStatus', 'MemberRole', 'ConsultType', 'LeadStatus', 'LeadEventType', 'ConsentType'];
+    for (const e of enums) {
+      await sql`DROP TYPE IF EXISTS ${sql(e)} CASCADE`;
+    }
+    console.log('Reset complete. migrate deploy will run all migrations fresh.');
     return;
   }
 
-  // Check if any user tables exist (non-empty DB check)
-  const tableCheck = await sql`
-    SELECT COUNT(*) AS count FROM information_schema.tables
-    WHERE table_schema = 'public' AND table_name != '_prisma_migrations'
-  `;
-  const hasExistingTables = parseInt(tableCheck[0].count) > 0;
-
-  if (!hasExistingTables) {
-    console.log('Empty database, skipping baseline (migrate deploy will run fresh).');
+  // DB has no tables at all — fresh DB, skip baseline
+  if (!migrationTableExists && !tenantsExists) {
+    console.log('Fresh database. migrate deploy will run all migrations.');
     return;
   }
 
-  console.log('Existing tables found without migration history. Baselining...');
+  // DB has tables AND migration history — nothing to do
+  if (migrationTableExists && tenantsExists && membershipsExists) {
+    console.log('DB is up to date. Skipping baseline.');
+    return;
+  }
 
-  // Create _prisma_migrations table
-  await sql`
-    CREATE TABLE IF NOT EXISTS "_prisma_migrations" (
-      "id" VARCHAR(36) NOT NULL PRIMARY KEY,
-      "checksum" VARCHAR(64) NOT NULL,
-      "finished_at" TIMESTAMPTZ,
-      "migration_name" VARCHAR(255) NOT NULL,
-      "logs" TEXT,
-      "rolled_back_at" TIMESTAMPTZ,
-      "started_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
-      "applied_steps_count" INTEGER NOT NULL DEFAULT 0
-    )
-  `;
+  // DB has tables but no migration history — baseline all migrations
+  if (!migrationTableExists && tenantsExists) {
+    console.log('Existing schema without migration history. Baselining...');
 
-  // Get all migration directories (exclude migration_lock.toml)
-  const entries = await readdir(migrationsDir);
-  const migrations = entries
-    .filter(e => !e.includes('.') && e.match(/^\d{14}_/))
-    .sort();
-
-  const now = new Date().toISOString();
-
-  for (const migration of migrations) {
-    const id = crypto.randomUUID();
     await sql`
-      INSERT INTO "_prisma_migrations"
-        ("id", "checksum", "finished_at", "migration_name", "logs", "started_at", "applied_steps_count")
-      VALUES
-        (${id}, 'baselined', ${now}, ${migration}, NULL, ${now}, 1)
-      ON CONFLICT DO NOTHING
+      CREATE TABLE IF NOT EXISTS "_prisma_migrations" (
+        "id" VARCHAR(36) NOT NULL PRIMARY KEY,
+        "checksum" VARCHAR(64) NOT NULL,
+        "finished_at" TIMESTAMPTZ,
+        "migration_name" VARCHAR(255) NOT NULL,
+        "logs" TEXT,
+        "rolled_back_at" TIMESTAMPTZ,
+        "started_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+        "applied_steps_count" INTEGER NOT NULL DEFAULT 0
+      )
     `;
-    console.log(`  Baselined: ${migration}`);
-  }
 
-  console.log('Baseline complete.');
+    const entries = await readdir(migrationsDir);
+    const migrations = entries
+      .filter(e => !e.includes('.') && e.match(/^\d{14}_/))
+      .sort();
+
+    const now = new Date().toISOString();
+    for (const migration of migrations) {
+      const id = crypto.randomUUID();
+      await sql`
+        INSERT INTO "_prisma_migrations"
+          ("id", "checksum", "finished_at", "migration_name", "logs", "started_at", "applied_steps_count")
+        VALUES
+          (${id}, 'baselined', ${now}, ${migration}, NULL, ${now}, 1)
+        ON CONFLICT DO NOTHING
+      `;
+      console.log(`  Baselined: ${migration}`);
+    }
+    console.log('Baseline complete.');
+  }
 }
 
 main().catch(e => {
