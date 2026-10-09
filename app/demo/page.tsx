@@ -97,14 +97,24 @@ export default function DemoPage() {
                   <div style={{ fontSize: 13, color: '#4A5568' }}>
                     <b style={{ color: '#14213D' }}>대상:</b> {d.target}
                   </div>
-                  <Link
-                    href={`/${d.slug}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ marginTop: 8, height: 48, borderRadius: 10, background: d.color, color: '#FFFFFF', textDecoration: 'none', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
-                  >
-                    데모 보기 →
-                  </Link>
+                  <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <Link
+                      href={`/${d.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ height: 48, borderRadius: 10, background: d.color, color: '#FFFFFF', textDecoration: 'none', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                    >
+                      학원 홈 보기 →
+                    </Link>
+                    <Link
+                      href={`/${d.slug}/admin`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ height: 44, borderRadius: 10, border: `1.5px solid ${d.color}`, color: d.color, background: '#FFFFFF', textDecoration: 'none', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                    >
+                      관리자 데모 보기 →
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}
@@ -176,17 +186,27 @@ export default function DemoPage() {
                   ))}
                 </tr>
                 <tr>
-                  <td style={{ padding: '14px 20px', fontSize: 13, fontWeight: 600, color: '#4A5568' }}>직접 보기</td>
+                  <td style={{ padding: '14px 20px', fontSize: 13, fontWeight: 600, color: '#4A5568', borderBottom: '1px solid #EEF0F3' }}>직접 보기</td>
                   {demos.map((d) => (
-                    <td key={d.slug} style={{ padding: '14px 20px' }}>
-                      <Link
-                        href={`/${d.slug}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ display: 'inline-flex', alignItems: 'center', height: 36, padding: '0 14px', borderRadius: 8, background: d.color, color: '#FFFFFF', textDecoration: 'none', fontSize: 13, fontWeight: 600 }}
-                      >
-                        데모 보기 →
-                      </Link>
+                    <td key={d.slug} style={{ padding: '14px 20px', borderBottom: '1px solid #EEF0F3' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <Link
+                          href={`/${d.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ display: 'inline-flex', alignItems: 'center', height: 36, padding: '0 14px', borderRadius: 8, background: d.color, color: '#FFFFFF', textDecoration: 'none', fontSize: 13, fontWeight: 600 }}
+                        >
+                          학원 홈 보기 →
+                        </Link>
+                        <Link
+                          href={`/${d.slug}/admin`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ display: 'inline-flex', alignItems: 'center', height: 36, padding: '0 14px', borderRadius: 8, border: `1px solid ${d.color}`, color: d.color, background: '#FFFFFF', textDecoration: 'none', fontSize: 13, fontWeight: 600 }}
+                        >
+                          관리자 보기 →
+                        </Link>
+                      </div>
                     </td>
                   ))}
                 </tr>

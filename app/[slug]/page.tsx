@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { getAcademyPageData } from '@/lib/academy-data';
 import SiteHeader from '@/components/academy/SiteHeader';
 import SiteHeaderResult from '@/components/academy/SiteHeaderResult';
@@ -48,6 +49,8 @@ export default async function AcademyPage({
   const { slug } = await params;
   const data = await getAcademyPageData(slug);
   if (!data) notFound();
+
+  const isDemoSlug = ['demo-warm', 'demo-result', 'demo-bright'].includes(slug);
 
   const theme = data.tenant.theme as 'warm' | 'result' | 'bright';
   const defaultOrder = SECTION_ORDERS[theme] ?? SECTION_ORDERS.warm;
@@ -192,6 +195,26 @@ export default async function AcademyPage({
 
   return (
     <>
+      {isDemoSlug && (
+        <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 9999 }}>
+          <Link
+            href={`/${slug}/admin`}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              padding: '8px 16px', borderRadius: 8,
+              background: 'rgba(20,33,61,0.9)', color: '#FFFFFF',
+              textDecoration: 'none', fontSize: 13, fontWeight: 600,
+              backdropFilter: 'blur(8px)', boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+              <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+            </svg>
+            관리자 데모
+          </Link>
+        </div>
+      )}
       {theme === 'result' ? (
         <SiteHeaderResult
           name={data.tenant.name}
