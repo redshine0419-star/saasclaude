@@ -17,6 +17,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
     where: { tenantId: tenant.id, user: { email: session.user.email } },
   });
   if (!membership) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  if (membership.role === 'staff') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const body = await req.json().catch(() => null);
   const accentColor: string = (body?.accentColor ?? '').trim();

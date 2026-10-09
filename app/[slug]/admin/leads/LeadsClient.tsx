@@ -6,7 +6,8 @@ interface Lead {
   id: string;
   createdAt: string;
   parentName: string;
-  phone: string;
+  phone: string;       // masked (010-****-1234)
+  phoneFull: string;   // full number, shown only in detail view
   studentGrade: string | null;
   consultType: string;
   source: string | null;
@@ -130,7 +131,7 @@ export function LeadsClient({ slug, leads: initialLeads, totalByStatus }: Props)
     if (filter !== 'all' && l.status !== filter) return false;
     if (search) {
       const s = search.toLowerCase();
-      if (!l.parentName.includes(s) && !l.phone.includes(s)) return false;
+      if (!l.parentName.includes(s) && !l.phoneFull.includes(s)) return false;
     }
     return true;
   });
@@ -357,7 +358,7 @@ export function LeadsClient({ slug, leads: initialLeads, totalByStatus }: Props)
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <div style={{ fontSize: 20, fontWeight: 700 }}>{maskName(selected.parentName)} 학부모</div>
             <div style={{ fontSize: 14, color: '#5A6270' }}>
-              {selected.studentGrade ?? '학년 미기재'} · {selected.phone}
+              {selected.studentGrade ?? '학년 미기재'} · {selected.phoneFull}
               {selected.source ? ` · ${selected.source}` : ''}
             </div>
           </div>
@@ -365,7 +366,7 @@ export function LeadsClient({ slug, leads: initialLeads, totalByStatus }: Props)
           {/* Action buttons */}
           <div style={{ display: 'flex', gap: 8 }}>
             <a
-              href={`tel:${selected.phone}`}
+              href={`tel:${selected.phoneFull}`}
               style={{
                 flex: 1,
                 height: 44,
