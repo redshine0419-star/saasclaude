@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 /**
- * Ensures _prisma_migrations exists and, if the DB already has tables,
- * baselines all pre-existing migrations by inserting records directly via SQL.
+ * Two jobs:
  *
- * This avoids relying on `prisma migrate resolve` (which needs a separate
- * DB connection via the schema datasource url) and instead uses the same
- * Neon HTTP connection that the build already has.
+ * 1. Baseline: ensure _prisma_migrations exists and pre-existing migrations
+ *    are recorded so `prisma migrate deploy` only runs the new ones.
+ *
+ * 2. Column safety: directly apply any missing columns/tables that the
+ *    spec-improvement migrations add — idempotent, runs regardless of
+ *    whether Prisma migration tracking succeeds.  This guarantees the
+ *    production DB has the columns before `next build` generates code
+ *    that queries them.
  */
 import { neon } from '@neondatabase/serverless';
 import { createHash } from 'crypto';
@@ -24,8 +28,6 @@ if (!DATABASE_URL) {
 
 const sql = neon(DATABASE_URL);
 
-// All migrations that predate the 2026-10-09 spec improvements.
-// These should already exist in the DB; we mark them as applied without re-running SQL.
 const PRE_EXISTING_MIGRATIONS = [
   '20261004000000_init',
   '20261005000000_add_scheduled_at',
@@ -55,19 +57,20 @@ async function tableExists(name) {
   return r[0].exists;
 }
 
-async function main() {
+// ─── Job 1: baseline ──────────────────────────────────────────────────────────
+
+async function ensureBaseline() {
   const migrationsTableExists = await tableExists('_prisma_migrations');
 
   if (migrationsTableExists) {
     const rows = await sql`SELECT COUNT(*)::int AS n FROM "_prisma_migrations"`;
-    const count = rows[0].n;
-    if (count > 0) {
-      console.log(`_prisma_migrations exists with ${count} row(s) — nothing to do.`);
+    if (rows[0].n > 0) {
+      console.log(`_prisma_migrations: ${rows[0].n} row(s) — baseline already done.`);
       return;
     }
-    console.log('_prisma_migrations exists but is empty — will baseline if DB has data.');
+    console.log('_prisma_migrations exists but empty — will baseline.');
   } else {
-    console.log('Creating _prisma_migrations table...');
+    console.log('Creating _prisma_migrations table…');
     await sql`
       CREATE TABLE "_prisma_migrations" (
         "id"                   VARCHAR(36)  NOT NULL PRIMARY KEY,
@@ -82,30 +85,21 @@ async function main() {
     `;
   }
 
-  // Only baseline if DB already has tables (i.e. not a fresh DB)
   const dbHasData = await tableExists('tenants');
   if (!dbHasData) {
-    console.log('Fresh DB — all migrations will be applied from scratch.');
+    console.log('Fresh DB — all migrations applied from scratch.');
     return;
   }
 
-  console.log('Existing DB detected — baselining pre-existing migrations via SQL...');
+  console.log('Existing DB — inserting baseline records…');
   for (const name of PRE_EXISTING_MIGRATIONS) {
     const already = await sql`
       SELECT 1 FROM "_prisma_migrations" WHERE migration_name = ${name} LIMIT 1
     `;
-    if (already.length > 0) {
-      console.log(`  Already recorded: ${name}`);
-      continue;
-    }
+    if (already.length > 0) { console.log(`  skip: ${name}`); continue; }
 
     const sqlFile = join(MIGRATIONS_DIR, name, 'migration.sql');
-    if (!existsSync(sqlFile)) {
-      console.warn(`  Migration file not found, skipping: ${name}`);
-      continue;
-    }
-
-    const content = readFileSync(sqlFile, 'utf8');
+    const content = existsSync(sqlFile) ? readFileSync(sqlFile, 'utf8') : '';
     const checksum = sha256(content);
 
     await sql`
@@ -120,10 +114,59 @@ async function main() {
         1
       )
     `;
-    console.log(`  Baselined: ${name}`);
+    console.log(`  baselined: ${name}`);
+  }
+  console.log('Baseline complete.');
+}
+
+// ─── Job 2: apply missing columns (idempotent) ────────────────────────────────
+
+async function applyMissingColumns() {
+  console.log('Applying missing columns (idempotent)…');
+
+  // leads table columns
+  await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS test_at              TIMESTAMPTZ`;
+  await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS not_enrolled_reason  TEXT`;
+  await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS retain_until         TIMESTAMPTZ`;
+  await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS post_id              TEXT`;
+
+  // FK for post_id (skip if constraint already exists)
+  const fkExists = await sql`
+    SELECT 1 FROM information_schema.table_constraints
+    WHERE constraint_name = 'leads_post_id_fkey' AND table_name = 'leads'
+    LIMIT 1
+  `;
+  if (!fkExists.length) {
+    await sql`
+      ALTER TABLE leads
+        ADD CONSTRAINT leads_post_id_fkey
+        FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE SET NULL
+    `;
+    console.log('  added leads.post_id FK');
   }
 
-  console.log('Baseline complete. prisma migrate deploy will run only new migrations.');
+  // level_test_slots capacity
+  await sql`ALTER TABLE level_test_slots ADD COLUMN IF NOT EXISTS capacity INT`;
+
+  // faq_items table
+  await sql`
+    CREATE TABLE IF NOT EXISTS faq_items (
+      id          TEXT        PRIMARY KEY DEFAULT gen_random_uuid()::text,
+      "tenantId"  TEXT        NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+      question    TEXT        NOT NULL,
+      answer      TEXT        NOT NULL,
+      "sortOrder" INTEGER     NOT NULL DEFAULT 0
+    )
+  `;
+
+  console.log('Columns/tables ensured.');
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
+
+async function main() {
+  await ensureBaseline();
+  await applyMissingColumns();
 }
 
 main().catch(e => {
