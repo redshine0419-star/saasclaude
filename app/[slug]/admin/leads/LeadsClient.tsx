@@ -114,6 +114,7 @@ export function LeadsClient({ slug, leads: initialLeads, totalByStatus }: Props)
   const [saving, setSaving] = useState(false);
   const [memoValue, setMemoValue] = useState<Record<string, string>>({});
   const [statusValue, setStatusValue] = useState<Record<string, string>>({});
+  const [reasonValue, setReasonValue] = useState<Record<string, string>>({});
   const [exporting, setExporting] = useState(false);
 
   async function handleExport() {
@@ -147,13 +148,13 @@ export function LeadsClient({ slug, leads: initialLeads, totalByStatus }: Props)
   const selectedStatus = statusValue[selectedId ?? ''] ?? selected?.status ?? '';
   const selectedMemo = memoValue[selectedId ?? ''] ?? selected?.message ?? '';
 
-  async function saveStatus(leadId: string, status: string) {
+  async function saveStatus(leadId: string, status: string, reason?: string) {
     setSaving(true);
     try {
       const res = await fetch(`/api/${slug}/admin/leads/${leadId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, notEnrolledReason: reason ?? null }),
       });
       if (res.ok) {
         setLeads((prev) =>
@@ -416,7 +417,7 @@ export function LeadsClient({ slug, leads: initialLeads, totalByStatus }: Props)
               onChange={(e) => {
                 const next = e.target.value;
                 setStatusValue((prev) => ({ ...prev, [selected.id]: next }));
-                saveStatus(selected.id, next);
+                if (next !== 'not_enrolled') saveStatus(selected.id, next);
               }}
               disabled={saving}
               style={{
@@ -434,6 +435,29 @@ export function LeadsClient({ slug, leads: initialLeads, totalByStatus }: Props)
                 </option>
               ))}
             </select>
+            {selectedStatus === 'not_enrolled' && (
+              <div style={{ display: 'flex', gap: 8 }}>
+                <select
+                  value={reasonValue[selected.id] ?? ''}
+                  onChange={(e) => setReasonValue((prev) => ({ ...prev, [selected.id]: e.target.value }))}
+                  style={{ flex: 1, height: 38, padding: '0 10px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 13 }}
+                >
+                  <option value="">사유 선택 (선택)</option>
+                  <option value="비용">비용</option>
+                  <option value="시간">시간</option>
+                  <option value="거리">거리</option>
+                  <option value="타학원">타학원 등록</option>
+                  <option value="기타">기타</option>
+                </select>
+                <button
+                  onClick={() => saveStatus(selected.id, 'not_enrolled', reasonValue[selected.id])}
+                  disabled={saving}
+                  style={{ padding: '0 14px', height: 38, background: '#1E5645', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}
+                >
+                  저장
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Memo */}

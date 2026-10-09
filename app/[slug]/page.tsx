@@ -32,6 +32,7 @@ import SafetySection from '@/components/academy/sections/SafetySection';
 import LocationSection from '@/components/academy/sections/LocationSection';
 import PrinciplesSection from '@/components/academy/sections/PrinciplesSection';
 import TimetableSection from '@/components/academy/sections/TimetableSection';
+import FaqSection from '@/components/academy/sections/FaqSection';
 
 const SECTION_ORDERS = {
   warm: ['hero', 'quick_info', 'director', 'principles', 'classes', 'timetable', 'fees', 'reviews', 'news', 'consult_form', 'location'],
@@ -173,6 +174,15 @@ export default async function AcademyPage({
       case 'timetable':
         return data!.classes.length > 0 ? (
           <TimetableSection key="timetable" classes={data!.classes} slug={slug} />
+        ) : null;
+
+      case 'faq':
+        return data!.faqItems.length > 0 ? (
+          <FaqSection
+            key="faq"
+            items={data!.faqItems}
+            accentColor={data!.tenant.accentColor ?? '#1E5645'}
+          />
         ) : null;
 
       default:

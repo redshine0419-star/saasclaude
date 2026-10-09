@@ -5,7 +5,7 @@ import { getAdminMembership } from '@/lib/admin-auth';
 
 type Params = Promise<{ slug: string; id: string }>;
 
-const VALID_STATUSES = ['new', 'contacted', 'test_booked', 'enrolled', 'not_enrolled'];
+const VALID_STATUSES = ['new', 'contacted', 'test_booked', 'test_done', 'no_show', 'enrolled', 'not_enrolled'];
 
 export async function PATCH(req: NextRequest, { params }: { params: Params }) {
   const { slug, id } = await params;
@@ -35,7 +35,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
     return NextResponse.json({ error: '잘못된 요청입니다.' }, { status: 400 });
   }
 
-  const updateData: { status?: string; message?: string; statusChangedAt?: Date } = {};
+  const VALID_REASONS = ['비용', '시간', '거리', '타학원', '기타'];
+  const updateData: { status?: string; message?: string; statusChangedAt?: Date; notEnrolledReason?: string | null } = {};
 
   if (body.status !== undefined) {
     if (!VALID_STATUSES.includes(body.status)) {
@@ -43,6 +44,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
     }
     updateData.status = body.status;
     updateData.statusChangedAt = new Date();
+    if (body.status === 'not_enrolled' && body.notEnrolledReason !== undefined) {
+      updateData.notEnrolledReason = VALID_REASONS.includes(body.notEnrolledReason) ? body.notEnrolledReason : null;
+    } else if (body.status !== 'not_enrolled') {
+      updateData.notEnrolledReason = null;
+    }
   }
 
   if (body.message !== undefined) {

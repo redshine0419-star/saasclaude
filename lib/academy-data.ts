@@ -138,6 +138,7 @@ export type AcademyPageData = {
   levelTestSlots: LevelTestSlot[];
   staff: AcademyStaff[];
   resultStats: AcademyResultStat[];
+  faqItems: { id: string; question: string; answer: string }[];
 };
 
 // ─── 데모 데이터 (warm theme) ────────────────────────────────
@@ -264,6 +265,7 @@ export const DEMO_DATA: AcademyPageData = {
   ],
   staff: [],
   resultStats: [],
+  faqItems: [],
 };
 
 // ─── 데모 데이터 (result theme) ──────────────────────────────
@@ -344,6 +346,7 @@ export const DEMO_DATA_RESULT: AcademyPageData = {
       basisText: '재원 3개월 이상 학생 전체 평균 · 개인 정보 비공개 · 학원 자체 집계',
     },
   ],
+  faqItems: [],
 };
 
 // ─── 데모 데이터 (bright theme) ──────────────────────────────
@@ -412,6 +415,7 @@ export const DEMO_DATA_BRIGHT: AcademyPageData = {
   ],
   staff: [],
   resultStats: [],
+  faqItems: [],
 };
 
 // ─── 요일 숫자 → 한글 ────────────────────────────────────────
@@ -449,6 +453,7 @@ export async function getAcademyPageData(slug: string): Promise<AcademyPageData 
         levelTestSlots: { where: { active: true } },
         resultStats: { where: { published: true }, orderBy: { id: 'desc' }, take: 3 },
         shuttleStops: { orderBy: { sortOrder: 'asc' } },
+        faqItems: { orderBy: { sortOrder: 'asc' } },
       },
     });
     if (!tenant) return null;
@@ -539,6 +544,9 @@ export async function getAcademyPageData(slug: string): Promise<AcademyPageData 
         termLabel: rs.termLabel,
         metrics: Array.isArray(rs.metrics) ? rs.metrics as { label: string; value: string; unit: string }[] : [],
         basisText: rs.basisText,
+      })),
+      faqItems: tenant.faqItems.map((f: { id: string; question: string; answer: string }) => ({
+        id: f.id, question: f.question, answer: f.answer,
       })),
     };
   } catch {

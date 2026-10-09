@@ -25,3 +25,12 @@ ALTER TYPE "LeadStatus" ADD VALUE IF NOT EXISTS 'no_show'   BEFORE 'enrolled';
 
 -- 5. MessageScenario enum
 ALTER TYPE "MessageScenario" ADD VALUE IF NOT EXISTS 'owner_reminder';
+
+-- 6. FAQ items table
+CREATE TABLE IF NOT EXISTS faq_items (
+  id          TEXT        PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  "tenantId"  TEXT        NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  question    TEXT        NOT NULL,
+  answer      TEXT        NOT NULL,
+  "sortOrder" INTEGER     NOT NULL DEFAULT 0
+);

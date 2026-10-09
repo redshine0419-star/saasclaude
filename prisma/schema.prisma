@@ -80,6 +80,7 @@ model Tenant {
   proxyAccessLogs ProxyAccessLog[]
   feeChangeLogs FeeChangeLog[]
   shuttleStops  ShuttleStop[]
+  faqItems      FaqItem[]
 
   @@map("tenants")
 }
@@ -468,6 +469,19 @@ model Post {
   leads           Lead[]
 
   @@map("posts")
+}
+
+// FAQ 섹션 (GEO/AI 검색 최적화 목적)
+model FaqItem {
+  id        String   @id @default(cuid())
+  tenantId  String
+  question  String
+  answer    String
+  sortOrder Int      @default(0)
+
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("faq_items")
 }
 
 enum PostCategory {
