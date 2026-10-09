@@ -1,27 +1,23 @@
 -- Safe re-application of column additions from 20261009000001.
--- Uses IF NOT EXISTS so it's idempotent whether the previous migration
+-- Uses IF NOT EXISTS so it is idempotent whether the previous migration
 -- partially ran or not.
+-- NOTE: columns use camelCase quoted identifiers to match the Prisma schema.
 
-ALTER TABLE leads
-  ADD COLUMN IF NOT EXISTS test_at              TIMESTAMPTZ,
-  ADD COLUMN IF NOT EXISTS not_enrolled_reason  TEXT,
-  ADD COLUMN IF NOT EXISTS retain_until         TIMESTAMPTZ;
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS "testAt"            TIMESTAMPTZ;
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS "notEnrolledReason" TEXT;
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS "retainUntil"       TIMESTAMPTZ;
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS "postId"            TEXT;
 
--- post_id added separately to handle the foreign key gracefully
-ALTER TABLE leads
-  ADD COLUMN IF NOT EXISTS post_id TEXT;
-
--- Add FK only if column was just added (skip if constraint already exists)
 DO $$
 BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM information_schema.table_constraints
-    WHERE constraint_name = 'leads_post_id_fkey'
+    WHERE constraint_name = 'leads_postId_fkey'
       AND table_name = 'leads'
   ) THEN
     ALTER TABLE leads
-      ADD CONSTRAINT leads_post_id_fkey
-      FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE SET NULL;
+      ADD CONSTRAINT "leads_postId_fkey"
+      FOREIGN KEY ("postId") REFERENCES posts(id) ON DELETE SET NULL;
   END IF;
 END $$;
 

@@ -124,25 +124,25 @@ async function ensureBaseline() {
 async function applyMissingColumns() {
   console.log('Applying missing columns (idempotent)…');
 
-  // leads table columns
-  await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS test_at              TIMESTAMPTZ`;
-  await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS not_enrolled_reason  TEXT`;
-  await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS retain_until         TIMESTAMPTZ`;
-  await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS post_id              TEXT`;
+  // leads table columns — DB uses camelCase quoted identifiers (matches Prisma schema)
+  await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS "testAt"            TIMESTAMPTZ`;
+  await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS "notEnrolledReason" TEXT`;
+  await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS "retainUntil"       TIMESTAMPTZ`;
+  await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS "postId"            TEXT`;
 
-  // FK for post_id (skip if constraint already exists)
+  // FK for postId
   const fkExists = await sql`
     SELECT 1 FROM information_schema.table_constraints
-    WHERE constraint_name = 'leads_post_id_fkey' AND table_name = 'leads'
+    WHERE constraint_name = 'leads_postId_fkey' AND table_name = 'leads'
     LIMIT 1
   `;
   if (!fkExists.length) {
     await sql`
       ALTER TABLE leads
-        ADD CONSTRAINT leads_post_id_fkey
-        FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE SET NULL
+        ADD CONSTRAINT "leads_postId_fkey"
+        FOREIGN KEY ("postId") REFERENCES posts(id) ON DELETE SET NULL
     `;
-    console.log('  added leads.post_id FK');
+    console.log('  added leads."postId" FK');
   }
 
   // level_test_slots capacity

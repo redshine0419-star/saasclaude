@@ -1,16 +1,29 @@
 -- Migration: spec improvements from 랠리즈 비교 점검 1009
--- 1. leads: add test_at, post_id, not_enrolled_reason, retain_until
+-- 1. leads: add testAt, postId, notEnrolledReason, retainUntil
 -- 2. level_test_slots: add capacity
 -- 3. enum ConsultType: add waitlist
 -- 4. enum LeadStatus: add test_done, no_show
 -- 5. enum MessageScenario: add owner_reminder
 
--- 1. leads new columns
+-- 1. leads new columns (camelCase to match Prisma schema)
 ALTER TABLE leads
-  ADD COLUMN IF NOT EXISTS test_at           TIMESTAMPTZ,
-  ADD COLUMN IF NOT EXISTS post_id           TEXT REFERENCES posts(id) ON DELETE SET NULL,
-  ADD COLUMN IF NOT EXISTS not_enrolled_reason TEXT,
-  ADD COLUMN IF NOT EXISTS retain_until      TIMESTAMPTZ;
+  ADD COLUMN IF NOT EXISTS "testAt"            TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS "notEnrolledReason" TEXT,
+  ADD COLUMN IF NOT EXISTS "retainUntil"       TIMESTAMPTZ;
+
+-- postId added separately for the FK
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS "postId" TEXT;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.table_constraints
+    WHERE constraint_name = 'leads_postId_fkey' AND table_name = 'leads'
+  ) THEN
+    ALTER TABLE leads
+      ADD CONSTRAINT "leads_postId_fkey"
+      FOREIGN KEY ("postId") REFERENCES posts(id) ON DELETE SET NULL;
+  END IF;
+END $$;
 
 -- 2. level_test_slots capacity
 ALTER TABLE level_test_slots
