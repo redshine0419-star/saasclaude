@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { getAdminMembership } from '@/lib/admin-auth';
 
 type Params = Promise<{ slug: string }>;
 
@@ -14,10 +15,8 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
   const tenant = await prisma.tenant.findUnique({ where: { slug } });
   if (!tenant) return NextResponse.json({ error: '학원을 찾을 수 없습니다.' }, { status: 404 });
 
-  const membership = await prisma.membership.findFirst({
-    where: { tenantId: tenant.id, user: { email: session.user.email }, role: 'owner' },
-  });
-  if (!membership) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  const membership = await getAdminMembership(tenant.id, session.user.email!);
+  if (!membership || membership.role !== 'owner') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const [leads, reviews, posts, classes, staff, messages] = await Promise.all([
     prisma.lead.findMany({

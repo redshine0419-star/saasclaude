@@ -1,6 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { getAdminMembership } from '@/lib/admin-auth';
 import { MobileWriteClient } from './MobileWriteClient';
 
 type Props = { params: Promise<{ slug: string }> };
@@ -14,9 +15,7 @@ export default async function AdminMobilePage({ params }: Props) {
   const tenant = await prisma.tenant.findUnique({ where: { slug, status: 'active' } });
   if (!tenant) notFound();
 
-  const membership = await prisma.membership.findFirst({
-    where: { tenantId: tenant.id, user: { email: session.user.email } },
-  });
+  const membership = await getAdminMembership(tenant.id, session.user.email!);
   if (!membership) redirect('/auth/signin');
 
   // count marketing-consented leads who haven't revoked

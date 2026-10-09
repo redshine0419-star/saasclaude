@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { getAdminMembership } from '@/lib/admin-auth';
 
 type Params = Promise<{ slug: string; id: string }>;
 
 async function authorize(slug: string, email: string) {
   const tenant = await prisma.tenant.findUnique({ where: { slug, status: 'active' } });
   if (!tenant) return null;
-  const membership = await prisma.membership.findFirst({
-    where: { tenantId: tenant.id, user: { email } },
-  });
+  const membership = await getAdminMembership(tenant.id, email);
   return membership ? tenant : null;
 }
 

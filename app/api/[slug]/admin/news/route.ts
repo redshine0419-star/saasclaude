@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { getAdminMembership } from '@/lib/admin-auth';
 import { sendMessage } from '@/lib/messaging/send';
 import { hashPhone } from '@/lib/messaging/hash';
 
@@ -11,9 +12,7 @@ async function getAuthorizedTenant(slug: string) {
   if (!session?.user?.email) return null;
   const tenant = await prisma.tenant.findUnique({ where: { slug, status: 'active' } });
   if (!tenant) return null;
-  const membership = await prisma.membership.findFirst({
-    where: { tenantId: tenant.id, user: { email: session.user.email } },
-  });
+  const membership = await getAdminMembership(tenant.id, session.user.email!);
   return membership ? tenant : null;
 }
 

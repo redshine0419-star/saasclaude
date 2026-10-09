@@ -2,6 +2,7 @@ import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { getAdminMembership } from '@/lib/admin-auth';
 import { AdminSide } from '@/components/admin/AdminSide';
 import { NewsEditClient } from './NewsEditClient';
 
@@ -21,9 +22,7 @@ export default async function AdminNewsEditPage({
   const tenant = await prisma.tenant.findUnique({ where: { slug, status: 'active' } });
   if (!tenant) notFound();
 
-  const membership = await prisma.membership.findFirst({
-    where: { tenantId: tenant.id, user: { email: session.user.email } },
-  });
+  const membership = await getAdminMembership(tenant.id, session.user.email!);
   if (!membership) redirect('/auth/signin');
 
   let post = undefined;
