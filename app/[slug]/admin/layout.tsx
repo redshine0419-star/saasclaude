@@ -16,14 +16,19 @@ export default async function AdminLayout({
     redirect('/auth/signin');
   }
 
+  const isPlatformAdminEmail = (process.env.PLATFORM_ADMIN_EMAILS ?? '')
+    .split(',').map(e => e.trim()).includes(session.user.email);
+
   // Allow platform_admin proxy access OR regular tenant membership
   const [membership, platformMembership] = await Promise.all([
     prisma.membership.findFirst({
       where: { tenant: { slug }, user: { email: session.user.email } },
     }),
-    prisma.membership.findFirst({
-      where: { user: { email: session.user.email }, role: 'platform_admin' },
-    }),
+    isPlatformAdminEmail
+      ? Promise.resolve({ role: 'platform_admin' } as { role: string })
+      : prisma.membership.findFirst({
+          where: { user: { email: session.user.email }, role: 'platform_admin' },
+        }),
   ]);
   if (!membership && !platformMembership) {
     redirect('/auth/signin');
