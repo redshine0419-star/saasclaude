@@ -34,12 +34,8 @@ import LocationSection from '@/components/academy/sections/LocationSection';
 import PrinciplesSection from '@/components/academy/sections/PrinciplesSection';
 import TimetableSection from '@/components/academy/sections/TimetableSection';
 import FaqSection from '@/components/academy/sections/FaqSection';
+import { DEFAULT_SECTION_ORDER, LOCKED_SECTIONS, isThemeKey, type ThemeKey } from '@/lib/sections';
 
-const SECTION_ORDERS = {
-  warm: ['hero', 'quick_info', 'director', 'principles', 'classes', 'timetable', 'fees', 'reviews', 'news', 'consult_form', 'location'],
-  result: ['hero', 'results_stats', 'exam_system', 'curriculum', 'score_cases', 'teachers', 'fees', 'consult_form'],
-  bright: ['hero', 'day_flow', 'classes', 'gallery', 'safety', 'reviews', 'consult_form'],
-} as const;
 
 export default async function AcademyPage({
   params,
@@ -52,11 +48,17 @@ export default async function AcademyPage({
 
   const isDemoSlug = ['demo-warm', 'demo-result', 'demo-bright'].includes(slug);
 
-  const theme = data.tenant.theme as 'warm' | 'result' | 'bright';
-  const defaultOrder = SECTION_ORDERS[theme] ?? SECTION_ORDERS.warm;
-  // DB sections take priority (includes only enabled=true, sorted by sortOrder).
-  // Fall back to hardcoded theme default when no per-tenant config exists.
-  const displayOrder: string[] = data.sections.length > 0 ? data.sections : [...defaultOrder];
+  const theme: ThemeKey = isThemeKey(data.tenant.theme) ? data.tenant.theme : 'warm';
+  const allowed = DEFAULT_SECTION_ORDER[theme];
+  // DB 설정(켜진 섹션만, 순서대로)을 따르되 현재 테마에 없는 섹션은 제외하고 잠금 섹션은 항상 포함
+  const configured = data.sections.filter((k) => allowed.includes(k));
+  const displayOrder: string[] = configured.length > 0 ? [...configured] : [...allowed];
+  for (const key of allowed) {
+    if (LOCKED_SECTIONS.has(key) && !displayOrder.includes(key)) {
+      if (key === 'hero') displayOrder.unshift(key);
+      else displayOrder.push(key);
+    }
+  }
 
   function renderSection(key: string) {
     switch (key) {

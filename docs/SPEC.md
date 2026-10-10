@@ -119,7 +119,9 @@
 | B 성과 중심형 | hero(학교별 점수표) → results_stats → exam_system → curriculum → score_cases → teachers → fees+consult_form | 레벨테스트 신청 |
 | C 밝은 친근형 | hero(사진 콜라주·연령 칩) → day_flow → classes(연령별) → gallery → safety+reviews → consult_form(체험 수업) | 체험 수업 신청 |
 
-- 원장은 강조색 1개만 바꿀 수 있다. 섹션 켜기/끄기는 platform_admin만.
+- 원장(owner)은 테마 선택, 강조색, 섹션 켜기/끄기·순서를 직접 바꿀 수 있다. staff는 읽기 전용. 저장 즉시 공개 홈페이지에 반영된다.
+- 원장이 바꿀 수 없는 것: 폰트·레이아웃·간격, `hero`(항상 맨 위·항상 표시), `consult_form`(항상 표시), 푸터 법정 표기, 동의 체크박스. 규칙은 `lib/sections.ts` 한 곳에서 정의하고 서버에서 강제한다.
+- 테마에 없는 섹션 키는 저장·렌더 모두에서 무시한다. 테마를 바꾸면 이전 테마 전용 섹션은 꺼진다(내용은 보존).
 - 데이터가 비어 있는 섹션은 자동으로 숨긴다 (예: result_stats 미입력 → B 히어로 점수표 숨김, safety 항목 미입력 → 섹션 숨김).
 - 모바일 개선 반영: A 모바일 첫 화면은 교실 사진 대신 원장 사진. C의 연령 칩은 해당 반으로 스크롤 이동.
 
