@@ -22,9 +22,10 @@ growweb.me/                   → 첫등원 마케팅 사이트 (F-01~F-06)
 growweb.me/{slug}             → 학원 홈페이지 (S-01~S-10)
 growweb.me/{slug}/admin       → 학원 관리자 (A-00~A-10)
 growweb.me/platform           → 플랫폼 관리자 (P-01~P-05)
+growweb.me/start              → 셀프 개설 (F-07, SPEC 12장)
 ```
 
-예약 slug (학원이 사용 불가): `platform`, `admin`, `service`, `pricing`, `apply`, `demo`, `consult`, `api`, `_next`, `static`
+예약 slug (학원이 사용 불가): `lib/reserved-slugs.ts` 참고 (`platform`, `admin`, `service`, `pricing`, `apply`, `demo`, `consult`, `api`, `_next`, `static`, `auth`, `start`, `privacy`, `terms`, 그리고 `demo-*`)
 
 ## 기술 스택
 
