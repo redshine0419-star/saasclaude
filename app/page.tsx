@@ -230,7 +230,7 @@ export default function MarketingHome() {
           <h2 style={{ margin: 0, fontSize: 'clamp(30px, 4vw, 48px)', fontWeight: 700, lineHeight: 1.3, letterSpacing: '-1px' }}>지금 신청하면<br />제작팀이 직접 연락드립니다</h2>
           <p style={{ margin: 0, fontSize: 17, lineHeight: 1.75, color: '#4A5568' }}>대기 순서대로 제작을 시작합니다. 신청 후 개강까지 평균 2주 소요됩니다.</p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' }}>
-            <Link href="/apply" style={{ height: 56, padding: '0 32px', borderRadius: 12, background: '#14213D', color: '#FFFFFF', textDecoration: 'none', fontSize: 17, fontWeight: 700, display: 'flex', alignItems: 'center' }}>베타 신청하기</Link>
+            <Link href="/start" style={{ height: 56, padding: '0 32px', borderRadius: 12, background: '#14213D', color: '#FFFFFF', textDecoration: 'none', fontSize: 17, fontWeight: 700, display: 'flex', alignItems: 'center' }}>무료로 바로 만들기</Link>
             <Link href="/consult" style={{ height: 56, padding: '0 28px', borderRadius: 12, border: '1px solid #14213D', color: '#14213D', textDecoration: 'none', fontSize: 17, fontWeight: 600, display: 'flex', alignItems: 'center' }}>무료 진단 먼저</Link>
           </div>
         </div>

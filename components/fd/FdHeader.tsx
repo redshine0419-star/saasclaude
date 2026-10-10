@@ -13,7 +13,7 @@ export function FdHeader({ active = 'home' }: { active?: Active }) {
     { key: 'demo', href: '/demo', label: '데모 보기' },
     { key: 'pricing', href: '/pricing', label: '요금' },
     { key: 'consult', href: '/consult', label: '상담' },
-    { key: 'apply', href: '/apply', label: '베타 신청' },
+    { key: 'apply', href: '/start', label: '바로 만들기' },
   ];
 
   return (

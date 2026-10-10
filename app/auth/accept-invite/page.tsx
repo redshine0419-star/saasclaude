@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { ensureUser } from '@/lib/users';
 
 export default async function AcceptInvitePage({
   searchParams,
@@ -48,8 +49,7 @@ export default async function AcceptInvitePage({
   const tenant = await prisma.tenant.findUnique({ where: { id: invite.tenantId } });
   if (!tenant) redirect('/');
 
-  const user = await prisma.user.findUnique({ where: { email: session.user.email } });
-  if (!user) redirect('/auth/signin');
+  const user = await ensureUser(session.user.email, session.user.name, session.user.image);
 
   const existing = await prisma.membership.findFirst({
     where: { tenantId: tenant.id, userId: user.id },

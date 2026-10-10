@@ -220,10 +220,10 @@ export default function DemoPage() {
       <section style={{ padding: 'clamp(40px, 5vw, 64px) clamp(20px, 4vw, 56px)' }}>
         <div style={{ maxWidth: 640, margin: '0 auto', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 20, alignItems: 'center' }}>
           <h2 style={{ margin: 0, fontSize: 28, fontWeight: 700 }}>마음에 드는 테마가 있으신가요?</h2>
-          <p style={{ margin: 0, fontSize: 16, color: '#4A5568' }}>베타 신청 후 원하는 테마를 선택하시면 3개월 무료로 운영해드립니다.</p>
+          <p style={{ margin: 0, fontSize: 16, color: '#4A5568' }}>학원 정보를 입력하고 테마를 고르면 바로 홈페이지가 열립니다. 오픈일부터 3개월 무료입니다.</p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-            <Link href="/apply" style={{ height: 52, padding: '0 28px', borderRadius: 12, background: '#14213D', color: '#FFFFFF', textDecoration: 'none', fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
-              베타 신청하기
+            <Link href="/start" style={{ height: 52, padding: '0 28px', borderRadius: 12, background: '#14213D', color: '#FFFFFF', textDecoration: 'none', fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
+              무료로 바로 만들기
             </Link>
             <Link href="/consult" style={{ height: 52, padding: '0 28px', borderRadius: 12, border: '1px solid #D1D5DB', color: '#14213D', textDecoration: 'none', fontSize: 16, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
               무료 진단 받기

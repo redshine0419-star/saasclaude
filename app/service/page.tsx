@@ -68,7 +68,7 @@ export default function ServicePage() {
           <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
             <h2 style={{ margin: 0, fontSize: 28, fontWeight: 700 }}>지금 베타로 시작하세요</h2>
             <div style={{ display: 'flex', gap: 12 }}>
-              <Link href="/apply" style={{ height: 52, padding: '0 28px', borderRadius: 12, background: '#14213D', color: '#FFFFFF', textDecoration: 'none', fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center' }}>베타 신청하기</Link>
+              <Link href="/start" style={{ height: 52, padding: '0 28px', borderRadius: 12, background: '#14213D', color: '#FFFFFF', textDecoration: 'none', fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center' }}>무료로 바로 만들기</Link>
               <Link href="/demo" style={{ height: 52, padding: '0 24px', borderRadius: 12, border: '1px solid #14213D', color: '#14213D', textDecoration: 'none', fontSize: 16, fontWeight: 600, display: 'flex', alignItems: 'center' }}>데모 보기</Link>
             </div>
           </div>

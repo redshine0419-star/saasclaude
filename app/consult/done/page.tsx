@@ -21,7 +21,7 @@ export default function ConsultDonePage() {
             연락처를 확인해 주세요.
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-            <Link href="/apply" style={{ height: 48, padding: '0 24px', borderRadius: 10, background: '#14213D', color: '#FFFFFF', textDecoration: 'none', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center' }}>베타 신청하기</Link>
+            <Link href="/start" style={{ height: 48, padding: '0 24px', borderRadius: 10, background: '#14213D', color: '#FFFFFF', textDecoration: 'none', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center' }}>무료로 바로 만들기</Link>
             <Link href="/" style={{ height: 48, padding: '0 24px', borderRadius: 10, border: '1px solid #14213D', color: '#14213D', textDecoration: 'none', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center' }}>홈으로</Link>
           </div>
         </div>

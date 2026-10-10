@@ -13,7 +13,7 @@ export default async function AdminLayout({
 
   const session = await auth();
   if (!session?.user?.email) {
-    redirect('/auth/signin');
+    redirect(`/auth/signin?callbackUrl=${encodeURIComponent(`/${slug}/admin`)}`);
   }
 
   const isPlatformAdminEmail = (process.env.PLATFORM_ADMIN_EMAILS ?? '')

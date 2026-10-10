@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const RESERVED_SLUGS = new Set([
-  'platform', 'admin', 'service', 'pricing', 'apply',
-  'demo', 'consult', 'api', '_next', 'static', 'auth',
-]);
+import { isReservedSlug } from '@/lib/reserved-slugs';
 
 function extractSlugFromPathname(pathname: string): string | null {
   const segment = pathname.split('/')[1] ?? '';
-  if (!segment || RESERVED_SLUGS.has(segment.toLowerCase())) return null;
+  if (!segment || isReservedSlug(segment)) return null;
   return segment;
 }
 

@@ -76,8 +76,8 @@ export default function PricingPage() {
             ))}
           </div>
 
-          <Link href="/apply" style={{ height: 56, borderRadius: 12, background: '#14213D', color: '#FFFFFF', textDecoration: 'none', fontSize: 17, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            베타 신청하기
+          <Link href="/start" style={{ height: 56, borderRadius: 12, background: '#14213D', color: '#FFFFFF', textDecoration: 'none', fontSize: 17, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            무료로 바로 만들기
           </Link>
         </div>
       </section>

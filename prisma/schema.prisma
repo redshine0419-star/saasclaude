@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // ─────────────────────────────────────────────────────────
@@ -54,6 +53,10 @@ model Tenant {
   naverSiteVerification String? // 네이버 서치어드바이저 인증 코드
   naverPlaceMirror      Json?   // { phone, hours, address } — 플레이스 불일치 비교용
 
+  // 셀프 개설
+  onboardedVia          String? // self_serve | operator
+  signupConsents        Json?   // { terms, privacy, beta, case, at, email } — 개설 시 동의 기록
+
   // 관계
   sections      TenantSection[]
   memberships   Membership[]
@@ -82,6 +85,7 @@ model Tenant {
   feeChangeLogs FeeChangeLog[]
   shuttleStops  ShuttleStop[]
   faqItems      FaqItem[]
+  siteVersions  SiteVersion[]
 
   @@map("tenants")
 }
@@ -106,6 +110,21 @@ enum TenantStatus {
 // ─────────────────────────────────────────────────────────
 // 섹션 설정
 // ─────────────────────────────────────────────────────────
+
+// 홈페이지 구성(테마·강조색·섹션) 변경 이력. 원장이 이전 상태로 되돌릴 수 있다.
+model SiteVersion {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  tenantId   String
+  actorEmail String
+  reason     String   // sections | accent | restore | onboarding
+  snapshot   Json     // { theme, accentColor, sections: [{ key, enabled, sortOrder }] }
+
+  tenant     Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, createdAt])
+  @@map("site_versions")
+}
 
 model TenantSection {
   id         String  @id @default(cuid())
