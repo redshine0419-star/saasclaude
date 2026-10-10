@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { getAdminMembership } from '@/lib/admin-auth';
+import { accentError } from '@/lib/accent';
+import { ensureBaselineVersion, recordSiteVersion } from '@/lib/site-versions';
 
 type Params = Promise<{ slug: string }>;
 
@@ -15,21 +17,22 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
   if (!tenant) return NextResponse.json({ error: '학원을 찾을 수 없습니다.' }, { status: 404 });
 
   const membership = await getAdminMembership(tenant.id, session.user.email!);
-  if (!membership) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  if (membership.role === 'staff') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  if (!membership || membership.role !== 'owner') {
+    return NextResponse.json({ error: '강조색은 원장만 바꿀 수 있습니다.' }, { status: 403 });
+  }
 
   const body = await req.json().catch(() => null);
   const accentColor: string = (body?.accentColor ?? '').trim();
 
-  // Validate: must be empty or valid hex
-  if (accentColor && !/^#[0-9A-Fa-f]{6}$/.test(accentColor)) {
-    return NextResponse.json({ error: '올바른 HEX 색상 코드를 입력해주세요.' }, { status: 400 });
-  }
+  const err = accentError(accentColor);
+  if (err) return NextResponse.json({ error: err }, { status: 400 });
 
+  await ensureBaselineVersion(tenant.id, session.user.email);
   await prisma.tenant.update({
     where: { id: tenant.id },
-    data: { accentColor: accentColor || null },
+    data: { accentColor: accentColor ? accentColor.toUpperCase() : null },
   });
+  await recordSiteVersion(tenant.id, session.user.email, 'accent');
 
   return NextResponse.json({ ok: true });
 }

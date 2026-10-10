@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { getAdminMembership } from '@/lib/admin-auth';
-import { DEFAULT_SECTION_ORDER, isThemeKey, normalizeSections, type SectionInput, type ThemeKey } from '@/lib/sections';
+import { isThemeKey, normalizeSections, type SectionInput, type ThemeKey } from '@/lib/sections';
+import { applySiteConfig, ensureBaselineVersion, recordSiteVersion } from '@/lib/site-versions';
 
 type Params = Promise<{ slug: string }>;
 
@@ -36,22 +37,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
         .map((s) => ({ key: s.sectionKey, enabled: s.enabled }));
 
   const sections = normalizeSections(theme, input);
-  const allowed = DEFAULT_SECTION_ORDER[theme];
 
-  await prisma.$transaction([
-    prisma.tenant.update({ where: { id: tenant.id }, data: { theme } }),
-    ...sections.map((s) =>
-      prisma.tenantSection.upsert({
-        where: { tenantId_sectionKey: { tenantId: tenant.id, sectionKey: s.key } },
-        update: { enabled: s.enabled, sortOrder: s.sortOrder },
-        create: { tenantId: tenant.id, sectionKey: s.key, enabled: s.enabled, sortOrder: s.sortOrder },
-      }),
-    ),
-    prisma.tenantSection.updateMany({
-      where: { tenantId: tenant.id, sectionKey: { notIn: allowed } },
-      data: { enabled: false },
-    }),
-  ]);
+  await ensureBaselineVersion(tenant.id, session.user.email);
+  await applySiteConfig(tenant.id, { theme, sections });
+  await recordSiteVersion(tenant.id, session.user.email, 'sections');
 
   return NextResponse.json({ ok: true, theme, sections });
 }

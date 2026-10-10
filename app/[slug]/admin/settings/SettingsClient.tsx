@@ -1,5 +1,6 @@
 'use client';
 
+import { ACCENT_PRESETS } from '@/lib/accent';
 import { useState } from 'react';
 
 interface Recipient {
@@ -74,6 +75,7 @@ export function SettingsClient({
   const [accentColor, setAccentColor] = useState(initialAccentColor);
   const [accentSaving, setAccentSaving] = useState(false);
   const [accentSaved, setAccentSaved] = useState(false);
+  const [accentErr, setAccentErr] = useState('');
   const [addSaving, setAddSaving] = useState(false);
   const [ga4Id, setGa4Id] = useState(initialGa4MeasurementId);
   const [ga4Connected, setGa4Connected] = useState(initialGa4Connected);
@@ -199,6 +201,7 @@ export function SettingsClient({
   async function saveAccentColor() {
     setAccentSaving(true);
     setAccentSaved(false);
+    setAccentErr('');
     try {
       const res = await fetch(`/api/${slug}/admin/settings/accent`, {
         method: 'PATCH',
@@ -208,6 +211,9 @@ export function SettingsClient({
       if (res.ok) {
         setAccentSaved(true);
         setTimeout(() => setAccentSaved(false), 3000);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setAccentErr(data.error ?? '저장하지 못했습니다.');
       }
     } finally {
       setAccentSaving(false);
@@ -392,8 +398,21 @@ export function SettingsClient({
       {/* 강조색 */}
       <div style={{ padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div style={{ fontSize: 16, fontWeight: 700 }}>강조색</div>
-        <div style={{ fontSize: 13, color: '#5A6270' }}>홈페이지 버튼·링크 색상을 변경합니다. 비워두면 테마 기본색이 사용됩니다.</div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+        <div style={{ fontSize: 13, color: '#5A6270' }}>홈페이지 버튼·링크 색상을 변경합니다. 비워두면 테마 기본색이 사용됩니다. 글자가 잘 보이도록 너무 밝은 색은 저장되지 않습니다.</div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {ACCENT_PRESETS.map((p) => (
+            <button
+              key={p.hex}
+              type="button"
+              title={p.label}
+              aria-label={p.label}
+              aria-pressed={accentColor.toUpperCase() === p.hex}
+              onClick={() => setAccentColor(p.hex)}
+              style={{ width: 36, height: 36, borderRadius: 8, background: p.hex, cursor: 'pointer', border: accentColor.toUpperCase() === p.hex ? '3px solid #1B2430' : '1px solid rgba(0,0,0,0.1)' }}
+            />
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
           <input
             type="color"
             value={accentColor || '#1E5645'}
@@ -422,6 +441,7 @@ export function SettingsClient({
             {accentSaving ? '저장 중…' : '저장'}
           </button>
           {accentSaved && <span style={{ fontSize: 13, color: '#1E5645', fontWeight: 600 }}>저장됨 ✓</span>}
+          {accentErr && <span role="alert" style={{ fontSize: 13, color: '#B42318', fontWeight: 600 }}>{accentErr}</span>}
         </div>
       </div>
 

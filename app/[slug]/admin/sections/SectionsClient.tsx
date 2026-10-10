@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { DEFAULT_SECTION_ORDER, LOCKED_SECTIONS, SECTION_LABELS, normalizeSections, type ThemeKey } from '@/lib/sections';
 
 interface SectionState {
@@ -23,6 +24,7 @@ const THEMES = [
 ];
 
 export function SectionsClient({ slug, theme: initTheme, sections: initSections, canEdit }: Props) {
+  const router = useRouter();
   const [theme, setTheme] = useState<ThemeKey>(initTheme);
   const [sections, setSections] = useState<SectionState[]>(initSections);
   const [saving, setSaving] = useState(false);
@@ -74,6 +76,7 @@ export function SectionsClient({ slug, theme: initTheme, sections: initSections,
       if (res.ok) {
         setSaved(true);
         if (Array.isArray(data.sections)) setSections(data.sections);
+        router.refresh();
       } else {
         setError(data.error ?? '저장하지 못했습니다.');
       }
