@@ -4,6 +4,8 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { getAdminMembership } from '@/lib/admin-auth';
 import { AdminSide } from '@/components/admin/AdminSide';
+import { SetupChecklist } from '@/components/admin/SetupChecklist';
+import { getSetupChecklist } from '@/lib/setup-checklist';
 
 function maskName(name: string) {
   if (name.length <= 1) return name + '○○';
@@ -38,10 +40,13 @@ const CONSULT_LABEL: Record<string, string> = {
 
 export default async function AdminDashboardPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ welcome?: string }>;
 }) {
   const { slug } = await params;
+  const { welcome } = await searchParams;
 
   const session = await auth();
   if (!session?.user?.email) redirect('/auth/signin');
@@ -98,6 +103,7 @@ export default async function AdminDashboardPage({
   ]);
 
   const recentNew = [...newLeads, ...followupLeads];
+  const checklist = await getSetupChecklist(tenant);
 
   const totalLeads = thisMonthLeads.length;
   const conversionRate =
@@ -162,6 +168,8 @@ export default async function AdminDashboardPage({
             </Link>
           </div>
         </div>
+
+        <SetupChecklist items={checklist} slug={slug} welcome={welcome === '1'} />
 
         {/* 4-col stat cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 16 }}>
