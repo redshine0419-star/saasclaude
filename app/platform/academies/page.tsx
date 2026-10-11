@@ -119,11 +119,22 @@ export default async function PlatformAcademiesPage() {
                 if (isExpiring) alerts.push('베타 만료 임박');
                 if (noRecentPost) alerts.push('자료 2주 미제출');
                 if (kakaoOverload) alerts.push('카톡 90%↑');
+                const life = (t.lifecycleNotices ?? {}) as Record<string, unknown>;
+                const tags: string[] = [];
+                if (life.continueRequestedAt && t.planStatus === 'beta') tags.push('계속 이용 신청');
+                if (t.onboardedVia === 'self_serve') tags.push('셀프 개설');
                 return (
                   <tr key={t.id} style={{ borderBottom: '1px solid #F0EDE7' }}>
                     <td style={{ padding: '14px 20px', fontWeight: 600 }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                         <Link href={`/${t.slug}`} target="_blank" rel="noopener noreferrer" style={{ color: '#1B2430', textDecoration: 'none' }}>{t.name}</Link>
+                        {tags.length > 0 && (
+                          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                            {tags.map((a) => (
+                              <span key={a} style={{ fontSize: 11, padding: '1px 6px', borderRadius: 4, background: '#D8E8E0', color: '#1E5645', fontWeight: 600 }}>{a}</span>
+                            ))}
+                          </div>
+                        )}
                         {alerts.length > 0 && (
                           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                             {alerts.map((a) => (

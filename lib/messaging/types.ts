@@ -5,7 +5,8 @@ export type MessageKind =
   | 'reminder'      // 테스트 전날 알림 — 정보성
   | 'followup'      // 미등록 후속 — 광고성, not_enrolled 후 3일
   | 'campaign'      // 모집 공지 — 광고성, 원장 수동
-  | 'reconfirm';    // 수신 동의 재확인 — 정보성, 동의 2년 도래 30일 전
+  | 'reconfirm'     // 수신 동의 재확인 — 정보성, 동의 2년 도래 30일 전
+  | 'beta_notice';  // 첫등원 → 원장 베타 종료 안내 — 정보성 (TODO(확인 필요): 카카오 템플릿 등록)
 
 // 수신자의 동의 상태
 export type RecipientConsent = {

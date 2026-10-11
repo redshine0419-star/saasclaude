@@ -6,6 +6,8 @@ import { getAdminMembership } from '@/lib/admin-auth';
 import { AdminSide } from '@/components/admin/AdminSide';
 import { SetupChecklist } from '@/components/admin/SetupChecklist';
 import { getSetupChecklist } from '@/lib/setup-checklist';
+import { BetaBanner } from '@/components/admin/BetaBanner';
+import { betaStatus, formatKstDate } from '@/lib/beta';
 
 function maskName(name: string) {
   if (name.length <= 1) return name + '○○';
@@ -51,11 +53,40 @@ export default async function AdminDashboardPage({
   const session = await auth();
   if (!session?.user?.email) redirect('/auth/signin');
 
-  const tenant = await prisma.tenant.findUnique({ where: { slug, status: 'active' } });
+  const tenant = await prisma.tenant.findUnique({ where: { slug } });
   if (!tenant) notFound();
 
   const membership = await getAdminMembership(tenant.id, session.user.email!);
   if (!membership) redirect('/auth/signin');
+
+  const beta = tenant.planStatus === 'beta' && tenant.betaEndsAt ? betaStatus(tenant.betaEndsAt, new Date()) : null;
+  const life = (tenant.lifecycleNotices ?? {}) as Record<string, unknown>;
+  const betaBanner = beta && (beta.daysLeft <= 14 || tenant.status === 'inactive') ? (
+    <BetaBanner
+      slug={slug}
+      endsAtLabel={formatKstDate(beta.endsAt)}
+      unpublishAtLabel={formatKstDate(beta.unpublishAt)}
+      daysLeft={beta.daysLeft}
+      ended={beta.ended}
+      closed={tenant.status === 'inactive'}
+      continueRequested={!!life.continueRequestedAt}
+      isOwner={membership.role === 'owner'}
+    />
+  ) : null;
+
+  // 비공개 전환된 학원: 다른 관리 화면은 닫고 안내·내보내기만 제공
+  if (tenant.status !== 'active') {
+    return (
+      <main style={{ minHeight: '100vh', padding: '48px 16px', background: '#F4F2EE', color: '#1B2430', fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif" }}>
+        <div style={{ maxWidth: 640, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>{tenant.name}</h1>
+          {betaBanner ?? (
+            <div style={{ padding: 20, borderRadius: 12, background: '#FFFFFF' }}>홈페이지가 비공개 상태입니다. 첫등원에 문의해 주세요.</div>
+          )}
+        </div>
+      </main>
+    );
+  }
 
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -169,6 +200,7 @@ export default async function AdminDashboardPage({
           </div>
         </div>
 
+        {betaBanner}
         <SetupChecklist items={checklist} slug={slug} welcome={welcome === '1'} />
 
         {/* 4-col stat cards */}

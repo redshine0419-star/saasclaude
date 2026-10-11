@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { betaStatus, type BetaNoticeKey } from '@/lib/beta';
+import { sendBetaNotice } from '@/lib/messaging/owner-notice';
 
 // Vercel Cron: 0 0 * * * — 매일 00:00 UTC (KST 09:00)
 // 베타 종료 2주 이내 학원 감지 + 베타 만료 30일 초과 시 비공개 전환
@@ -23,6 +25,27 @@ export async function GET(req: Request) {
     },
     select: { id: true, name: true, slug: true, betaEndsAt: true },
   });
+
+  // 원장에게 직접 단계별 안내 (D-14, D-3, D-0, 비공개 7일 전) — 학원당 하루 최대 1건
+  const betaTenants = await prisma.tenant.findMany({
+    where: { status: 'active', planStatus: 'beta', betaEndsAt: { not: null } },
+    select: { id: true, name: true, slug: true, betaEndsAt: true, lifecycleNotices: true },
+  });
+  const noticesSent: { slug: string; key: BetaNoticeKey; recipients: number; sent: number }[] = [];
+  for (const t of betaTenants) {
+    const sentMap = (t.lifecycleNotices ?? {}) as Partial<Record<BetaNoticeKey, string>>;
+    const { dueNotice } = betaStatus(t.betaEndsAt!, now, sentMap);
+    if (!dueNotice) continue;
+    try {
+      const r = await sendBetaNotice({ ...t, betaEndsAt: t.betaEndsAt! }, dueNotice, now);
+      noticesSent.push({ slug: t.slug, key: dueNotice, ...r });
+    } catch (e) {
+      console.error('[beta-check] notice failed:', t.slug, dueNotice, e instanceof Error ? e.message : e);
+    }
+  }
+  if (noticesSent.length > 0) {
+    console.log('[beta-check] 원장 안내 발송:', noticesSent);
+  }
 
   // 베타 만료 후 30일 초과 → 비공개 전환
   const toDeactivate = await prisma.tenant.findMany({
@@ -97,6 +120,7 @@ export async function GET(req: Request) {
   return NextResponse.json({
     ok: true,
     expiring: expiring.length,
+    notices: noticesSent.length,
     deactivated: toDeactivate.length,
     kakaoNearing: kakaoNearing.length,
     adminCount: adminEmails.length,

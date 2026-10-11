@@ -176,6 +176,9 @@ async function applyMissingColumns() {
   `;
   await sql`CREATE INDEX IF NOT EXISTS "site_versions_tenantId_createdAt_idx" ON site_versions ("tenantId", "createdAt")`;
 
+  // 20261011000001_lifecycle_notices
+  await sql`ALTER TABLE tenants ADD COLUMN IF NOT EXISTS "lifecycleNotices" JSONB`;
+
   console.log('Columns/tables ensured.');
 }
 

@@ -56,6 +56,7 @@ model Tenant {
   // 셀프 개설
   onboardedVia          String? // self_serve | operator
   signupConsents        Json?   // { terms, privacy, beta, case, at, email } — 개설 시 동의 기록
+  lifecycleNotices      Json?   // { d14, d3, d0, unpublish7: ISO 시각 } — 원장에게 보낸 베타 종료 안내
 
   // 관계
   sections      TenantSection[]
