@@ -34,7 +34,7 @@ export default function ConsultPage() {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error ?? '오류가 발생했습니다.'); return; }
-      window.location.href = '/consult/done';
+      window.location.href = data.id ? `/consult/result/${data.id}` : '/consult/done';
     } catch {
       setError('네트워크 오류가 발생했습니다. 다시 시도해주세요.');
     } finally {
@@ -54,7 +54,7 @@ export default function ConsultPage() {
             <div style={{ fontSize: 13, fontWeight: 700, color: '#8A6400', marginBottom: 8 }}>무료 진단</div>
             <h1 style={{ margin: 0, fontSize: 'clamp(28px, 3.5vw, 42px)', fontWeight: 700, letterSpacing: '-1px', lineHeight: 1.3 }}>우리 학원에 맞는 방향을<br />무료로 확인하세요</h1>
             <p style={{ margin: '16px 0 0', fontSize: 16, lineHeight: 1.75, color: '#4A5568' }}>
-              담당자가 현재 상황을 파악하고 적합한 구성을 직접 제안드립니다.
+              지금 쓰는 홈페이지·블로그 주소를 넣으면 모바일·검색·상담 신청 구조를 바로 점검해 드립니다. 주소가 없어도 괜찮습니다.
             </p>
           </div>
 
@@ -106,9 +106,9 @@ export default function ConsultPage() {
             <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <span style={{ fontSize: 14, fontWeight: 600 }}>현재 홈페이지 <span style={{ fontSize: 13, color: '#8A93A8', fontWeight: 400 }}>(있으면)</span></span>
               <input
-                type="url" value={form.currentUrl}
+                type="text" inputMode="url" autoCapitalize="none" value={form.currentUrl}
                 onChange={(e) => set('currentUrl', e.target.value)}
-                placeholder="https://..."
+                placeholder="예: hanul-math.com 또는 blog.naver.com/hanul"
                 style={{ height: 48, padding: '0 14px', borderRadius: 10, border: '1px solid #CDD3DD', fontSize: 15, outline: 'none', fontFamily: 'inherit', background: '#FFFFFF' }}
               />
             </label>
@@ -130,7 +130,7 @@ export default function ConsultPage() {
               disabled={!canSubmit || loading}
               style={{ height: 52, borderRadius: 12, border: 'none', background: canSubmit ? '#14213D' : '#C9CFDA', color: '#FFFFFF', fontSize: 16, fontWeight: 700, cursor: canSubmit ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}
             >
-              {loading ? '신청 중...' : '무료 진단 신청'}
+              {loading ? '점검 중… (최대 10초)' : '무료 진단 받기'}
             </button>
           </form>
         </div>
