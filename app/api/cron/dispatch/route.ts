@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { fillTemplate, resolveTemplate } from '@/lib/messaging/templates';
 import { sendMessage } from '@/lib/messaging/send';
 import { hashPhone } from '@/lib/messaging/hash';
 
@@ -42,19 +43,23 @@ export async function GET(req: Request) {
       prisma.consent.findMany({
         where: { tenantId: msg.tenantId, leadId: msg.leadId ?? '', revokedAt: null, grantedAt: { not: null } },
       }),
-      prisma.messageTemplate.findUnique({
-        where: { tenantId_scenario: { tenantId: msg.tenantId, scenario: msg.scenario } },
-      }),
+      resolveTemplate(msg.tenantId, msg.scenario),
       prisma.tenant.findUnique({ where: { id: msg.tenantId }, select: { name: true } }),
     ]);
     const consentSet = new Set(consents.map((c) => c.type));
 
-    const approvedBody = template?.approvedBody ?? template?.body ?? '';
-    const body = approvedBody
-      .replace(/#{학부모명}/g, msg.lead.parentName ?? '')
-      .replace(/#{학원명}/g, tenant?.name ?? '')
-      .replace(/#{학생학년}/g, msg.lead.studentGrade ?? '')
-      .replace(/#{상담유형}/g, '');
+    // 승인된 문구가 없으면 보내지 않는다 (승인 전 초안 발송 금지)
+    if (!template) {
+      await prisma.message.update({ where: { id: msg.id }, data: { status: 'failed', error: 'no_approved_template', sentAt: now } });
+      failed++;
+      continue;
+    }
+    const body = fillTemplate(template.body, {
+      학부모명: msg.lead.parentName,
+      학원명: tenant?.name,
+      학생학년: msg.lead.studentGrade,
+      상담유형: msg.lead.consultType,
+    });
 
     const isAd = msg.kind === 'ad';
     const result = await sendMessage({
@@ -159,18 +164,16 @@ export async function GET(req: Request) {
       const recipientHash = hashPhone(lead.phone);
 
       const [template, tenantRecord] = await Promise.all([
-        prisma.messageTemplate.findUnique({
-          where: { tenantId_scenario: { tenantId: setting.tenantId, scenario: 'followup' } },
-        }),
+        resolveTemplate(setting.tenantId, 'followup'),
         prisma.tenant.findUnique({ where: { id: setting.tenantId }, select: { name: true } }),
       ]);
-      if (!template?.approvedBody) continue;
+      if (!template) continue;
 
-      const followupBody = template.approvedBody
-        .replace(/#{학부모명}/g, lead.parentName ?? '')
-        .replace(/#{학원명}/g, tenantRecord?.name ?? '')
-        .replace(/#{학생학년}/g, lead.studentGrade ?? '')
-        .replace(/#{상담유형}/g, '');
+      const followupBody = fillTemplate(template.body, {
+        학부모명: lead.parentName,
+        학원명: tenantRecord?.name,
+        학생학년: lead.studentGrade,
+      });
 
       const result = await sendMessage({
         tenantId: setting.tenantId,
@@ -247,16 +250,15 @@ export async function GET(req: Request) {
     if (existing) continue;
 
     const [template, reconfirmTenant] = await Promise.all([
-      prisma.messageTemplate.findUnique({
-        where: { tenantId_scenario: { tenantId, scenario: 'reconfirm' } },
-      }),
+      resolveTemplate(tenantId, 'reconfirm'),
       prisma.tenant.findUnique({ where: { id: tenantId }, select: { name: true } }),
     ]);
-    if (!template?.approvedBody) continue;
+    if (!template) continue;
 
-    const reconfirmBody = template.approvedBody
-      .replace(/#{학부모명}/g, consent.lead.parentName ?? '')
-      .replace(/#{학원명}/g, reconfirmTenant?.name ?? '');
+    const reconfirmBody = fillTemplate(template.body, {
+      학부모명: consent.lead.parentName,
+      학원명: reconfirmTenant?.name,
+    });
 
     const recipientHash = hashPhone(consent.lead.phone);
 

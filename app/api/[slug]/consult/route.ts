@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { fillTemplate, resolveTemplate } from '@/lib/messaging/templates';
 import { sendMessage } from '@/lib/messaging/send';
 import { hashPhone } from '@/lib/messaging/hash';
 
@@ -155,16 +156,16 @@ export async function POST(
   });
 
   // ── receipt 발송 (학부모에게) ─────────────────────────────────────────
-  const receiptTemplate = await prisma.messageTemplate.findUnique({
-    where: { tenantId_scenario: { tenantId: tenant.id, scenario: 'receipt' } },
-  });
+  const vars = {
+    학부모명: lead.parentName,
+    학원명: tenant.name,
+    학생학년: lead.studentGrade,
+    상담유형: lead.consultType,
+  };
+  const receiptTemplate = await resolveTemplate(tenant.id, 'receipt');
 
-  if (receiptTemplate?.reviewStatus === 'approved' && receiptTemplate.approvedBody) {
-    const receiptBody = receiptTemplate.approvedBody
-      .replace(/#{학부모명}/g, lead.parentName)
-      .replace(/#{학원명}/g, tenant.name)
-      .replace(/#{학생학년}/g, lead.studentGrade ?? '')
-      .replace(/#{상담유형}/g, body.consultType ?? '');
+  if (receiptTemplate) {
+    const receiptBody = fillTemplate(receiptTemplate.body, vars);
     await dispatchMessage({
       tenantId: tenant.id,
       leadId: lead.id,
@@ -181,17 +182,15 @@ export async function POST(
       data: {
         leadId: lead.id,
         type: 'receipt_skipped',
-        payload: { reason: receiptTemplate ? `review_status:${receiptTemplate.reviewStatus}` : 'no_template' },
+        payload: { reason: 'no_template' },
       },
     });
   }
 
   // ── owner_alert 발송 (notify_recipients에게) ──────────────────────────
-  const alertTemplate = await prisma.messageTemplate.findUnique({
-    where: { tenantId_scenario: { tenantId: tenant.id, scenario: 'owner_alert' } },
-  });
+  const alertTemplate = await resolveTemplate(tenant.id, 'owner_alert');
 
-  if (alertTemplate?.reviewStatus === 'approved' && alertTemplate.approvedBody) {
+  if (alertTemplate) {
     for (const recipient of tenant.notifyRecipients) {
       const recipientHashOwner = hashPhone(recipient.phone);
       await dispatchMessage({
@@ -201,10 +200,7 @@ export async function POST(
         phone: recipient.phone,
         scenario: 'owner_alert',
         kind: 'info',
-        body: alertTemplate.approvedBody
-          .replace(/#{학부모명}/g, lead.parentName)
-          .replace(/#{학생학년}/g, lead.studentGrade ?? '미기재')
-          .replace(/#{상담유형}/g, body.consultType ?? ''),
+        body: fillTemplate(alertTemplate.body, vars),
         marketingConsent: true,  // 원장 알림은 동의 체크 불필요 (정보성)
         nightConsent: true,
       });

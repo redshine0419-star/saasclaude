@@ -22,6 +22,7 @@ interface Props {
   slug: string;
   settings: AutomationSetting[];
   templates: Template[];
+  platformDefaults: Record<string, string>;
   marketingConsentCount: number;
 }
 
@@ -115,6 +116,7 @@ export function KakaoAutomationClient({
   slug,
   settings,
   templates,
+  platformDefaults,
   marketingConsentCount,
 }: Props) {
   const [enabled, setEnabled] = useState<Record<string, boolean>>(
@@ -204,7 +206,7 @@ export function KakaoAutomationClient({
 
   const selectedTemplate = templateMap[selectedScenario];
   const selectedMeta = SCENARIO_META[selectedScenario];
-  const previewBody = selectedTemplate?.approvedBody ?? selectedTemplate?.body ?? '';
+  const previewBody = selectedTemplate?.approvedBody ?? platformDefaults[selectedScenario] ?? selectedTemplate?.body ?? '';
   const currentReviewStatus = templateReviewStatus[selectedScenario] ?? selectedTemplate?.reviewStatus ?? 'draft';
 
   return (
@@ -266,6 +268,7 @@ export function KakaoAutomationClient({
                 <div style={{ fontSize: 14, color: '#5A6270' }}>
                   {meta.subtitle}
                   {tmpl?.reviewStatus === 'approved' && ' · 검수 승인됨'}
+                  {tmpl?.reviewStatus !== 'approved' && platformDefaults[sc] && ' · 기본 문구로 발송 중'}
                   {tmpl?.reviewStatus === 'pending' && ' · 검수 요청 중'}
                   {tmpl?.reviewStatus === 'rejected' && ' · 검수 반려됨'}
                   {tmpl?.reviewStatus === 'draft' && ' · 초안 저장됨'}

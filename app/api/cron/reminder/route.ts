@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { fillTemplate, resolveTemplate } from '@/lib/messaging/templates';
 import { sendMessage } from '@/lib/messaging/send';
 import { hashPhone } from '@/lib/messaging/hash';
 
@@ -65,12 +66,10 @@ export async function GET(req: Request) {
 
     // 해당 테넌트의 reminder 템플릿 조회
     const [template, tenant] = await Promise.all([
-      prisma.messageTemplate.findUnique({
-        where: { tenantId_scenario: { tenantId: lead.tenantId, scenario: 'reminder' } },
-      }),
+      resolveTemplate(lead.tenantId, 'reminder'),
       prisma.tenant.findUnique({ where: { id: lead.tenantId }, select: { name: true } }),
     ]);
-    if (!template?.approvedBody) { skipped++; continue; }
+    if (!template) { skipped++; continue; }
 
     const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
     const slotLabel = slot.date
@@ -79,10 +78,11 @@ export async function GET(req: Request) {
         ? `${WEEKDAY_LABELS[slot.weekday]}요일 ${slot.time ?? ''}`
         : slot.time ?? '';
 
-    const reminderBody = template.approvedBody
-      .replace(/#{학부모명}/g, lead.parentName ?? '')
-      .replace(/#{학원명}/g, tenant?.name ?? '')
-      .replace(/#{테스트일시}/g, slotLabel.trim());
+    const reminderBody = fillTemplate(template.body, {
+      학부모명: lead.parentName,
+      학원명: tenant?.name,
+      테스트일시: slotLabel.trim(),
+    });
 
     const consentSet = new Set(lead.consents.map((c) => c.type));
     const recipientHash = hashPhone(lead.phone);

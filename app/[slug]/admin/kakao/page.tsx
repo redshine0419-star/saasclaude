@@ -1,6 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { PLATFORM_TEMPLATES } from '@/lib/messaging/templates';
 import { getAdminMembership } from '@/lib/admin-auth';
 import { AdminSide } from '@/components/admin/AdminSide';
 import { KakaoAutomationClient } from './KakaoAutomationClient';
@@ -83,6 +84,7 @@ export default async function AdminKakaoPage({
             approvedBody: t.approvedBody,
             reviewStatus: t.reviewStatus,
           }))}
+          platformDefaults={PLATFORM_TEMPLATES as Record<string, string>}
           marketingConsentCount={marketingCount}
         />
       </main>
