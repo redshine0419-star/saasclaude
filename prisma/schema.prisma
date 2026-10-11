@@ -92,6 +92,7 @@ model Tenant {
   shuttleStops  ShuttleStop[]
   faqItems      FaqItem[]
   siteVersions  SiteVersion[]
+  aiDraftLogs   AiDraftLog[]
 
   @@map("tenants")
 }
@@ -116,6 +117,21 @@ enum TenantStatus {
 // ─────────────────────────────────────────────────────────
 // 섹션 설정
 // ─────────────────────────────────────────────────────────
+
+// AI 초안 사용 기록 (학원별 일일 한도·비용 추적). 원문은 저장하지 않는다.
+model AiDraftLog {
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  tenantId     String
+  kind         String   // director
+  inputTokens  Int      @default(0)
+  outputTokens Int      @default(0)
+
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, createdAt])
+  @@map("ai_draft_logs")
+}
 
 // 홈페이지 구성(테마·강조색·섹션) 변경 이력. 원장이 이전 상태로 되돌릴 수 있다.
 model SiteVersion {

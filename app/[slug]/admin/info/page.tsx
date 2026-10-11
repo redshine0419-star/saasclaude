@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getAdminMembership } from '@/lib/admin-auth';
 import { AdminSide } from '@/components/admin/AdminSide';
 import { InfoClient } from './InfoClient';
+import { aiDraftAvailable } from '@/lib/ai/director-draft';
 
 export default async function AdminInfoPage({
   params,
@@ -92,6 +93,7 @@ export default async function AdminInfoPage({
         )}
 
         <InfoClient
+          aiDraftEnabled={membership.role === 'owner' && aiDraftAvailable()}
           slug={slug}
           tenant={{
             name: tenant.name,

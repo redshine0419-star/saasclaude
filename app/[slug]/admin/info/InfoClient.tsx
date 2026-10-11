@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { DirectorDraftPanel } from './DirectorDraftPanel';
 
 interface TenantInfo {
   name: string;
@@ -80,6 +81,7 @@ interface Props {
   facilities: FacilityRow[];
   refundPolicyText: string | null;
   shuttleStops: ShuttleRow[];
+  aiDraftEnabled: boolean;
 }
 
 const INPUT = {
@@ -93,7 +95,7 @@ const TEXTAREA = {
 };
 const LABEL = { fontSize: 13, fontWeight: 600, color: '#5A6270' };
 
-export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: initialMirror, director: initialDirector, fees: initialFees, feeChangeLogs, principles: initialPrinciples, facilities: initialFacilities, refundPolicyText: initialRefundPolicyText, shuttleStops: initialShuttleStops }: Props) {
+export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: initialMirror, director: initialDirector, fees: initialFees, feeChangeLogs, principles: initialPrinciples, facilities: initialFacilities, refundPolicyText: initialRefundPolicyText, shuttleStops: initialShuttleStops, aiDraftEnabled }: Props) {
   const [info, setInfo] = useState(initialTenant);
   const [mirror, setMirror] = useState<NaverPlaceMirror>(
     initialMirror ?? { phone: '', hours: '', address: '' }
@@ -488,6 +490,20 @@ export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: init
               <label style={LABEL}>교육 철학</label>
               <textarea rows={3} value={director.philosophy ?? ''} onChange={(e) => setD('philosophy', e.target.value)} placeholder="틀린 문제를 분석하는 것이 실력의 시작입니다." style={TEXTAREA} />
             </div>
+            {aiDraftEnabled && (
+              <DirectorDraftPanel
+                slug={slug}
+                onApply={(d) =>
+                  setDirector((p) => ({
+                    ...p,
+                    headline: d.headline || p.headline,
+                    philosophy: d.philosophy || p.philosophy,
+                    career: d.career || p.career,
+                    education: d.education || p.education,
+                  }))
+                }
+              />
+            )}
           </div>
         </div>
 
