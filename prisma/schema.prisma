@@ -58,6 +58,11 @@ model Tenant {
   signupConsents        Json?   // { terms, privacy, beta, case, at, email } — 개설 시 동의 기록
   lifecycleNotices      Json?   // { d14, d3, d0, unpublish7: ISO 시각 } — 원장에게 보낸 베타 종료 안내
 
+  // 커스텀 도메인 (원장 셀프 연결). verified일 때만 라우팅한다
+  customDomain           String?   @unique
+  customDomainStatus     String?   // pending | verified
+  customDomainVerifiedAt DateTime?
+
   // 관계
   sections      TenantSection[]
   memberships   Membership[]

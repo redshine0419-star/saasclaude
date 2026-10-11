@@ -4,6 +4,9 @@ import { prisma } from '@/lib/prisma';
 import { getAdminMembership } from '@/lib/admin-auth';
 import { AdminSide } from '@/components/admin/AdminSide';
 import { SettingsClient } from './SettingsClient';
+import { DomainCard } from './DomainCard';
+import { getDomainAdapter } from '@/lib/domains/adapter';
+import { requiredDnsRecords } from '@/lib/domains/validate';
 
 export default async function AdminSettingsPage({
   params,
@@ -73,6 +76,15 @@ export default async function AdminSettingsPage({
           members={allMembers.map((m) => ({ id: m.id, email: m.user.email ?? '', name: m.user.name, role: m.role }))}
           pendingInvites={pendingInvites.map((i) => ({ id: i.id, email: i.email, role: i.role, expiresAt: i.expiresAt.toISOString() }))}
         />
+        {membership.role === 'owner' && (
+          <DomainCard
+            slug={slug}
+            available={getDomainAdapter() !== null}
+            domain={tenant.customDomain}
+            status={tenant.customDomainStatus}
+            records={tenant.customDomain ? requiredDnsRecords(tenant.customDomain) : []}
+          />
+        )}
       </main>
     </div>
   );

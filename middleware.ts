@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isReservedSlug } from '@/lib/reserved-slugs';
+import { isPlatformHost, resolveSlugByHost } from '@/lib/domains/resolve';
+
+const PLATFORM_ORIGIN = 'https://growweb.me';
 
 function extractSlugFromPathname(pathname: string): string | null {
   const segment = pathname.split('/')[1] ?? '';
@@ -7,17 +10,39 @@ function extractSlugFromPathname(pathname: string): string | null {
   return segment;
 }
 
-export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
-
-  const slug = extractSlugFromPathname(pathname);
+function withTenant(req: NextRequest, slug: string) {
   const headers = new Headers(req.headers);
+  headers.set('x-tenant-slug', slug);
+  return headers;
+}
 
-  if (slug) {
-    headers.set('x-tenant-slug', slug);
+export async function middleware(req: NextRequest) {
+  const { pathname, search } = req.nextUrl;
+  const host = (req.headers.get('host') ?? '').toLowerCase().replace(/:\d+$/, '');
+
+  // 학원 커스텀 도메인
+  if (host && !isPlatformHost(host) && pathname !== '/robots.txt' && pathname !== '/sitemap.xml') {
+    const slug = await resolveSlugByHost(host);
+    if (slug) {
+      const first = pathname.split('/')[1] ?? '';
+      // 로그인 쿠키는 growweb.me에 있으므로 관리자·로그인은 플랫폼 도메인으로 보낸다
+      if (['auth', 'platform', 'start'].includes(first) || pathname.startsWith(`/${slug}/admin`)) {
+        return NextResponse.redirect(new URL(`${pathname}${search}`, PLATFORM_ORIGIN));
+      }
+      if (first === slug) {
+        return NextResponse.next({ request: { headers: withTenant(req, slug) } });
+      }
+      const target = req.nextUrl.clone();
+      target.pathname = pathname === '/' ? `/${slug}` : `/${slug}${pathname}`;
+      return NextResponse.rewrite(target, { request: { headers: withTenant(req, slug) } });
+    }
   }
 
-  return NextResponse.next({ request: { headers } });
+  const slug = extractSlugFromPathname(pathname);
+  if (slug) {
+    return NextResponse.next({ request: { headers: withTenant(req, slug) } });
+  }
+  return NextResponse.next();
 }
 
 export const config = {

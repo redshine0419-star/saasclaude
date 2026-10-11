@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getAcademyPageData } from '@/lib/academy-data';
+import { prisma } from '@/lib/prisma';
 import GA4Script from '@/components/academy/GA4Script';
 import JsonLd from '@/components/academy/JsonLd';
 
@@ -15,7 +16,13 @@ export async function generateMetadata({
 
   const { tenant } = data;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://growweb.me';
-  const pageUrl = `${baseUrl}/${slug}`;
+  // 연결된 학원 도메인이 있으면 그 주소를 대표 주소로 삼아 검색 중복을 막는다
+  const domain = await prisma.tenant.findUnique({
+    where: { slug },
+    select: { customDomain: true, customDomainStatus: true },
+  });
+  const pageUrl =
+    domain?.customDomain && domain.customDomainStatus === 'verified' ? `https://${domain.customDomain}` : `${baseUrl}/${slug}`;
   const description = [
     tenant.name,
     tenant.subjects,

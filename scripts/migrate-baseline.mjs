@@ -179,6 +179,12 @@ async function applyMissingColumns() {
   // 20261011000001_lifecycle_notices
   await sql`ALTER TABLE tenants ADD COLUMN IF NOT EXISTS "lifecycleNotices" JSONB`;
 
+  // 20261011000002_custom_domain
+  await sql`ALTER TABLE tenants ADD COLUMN IF NOT EXISTS "customDomain" TEXT`;
+  await sql`ALTER TABLE tenants ADD COLUMN IF NOT EXISTS "customDomainStatus" TEXT`;
+  await sql`ALTER TABLE tenants ADD COLUMN IF NOT EXISTS "customDomainVerifiedAt" TIMESTAMP(3)`;
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS "tenants_customDomain_key" ON tenants ("customDomain")`;
+
   console.log('Columns/tables ensured.');
 }
 
