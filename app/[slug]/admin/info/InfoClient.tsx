@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { formatKstDateTime } from '@/lib/format-date';
 import { AiDraftPanel } from '@/components/admin/AiDraftPanel';
 
 interface TenantInfo {
@@ -806,7 +807,7 @@ export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: init
               {feeChangeLogs.map((l) => (
                 <tr key={l.id} style={{ borderBottom: '1px solid #F5F3EF' }}>
                   <td style={{ padding: '8px 0', color: '#8A93A8' }}>
-                    {new Date(l.createdAt).toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short' })}
+                    {formatKstDateTime(l.createdAt)}
                   </td>
                   <td style={{ padding: '8px 0', color: '#5A6270' }}>{l.actorEmail}</td>
                 </tr>

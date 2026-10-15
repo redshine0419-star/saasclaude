@@ -1,0 +1,149 @@
+/*
+ * 관리자 화면 모바일 대응 (768px 이하).
+ * 관리자 화면은 인라인 스타일로 작성되어 있어서, 모바일 규칙은 .adm 범위 안에서 !important로 덮어쓴다.
+ * 아래 [style*=...] 선택자는 관리자 화면의 실제 인라인 값(고정 폭 패널, 다열 그리드)을 가리킨다.
+ * 새 화면에서 이런 고정 폭을 쓰면 여기에 추가하거나, 처음부터 adm-* 클래스를 쓴다.
+ */
+
+.adm-mobilebar { display: none; }
+.adm .adm-only-mobile { display: none; }
+
+@media (max-width: 768px) {
+  /* ── 운영자 대행 접속 배너: 고정 대신 맨 위에 한 줄로 ── */
+  .adm-proxy-banner { position: static !important; padding: 8px 12px !important; flex-wrap: wrap; gap: 4px; }
+  .adm { padding-top: 0 !important; }
+
+  /* ── 공통 틀: 사이드바 숨기고 상단 바, 본문 세로 쌓기 ── */
+  .adm aside.adm-side { display: none !important; }
+
+  /* 각 관리자 화면의 최상위 div가 .adm의 직계 자식이다 (사이드바가 다른 div로 감싸여 있어도 동작) */
+  .adm > div {
+    flex-direction: column !important;
+    min-height: 100dvh;
+  }
+
+  .adm > div > main {
+    padding: 16px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box;
+    gap: 16px !important;
+    flex-wrap: wrap;
+  }
+  .adm > div > main > [style*="flex:1"] { min-width: 0; flex-basis: 100%; }
+  .adm > div > main > * { max-width: 100%; }
+
+  .adm-mobilebar {
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: #1B2430;
+    color: #FFFFFF;
+    font-family: 'IBM Plex Sans KR', 'Apple SD Gothic Neo', sans-serif;
+  }
+  .adm-mobilebar-row { display: flex; align-items: center; gap: 4px; height: 52px; padding: 0 8px; }
+  .adm-menu-btn,
+  .adm-drawer-close {
+    width: 44px; height: 44px; border: none; background: transparent; color: inherit;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 8px;
+    font-size: 18px;
+  }
+  .adm-menu-btn:focus-visible, .adm-drawer-close:focus-visible { outline: 2px solid #F2C94C; }
+  .adm-mobilebar-title { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
+  .adm-mobilebar-current { font-size: 16px; font-weight: 700; }
+  .adm-mobilebar-tenant { font-size: 12px; color: #9AA3AF; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .adm-drawer-backdrop { position: fixed; inset: 0; z-index: 60; background: rgba(15, 20, 28, 0.5); }
+  .adm-drawer {
+    position: absolute; top: 0; left: 0; bottom: 0; width: min(82vw, 300px);
+    background: #1B2430; color: #C8CDD5; padding: 8px 12px 24px; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 2px;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+  }
+  .adm-drawer-close { align-self: flex-end; color: #C8CDD5; }
+
+  /* ── 가로 줄(제목줄·버튼줄·목록+패널): 넘치면 다음 줄로 ── */
+  .adm main [style*="display:flex"]:not([style*="flex-direction:column"]) { flex-wrap: wrap; row-gap: 8px; }
+  .adm main [style*="display:flex"]:not([style*="flex-direction:column"]) > [style*="flex:1"] { min-width: 0; }
+  .adm main h1 { font-size: 22px !important; }
+
+  /* ── 목록 + 고정 폭 상세 패널: 패널을 아래로 내려 전체 폭 사용 ── */
+  .adm main div:has(> [style*="width:360px"]),
+  .adm main div:has(> [style*="width:380px"]),
+  .adm main div:has(> [style*="width:400px"]),
+  .adm main div:has(> [style*="width:420px"]),
+  .adm main div:has(> [style*="width:440px"]),
+  .adm main div:has(> [style*="width:520px"]) {
+    flex-wrap: wrap !important;
+  }
+  .adm main [style*="width:360px"],
+  .adm main [style*="width:380px"],
+  .adm main [style*="width:400px"],
+  .adm main [style*="width:420px"],
+  .adm main [style*="width:440px"],
+  .adm main [style*="width:520px"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex-basis: 100% !important;
+  }
+  .adm main [style*="min-width:300px"],
+  .adm main [style*="min-width:320px"],
+  .adm main [style*="min-width:420px"] {
+    min-width: 0 !important;
+  }
+
+  /* ── 다열 그리드: 3~4열은 2열, 5~6열(요일 버튼 등)은 3열 ── */
+  .adm main [style*="grid-template-columns:repeat(3,"],
+  .adm main [style*="grid-template-columns:repeat(4,"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .adm main [style*="grid-template-columns:repeat(5,"],
+  .adm main [style*="grid-template-columns:repeat(6,"] {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  /* ── 표: 가로 스크롤 (표 내용 폭이 바깥 flex 항목의 최소 폭을 키우지 않게 min-width: 0) ── */
+  .adm main div { min-width: 0; }
+  .adm main table {
+    display: block;
+    width: 100% !important;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .adm main th, .adm main td { white-space: nowrap; }
+  .adm main td [style*="display:flex"] { flex-wrap: nowrap !important; }
+
+  /* ── 입력·버튼: 확대 방지(16px)와 터치 크기 ── */
+  .adm main input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]),
+  .adm main select,
+  .adm main textarea { font-size: 16px !important; max-width: 100%; }
+  .adm main button { min-height: 40px; }
+
+  /* 긴 텍스트·이미지가 화면 밖으로 밀지 않게 */
+  .adm main img { max-width: 100%; height: auto; }
+  .adm main * { overflow-wrap: anywhere; }
+
+  /* ── 상담 관리 상세: 목록을 누르면 전체 화면 시트로 ── */
+  .adm .adm-only-mobile { display: inline-flex; }
+  .adm .adm-lead-detail[data-open="false"] { display: none !important; }
+  .adm .adm-lead-detail[data-open="true"] {
+    position: fixed !important;
+    inset: 0;
+    z-index: 70;
+    width: 100% !important;
+    padding: 12px 16px 32px !important;
+    border-left: none !important;
+    overflow-y: auto;
+  }
+  .adm .adm-sheet-back {
+    align-self: flex-start; align-items: center; height: 44px; padding: 0 12px; margin-left: -8px;
+    border: none; background: transparent; font: inherit; font-size: 15px; font-weight: 600; color: #1B2430; cursor: pointer;
+  }
+}
+
+/* 아주 좁은 화면: 2열 그리드(설정 카드, 입력 칸)도 1열로 */
+@media (max-width: 480px) {
+  .adm main [style*="grid-template-columns:repeat(2,"] { grid-template-columns: minmax(0, 1fr) !important; }
+}

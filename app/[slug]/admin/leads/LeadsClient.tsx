@@ -111,6 +111,8 @@ export function LeadsClient({ slug, leads: initialLeads, totalByStatus }: Props)
   const [selectedId, setSelectedId] = useState<string | null>(
     initialLeads[0]?.id ?? null,
   );
+  // 모바일에서는 목록을 누를 때만 상세를 전체 화면으로 연다 (데스크톱은 항상 옆에 표시)
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [memoValue, setMemoValue] = useState<Record<string, string>>({});
   const [statusValue, setStatusValue] = useState<Record<string, string>>({});
@@ -295,7 +297,7 @@ export function LeadsClient({ slug, leads: initialLeads, totalByStatus }: Props)
                   return (
                     <tr
                       key={lead.id}
-                      onClick={() => setSelectedId(lead.id)}
+                      onClick={() => { setSelectedId(lead.id); setSheetOpen(true); }}
                       style={{
                         borderTop: '1px solid #EEEAE2',
                         background: isSelected ? '#EEF5F1' : 'transparent',
@@ -350,6 +352,8 @@ export function LeadsClient({ slug, leads: initialLeads, totalByStatus }: Props)
       {/* Right: detail panel */}
       {selected && (
         <aside
+          className="adm-lead-detail"
+          data-open={sheetOpen ? 'true' : 'false'}
           style={{
             width: 420,
             boxSizing: 'border-box',
@@ -362,6 +366,9 @@ export function LeadsClient({ slug, leads: initialLeads, totalByStatus }: Props)
             overflowY: 'auto',
           }}
         >
+          <button type="button" className="adm-only-mobile adm-sheet-back" onClick={() => setSheetOpen(false)}>
+            ← 목록
+          </button>
           {/* Header */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <div style={{ fontSize: 20, fontWeight: 700 }}>{maskName(selected.parentName)} 학부모</div>

@@ -1,6 +1,8 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import '@/styles/admin.css';
 
 export default async function AdminLayout({
   children,
@@ -49,7 +51,7 @@ export default async function AdminLayout({
   return (
     <>
       {isProxy && (
-        <div style={{
+        <div className="adm-proxy-banner" style={{
           position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999,
           background: '#1D3FA8', color: '#FFFFFF',
           padding: '6px 20px', fontSize: 13, fontWeight: 600,
@@ -57,10 +59,10 @@ export default async function AdminLayout({
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         }}>
           <span>첫등원 운영자 대행 접속 중 — {slug}</span>
-          <a href="/platform/academies" style={{ color: '#FFF3CC', textDecoration: 'none', fontSize: 12 }}>← 플랫폼으로 돌아가기</a>
+          <Link href="/platform/academies" style={{ color: '#FFF3CC', textDecoration: 'none', fontSize: 12 }}>← 플랫폼으로 돌아가기</Link>
         </div>
       )}
-      <div style={isProxy ? { paddingTop: 32 } : undefined}>
+      <div className="adm" style={isProxy ? { paddingTop: 32 } : undefined}>
         {children}
       </div>
     </>

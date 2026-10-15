@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { AdminMobileBar } from './AdminMobileBar';
 
 type ActiveKey =
   | 'dashboard'
@@ -82,40 +83,33 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
+const ACTIVE_LABEL: Record<ActiveKey, string> = {
+  dashboard: '대시보드',
+  leads: '상담 관리',
+  kakao: '카톡 자동 발송',
+  kakaolog: '발송 내역·수신 동의',
+  news: '소식',
+  reviews: '후기·성과',
+  classes: '수업·시간표',
+  info: '학원 정보·교습비',
+  staff: '강사진',
+  'result-stats': '입시 실적',
+  sections: '홈페이지 구성',
+  report: '월간 리포트',
+  settings: '설정',
+};
+
 export function AdminSide({ slug, tenantName, active }: AdminSideProps) {
   const base = `/${slug}/admin`;
 
-  return (
-    <aside
-      style={{
-        width: 240,
-        minHeight: '100vh',
-        boxSizing: 'border-box',
-        padding: '28px 16px',
-        background: '#1B2430',
-        color: '#C8CDD5',
-        fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif",
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-        flexShrink: 0,
-      }}
-    >
-      <div style={{ padding: '0 12px 20px', fontSize: 18, fontWeight: 700, color: '#FFFFFF' }}>
-        {tenantName}{' '}
-        <span style={{ fontSize: 13, fontWeight: 500, color: '#9AA3AF' }}>관리자</span>
-      </div>
-
+  const nav = (
+    <>
       <NavItem href={`${base}`} label="대시보드" active={active === 'dashboard'} />
       <NavItem href={`${base}/leads`} label="상담 관리" active={active === 'leads'} />
 
       <SectionLabel>카톡</SectionLabel>
       <NavItem href={`${base}/kakao`} label="자동 발송" active={active === 'kakao'} />
-      <NavItem
-        href={`${base}/kakao/log`}
-        label="발송 내역·수신 동의"
-        active={active === 'kakaolog'}
-      />
+      <NavItem href={`${base}/kakao/log`} label="발송 내역·수신 동의" active={active === 'kakaolog'} />
 
       <SectionLabel>홈페이지 콘텐츠</SectionLabel>
       <NavItem href={`${base}/mobile`} label="📱 모바일 글쓰기" active={false} />
@@ -130,15 +124,45 @@ export function AdminSide({ slug, tenantName, active }: AdminSideProps) {
       <SectionLabel>운영</SectionLabel>
       <NavItem href={`${base}/report`} label="월간 리포트" active={active === 'report'} />
       <NavItem href={`${base}/settings`} label="설정" active={active === 'settings'} />
+      <NavItem href={`/${slug}`} label="내 홈페이지 보기 ↗" active={false} />
+    </>
+  );
 
-      <div style={{ marginTop: 'auto' }}>
-        <Link
-          href="/auth/signin"
-          style={{ padding: 12, fontSize: 13, color: '#9AA3AF', textDecoration: 'none' }}
-        >
-          로그아웃
-        </Link>
-      </div>
-    </aside>
+  return (
+    <>
+      <AdminMobileBar tenantName={tenantName} current={ACTIVE_LABEL[active]}>
+        {nav}
+      </AdminMobileBar>
+      <aside
+        className="adm-side"
+        style={{
+          width: 240,
+          minHeight: '100vh',
+          boxSizing: 'border-box',
+          padding: '28px 16px',
+          background: '#1B2430',
+          color: '#C8CDD5',
+          fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif",
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+          flexShrink: 0,
+        }}
+      >
+        <div style={{ padding: '0 12px 20px', fontSize: 18, fontWeight: 700, color: '#FFFFFF' }}>
+          {tenantName}{' '}
+          <span style={{ fontSize: 13, fontWeight: 500, color: '#9AA3AF' }}>관리자</span>
+        </div>
+        {nav}
+        <div style={{ marginTop: 'auto' }}>
+          <Link
+            href="/auth/signin"
+            style={{ padding: 12, fontSize: 13, color: '#9AA3AF', textDecoration: 'none' }}
+          >
+            로그아웃
+          </Link>
+        </div>
+      </aside>
+    </>
   );
 }

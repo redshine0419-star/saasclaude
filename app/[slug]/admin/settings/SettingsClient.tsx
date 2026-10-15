@@ -1,6 +1,7 @@
 'use client';
 
 import { ACCENT_PRESETS } from '@/lib/accent';
+import { formatKstDate, formatKstDateTime } from '@/lib/format-date';
 import { useState } from 'react';
 
 interface Recipient {
@@ -386,7 +387,7 @@ export function SettingsClient({
           {betaEndsAt && (
             <>
               <br />
-              베타 종료일: {new Date(betaEndsAt).toLocaleDateString('ko-KR')}
+              베타 종료일: {formatKstDate(betaEndsAt)}
             </>
           )}
         </div>
@@ -465,7 +466,7 @@ export function SettingsClient({
               {proxyLogs.map((l) => (
                 <tr key={l.id} style={{ borderBottom: '1px solid #F5F3EF' }}>
                   <td style={{ padding: '8px 12px', color: '#8A93A8' }}>
-                    {new Date(l.accessedAt).toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short' })}
+                    {formatKstDateTime(l.accessedAt)}
                   </td>
                   <td style={{ padding: '8px 12px', color: '#5A6270' }}>{l.adminEmail}</td>
                 </tr>
@@ -513,7 +514,7 @@ export function SettingsClient({
               <div style={{ fontSize: 13, fontWeight: 600, color: '#5A6270', marginBottom: 6 }}>초대 대기 중</div>
               {invites.map((inv) => (
                 <div key={inv.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 14px', borderRadius: 8, background: '#FFFBF0', fontSize: 13, marginBottom: 6 }}>
-                  <span>{inv.email} <span style={{ color: '#8A93A8' }}>(만료: {new Date(inv.expiresAt).toLocaleDateString('ko-KR')})</span></span>
+                  <span>{inv.email} <span style={{ color: '#8A93A8' }}>(만료: {formatKstDate(inv.expiresAt)})</span></span>
                   <button type="button" onClick={() => cancelInvite(inv.id)} style={{ fontSize: 12, color: '#8A3A1C', border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: 'inherit' }}>취소</button>
                 </div>
               ))}
