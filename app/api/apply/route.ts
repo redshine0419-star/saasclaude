@@ -15,41 +15,35 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '필수 동의 항목에 동의해주세요.' }, { status: 400 });
   }
 
-  // Get next queue order
-  const count = await prisma.application.count();
+  let application;
+  try {
+    const count = await prisma.application.count();
+    application = await prisma.application.create({
+      data: {
+        academyName: String(academyName).trim().slice(0, 60),
+        area: String(area).trim().slice(0, 60),
+        subject: String(subject).trim().slice(0, 40),
+        directorName: String(directorName).trim().slice(0, 40),
+        phone: String(phone).trim().slice(0, 20),
+        currentUrl: typeof currentUrl === 'string' && currentUrl.trim() ? currentUrl.trim().slice(0, 500) : null,
+        wantsPhotoShoot: Boolean(wantsPhotoShoot),
+        queueOrder: count + 1,
+        consentTerms: Boolean(consentTerms),
+        consentPrivacy: Boolean(consentPrivacy),
+        consentBeta: Boolean(consentBeta),
+        consentCase: Boolean(consentCase),
+        uploadedFiles: Array.isArray(uploadedFiles)
+          ? uploadedFiles.filter((u: unknown): u is string => typeof u === 'string' && /^https:\/\//.test(u)).slice(0, 10)
+          : [],
+      },
+    });
+  } catch (e) {
+    console.error('[apply] create failed:', e instanceof Error ? e.message : e);
+    return NextResponse.json({ error: '신청을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.' }, { status: 500 });
+  }
 
-  const application = await prisma.application.create({
-    data: {
-      academyName: academyName.trim(),
-      area: area.trim(),
-      subject: subject.trim(),
-      directorName: directorName.trim(),
-      phone: phone.trim(),
-      currentUrl: currentUrl?.trim() || null,
-      wantsPhotoShoot: Boolean(wantsPhotoShoot),
-      queueOrder: count + 1,
-      consentTerms: Boolean(consentTerms),
-      consentPrivacy: Boolean(consentPrivacy),
-      consentBeta: Boolean(consentBeta),
-      consentCase: Boolean(consentCase),
-      uploadedFiles: Array.isArray(uploadedFiles) ? uploadedFiles.filter((u: unknown) => typeof u === 'string') : [],
-    },
-  });
-
-  // 플랫폼 관리자에게 신청 접수 알림 (운영 로그 — 실제 이메일 연동 전까지)
-  const platformAdmins = await prisma.membership.findMany({
-    where: { role: 'platform_admin' },
-    include: { user: { select: { email: true } } },
-  });
-  const adminEmails = platformAdmins.map((m) => m.user.email).filter(Boolean);
-  console.log('[apply] 베타 신청 접수:', {
-    admins: adminEmails,
-    academy: application.academyName,
-    area: application.area,
-    subject: application.subject,
-    queueOrder: application.queueOrder,
-    id: application.id,
-  });
+  // 운영자는 P-04 칸반에서 확인한다. 로그에는 연락처를 남기지 않는다.
+  console.log('[apply] 제작 대행 신청 접수:', { id: application.id, academy: application.academyName, queueOrder: application.queueOrder });
 
   return NextResponse.json({ ok: true, id: application.id, queueOrder: application.queueOrder });
 }

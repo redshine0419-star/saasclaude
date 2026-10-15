@@ -33,10 +33,13 @@ export default function ApplyPage() {
     try {
       const fd = new FormData();
       fd.append('file', file);
+      setError('');
       const res = await fetch('/api/upload', { method: 'POST', body: fd });
-      const data = await res.json();
-      if (res.ok) setUploadedFiles((prev) => [...prev, data.url]);
-      else setError(data.error ?? '파일 업로드 실패');
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.url) setUploadedFiles((prev) => [...prev, data.url]);
+      else setError(data.error ?? '파일을 올리지 못했습니다. 자료 없이 먼저 신청해 주셔도 됩니다.');
+    } catch {
+      setError('파일을 올리지 못했습니다. 자료 없이 먼저 신청해 주셔도 됩니다.');
     } finally {
       setUploading(false);
       e.target.value = '';
@@ -57,8 +60,8 @@ export default function ApplyPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, uploadedFiles }),
       });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error ?? '오류가 발생했습니다.'); return; }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.id) { setError(data.error ?? '신청을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.'); return; }
       window.location.href = `/apply/done?id=${data.id}&queue=${data.queueOrder}`;
     } catch {
       setError('네트워크 오류가 발생했습니다. 다시 시도해주세요.');
@@ -210,7 +213,7 @@ export default function ApplyPage() {
               disabled={!canSubmit || loading}
               style={{ height: 56, borderRadius: 12, border: 'none', background: canSubmit ? '#14213D' : '#C9CFDA', color: '#FFFFFF', fontSize: 17, fontWeight: 700, cursor: canSubmit ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}
             >
-              {loading ? '신청 중...' : '베타 신청하기'}
+              {loading ? '신청 중...' : '제작 대행 신청하기'}
             </button>
           </form>
         </div>

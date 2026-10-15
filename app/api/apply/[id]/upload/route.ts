@@ -30,16 +30,21 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   const uploadedUrls: string[] = [];
 
   if (process.env.BLOB_READ_WRITE_TOKEN) {
-    for (const file of files) {
-      if (!(file instanceof File)) continue;
-      if (file.size > 20 * 1024 * 1024) continue; // 20MB per file
-      const ext = file.name.split('.').pop() ?? 'bin';
-      const blob = await put(
-        `applications/${id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}.${ext}`,
-        file,
-        { access: 'public', contentType: file.type },
-      );
-      uploadedUrls.push(blob.url);
+    try {
+      for (const file of files) {
+        if (!(file instanceof File)) continue;
+        if (file.size > 20 * 1024 * 1024) continue; // 20MB per file
+        const ext = file.name.split('.').pop() ?? 'bin';
+        const blob = await put(
+          `applications/${id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}.${ext}`,
+          file,
+          { access: 'public', contentType: file.type },
+        );
+        uploadedUrls.push(blob.url);
+      }
+    } catch (e) {
+      console.error('[apply-upload] blob put failed:', e instanceof Error ? e.message : e);
+      return NextResponse.json({ error: '파일을 올리지 못했습니다. 담당자 연락 시 전달해 주셔도 됩니다.' }, { status: 502 });
     }
   } else {
     // No Blob token: record filenames only
