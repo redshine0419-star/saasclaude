@@ -17,8 +17,9 @@ export const PLATFORM_TEMPLATES: Partial<Record<MessageScenario, string>> = {
     '[첫등원] 새 상담 신청이 들어왔습니다.\n\n■ 학원: #{학원명}\n■ 학부모: #{학부모명}\n■ 학년: #{학생학년}\n■ 유형: #{상담유형}\n\n관리자 화면에서 확인해 주세요.',
   reminder:
     '[#{학원명}] #{학부모명}님, 레벨테스트 일정을 안내드립니다.\n\n■ 일시: #{테스트일시}\n\n일정 변경이 필요하시면 학원으로 연락해 주세요.',
+  // 매일 아침 한 번, 학원별로 묶어서 보낸다 (개인정보 최소화: 이름·연락처 없이 건수만)
   owner_reminder:
-    '[첫등원] 아직 연락하지 않은 상담이 있습니다.\n\n■ 학원: #{학원명}\n■ 학부모: #{학부모명}\n\n관리자 화면에서 확인해 주세요.',
+    '[첫등원] #{학원명} 아직 연락하지 않은 상담이 #{미응대건수}건 있습니다.\n\n■ 가장 오래된 신청: #{가장오래된신청}\n\n빨리 연락할수록 등록으로 이어질 가능성이 높습니다.\n#{관리자링크}',
 };
 
 export const CONSULT_TYPE_LABEL: Record<string, string> = {
@@ -47,6 +48,9 @@ export type TemplateVars = {
   학생학년?: string | null;
   상담유형?: string | null;
   테스트일시?: string | null;
+  미응대건수?: string | null;
+  가장오래된신청?: string | null;
+  관리자링크?: string | null;
 };
 
 export function fillTemplate(body: string, vars: TemplateVars): string {
@@ -56,5 +60,8 @@ export function fillTemplate(body: string, vars: TemplateVars): string {
     .replace(/#\{학원명\}/g, vars.학원명 ?? '')
     .replace(/#\{학생학년\}/g, vars.학생학년 || '미기재')
     .replace(/#\{상담유형\}/g, consult)
-    .replace(/#\{테스트일시\}/g, vars.테스트일시 ?? '');
+    .replace(/#\{테스트일시\}/g, vars.테스트일시 ?? '')
+    .replace(/#\{미응대건수\}/g, vars.미응대건수 ?? '')
+    .replace(/#\{가장오래된신청\}/g, vars.가장오래된신청 ?? '')
+    .replace(/#\{관리자링크\}/g, vars.관리자링크 ?? '');
 }

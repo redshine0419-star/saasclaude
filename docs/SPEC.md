@@ -145,6 +145,7 @@ source 판별 순서: UTM → referrer (naver.com 검색/플레이스, kakao, bl
 |---|---|---|---|
 | receipt 상담 접수 확인 | 정보성 알림톡 | lead 생성 즉시 | 신청자 |
 | owner_alert 새 상담 알림 | 정보성 알림톡 | lead 생성 즉시 | notify_recipients |
+| owner_reminder 미응대 상담 아침 알림 | 정보성 알림톡 | 매일 08:00 KST (Hobby 크론은 1시간 안 실행), 최근 30일 `new` 상담이 1건 이상인 학원 | notify_recipients — 학원별 1건, 건수·가장 오래된 신청일·관리자 링크만(이름·연락처 없음). 기본 켜짐, A-03에서 끌 수 있음 |
 | reminder 테스트 전날 | 정보성 알림톡 | 예약 전날 18:00 | 예약자 |
 | followup 미등록 후속 | 광고성 | not_enrolled 후 [3]일 | 마케팅 동의자 |
 | campaign 모집 공지 | 광고성 | 원장 수동 / 소식 게시 시 | 마케팅 동의자 |

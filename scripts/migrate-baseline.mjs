@@ -198,6 +198,13 @@ async function applyMissingColumns() {
 )`;
   await sql`CREATE INDEX IF NOT EXISTS "ai_draft_logs_tenantId_createdAt_idx" ON ai_draft_logs ("tenantId", "createdAt")`;
 
+  // 20261009000001의 enum 값 — 그 마이그레이션이 운영에서 실패했을 수 있어 별도로 보장한다.
+  // (Neon HTTP는 문장마다 자동 커밋이라 ALTER TYPE ... ADD VALUE를 안전하게 실행할 수 있다)
+  await sql`ALTER TYPE "ConsultType" ADD VALUE IF NOT EXISTS 'waitlist'`;
+  await sql`ALTER TYPE "LeadStatus" ADD VALUE IF NOT EXISTS 'test_done' BEFORE 'enrolled'`;
+  await sql`ALTER TYPE "LeadStatus" ADD VALUE IF NOT EXISTS 'no_show' BEFORE 'enrolled'`;
+  await sql`ALTER TYPE "MessageScenario" ADD VALUE IF NOT EXISTS 'owner_reminder'`;
+
   console.log('Columns/tables ensured.');
 }
 

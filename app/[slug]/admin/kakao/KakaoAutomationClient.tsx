@@ -66,7 +66,16 @@ const SCENARIO_META: Record<
     isAd: false,
     order: 6,
   },
+  owner_reminder: {
+    label: '⑦ 미응대 상담 아침 알림',
+    subtitle: '매일 아침 8시, 아직 연락하지 않은 상담이 있으면 원장에게 건수만 알림',
+    isAd: false,
+    order: 7,
+  },
 };
+
+// 저장된 설정이 없을 때 켜진 상태로 보는 시나리오 (서버 동작과 맞춤)
+const DEFAULT_ON = new Set(['owner_reminder']);
 
 const VARIABLE_CHIPS: Record<string, string[]> = {
   receipt: ['#{학부모명}', '#{학원명}', '#{학생학년}', '#{상담유형}'],
@@ -74,6 +83,7 @@ const VARIABLE_CHIPS: Record<string, string[]> = {
   followup: ['#{학부모명}', '#{학원명}', '#{학생학년}'],
   campaign: ['#{학부모명}', '#{학원명}'],
   owner_alert: ['#{학부모명}', '#{학생학년}', '#{상담유형}'],
+  owner_reminder: ['#{학원명}', '#{미응대건수}', '#{가장오래된신청}', '#{관리자링크}'],
   reconfirm: ['#{학부모명}', '#{학원명}'],
 };
 
@@ -154,6 +164,9 @@ export function KakaoAutomationClient({
     '#{학생학년}': '중3',
     '#{상담유형}': '레벨테스트',
     '#{테스트일시}': '10월 10일 오후 2시',
+    '#{미응대건수}': '3',
+    '#{가장오래된신청}': '어제 (10월 14일)',
+    '#{관리자링크}': 'https://growweb.me/예시학원/admin/leads',
   };
 
   function renderPreviewBody(body: string) {
@@ -167,11 +180,11 @@ export function KakaoAutomationClient({
     return <span style={{ whiteSpace: 'pre-wrap' }}>{renderBody(body)}</span>;
   }
 
-  const scenarios = ['receipt', 'reminder', 'followup', 'campaign', 'owner_alert', 'reconfirm'];
+  const scenarios = ['receipt', 'reminder', 'followup', 'campaign', 'owner_alert', 'owner_reminder', 'reconfirm'];
   const templateMap = Object.fromEntries(templates.map((t) => [t.scenario, t]));
 
   async function toggleScenario(scenario: string) {
-    const next = !enabled[scenario];
+    const next = !(enabled[scenario] ?? DEFAULT_ON.has(scenario));
     setLoading(scenario);
     try {
       const res = await fetch(`/api/${slug}/admin/automation/${scenario}`, {
@@ -216,7 +229,7 @@ export function KakaoAutomationClient({
         {scenarios.map((sc) => {
           const meta = SCENARIO_META[sc];
           const tmpl = templateMap[sc];
-          const isOn = enabled[sc] ?? false;
+          const isOn = enabled[sc] ?? DEFAULT_ON.has(sc);
           const isCampaign = sc === 'campaign';
 
           return (
