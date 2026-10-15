@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { getAdminMembership } from '@/lib/admin-auth';
 import { AdminSide } from '@/components/admin/AdminSide';
 import { NewsEditClient } from './NewsEditClient';
+import { aiDraftAvailable } from '@/lib/ai/drafts';
 
 export default async function AdminNewsEditPage({
   params,
@@ -70,7 +71,7 @@ export default async function AdminNewsEditPage({
             {isEdit ? '소식 편집' : '새 글 쓰기'}
           </h1>
 
-          <NewsEditClient slug={slug} post={post} />
+          <NewsEditClient slug={slug} post={post} aiDraftEnabled={aiDraftAvailable()} />
         </div>
       </main>
     </div>

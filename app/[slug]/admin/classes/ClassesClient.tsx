@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { AiDraftPanel } from '@/components/admin/AiDraftPanel';
 
 interface ClassItem {
   id: string;
@@ -27,6 +28,7 @@ interface Props {
   slug: string;
   classes: ClassItem[];
   levelTestSlots: LevelTestSlot[];
+  aiDraftEnabled: boolean;
 }
 
 const WEEKDAYS = ['월', '화', '수', '목', '금', '토'];
@@ -37,7 +39,7 @@ function formatTime(start: string | null, end: string | null) {
   return `${start}–${end}`;
 }
 
-export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: initialSlots }: Props) {
+export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: initialSlots, aiDraftEnabled }: Props) {
   const [classes, setClasses] = useState(initialClasses);
   const [slots, setSlots] = useState(initialSlots.filter((s) => s.active));
   const [selectedId, setSelectedId] = useState<string | null>(initialClasses[0]?.id ?? null);
@@ -472,6 +474,23 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
               rows={3}
               style={{ padding: '10px 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14, resize: 'none' }}
             />
+            {aiDraftEnabled && (
+              <AiDraftPanel
+                slug={slug}
+                kind="class"
+                label="메모로 AI 소개 초안 만들기"
+                intro="이 반에서 하는 수업을 메모하듯 적어 주세요 (진도, 수업 방식, 숙제·테스트 등)."
+                placeholder="예) 중2 내신반. 개념 설명 30분 후 문제풀이. 매주 금요일 단원 테스트, 오답노트 검사."
+                fields={[{ key: 'description', label: '소개' }]}
+                context={{
+                  name: (fieldVal('name') as string) ?? '',
+                  gradeBand: (fieldVal('gradeBand') as string | null) ?? '',
+                  textbook: (fieldVal('textbook') as string | null) ?? '',
+                  days: ((fieldVal('days') as string[]) ?? []).join(','),
+                }}
+                onApply={(d) => setForm((p) => ({ ...p, description: d.description || ((fieldVal('description') as string) ?? '') }))}
+              />
+            )}
           </div>
 
           <button

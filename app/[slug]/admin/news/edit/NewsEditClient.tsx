@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { AiDraftPanel } from '@/components/admin/AiDraftPanel';
 import { useState } from 'react';
 
 type Post = {
@@ -21,7 +22,7 @@ const CATEGORY_OPTIONS = [
   { value: 'gallery', label: '갤러리' },
 ];
 
-export function NewsEditClient({ slug, post }: { slug: string; post?: Post }) {
+export function NewsEditClient({ slug, post, aiDraftEnabled = false }: { slug: string; post?: Post; aiDraftEnabled?: boolean }) {
   const router = useRouter();
   const isEdit = !!post;
 
@@ -138,6 +139,22 @@ export function NewsEditClient({ slug, post }: { slug: string; post?: Post }) {
           </button>
         ))}
       </div>
+
+      {aiDraftEnabled && (
+        <AiDraftPanel
+          slug={slug}
+          kind="post"
+          label="메모로 AI 글 초안 만들기"
+          intro="알릴 내용을 메모하듯 적어 주세요 (무엇을, 누구에게, 언제, 몇 명, 비용, 문의 방법)."
+          placeholder="예) 겨울방학 중3 예비고1 수학 특강. 12/26~2/20 월수금 저녁 7시. 정원 8명. 교재비 별도. 상담은 전화로."
+          fields={[{ key: 'title', label: '제목' }, { key: 'body', label: '본문' }]}
+          context={{ category }}
+          onApply={(d) => {
+            if (d.title) setTitle(d.title);
+            if (d.body) setBody(d.body);
+          }}
+        />
+      )}
 
       {/* Title */}
       <div>

@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getAdminMembership } from '@/lib/admin-auth';
 import { AdminSide } from '@/components/admin/AdminSide';
 import { InfoClient } from './InfoClient';
-import { aiDraftAvailable } from '@/lib/ai/director-draft';
+import { aiDraftAvailable } from '@/lib/ai/drafts';
 
 export default async function AdminInfoPage({
   params,

@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getAdminMembership } from '@/lib/admin-auth';
 import { AdminSide } from '@/components/admin/AdminSide';
 import { ClassesClient } from './ClassesClient';
+import { aiDraftAvailable } from '@/lib/ai/drafts';
 
 export default async function AdminClassesPage({
   params,
@@ -66,7 +67,7 @@ export default async function AdminClassesPage({
     >
       <AdminSide slug={slug} tenantName={tenant.name} active="classes" />
       <main style={{ flex: 1, padding: '32px 40px', display: 'flex', gap: 20 }}>
-        <ClassesClient slug={slug} classes={serializedClasses} levelTestSlots={serializedSlots} />
+        <ClassesClient slug={slug} classes={serializedClasses} levelTestSlots={serializedSlots} aiDraftEnabled={aiDraftAvailable()} />
       </main>
     </div>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { DirectorDraftPanel } from './DirectorDraftPanel';
+import { AiDraftPanel } from '@/components/admin/AiDraftPanel';
 
 interface TenantInfo {
   name: string;
@@ -491,8 +491,18 @@ export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: init
               <textarea rows={3} value={director.philosophy ?? ''} onChange={(e) => setD('philosophy', e.target.value)} placeholder="틀린 문제를 분석하는 것이 실력의 시작입니다." style={TEXTAREA} />
             </div>
             {aiDraftEnabled && (
-              <DirectorDraftPanel
+              <AiDraftPanel
                 slug={slug}
+                kind="director"
+                label="기존 소개글로 AI 초안 만들기"
+                intro="블로그·전단지·기존 홈페이지의 원장 소개글을 붙여넣으세요."
+                placeholder="예) 안녕하세요, 하늘수학 원장 김OO입니다. 중고등 수학을 12년째 가르치고 있습니다…"
+                fields={[
+                  { key: 'headline', label: '한 줄 소개' },
+                  { key: 'philosophy', label: '교육 철학' },
+                  { key: 'career', label: '경력' },
+                  { key: 'education', label: '학력' },
+                ]}
                 onApply={(d) =>
                   setDirector((p) => ({
                     ...p,
