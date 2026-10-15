@@ -549,8 +549,10 @@ export async function getAcademyPageData(slug: string): Promise<AcademyPageData 
         id: f.id, question: f.question, answer: f.answer,
       })),
     };
-  } catch {
-    return null;
+  } catch (e) {
+    // DB 오류를 404로 숨기지 않는다 — 로그에 남기고 500으로 드러낸다
+    console.error('[academy-data] query failed:', slug, e instanceof Error ? e.message : e);
+    throw e;
   }
 }
 
@@ -577,7 +579,8 @@ export async function getPostData(slug: string, postId: string): Promise<Academy
       summaryFields: post.summaryFields as Record<string, string> | null,
       publishedAt: post.publishedAt,
     };
-  } catch {
-    return null;
+  } catch (e) {
+    console.error('[academy-data] post query failed:', slug, postId, e instanceof Error ? e.message : e);
+    throw e;
   }
 }

@@ -205,6 +205,31 @@ async function applyMissingColumns() {
   await sql`ALTER TYPE "LeadStatus" ADD VALUE IF NOT EXISTS 'no_show' BEFORE 'enrolled'`;
   await sql`ALTER TYPE "MessageScenario" ADD VALUE IF NOT EXISTS 'owner_reminder'`;
 
+  // 20261015000001_fix_snake_case_columns — 이전 마이그레이션의 snake_case 컬럼을 Prisma가 쓰는 camelCase로 맞춘다
+  const FIX_COLUMNS = [
+    ['messages', 'scheduled_at', 'scheduledAt', 'TIMESTAMP(3)'],
+    ['posts', 'kakao_sent_at', 'kakaoSentAt', 'TIMESTAMP(3)'],
+    ['shuttle_stops', 'tenant_id', 'tenantId', 'TEXT'],
+    ['shuttle_stops', 'sort_order', 'sortOrder', 'INTEGER NOT NULL DEFAULT 0'],
+    ['shuttle_stops', 'created_at', 'createdAt', 'TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP'],
+    ['shuttle_stops', 'updated_at', 'updatedAt', 'TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP'],
+  ];
+  for (const [table, snake, camel, type] of FIX_COLUMNS) {
+    const cols = await sql`
+      SELECT column_name FROM information_schema.columns
+      WHERE table_schema = 'public' AND table_name = ${table} AND column_name IN (${snake}, ${camel})
+    `;
+    const names = new Set(cols.map((c) => c.column_name));
+    if (names.has(camel)) continue;
+    if (names.has(snake)) {
+      await sql.query(`ALTER TABLE "${table}" RENAME COLUMN "${snake}" TO "${camel}"`);
+      console.log(`  renamed ${table}.${snake} -> ${camel}`);
+    } else {
+      await sql.query(`ALTER TABLE "${table}" ADD COLUMN "${camel}" ${type}`);
+      console.log(`  added ${table}.${camel}`);
+    }
+  }
+
   console.log('Columns/tables ensured.');
 }
 
