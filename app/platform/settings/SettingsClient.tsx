@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { formatKstDateTime } from '@/lib/format-date';
 
 // 관리 가능한 플랫폼 설정 키 목록
 const SETTING_DEFS = [
@@ -173,7 +174,7 @@ export function SettingsClient({ initialSettings, proxyLogs = [] }: { initialSet
               {proxyLogs.map((l) => (
                 <tr key={l.id} style={{ borderBottom: '1px solid #F5F3EF' }}>
                   <td style={{ padding: '8px 12px', color: '#8A93A8' }}>
-                    {new Date(l.accessedAt).toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short' })}
+                    {formatKstDateTime(l.accessedAt)}
                   </td>
                   <td style={{ padding: '8px 12px', color: '#5A6270' }}>{l.adminEmail}</td>
                   <td style={{ padding: '8px 12px' }}>

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import '@/styles/admin.css';
 
 export default async function PlatformLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -17,7 +18,7 @@ export default async function PlatformLayout({ children }: { children: React.Rea
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#F4F2EE', fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif" }}>
+    <div className="adm" style={{ display: 'flex', minHeight: '100vh', background: '#F4F2EE', fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif" }}>
       {children}
     </div>
   );

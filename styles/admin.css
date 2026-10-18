@@ -20,6 +20,9 @@
   .adm > div {
     flex-direction: column !important;
     min-height: 100dvh;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
   }
 
   .adm > div > main {
@@ -95,8 +98,13 @@
 
   /* ── 다열 그리드: 3~4열은 2열, 5~6열(요일 버튼 등)은 3열 ── */
   .adm main [style*="grid-template-columns:repeat(3,"],
-  .adm main [style*="grid-template-columns:repeat(4,"] {
+  .adm main [style*="grid-template-columns:repeat(4,"],
+  .adm main [style*="grid-template-columns:1fr 1fr 1fr"] {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  /* 본문 + 고정 폭 보조 칸 그리드는 세로로 */
+  .adm main [style*="grid-template-columns:1fr 300px"] {
+    grid-template-columns: minmax(0, 1fr) !important;
   }
   .adm main [style*="grid-template-columns:repeat(5,"],
   .adm main [style*="grid-template-columns:repeat(6,"] {
@@ -125,12 +133,28 @@
   .adm main img { max-width: 100%; height: auto; }
   .adm main * { overflow-wrap: anywhere; }
 
+  /* ── 선택했을 때만 나타나는 상세 패널(.adm-sheet): 전체 화면으로 ── */
+  .adm .adm-sheet {
+    position: fixed !important;
+    height: 100dvh !important;
+    top: 0 !important; right: 0 !important; bottom: 0 !important; left: 0 !important;
+    z-index: 70;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+    padding: 16px 16px 32px !important;
+    overflow-y: auto !important;
+  }
+  .adm .adm-sheet-close { width: 44px; height: 44px; font-size: 24px !important; margin-right: -10px; }
+
   /* ── 상담 관리 상세: 목록을 누르면 전체 화면 시트로 ── */
   .adm .adm-only-mobile { display: inline-flex; }
   .adm .adm-lead-detail[data-open="false"] { display: none !important; }
   .adm .adm-lead-detail[data-open="true"] {
     position: fixed !important;
-    inset: 0;
+    height: 100dvh !important;
+    top: 0 !important; right: 0 !important; bottom: 0 !important; left: 0 !important;
     z-index: 70;
     width: 100% !important;
     padding: 12px 16px 32px !important;
@@ -145,5 +169,6 @@
 
 /* 아주 좁은 화면: 2열 그리드(설정 카드, 입력 칸)도 1열로 */
 @media (max-width: 480px) {
-  .adm main [style*="grid-template-columns:repeat(2,"] { grid-template-columns: minmax(0, 1fr) !important; }
+  .adm main [style*="grid-template-columns:repeat(2,"],
+  .adm main [style*="grid-template-columns:1fr 1fr"] { grid-template-columns: minmax(0, 1fr) !important; }
 }

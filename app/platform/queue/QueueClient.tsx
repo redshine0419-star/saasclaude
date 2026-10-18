@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { formatKstDate } from '@/lib/format-date';
 
 type Application = {
   id: string;
@@ -151,7 +152,7 @@ export function QueueClient({ apps }: { apps: Application[] }) {
                     )}
                     {a.expectedStartDate && (
                       <div style={{ fontSize: 11, color: '#1E5645', fontWeight: 600 }}>
-                        시작 예정: {new Date(a.expectedStartDate).toLocaleDateString('ko-KR')}
+                        시작 예정: {formatKstDate(a.expectedStartDate)}
                       </div>
                     )}
                     {a.uploadedFiles.length > 0 ? (
@@ -170,6 +171,7 @@ export function QueueClient({ apps }: { apps: Application[] }) {
       {/* Side panel */}
       {selected && (
         <div
+          className="adm-sheet"
           style={{
             width: 320,
             padding: 24,
@@ -187,6 +189,8 @@ export function QueueClient({ apps }: { apps: Application[] }) {
             <div style={{ fontSize: 16, fontWeight: 700 }}>{selected.academyName}</div>
             <button
               onClick={() => setSelected(null)}
+              aria-label="닫기"
+              className="adm-sheet-close"
               style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: '#9AA3AF', lineHeight: 1 }}
             >
               ×
@@ -195,7 +199,7 @@ export function QueueClient({ apps }: { apps: Application[] }) {
 
           <div style={{ fontSize: 13, color: '#5A6270', lineHeight: 1.7 }}>
             <div>{selected.directorName} 원장 · {selected.subject} · {selected.area}</div>
-            <div>신청 {new Date(selected.createdAt).toLocaleDateString('ko-KR')}</div>
+            <div>신청 {formatKstDate(selected.createdAt)}</div>
             {selected.currentUrl && (
               <div><a href={selected.currentUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#1D3FA8' }}>현재 홈페이지 ↗</a></div>
             )}

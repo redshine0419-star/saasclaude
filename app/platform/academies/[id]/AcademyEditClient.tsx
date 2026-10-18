@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { formatKstDate, formatKstDateTime } from '@/lib/format-date';
 
 // WCAG 2.1 relative luminance + contrast ratio
 function relativeLuminance(hex: string): number {
@@ -355,7 +356,7 @@ export function AcademyEditClient(props: Props) {
                 {props.betaEndsAt && (
                   <div>
                     <div style={{ fontSize: 12, fontWeight: 600, color: '#5A6270', marginBottom: 4 }}>베타 종료일</div>
-                    <div style={{ fontSize: 13 }}>{new Date(props.betaEndsAt).toLocaleDateString('ko-KR')}</div>
+                    <div style={{ fontSize: 13 }}>{formatKstDate(props.betaEndsAt)}</div>
                   </div>
                 )}
               </div>
@@ -434,7 +435,7 @@ export function AcademyEditClient(props: Props) {
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 14, lineHeight: 1.6 }}>{l.note}</div>
                     <div style={{ fontSize: 12, color: '#9AA3AF', marginTop: 2 }}>
-                      {new Date(l.createdAt).toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short' })} · {l.authorEmail}
+                      {formatKstDateTime(l.createdAt)} · {l.authorEmail}
                     </div>
                   </div>
                 </div>

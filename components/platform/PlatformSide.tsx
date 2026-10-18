@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { AdminMobileBar } from '@/components/admin/AdminMobileBar';
 
 type Active = 'academies' | 'diagnosis' | 'queue' | 'settings';
 
@@ -56,60 +57,75 @@ const navItems = [
   },
 ];
 
-export function PlatformSide({ active }: { active: Active }) {
+function NavLinks({ active }: { active: Active }) {
   return (
-    <aside style={{
-      width: 220,
-      flexShrink: 0,
-      minHeight: '100vh',
-      background: '#1B2430',
-      color: '#C8CDD5',
-      display: 'flex',
-      flexDirection: 'column',
-      fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif",
-    }}>
-      {/* Logo */}
-      <div style={{ padding: '24px 20px 20px', borderBottom: '1px solid #2C3747' }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', color: '#FFFFFF' }}>
-          <svg width="20" height="20" viewBox="0 0 22 22" aria-hidden="true">
-            <circle cx="11" cy="11" r="9" fill="#F5B700" />
-            <circle cx="11" cy="11" r="3.5" fill="#1B2430" />
-          </svg>
-          <span style={{ fontSize: 17, fontWeight: 700 }}>첫등원</span>
+    <>
+      {navItems.map(({ key, href, label, icon }) => (
+        <Link
+          key={key}
+          href={href}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            padding: '10px 12px',
+            borderRadius: 8,
+            textDecoration: 'none',
+            color: key === active ? '#FFFFFF' : '#C8CDD5',
+            background: key === active ? '#2C3747' : 'transparent',
+            fontSize: 14,
+            fontWeight: key === active ? 600 : 400,
+            transition: 'background 0.1s',
+          }}
+        >
+          {icon}
+          {label}
         </Link>
-        <div style={{ fontSize: 12, color: '#8A93A8', marginTop: 4, marginLeft: 28 }}>플랫폼 관리자</div>
-      </div>
+      ))}
+    </>
+  );
+}
 
-      {/* Nav */}
-      <nav style={{ padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
-        {navItems.map(({ key, href, label, icon }) => (
-          <Link
-            key={key}
-            href={href}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-              padding: '10px 12px',
-              borderRadius: 8,
-              textDecoration: 'none',
-              color: key === active ? '#FFFFFF' : '#C8CDD5',
-              background: key === active ? '#2C3747' : 'transparent',
-              fontSize: 14,
-              fontWeight: key === active ? 600 : 400,
-              transition: 'background 0.1s',
-            }}
-          >
-            {icon}
-            {label}
+export function PlatformSide({ active }: { active: Active }) {
+  const current = navItems.find((n) => n.key === active)?.label ?? '';
+  return (
+    <>
+      <AdminMobileBar tenantName="첫등원 플랫폼 관리자" current={current}>
+        <NavLinks active={active} />
+        <Link href="/" style={{ padding: '12px', fontSize: 13, color: '#8A93A8', textDecoration: 'none' }}>← 서비스 사이트</Link>
+      </AdminMobileBar>
+      <aside className="adm-side" style={{
+        width: 220,
+        flexShrink: 0,
+        minHeight: '100vh',
+        background: '#1B2430',
+        color: '#C8CDD5',
+        display: 'flex',
+        flexDirection: 'column',
+        fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif",
+      }}>
+        {/* Logo */}
+        <div style={{ padding: '24px 20px 20px', borderBottom: '1px solid #2C3747' }}>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', color: '#FFFFFF' }}>
+            <svg width="20" height="20" viewBox="0 0 22 22" aria-hidden="true">
+              <circle cx="11" cy="11" r="9" fill="#F5B700" />
+              <circle cx="11" cy="11" r="3.5" fill="#1B2430" />
+            </svg>
+            <span style={{ fontSize: 17, fontWeight: 700 }}>첫등원</span>
           </Link>
-        ))}
-      </nav>
+          <div style={{ fontSize: 12, color: '#8A93A8', marginTop: 4, marginLeft: 28 }}>플랫폼 관리자</div>
+        </div>
 
-      {/* Bottom: link to public site */}
-      <div style={{ padding: '16px 20px', borderTop: '1px solid #2C3747' }}>
-        <Link href="/" style={{ fontSize: 13, color: '#8A93A8', textDecoration: 'none' }}>← 서비스 사이트</Link>
-      </div>
-    </aside>
+        {/* Nav */}
+        <nav style={{ padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
+          <NavLinks active={active} />
+        </nav>
+
+        {/* Bottom: link to public site */}
+        <div style={{ padding: '16px 20px', borderTop: '1px solid #2C3747' }}>
+          <Link href="/" style={{ fontSize: 13, color: '#8A93A8', textDecoration: 'none' }}>← 서비스 사이트</Link>
+        </div>
+      </aside>
+    </>
   );
 }

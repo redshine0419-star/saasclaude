@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { formatKstDate } from '@/lib/format-date';
 
 type DiagRequest = {
   id: string;
@@ -193,9 +194,11 @@ export function DiagnosisClient({ requests }: { requests: DiagRequest[] }) {
               return (
                 <tr
                   key={r.id}
+                  onClick={() => openPanel(r)}
                   style={{
                     borderBottom: '1px solid #F0EDE7',
                     background: selected?.id === r.id ? '#F4FAF7' : undefined,
+                    cursor: 'pointer',
                   }}
                 >
                   <td style={{ padding: '14px 20px', fontWeight: 600 }}>{r.academyName}</td>
@@ -213,11 +216,11 @@ export function DiagnosisClient({ requests }: { requests: DiagRequest[] }) {
                     <span style={{ padding: '3px 8px', borderRadius: 6, fontSize: 12, fontWeight: 700, background: st.bg, color: st.color }}>{stLabel}</span>
                   </td>
                   <td style={{ padding: '14px 16px', color: '#8A93A8', fontSize: 13 }}>
-                    {new Date(r.createdAt).toLocaleDateString('ko-KR')}
+                    {formatKstDate(r.createdAt)}
                   </td>
                   <td style={{ padding: '14px 16px' }}>
                     <button
-                      onClick={() => openPanel(r)}
+                      onClick={(e) => { e.stopPropagation(); openPanel(r); }}
                       style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #D5D0C6', background: '#FFFFFF', color: '#1E5645', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
                     >
                       처리
@@ -236,6 +239,7 @@ export function DiagnosisClient({ requests }: { requests: DiagRequest[] }) {
       {/* Side panel */}
       {selected && (
         <div
+          className="adm-sheet"
           style={{
             width: 360,
             padding: 24,
@@ -255,6 +259,8 @@ export function DiagnosisClient({ requests }: { requests: DiagRequest[] }) {
             <div style={{ fontSize: 16, fontWeight: 700 }}>{selected.academyName}</div>
             <button
               onClick={() => setSelected(null)}
+              aria-label="닫기"
+              className="adm-sheet-close"
               style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: '#9AA3AF', lineHeight: 1 }}
             >
               ×
@@ -272,7 +278,7 @@ export function DiagnosisClient({ requests }: { requests: DiagRequest[] }) {
                 </a>
               </div>
             )}
-            <div>신청: {new Date(selected.createdAt).toLocaleDateString('ko-KR')}</div>
+            <div>신청: {formatKstDate(selected.createdAt)}</div>
           </div>
 
           <div>
