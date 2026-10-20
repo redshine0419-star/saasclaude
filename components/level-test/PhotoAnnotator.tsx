@@ -25,7 +25,7 @@ export function PhotoAnnotator({ src, initial, onSave, onClose }: { src: string;
   const all = current ? [...strokes, current] : strokes;
 
   return (
-    <div role="dialog" aria-label="풀이 사진에 표시하기" style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(15,20,28,0.92)', display: 'flex', flexDirection: 'column' }}>
+    <div role="dialog" aria-label="풀이 사진에 표시하기" style={{ position: 'fixed', inset: 0, zIndex: 10000, background: 'rgba(15,20,28,0.92)', display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', gap: 8, padding: 10, alignItems: 'center', flexWrap: 'wrap', color: '#FFFFFF' }}>
         {MARK_COLORS.map((c) => (
           <button key={c} type="button" aria-label="펜 색" aria-pressed={c === color} onClick={() => setColor(c)} style={{ width: 32, height: 32, borderRadius: 16, background: c, border: c === color ? '3px solid #FFFFFF' : '1px solid #3E4652', cursor: 'pointer' }} />
