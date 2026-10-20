@@ -795,6 +795,7 @@ enum ApplicationStatus {
 enum QuestionType {
   choice // 객관식 (보기 중 하나)
   short  // 단답형 (허용 답안 목록과 비교)
+  essay  // 서술형 (글·풀이 사진, 선생님이 채점)
 }
 
 model Question {
@@ -810,8 +811,8 @@ model Question {
   body        String       // 본문. $...$ / $$...$$ 는 수식(KaTeX)
   imageUrl    String?
   choices     Json?        // 객관식: ["보기1", "보기2", ...]
-  answers     String[]     // 객관식: ["3"](1부터), 단답형: 허용 답안 목록
-  explanation String?      // 해설 — 학생·학부모에게는 보여주지 않는다
+  answers     String[]     // 객관식: ["3"](1부터), 단답형: 허용 답안 목록, 서술형: 빈 배열
+  explanation String?      // 해설(서술형은 모범답안·채점 기준) — 학생·학부모에게는 보여주지 않는다
   points      Int          @default(1)
   archived    Boolean      @default(false)
 
@@ -874,6 +875,8 @@ model TestAttempt {
   submittedAt DateTime?
   score       Int?
   maxScore    Int?
+  needsGrading Boolean      @default(false) // 서술형 채점 대기 — 채점 완료 전 score는 자동 채점분만
+  gradedAt    DateTime?
   issuedBy    String?       // 발급한 관리자 이메일
 
   tenant      Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -883,6 +886,7 @@ model TestAttempt {
 
   @@index([tenantId, testId])
   @@index([leadId])
+  @@index([tenantId, needsGrading])
   @@map("test_attempts")
 }
 
@@ -892,9 +896,14 @@ model TestResponse {
   tenantId   String
   attemptId  String
   questionId String
-  answer     String      // 객관식은 보기 번호(1부터), 단답형은 입력값
-  correct    Boolean?    // 제출 후 채점
-  points     Int?
+  answer     String      // 객관식은 보기 번호(1부터), 단답형·서술형은 입력값
+  photos     String[]    @default([]) // 서술형 풀이 사진 (최대 3장)
+  correct    Boolean?    // 제출 후 채점. 서술형은 만점일 때 true
+  points     Int?        // 서술형은 선생님이 채점하기 전까지 null
+  feedback   String?     // 첨삭 코멘트 — 채점 완료 후 결과지에 보인다
+  errorType  String?     // concept | calculation | condition | reading | other
+  marks      String[]    @default([]) // 사진별 펜 표시(투명 PNG), photos와 같은 순서
+  gradedBy   String?
 
   tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   attempt    TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)

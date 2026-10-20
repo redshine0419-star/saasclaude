@@ -230,11 +230,13 @@ async function applyMissingColumns() {
     }
   }
 
-  // 20261020000001_level_test — 파일을 빈 줄 단위로 나눠 실행한다 (모든 문장이 멱등)
-  const levelTestSql = readFileSync(join(MIGRATIONS_DIR, '20261020000001_level_test', 'migration.sql'), 'utf8');
-  for (const stmt of levelTestSql.split(/\n\s*\n/)) {
-    const body = stmt.split('\n').filter((l) => !l.trim().startsWith('--')).join('\n').trim();
-    if (body) await sql.query(body);
+  // 20261020000001_level_test, 20261021000001_level_test_essay — 파일을 빈 줄 단위로 나눠 실행한다 (모든 문장이 멱등)
+  for (const name of ['20261020000001_level_test', '20261021000001_level_test_essay']) {
+    const fileSql = readFileSync(join(MIGRATIONS_DIR, name, 'migration.sql'), 'utf8');
+    for (const stmt of fileSql.split(/\n\s*\n/)) {
+      const body = stmt.split('\n').filter((l) => !l.trim().startsWith('--')).join('\n').trim();
+      if (body) await sql.query(body);
+    }
   }
 
   console.log('Columns/tables ensured.');

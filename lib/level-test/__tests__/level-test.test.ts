@@ -97,7 +97,7 @@ describe('문항 입력 검증', () => {
   it('필수값·그림 주소 검사', () => {
     expect(parseQuestionInput({ type: 'short', subject: '', body: 'x', answers: '1' }).ok).toBe(false);
     expect(parseQuestionInput({ type: 'short', subject: '수학', body: 'x', answers: '1', imageUrl: 'javascript:x' }).ok).toBe(false);
-    expect(parseQuestionInput({ type: 'essay', subject: '수학', body: 'x' }).ok).toBe(false);
+    expect(parseQuestionInput({ type: 'ox', subject: '수학', body: 'x' }).ok).toBe(false);
   });
 });
 
@@ -128,5 +128,32 @@ describe('시험지 자동 구성', () => {
   });
   it('문항이 모자라면 있는 만큼만', () => {
     expect(composeTest(bank, { grade: '중3', count: 20 }, rand)).toHaveLength(6);
+  });
+});
+
+import { parseManualPoints, unitRates } from '../grading';
+
+describe('서술형', () => {
+  const essay = { id: 'e1', type: 'essay' as const, answers: [], unit: '일차방정식' };
+  it('자동 채점하지 않고 채점 대기로 남긴다', () => {
+    const r = gradeAttempt([{ question: choice, points: 2 }, { question: essay, points: 5 }], { c1: '3', e1: '풀이...' });
+    expect(r.score).toBe(2);
+    expect(r.maxScore).toBe(7);
+    expect(r.pending).toBe(1);
+    expect(r.items.find((i) => i.questionId === 'e1')?.correct).toBeNull();
+    // 채점 대기 문항은 단원 정답률에서 빠진다
+    expect(r.units).toEqual([{ unit: '일차방정식', correct: 1, total: 1, rate: 1 }]);
+  });
+  it('선생님 점수는 0~배점 정수만', () => {
+    expect(parseManualPoints('3', 5)).toBe(3);
+    expect(parseManualPoints(0, 5)).toBe(0);
+    for (const v of ['', null, undefined, '6', -1, 2.5, 'abc']) expect(parseManualPoints(v, 5), String(v)).toBeNull();
+  });
+  it('unitRates는 채점 대기를 건너뛴다', () => {
+    expect(unitRates([{ unit: 'a', correct: null }, { unit: 'a', correct: true }])).toEqual([{ unit: 'a', correct: 1, total: 1, rate: 1 }]);
+  });
+  it('서술형 입력은 정답 없이 저장된다', () => {
+    const r = parseQuestionInput({ type: 'essay', subject: '수학', body: '풀이 과정을 쓰시오', explanation: '모범답안' });
+    expect(r.ok && r.value).toMatchObject({ type: 'essay', answers: [], choices: null, explanation: '모범답안' });
   });
 });

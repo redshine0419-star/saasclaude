@@ -39,6 +39,7 @@ export default async function TakeTestPage({ params }: Props) {
       startedAt={attempt.startedAt?.toISOString() ?? null}
       questions={questions}
       saved={Object.fromEntries(attempt.responses.map((r) => [r.questionId, r.answer]))}
+      savedPhotos={Object.fromEntries(attempt.responses.map((r) => [r.questionId, r.photos]))}
     />
   );
 }

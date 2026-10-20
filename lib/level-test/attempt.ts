@@ -50,7 +50,8 @@ export async function submitAttempt(attemptId: string, now = new Date()) {
   });
   if (!attempt || attempt.status === 'submitted') return attempt;
 
-  const responses = Object.fromEntries(attempt.responses.map((r) => [r.questionId, r.answer]));
+  // 서술형은 글 없이 사진만 올려도 답한 것으로 본다
+  const responses = Object.fromEntries(attempt.responses.map((r) => [r.questionId, r.answer || (r.photos.length ? '(사진 답안)' : '')]));
   const result = gradeAttempt(
     attempt.test.items.map((i) => ({ question: { id: i.questionId, type: i.question.type, answers: i.question.answers, unit: i.question.unit }, points: i.points })),
     responses,
@@ -59,7 +60,7 @@ export async function submitAttempt(attemptId: string, now = new Date()) {
   // 동시에 두 번 제출돼도 한 번만 처리되게 상태 조건부 갱신
   const claimed = await prisma.testAttempt.updateMany({
     where: { id: attempt.id, status: { not: 'submitted' } },
-    data: { status: 'submitted', submittedAt: now, score: result.score, maxScore: result.maxScore, startedAt: attempt.startedAt ?? now },
+    data: { status: 'submitted', submittedAt: now, score: result.score, maxScore: result.maxScore, startedAt: attempt.startedAt ?? now, needsGrading: result.pending > 0 },
   });
   if (claimed.count === 0) return attempt;
 
@@ -67,8 +68,9 @@ export async function submitAttempt(attemptId: string, now = new Date()) {
     result.items.map((g) =>
       prisma.testResponse.upsert({
         where: { attemptId_questionId: { attemptId: attempt.id, questionId: g.questionId } },
-        update: { correct: g.correct, points: g.points },
-        create: { tenantId: attempt.tenantId, attemptId: attempt.id, questionId: g.questionId, answer: g.answer ?? '', correct: g.correct, points: g.points },
+        // 서술형(correct=null)은 점수도 비워 두고 선생님 채점을 기다린다
+        update: { correct: g.correct, points: g.correct === null ? null : g.points },
+        create: { tenantId: attempt.tenantId, attemptId: attempt.id, questionId: g.questionId, answer: g.answer ?? '', correct: g.correct, points: g.correct === null ? null : g.points },
       }),
     ),
   );
@@ -76,7 +78,16 @@ export async function submitAttempt(attemptId: string, now = new Date()) {
   if (attempt.lead) {
     const pct = result.maxScore ? Math.round((result.score / result.maxScore) * 100) : 0;
     await prisma.leadEvent.create({
-      data: { leadId: attempt.lead.id, type: 'note', payload: { note: `레벨테스트 제출: ${attempt.test.title} ${result.score}/${result.maxScore}점 (${pct}%)` }, actorId: 'system:level-test' },
+      data: {
+        leadId: attempt.lead.id,
+        type: 'note',
+        payload: {
+          note: result.pending > 0
+            ? `레벨테스트 제출: ${attempt.test.title} — 자동 채점 ${result.score}점, 서술형 ${result.pending}문항 채점 대기`
+            : `레벨테스트 제출: ${attempt.test.title} ${result.score}/${result.maxScore}점 (${pct}%)`,
+        },
+        actorId: 'system:level-test',
+      },
     });
     if (PROGRESSING.has(attempt.lead.status)) {
       await prisma.lead.update({ where: { id: attempt.lead.id }, data: { status: 'test_done', statusChangedAt: now } });

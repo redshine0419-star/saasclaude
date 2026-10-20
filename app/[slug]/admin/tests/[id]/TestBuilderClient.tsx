@@ -7,7 +7,7 @@ import { composeTest } from '@/lib/level-test/compose';
 
 export type BuilderQuestion = {
   id: string;
-  type: 'choice' | 'short';
+  type: 'choice' | 'short' | 'essay';
   grade: string | null;
   unit: string | null;
   difficulty: number;
@@ -129,7 +129,7 @@ export function TestBuilderClient({ slug, test, items: initialItems, bank, locke
                 <li key={it.questionId} style={{ display: 'flex', gap: 10, padding: 12, border: '1px solid #EEEAE2', borderRadius: 10, alignItems: 'flex-start' }}>
                   <span style={{ fontWeight: 700, minWidth: 22 }}>{i + 1}.</span>
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    <div style={{ fontSize: 12, color: '#5A6270' }}>{[q?.type === 'choice' ? '객관식' : '단답형', q?.grade, q?.unit, `난이도 ${q?.difficulty}`].filter(Boolean).join(' · ')}</div>
+                    <div style={{ fontSize: 12, color: '#5A6270' }}>{[q ? { choice: '객관식', short: '단답형', essay: '서술형' }[q.type] : '', q?.grade, q?.unit, `난이도 ${q?.difficulty}`].filter(Boolean).join(' · ')}</div>
                     <MathText text={q ? (q.body.length > 120 ? `${q.body.slice(0, 120)}…` : q.body) : '(삭제된 문항)'} style={{ fontSize: 14, lineHeight: 1.6 }} />
                   </div>
                   {!locked && (

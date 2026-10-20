@@ -3,10 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MathText } from '@/components/level-test/MathText';
+import { MAX_ESSAY_PHOTOS } from '@/lib/level-test/grading';
 
 export type TakeQuestion = {
   id: string;
-  type: 'choice' | 'short';
+  type: 'choice' | 'short' | 'essay';
   body: string;
   imageUrl: string | null;
   choices: string[] | null;
@@ -23,7 +24,29 @@ type Props = {
   startedAt: string | null;
   questions: TakeQuestion[];
   saved: Record<string, string>;
+  savedPhotos: Record<string, string[]>;
 };
+
+/** 휴대폰 사진을 긴 변 1600px JPEG로 줄인다 (HEIC도 브라우저가 열 수 있으면 JPEG로 바뀜) */
+async function shrinkPhoto(file: File): Promise<Blob> {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const i = new Image();
+      i.onload = () => resolve(i);
+      i.onerror = reject;
+      i.src = url;
+    });
+    const scale = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(img.naturalWidth * scale);
+    canvas.height = Math.round(img.naturalHeight * scale);
+    canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+    return await new Promise<Blob>((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('encode'))), 'image/jpeg', 0.85));
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
 
 const font = "'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif";
 
@@ -32,11 +55,14 @@ function formatLeft(ms: number) {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 }
 
-export function TestTakeClient({ slug, token, academyName, title, description, timeLimitMin, startedAt: initialStarted, questions, saved }: Props) {
+export function TestTakeClient({ slug, token, academyName, title, description, timeLimitMin, startedAt: initialStarted, questions, saved, savedPhotos }: Props) {
   const router = useRouter();
   const api = `/api/${slug}/test/${token}`;
   const [startedAt, setStartedAt] = useState<string | null>(initialStarted);
   const [answers, setAnswers] = useState<Record<string, string>>(saved);
+  const [photos, setPhotos] = useState<Record<string, string[]>>(savedPhotos);
+  const [uploading, setUploading] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState<Record<string, string>>({});
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [now, setNow] = useState(() => Date.now());
   const [submitting, setSubmitting] = useState(false);
@@ -45,7 +71,7 @@ export function TestTakeClient({ slug, token, academyName, title, description, t
   const submittedRef = useRef(false);
 
   const deadline = startedAt && timeLimitMin ? new Date(startedAt).getTime() + timeLimitMin * 60_000 : null;
-  const answered = questions.filter((q) => answers[q.id]?.trim()).length;
+  const answered = questions.filter((q) => answers[q.id]?.trim() || photos[q.id]?.length).length;
 
   const submit = useCallback(async () => {
     if (submittedRef.current) return;
@@ -97,6 +123,31 @@ export function TestTakeClient({ slug, token, academyName, title, description, t
       if (data?.expired) { void submit(); return; }
       setSaveState(res?.ok ? 'saved' : 'error');
     }, delayMs);
+  }
+
+  async function addPhoto(qid: string, file: File) {
+    setUploading(qid);
+    setPhotoError((e) => ({ ...e, [qid]: '' }));
+    try {
+      let blob: Blob = file;
+      try { blob = await shrinkPhoto(file); } catch { /* 줄이지 못하면 원본 그대로 (서버가 형식을 확인) */ }
+      const fd = new FormData();
+      fd.append('questionId', qid);
+      fd.append('file', new File([blob], 'photo.jpg', { type: blob.type || file.type }));
+      const res = await fetch(`${api}/photo`, { method: 'POST', body: fd }).catch(() => null);
+      const data = await res?.json().catch(() => ({}));
+      if (data?.expired) { void submit(); return; }
+      if (!res?.ok) { setPhotoError((e) => ({ ...e, [qid]: data?.error ?? '사진을 올리지 못했습니다.' })); return; }
+      setPhotos((p) => ({ ...p, [qid]: data.photos }));
+    } finally {
+      setUploading(null);
+    }
+  }
+
+  async function removePhoto(qid: string, url: string) {
+    const res = await fetch(`${api}/photo`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ questionId: qid, url }) }).catch(() => null);
+    const data = await res?.json().catch(() => ({}));
+    if (res?.ok) setPhotos((p) => ({ ...p, [qid]: data.photos ?? [] }));
   }
 
   const page: React.CSSProperties = { minHeight: '100vh', background: '#F6F5F2', color: '#1B2430', fontFamily: font };
@@ -181,6 +232,35 @@ export function TestTakeClient({ slug, token, academyName, title, description, t
                     </button>
                   );
                 })}
+              </div>
+            ) : q.type === 'essay' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <textarea
+                  value={answers[q.id] ?? ''}
+                  onChange={(e) => setAnswer(q.id, e.target.value, 900)}
+                  placeholder="풀이 과정을 적거나, 아래에서 풀이 사진을 올려 주세요"
+                  aria-label={`${idx + 1}번 풀이`}
+                  rows={5}
+                  maxLength={2000}
+                  style={{ padding: 12, borderRadius: 10, border: '1px solid #D5D0C6', fontSize: 16, fontFamily: font, resize: 'vertical' }}
+                />
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                  {(photos[q.id] ?? []).map((url) => (
+                    <div key={url} style={{ position: 'relative' }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={url} alt={`${idx + 1}번 풀이 사진`} style={{ width: 88, height: 88, objectFit: 'cover', borderRadius: 8, border: '1px solid #D5D0C6' }} />
+                      <button type="button" aria-label="사진 빼기" onClick={() => removePhoto(q.id, url)} style={{ position: 'absolute', top: -8, right: -8, width: 28, height: 28, borderRadius: 14, border: 'none', background: '#1B2430', color: '#FFFFFF', cursor: 'pointer' }}>×</button>
+                    </div>
+                  ))}
+                  {(photos[q.id]?.length ?? 0) < MAX_ESSAY_PHOTOS && (
+                    <label style={{ width: 88, height: 88, borderRadius: 8, border: '1px dashed #9AA3AF', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: '#5A6270', cursor: uploading ? 'wait' : 'pointer', textAlign: 'center' }}>
+                      <span style={{ fontSize: 22 }} aria-hidden="true">📷</span>
+                      {uploading === q.id ? '올리는 중…' : '풀이 사진'}
+                      <input type="file" accept="image/*" hidden disabled={!!uploading} onChange={(e) => { const f = e.target.files?.[0]; if (f) void addPhoto(q.id, f); e.target.value = ''; }} />
+                    </label>
+                  )}
+                </div>
+                {photoError[q.id] && <div role="alert" style={{ fontSize: 13, color: '#B42318' }}>{photoError[q.id]}</div>}
               </div>
             ) : (
               <input

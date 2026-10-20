@@ -1,7 +1,7 @@
 // 문항 입력 검증. 생성·수정 API가 함께 쓴다.
 
 export type QuestionInput = {
-  type: 'choice' | 'short';
+  type: 'choice' | 'short' | 'essay';
   subject: string;
   grade: string | null;
   unit: string | null;
@@ -22,7 +22,7 @@ function text(v: unknown, max: number): string {
 
 export function parseQuestionInput(raw: unknown): { ok: true; value: QuestionInput } | { ok: false; error: string } {
   const b = (raw ?? {}) as Record<string, unknown>;
-  const type = b.type === 'short' ? 'short' : b.type === 'choice' ? 'choice' : null;
+  const type = b.type === 'short' ? 'short' : b.type === 'choice' ? 'choice' : b.type === 'essay' ? 'essay' : null;
   if (!type) return { ok: false, error: '문항 유형을 선택해 주세요.' };
 
   const subject = text(b.subject, 20);
@@ -50,6 +50,9 @@ export function parseQuestionInput(raw: unknown): { ok: true; value: QuestionInp
     if (!Number.isInteger(ans) || ans < 1 || ans > list.length) return { ok: false, error: '정답 보기를 선택해 주세요.' };
     choices = list;
     answers = [String(ans)];
+  } else if (type === 'essay') {
+    // 서술형은 선생님이 채점한다. 모범답안·채점 기준은 해설(explanation)에 적는다
+    answers = [];
   } else {
     const list = (Array.isArray(b.answers) ? b.answers : String(b.answers ?? '').split(/\n/))
       .map((a) => text(a, LIMITS.answer))

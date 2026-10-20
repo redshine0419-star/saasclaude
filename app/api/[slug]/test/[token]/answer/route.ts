@@ -16,12 +16,13 @@ export async function PUT(req: NextRequest, { params }: { params: Params }) {
 
   const b = await req.json().catch(() => ({}));
   const questionId = String(b.questionId ?? '');
-  const answer = typeof b.answer === 'string' ? b.answer.slice(0, 200) : '';
-  if (!attempt.test.items.some((i) => i.questionId === questionId)) {
-    return NextResponse.json({ error: '시험에 없는 문항입니다.' }, { status: 400 });
-  }
+  const item = attempt.test.items.find((i) => i.questionId === questionId);
+  if (!item) return NextResponse.json({ error: '시험에 없는 문항입니다.' }, { status: 400 });
+  const maxLen = item.question.type === 'essay' ? 2000 : 200;
+  const answer = typeof b.answer === 'string' ? b.answer.slice(0, maxLen) : '';
 
-  if (!answer.trim()) {
+  const existing = attempt.responses.find((r) => r.questionId === questionId);
+  if (!answer.trim() && !existing?.photos.length) {
     await prisma.testResponse.deleteMany({ where: { attemptId: attempt.id, questionId } });
   } else {
     await prisma.testResponse.upsert({

@@ -5,7 +5,7 @@ import { MathText } from '@/components/level-test/MathText';
 
 export type QuestionRow = {
   id: string;
-  type: 'choice' | 'short';
+  type: QType;
   subject: string;
   grade: string | null;
   unit: string | null;
@@ -23,7 +23,7 @@ export type QuestionRow = {
 
 type Draft = {
   id: string | null;
-  type: 'choice' | 'short';
+  type: QType;
   subject: string;
   grade: string;
   unit: string;
@@ -36,6 +36,10 @@ type Draft = {
   explanation: string;
   points: number;
 };
+
+type QType = 'choice' | 'short' | 'essay';
+const TYPE_LABEL: Record<QType, string> = { choice: '객관식', short: '단답형', essay: '서술형' };
+const TYPE_BG: Record<QType, string> = { choice: '#E6EBF8', short: '#FBF1CF', essay: '#F3E8FF' };
 
 const card: React.CSSProperties = { background: '#FFFFFF', borderRadius: 12, padding: 20 };
 const input: React.CSSProperties = { height: 40, padding: '0 10px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14, width: '100%', boxSizing: 'border-box', background: '#FFFFFF' };
@@ -88,7 +92,7 @@ export function QuestionsClient({ slug, initial, defaultSubject }: { slug: strin
       const payload = {
         type: draft.type, subject: draft.subject, grade: draft.grade, unit: draft.unit, difficulty: draft.difficulty,
         body: draft.body, imageUrl: draft.imageUrl, choices: draft.type === 'choice' ? draft.choices : null,
-        answers: draft.type === 'choice' ? [draft.choiceAnswer] : draft.shortAnswers, explanation: draft.explanation, points: draft.points,
+        answers: draft.type === 'choice' ? [draft.choiceAnswer] : draft.type === 'short' ? draft.shortAnswers : [], explanation: draft.explanation, points: draft.points,
       };
       const res = await fetch(draft.id ? `/api/${slug}/admin/questions/${draft.id}` : `/api/${slug}/admin/questions`, {
         method: draft.id ? 'PATCH' : 'POST',
@@ -177,7 +181,7 @@ export function QuestionsClient({ slug, initial, defaultSubject }: { slug: strin
                   style={{ ...card, width: '100%', textAlign: 'left', border: draft?.id === r.id ? '2px solid #1E5645' : '1px solid #E2DDD2', cursor: 'pointer', font: 'inherit', color: 'inherit', opacity: r.archived ? 0.55 : 1, display: 'flex', flexDirection: 'column', gap: 8, padding: 16 }}
                 >
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 12, color: '#5A6270', flexWrap: 'wrap' }}>
-                    <span style={{ padding: '2px 8px', borderRadius: 6, background: r.type === 'choice' ? '#E6EBF8' : '#FBF1CF', color: '#1B2430', fontWeight: 600 }}>{r.type === 'choice' ? '객관식' : '단답형'}</span>
+                    <span style={{ padding: '2px 8px', borderRadius: 6, background: TYPE_BG[r.type], color: '#1B2430', fontWeight: 600 }}>{TYPE_LABEL[r.type]}</span>
                     <span>{[r.subject, r.grade, r.unit].filter(Boolean).join(' · ')}</span>
                     <Difficulty value={r.difficulty} />
                     <span>{r.points}점</span>
@@ -201,9 +205,9 @@ export function QuestionsClient({ slug, initial, defaultSubject }: { slug: strin
           </div>
 
           <div style={{ display: 'flex', gap: 8 }}>
-            {(['choice', 'short'] as const).map((t) => (
+            {(['choice', 'short', 'essay'] as const).map((t) => (
               <button key={t} type="button" aria-pressed={draft.type === t} onClick={() => set('type', t)} style={{ flex: 1, height: 38, borderRadius: 8, border: draft.type === t ? '2px solid #1E5645' : '1px solid #D5D0C6', background: draft.type === t ? '#E4EEE9' : '#FFFFFF', font: 'inherit', fontWeight: 600, cursor: 'pointer' }}>
-                {t === 'choice' ? '객관식' : '단답형'}
+                {TYPE_LABEL[t]}
               </button>
             ))}
           </div>
@@ -252,7 +256,11 @@ export function QuestionsClient({ slug, initial, defaultSubject }: { slug: strin
             )}
           </div>
 
-          {draft.type === 'choice' ? (
+          {draft.type === 'essay' ? (
+            <div style={{ padding: 10, borderRadius: 8, background: '#F3E8FF', fontSize: 13, lineHeight: 1.6 }}>
+              서술형은 학생이 글이나 풀이 사진으로 답하고, <b>채점함</b>에서 선생님이 부분 점수와 첨삭을 남깁니다. 모범답안·채점 기준은 아래 칸에 적어 두세요.
+            </div>
+          ) : draft.type === 'choice' ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <span style={label}>보기 (정답에 체크)</span>
               {draft.choices.map((c, i) => (
@@ -274,8 +282,8 @@ export function QuestionsClient({ slug, initial, defaultSubject }: { slug: strin
             </label>
           )}
 
-          <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}><span style={label}>해설 (선생님만 봄)</span>
-            <textarea rows={2} value={draft.explanation} onChange={(e) => set('explanation', e.target.value)} style={{ ...input, height: 'auto', padding: 10 }} />
+          <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}><span style={label}>{draft.type === 'essay' ? '모범답안·채점 기준 (선생님만 봄)' : '해설 (선생님만 봄)'}</span>
+            <textarea rows={draft.type === 'essay' ? 4 : 2} value={draft.explanation} onChange={(e) => set('explanation', e.target.value)} style={{ ...input, height: 'auto', padding: 10 }} />
           </label>
 
           {msg && <div role="status" style={{ fontSize: 13, fontWeight: 600, color: msg.ok ? '#1E5645' : '#8A3A1C' }}>{msg.text}</div>}
