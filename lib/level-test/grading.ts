@@ -61,21 +61,25 @@ export function gradeAttempt(items: GradableItem[], responses: Record<string, st
     return { questionId: question.id, answer, correct, points: correct ? points : 0, maxPoints: points, unit: question.unit?.trim() || null };
   });
 
-  const unitMap = new Map<string, { correct: number; total: number }>();
-  for (const g of graded) {
-    const key = g.unit ?? '기타';
-    const u = unitMap.get(key) ?? { correct: 0, total: 0 };
-    u.total++;
-    if (g.correct) u.correct++;
-    unitMap.set(key, u);
-  }
-
   return {
     score: graded.reduce((s, g) => s + g.points, 0),
     maxScore: graded.reduce((s, g) => s + g.maxPoints, 0),
     items: graded,
-    units: [...unitMap.entries()].map(([unit, u]) => ({ unit, ...u, rate: u.total ? u.correct / u.total : 0 })),
+    units: unitRates(graded),
   };
+}
+
+/** 문항별 정오로 단원별 정답률을 낸다 (단원 없는 문항은 '기타') */
+export function unitRates(items: { unit: string | null; correct: boolean }[]): GradeResult['units'] {
+  const map = new Map<string, { correct: number; total: number }>();
+  for (const g of items) {
+    const key = g.unit ?? '기타';
+    const u = map.get(key) ?? { correct: 0, total: 0 };
+    u.total++;
+    if (g.correct) u.correct++;
+    map.set(key, u);
+  }
+  return [...map.entries()].map(([unit, u]) => ({ unit, ...u, rate: u.total ? u.correct / u.total : 0 }));
 }
 
 /** 정답률이 낮은 단원부터. 문항이 하나뿐인 단원도 포함한다(레벨테스트는 문항 수가 적다). */

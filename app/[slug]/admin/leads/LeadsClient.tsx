@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { LeadLevelTest, type LeadAttempt, type TestOption } from './LeadLevelTest';
 
 interface Lead {
   id: string;
@@ -28,12 +29,15 @@ interface Lead {
     sentAt: string | null;
     createdAt: string;
   }[];
+  attempts: LeadAttempt[];
 }
 
 interface Props {
   slug: string;
+  academyName: string;
   leads: Lead[];
   totalByStatus: Record<string, number>;
+  tests: TestOption[];
 }
 
 const STATUS_OPTIONS = [
@@ -104,7 +108,7 @@ function formatDate(iso: string) {
   return `${mm}.${dd} ${hh}:${min}`;
 }
 
-export function LeadsClient({ slug, leads: initialLeads, totalByStatus }: Props) {
+export function LeadsClient({ slug, academyName, leads: initialLeads, totalByStatus, tests }: Props) {
   const [leads, setLeads] = useState(initialLeads);
   const [filter, setFilter] = useState<string>('all');
   const [search, setSearch] = useState('');
@@ -487,6 +491,16 @@ export function LeadsClient({ slug, leads: initialLeads, totalByStatus }: Props)
               }}
             />
           </div>
+
+          <LeadLevelTest
+            key={selected.id}
+            slug={slug}
+            leadId={selected.id}
+            phone={selected.phoneFull}
+            academyName={academyName}
+            tests={tests}
+            attempts={selected.attempts}
+          />
 
           {/* Kakao message log */}
           {selected.messages.length > 0 && (

@@ -33,8 +33,19 @@ export default async function AdminLeadsPage({
         take: 20,
         select: { id: true, scenario: true, status: true, sentAt: true, createdAt: true },
       },
+      testAttempts: {
+        where: { tenantId: tenant.id },
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, token: true, status: true, score: true, maxScore: true, createdAt: true, test: { select: { title: true } } },
+      },
     },
   });
+  const tests = await prisma.test.findMany({
+    where: { tenantId: tenant.id, archived: false, items: { some: {} } },
+    orderBy: { createdAt: 'desc' },
+    select: { id: true, title: true, grade: true },
+  });
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://growweb.me';
 
   // Count by status for filter tabs
   const totalByStatus: Record<string, number> = {};
@@ -68,6 +79,15 @@ export default async function AdminLeadsPage({
       sentAt: m.sentAt?.toISOString() ?? null,
       createdAt: m.createdAt.toISOString(),
     })),
+    attempts: l.testAttempts.map((a) => ({
+      id: a.id,
+      testTitle: a.test.title,
+      status: a.status,
+      score: a.score,
+      maxScore: a.maxScore,
+      url: `${baseUrl}/${slug}/test/${a.token}`,
+      createdAt: a.createdAt.toISOString(),
+    })),
   }));
 
   return (
@@ -91,7 +111,7 @@ export default async function AdminLeadsPage({
           overflow: 'hidden',
         }}
       >
-        <LeadsClient slug={slug} leads={serialized} totalByStatus={totalByStatus} />
+        <LeadsClient slug={slug} academyName={tenant.name} leads={serialized} totalByStatus={totalByStatus} tests={tests} />
       </main>
     </div>
   );
