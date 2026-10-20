@@ -100,3 +100,33 @@ describe('문항 입력 검증', () => {
     expect(parseQuestionInput({ type: 'essay', subject: '수학', body: 'x' }).ok).toBe(false);
   });
 });
+
+import { composeTest, type BankQuestion } from '../compose';
+
+describe('시험지 자동 구성', () => {
+  let seed = 1;
+  const rand = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  const bank: BankQuestion[] = Array.from({ length: 30 }, (_, i) => ({
+    id: `q${i}`, grade: i < 24 ? '중2' : '중3', unit: ['일차함수', '연립방정식', '부등식'][i % 3], difficulty: (i % 5) + 1, archived: i === 0,
+  }));
+
+  it('학년·보관 조건을 지키고 요청한 개수만큼 고른다', () => {
+    const ids = composeTest(bank, { grade: '중2', count: 10 }, rand);
+    expect(ids).toHaveLength(10);
+    expect(new Set(ids).size).toBe(10);
+    expect(ids).not.toContain('q0');
+    expect(ids.every((id) => Number(id.slice(1)) < 24)).toBe(true);
+  });
+  it('난이도 비율과 단원 분산, 쉬운 순서', () => {
+    const ids = composeTest(bank, { grade: '중2', count: 9, mix: { easy: 1, medium: 1, hard: 1 } }, rand);
+    const qs = ids.map((id) => bank.find((b) => b.id === id)!);
+    const bands = qs.map((q) => (q.difficulty <= 2 ? 'e' : q.difficulty === 3 ? 'm' : 'h'));
+    expect(bands.filter((b) => b === 'e')).toHaveLength(3);
+    expect(bands.filter((b) => b === 'h')).toHaveLength(3);
+    expect(new Set(qs.map((q) => q.unit)).size).toBe(3);
+    expect(qs.map((q) => q.difficulty)).toEqual([...qs.map((q) => q.difficulty)].sort((a, b) => a - b));
+  });
+  it('문항이 모자라면 있는 만큼만', () => {
+    expect(composeTest(bank, { grade: '중3', count: 20 }, rand)).toHaveLength(6);
+  });
+});
