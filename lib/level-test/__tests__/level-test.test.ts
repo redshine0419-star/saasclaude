@@ -79,3 +79,24 @@ describe('수식 렌더링', () => {
     expect(html).not.toContain('javascript:');
   });
 });
+
+import { parseQuestionInput } from '../question-input';
+
+describe('문항 입력 검증', () => {
+  it('객관식: 끝의 빈 보기는 버리고 정답 번호를 확인한다', () => {
+    const r = parseQuestionInput({ type: 'choice', subject: '수학', body: '1+1=?', choices: ['1', '2', '3', '', ''], answers: ['2'], difficulty: 9, points: 0 });
+    expect(r.ok && r.value).toMatchObject({ choices: ['1', '2', '3'], answers: ['2'], difficulty: 5, points: 1 });
+    expect(parseQuestionInput({ type: 'choice', subject: '수학', body: 'x', choices: ['1', '2'], answers: ['3'] }).ok).toBe(false);
+    expect(parseQuestionInput({ type: 'choice', subject: '수학', body: 'x', choices: ['1', '', '3'], answers: ['1'] }).ok).toBe(false);
+  });
+  it('단답형: 줄바꿈으로 여러 정답, 중복 제거', () => {
+    const r = parseQuestionInput({ type: 'short', subject: '수학', body: 'x', answers: '1/2\n0.5\n0.5\n' });
+    expect(r.ok && r.value.answers).toEqual(['1/2', '0.5']);
+    expect(r.ok && r.value.choices).toBeNull();
+  });
+  it('필수값·그림 주소 검사', () => {
+    expect(parseQuestionInput({ type: 'short', subject: '', body: 'x', answers: '1' }).ok).toBe(false);
+    expect(parseQuestionInput({ type: 'short', subject: '수학', body: 'x', answers: '1', imageUrl: 'javascript:x' }).ok).toBe(false);
+    expect(parseQuestionInput({ type: 'essay', subject: '수학', body: 'x' }).ok).toBe(false);
+  });
+});

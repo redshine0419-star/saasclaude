@@ -14,7 +14,9 @@ type ActiveKey =
   | 'result-stats'
   | 'sections'
   | 'report'
-  | 'settings';
+  | 'settings'
+  | 'questions'
+  | 'tests';
 
 interface AdminSideProps {
   slug: string;
@@ -97,6 +99,8 @@ const ACTIVE_LABEL: Record<ActiveKey, string> = {
   sections: '홈페이지 구성',
   report: '월간 리포트',
   settings: '설정',
+  questions: '문제은행',
+  tests: '레벨테스트 시험지',
 };
 
 export function AdminSide({ slug, tenantName, active }: AdminSideProps) {
@@ -110,6 +114,10 @@ export function AdminSide({ slug, tenantName, active }: AdminSideProps) {
       <SectionLabel>카톡</SectionLabel>
       <NavItem href={`${base}/kakao`} label="자동 발송" active={active === 'kakao'} />
       <NavItem href={`${base}/kakao/log`} label="발송 내역·수신 동의" active={active === 'kakaolog'} />
+
+      <SectionLabel>레벨테스트</SectionLabel>
+      <NavItem href={`${base}/tests`} label="시험지·결과" active={active === 'tests'} />
+      <NavItem href={`${base}/questions`} label="문제은행" active={active === 'questions'} />
 
       <SectionLabel>홈페이지 콘텐츠</SectionLabel>
       <NavItem href={`${base}/mobile`} label="📱 모바일 글쓰기" active={false} />
