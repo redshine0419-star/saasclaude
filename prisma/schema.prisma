@@ -93,6 +93,10 @@ model Tenant {
   faqItems      FaqItem[]
   siteVersions  SiteVersion[]
   aiDraftLogs   AiDraftLog[]
+  questions     Question[]
+  tests         Test[]
+  testAttempts  TestAttempt[]
+  testResponses TestResponse[]
 
   @@map("tenants")
 }
@@ -418,6 +422,7 @@ model Lead {
   events          LeadEvent[]
   consents        Consent[]
   messages        Message[]
+  testAttempts    TestAttempt[]
 
   @@map("leads")
 }
@@ -782,3 +787,120 @@ enum ApplicationStatus {
   review        // 시안 확인
   ready         // 오픈 준비
 }
+
+// ─────────────────────────────────────────────────────────
+// 온라인 레벨테스트 (문제은행·시험지·응시·채점) — SPEC 13장
+// ─────────────────────────────────────────────────────────
+
+enum QuestionType {
+  choice // 객관식 (보기 중 하나)
+  short  // 단답형 (허용 답안 목록과 비교)
+}
+
+model Question {
+  id          String       @id @default(cuid())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  tenantId    String
+  type        QuestionType
+  subject     String       // 수학, 영어 ...
+  grade       String?      // 중1, 고1 ...
+  unit        String?      // 단원
+  difficulty  Int          @default(3) // 1(쉬움) ~ 5(어려움)
+  body        String       // 본문. $...$ / $$...$$ 는 수식(KaTeX)
+  imageUrl    String?
+  choices     Json?        // 객관식: ["보기1", "보기2", ...]
+  answers     String[]     // 객관식: ["3"](1부터), 단답형: 허용 답안 목록
+  explanation String?      // 해설 — 학생·학부모에게는 보여주지 않는다
+  points      Int          @default(1)
+  archived    Boolean      @default(false)
+
+  tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  testItems   TestItem[]
+  responses   TestResponse[]
+
+  @@index([tenantId, archived])
+  @@map("questions")
+}
+
+model Test {
+  id           String     @id @default(cuid())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  tenantId     String
+  title        String
+  grade        String?
+  description  String?    // 응시 전 안내 문구
+  timeLimitMin Int?       // 제한 시간(분). 없으면 무제한
+  archived     Boolean    @default(false)
+
+  tenant       Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  items        TestItem[]
+  attempts     TestAttempt[]
+
+  @@index([tenantId, archived])
+  @@map("tests")
+}
+
+model TestItem {
+  id         String   @id @default(cuid())
+  testId     String
+  questionId String
+  sortOrder  Int      @default(0)
+  points     Int      @default(1)
+
+  test       Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Restrict)
+
+  @@unique([testId, questionId])
+  @@map("test_items")
+}
+
+enum AttemptStatus {
+  issued      // 링크 발급, 아직 시작 전
+  in_progress
+  submitted
+}
+
+model TestAttempt {
+  id          String        @id @default(cuid())
+  createdAt   DateTime      @default(now())
+  tenantId    String
+  testId      String
+  leadId      String?       // 상담 건에 연결 — 응시 화면에서 학생 개인정보를 따로 받지 않는다
+  token       String        @unique // 응시·결과 링크용 추측 불가 토큰
+  status      AttemptStatus @default(issued)
+  startedAt   DateTime?
+  submittedAt DateTime?
+  score       Int?
+  maxScore    Int?
+  issuedBy    String?       // 발급한 관리자 이메일
+
+  tenant      Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  test        Test          @relation(fields: [testId], references: [id], onDelete: Restrict)
+  lead        Lead?         @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  responses   TestResponse[]
+
+  @@index([tenantId, testId])
+  @@index([leadId])
+  @@map("test_attempts")
+}
+
+model TestResponse {
+  id         String      @id @default(cuid())
+  updatedAt  DateTime    @updatedAt
+  tenantId   String
+  attemptId  String
+  questionId String
+  answer     String      // 객관식은 보기 번호(1부터), 단답형은 입력값
+  correct    Boolean?    // 제출 후 채점
+  points     Int?
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  attempt    TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question   Question    @relation(fields: [questionId], references: [id], onDelete: Restrict)
+
+  @@unique([attemptId, questionId])
+  @@map("test_responses")
+}
+
