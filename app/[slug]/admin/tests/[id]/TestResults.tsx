@@ -41,7 +41,9 @@ export async function TestResults({ tenantId, testId, slug }: { tenantId: string
   ]);
   if (!test) return null;
 
-  const done = attempts.filter((a) => a.status === 'submitted' && a.maxScore);
+  // 통계는 채점이 끝난 응시만 (서술형 채점 대기는 점수가 확정되지 않음)
+  const done = attempts.filter((a) => a.status === 'submitted' && a.maxScore && !a.needsGrading);
+  const awaiting = attempts.filter((a) => a.status === 'submitted' && a.needsGrading).length;
   if (attempts.length === 0) {
     return <div style={{ ...card, textAlign: 'center', color: '#9AA3AF', padding: 40 }}>아직 발급한 응시 링크가 없습니다. 상담 관리에서 상담을 열고 &ldquo;응시 링크 만들기&rdquo;를 눌러 주세요.</div>;
   }
@@ -63,7 +65,7 @@ export async function TestResults({ tenantId, testId, slug }: { tenantId: string
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 12 }}>
         {[
           ['응시 링크', `${attempts.length}건`],
-          ['제출', `${done.length}건`],
+          ['제출', awaiting ? `${done.length + awaiting}건 (채점 대기 ${awaiting})` : `${done.length}건`],
           ['평균', avg === null ? '–' : `${Math.round(avg * 100)}%`],
           ['최고 / 최저', rates.length ? `${Math.round(Math.max(...rates) * 100)}% / ${Math.round(Math.min(...rates) * 100)}%` : '–'],
         ].map(([k, v]) => (
@@ -113,9 +115,9 @@ export async function TestResults({ tenantId, testId, slug }: { tenantId: string
             {attempts.map((a) => (
               <tr key={a.id}>
                 <td style={td}>{a.lead ? `${maskName(a.lead.parentName)} · ${a.lead.studentGrade ?? '학년 미기재'}` : '–'}</td>
-                <td style={td}>{a.status === 'submitted' ? '제출 완료' : a.status === 'in_progress' ? '응시 중' : '응시 전'}</td>
+                <td style={td}>{a.status === 'submitted' ? (a.needsGrading ? <a href={`/${slug}/admin/grading/${a.id}`} style={{ color: '#7A4B00', fontWeight: 600 }}>채점 대기 →</a> : '제출 완료') : a.status === 'in_progress' ? '응시 중' : '응시 전'}</td>
                 <td style={td}>{a.submittedAt ? formatKstDateTime(a.submittedAt) : '–'}</td>
-                <td style={td}>{a.maxScore ? `${a.score}/${a.maxScore} (${Math.round(((a.score ?? 0) / a.maxScore) * 100)}%)` : '–'}</td>
+                <td style={td}>{a.maxScore && !a.needsGrading ? `${a.score}/${a.maxScore} (${Math.round(((a.score ?? 0) / a.maxScore) * 100)}%)` : a.needsGrading ? `자동 채점 ${a.score}점` : '–'}</td>
                 <td style={td}>{a.status === 'submitted' && <a href={`/${slug}/test/${a.token}/result`} target="_blank" rel="noopener noreferrer" style={{ color: '#1E5645' }}>결과지</a>}</td>
               </tr>
             ))}

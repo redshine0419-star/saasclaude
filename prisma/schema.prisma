@@ -902,7 +902,7 @@ model TestResponse {
   points     Int?        // 서술형은 선생님이 채점하기 전까지 null
   feedback   String?     // 첨삭 코멘트 — 채점 완료 후 결과지에 보인다
   errorType  String?     // concept | calculation | condition | reading | other
-  marks      String[]    @default([]) // 사진별 펜 표시(투명 PNG), photos와 같은 순서
+  marks      String[]    @default([]) // 사진별 펜 표시(0~1 좌표 선 묶음 JSON, lib/level-test/marks.ts), photos와 같은 순서
   gradedBy   String?
 
   tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)

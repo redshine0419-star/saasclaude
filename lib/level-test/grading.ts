@@ -111,6 +111,15 @@ export const ERROR_TYPES = {
 } as const;
 export type ErrorType = keyof typeof ERROR_TYPES;
 
+/** 최종 점수: 채점된 문항 점수의 합. 채점 안 된 문항이 남아 있으면 complete=false */
+export function finalScore(items: { points: number | null; maxPoints: number }[]) {
+  return {
+    score: items.reduce((s, i) => s + (i.points ?? 0), 0),
+    maxScore: items.reduce((s, i) => s + i.maxPoints, 0),
+    complete: items.every((i) => i.points !== null),
+  };
+}
+
 /** 선생님이 매긴 서술형 점수 검증: 0 ~ 배점 사이 정수 */
 export function parseManualPoints(raw: unknown, max: number): number | null {
   const n = Number(raw);

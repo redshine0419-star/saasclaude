@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-export type LeadAttempt = { id: string; testTitle: string; status: 'issued' | 'in_progress' | 'submitted'; score: number | null; maxScore: number | null; url: string; createdAt: string };
+export type LeadAttempt = { id: string; testTitle: string; status: 'issued' | 'in_progress' | 'submitted'; needsGrading: boolean; score: number | null; maxScore: number | null; url: string; createdAt: string };
 export type TestOption = { id: string; title: string; grade: string | null };
 
 const STATUS_LABEL = { issued: '응시 전', in_progress: '응시 중', submitted: '제출 완료' } as const;
@@ -26,7 +26,7 @@ export function LeadLevelTest({ slug, leadId, phone, academyName, tests, attempt
       const data = await res.json().catch(() => ({}));
       if (!res.ok) { setError(data.error ?? '링크를 만들지 못했습니다.'); return; }
       const t = tests.find((x) => x.id === testId);
-      setAttempts((a) => [{ id: data.attemptId, testTitle: t?.title ?? '', status: 'issued', score: null, maxScore: null, url: data.url, createdAt: new Date().toISOString() }, ...a]);
+      setAttempts((a) => [{ id: data.attemptId, testTitle: t?.title ?? '', status: 'issued', needsGrading: false, score: null, maxScore: null, url: data.url, createdAt: new Date().toISOString() }, ...a]);
     } finally {
       setBusy(false);
     }
@@ -71,12 +71,15 @@ export function LeadLevelTest({ slug, leadId, phone, academyName, tests, attempt
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
             <b>{a.testTitle}</b>
             <span style={{ color: a.status === 'submitted' ? '#1E5645' : '#7A4B00' }}>
-              {a.status === 'submitted' && a.maxScore ? `${a.score}/${a.maxScore}점 (${Math.round(((a.score ?? 0) / a.maxScore) * 100)}%)` : STATUS_LABEL[a.status]}
+              {a.status === 'submitted' && a.needsGrading ? '서술형 채점 대기' : a.status === 'submitted' && a.maxScore ? `${a.score}/${a.maxScore}점 (${Math.round(((a.score ?? 0) / a.maxScore) * 100)}%)` : STATUS_LABEL[a.status]}
             </span>
           </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {a.status === 'submitted' ? (
-              <a href={`${a.url}/result`} target="_blank" rel="noopener noreferrer" style={btn}>결과지 보기</a>
+              <>
+                {a.needsGrading && <a href={`/${slug}/admin/grading/${a.id}`} style={{ ...btn, borderColor: '#B7791F', color: '#7A4B00' }}>채점하기</a>}
+                <a href={`${a.url}/result`} target="_blank" rel="noopener noreferrer" style={btn}>결과지 보기</a>
+              </>
             ) : (
               <>
                 <button type="button" onClick={() => copy(a.url)} style={btn}>{copied === a.url ? '복사됨 ✓' : '링크 복사'}</button>

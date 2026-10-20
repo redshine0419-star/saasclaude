@@ -36,7 +36,7 @@ export default async function AdminLeadsPage({
       testAttempts: {
         where: { tenantId: tenant.id },
         orderBy: { createdAt: 'desc' },
-        select: { id: true, token: true, status: true, score: true, maxScore: true, createdAt: true, test: { select: { title: true } } },
+        select: { id: true, token: true, status: true, needsGrading: true, score: true, maxScore: true, createdAt: true, test: { select: { title: true } } },
       },
     },
   });
@@ -83,6 +83,7 @@ export default async function AdminLeadsPage({
       id: a.id,
       testTitle: a.test.title,
       status: a.status,
+      needsGrading: a.needsGrading,
       score: a.score,
       maxScore: a.maxScore,
       url: `${baseUrl}/${slug}/test/${a.token}`,

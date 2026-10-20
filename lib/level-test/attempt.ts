@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { prisma } from '@/lib/prisma';
-import { gradeAttempt } from './grading';
+import { finalScore, gradeAttempt } from './grading';
 
 /** 응시·결과 링크용 토큰 (192비트, URL 안전) */
 export function newAttemptToken(): string {
@@ -97,4 +97,36 @@ export async function submitAttempt(attemptId: string, now = new Date()) {
     }
   }
   return attempt;
+}
+
+/**
+ * 서술형 채점 결과로 최종 점수를 다시 계산한다.
+ * markComplete=true면 모든 서술형이 채점됐는지 확인하고 채점 완료로 바꾼다(상담 기록에 남김).
+ */
+export async function recomputeAttemptScore(attemptId: string, opts: { markComplete: boolean; actor: string }) {
+  const attempt = await prisma.testAttempt.findUnique({
+    where: { id: attemptId },
+    include: { test: { include: { items: true } }, responses: true, lead: { select: { id: true } } },
+  });
+  if (!attempt || attempt.status !== 'submitted') return { ok: false as const, error: '제출된 응시가 아닙니다.' };
+
+  // 제출 시 모든 문항에 응답 행이 만들어진다. 서술형만 선생님 채점 전 points=null
+  const byQ = new Map(attempt.responses.map((r) => [r.questionId, r]));
+  const fs = finalScore(attempt.test.items.map((i) => ({ points: byQ.get(i.questionId)?.points ?? null, maxPoints: i.points })));
+  if (opts.markComplete && !fs.complete) {
+    return { ok: false as const, error: '아직 점수를 매기지 않은 서술형 문항이 있습니다.' };
+  }
+  const wasPending = attempt.needsGrading;
+  const complete = opts.markComplete || !wasPending;
+  await prisma.testAttempt.update({
+    where: { id: attempt.id },
+    data: { score: fs.score, maxScore: fs.maxScore, ...(complete ? { needsGrading: false, gradedAt: new Date() } : {}) },
+  });
+  if (opts.markComplete && attempt.lead) {
+    const pct = fs.maxScore ? Math.round((fs.score / fs.maxScore) * 100) : 0;
+    await prisma.leadEvent.create({
+      data: { leadId: attempt.lead.id, type: 'note', payload: { note: `레벨테스트 서술형 채점 완료: 최종 ${fs.score}/${fs.maxScore}점 (${pct}%)` }, actorId: opts.actor },
+    });
+  }
+  return { ok: true as const, score: fs.score, maxScore: fs.maxScore };
 }

@@ -157,3 +157,22 @@ describe('서술형', () => {
     expect(r.ok && r.value).toMatchObject({ type: 'essay', answers: [], choices: null, explanation: '모범답안' });
   });
 });
+
+import { finalScore } from '../grading';
+import { parseMarks, validateStrokes, strokePath } from '../marks';
+
+describe('채점 완료·펜 표시', () => {
+  it('최종 점수와 완료 여부', () => {
+    expect(finalScore([{ points: 2, maxPoints: 2 }, { points: 3, maxPoints: 5 }])).toEqual({ score: 5, maxScore: 7, complete: true });
+    expect(finalScore([{ points: 2, maxPoints: 2 }, { points: null, maxPoints: 5 }]).complete).toBe(false);
+  });
+  it('펜 표시 검증: 좌표 0~1, 허용 색상만', () => {
+    const ok = validateStrokes([{ color: '#E11D48', points: [[0.1, 0.2], [0.123456, 0.9]] }]);
+    expect(ok?.[0].points[1]).toEqual([0.1235, 0.9]);
+    expect(validateStrokes([{ color: 'red; background:url(x)', points: [[0, 0]] }])).toBeNull();
+    expect(validateStrokes([{ color: '#E11D48', points: [[1.5, 0]] }])).toBeNull();
+    expect(validateStrokes('nope')).toBeNull();
+    expect(parseMarks('{bad json')).toEqual([]);
+    expect(strokePath([[0, 0], [0.5, 1]])).toBe('M0 0 L0.5 1');
+  });
+});
