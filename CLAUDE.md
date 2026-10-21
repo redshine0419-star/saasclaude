@@ -1,6 +1,6 @@
 # 첫등원 — Claude Code 작업 규칙
 
-이 파일은 매 세션 시작 시 읽는다. 상세 기능은 `docs/SPEC.md`, 작업 순서는 `docs/TASKS.md`, 디자인 참고 방법은 `docs/DESIGN.md`.
+이 파일은 매 세션 시작 시 읽는다. 상세 기능은 `docs/SPEC.md`, 작업 순서는 `docs/TASKS.md`, 디자인 참고 방법은 `docs/DESIGN.md`, 오픈 절차는 `docs/LAUNCH.md`.
 
 ## 현재 운영 정책
 
