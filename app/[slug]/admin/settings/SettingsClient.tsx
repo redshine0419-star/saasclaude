@@ -263,20 +263,20 @@ export function SettingsClient({
         ))}
         {showAdd ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               <input
                 type="text"
                 placeholder="이름"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                style={{ height: 40, padding: '0 10px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
+                style={{ flex: '1 1 140px', minWidth: 0, boxSizing: 'border-box', height: 40, padding: '0 10px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
               />
               <input
                 type="tel"
                 placeholder="010-0000-0000"
                 value={newPhone}
                 onChange={(e) => setNewPhone(e.target.value)}
-                style={{ height: 40, padding: '0 10px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
+                style={{ flex: '1 1 140px', minWidth: 0, boxSizing: 'border-box', height: 40, padding: '0 10px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
               />
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
@@ -424,7 +424,7 @@ export function SettingsClient({
             type="text"
             value={accentColor}
             onChange={(e) => setAccentColor(e.target.value)}
-            placeholder="HEX 코드 (예: #2563EB)"
+            placeholder="예: #2563EB"
             style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, fontSize: 14, fontFamily: 'monospace', width: 160 }}
           />
           {accentColor && (

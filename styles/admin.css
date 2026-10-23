@@ -126,7 +126,11 @@
   /* ── 입력·버튼: 확대 방지(16px)와 터치 크기 ── */
   .adm main input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]),
   .adm main select,
-  .adm main textarea { font-size: 16px !important; max-width: 100%; }
+  .adm main textarea { font-size: 16px !important; max-width: 100%; min-width: 0; box-sizing: border-box; }
+  /* 그리드 칸 안의 입력은 칸 너비를 따른다 (기본 고유 너비로 카드 밖으로 밀려나지 않게) */
+  .adm main [style*="display:grid"] > input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]),
+  .adm main [style*="display:grid"] > select,
+  .adm main [style*="display:grid"] > textarea { width: 100% !important; }
   .adm main button { min-height: 40px; }
 
   /* 긴 텍스트·이미지가 화면 밖으로 밀지 않게 */
