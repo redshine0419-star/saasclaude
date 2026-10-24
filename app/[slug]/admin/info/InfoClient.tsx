@@ -96,6 +96,53 @@ const TEXTAREA = {
 };
 const LABEL = { fontSize: 13, fontWeight: 600, color: '#5A6270' };
 
+/** 시설 사진 선택 — 휴대폰 사진첩·카메라에서 바로 올린다 */
+function FacilityPhotoPicker({ slug, value, onChange }: { slug: string; value: string; onChange: (url: string) => void }) {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState('');
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <label style={{ width: 96, height: 72, flexShrink: 0, border: '1px dashed #B7B0A2', borderRadius: 8, background: value ? `#E8E4DB url(${value}) center/cover no-repeat` : '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: '#3E4652', cursor: uploading ? 'wait' : 'pointer' }}>
+          {uploading ? '업로드 중…' : value ? '' : '+ 사진'}
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            disabled={uploading}
+            style={{ display: 'none' }}
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              e.target.value = '';
+              if (!file) return;
+              setUploading(true);
+              setError('');
+              try {
+                const fd = new FormData();
+                fd.append('file', file);
+                const res = await fetch(`/api/${slug}/admin/upload`, { method: 'POST', body: fd });
+                const data = await res.json().catch(() => ({}));
+                if (res.ok && data.url) onChange(data.url);
+                else setError(data.error ?? '사진을 올리지 못했습니다.');
+              } catch {
+                setError('사진을 올리지 못했습니다.');
+              } finally {
+                setUploading(false);
+              }
+            }}
+          />
+        </label>
+        <div style={{ fontSize: 12, color: '#9AA3AF', lineHeight: 1.5 }}>
+          JPG·PNG·WebP, 5MB 이하
+          {value && (
+            <button type="button" onClick={() => onChange('')} style={{ display: 'block', marginTop: 4, padding: 0, border: 'none', background: 'none', color: '#8A3A1C', font: 'inherit', fontSize: 12, cursor: 'pointer' }}>사진 빼기</button>
+          )}
+        </div>
+      </div>
+      {error && <div style={{ fontSize: 12, color: '#B42318' }}>{error}</div>}
+    </div>
+  );
+}
+
 export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: initialMirror, director: initialDirector, fees: initialFees, feeChangeLogs, principles: initialPrinciples, facilities: initialFacilities, refundPolicyText: initialRefundPolicyText, shuttleStops: initialShuttleStops, aiDraftEnabled }: Props) {
   const [info, setInfo] = useState(initialTenant);
   const [mirror, setMirror] = useState<NaverPlaceMirror>(
@@ -652,7 +699,7 @@ export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: init
           <div style={{ fontSize: 16, fontWeight: 700 }}>교실·시설</div>
           <button type="button" onClick={() => { setShowAddFacility(true); setFacilityEditId(null); }} style={{ height: 36, padding: '0 14px', border: '1px solid #D5D0C6', borderRadius: 8, background: '#FFFFFF', font: 'inherit', fontSize: 13, cursor: 'pointer' }}>+ 추가</button>
         </div>
-        <div style={{ fontSize: 13, color: '#9AA3AF' }}>홈페이지 소개 페이지에 표시됩니다. 사진 URL을 입력하거나 레이블만 입력해도 됩니다.</div>
+        <div style={{ fontSize: 13, color: '#9AA3AF' }}>홈페이지 소개 페이지에 표시됩니다. 사진 없이 이름만 등록해도 됩니다.</div>
 
         {showAddFacility && (
           <div style={{ padding: 16, background: '#F4F2EE', borderRadius: 10, display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -661,8 +708,8 @@ export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: init
               <input type="text" value={facilityForm.label} onChange={(e) => setFacilityForm((p) => ({ ...p, label: e.target.value }))} placeholder="자기주도학습실, 수업 교실, 도서관 등" style={INPUT} />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={LABEL}>사진 URL (선택)</label>
-              <input type="url" value={facilityForm.photo} onChange={(e) => setFacilityForm((p) => ({ ...p, photo: e.target.value }))} placeholder="https://..." style={INPUT} />
+              <label style={LABEL}>사진 (선택)</label>
+              <FacilityPhotoPicker slug={slug} value={facilityForm.photo} onChange={(url) => setFacilityForm((p) => ({ ...p, photo: url }))} />
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
               <button type="button" onClick={() => setShowAddFacility(false)} style={{ flex: 1, height: 40, border: '1px solid #D5D0C6', borderRadius: 8, background: '#FFFFFF', font: 'inherit', fontSize: 14, cursor: 'pointer' }}>취소</button>
@@ -681,7 +728,7 @@ export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: init
               {facilityEditId === f.id ? (
                 <div style={{ padding: 14, background: '#F4F2EE', borderRadius: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
                   <input type="text" value={facilityEditForm.label} onChange={(e) => setFacilityEditForm((x) => ({ ...x, label: e.target.value }))} placeholder="공간 이름" style={INPUT} />
-                  <input type="url" value={facilityEditForm.photo} onChange={(e) => setFacilityEditForm((x) => ({ ...x, photo: e.target.value }))} placeholder="사진 URL (선택)" style={INPUT} />
+                  <FacilityPhotoPicker slug={slug} value={facilityEditForm.photo} onChange={(url) => setFacilityEditForm((x) => ({ ...x, photo: url }))} />
                   <div style={{ display: 'flex', gap: 6 }}>
                     <button type="button" onClick={() => deleteFacility(f.id)} style={{ height: 36, padding: '0 10px', border: '1px solid #D5D0C6', borderRadius: 8, background: '#FFFFFF', color: '#8A3A1C', font: 'inherit', fontSize: 13, cursor: 'pointer' }}>삭제</button>
                     <button type="button" onClick={() => setFacilityEditId(null)} style={{ flex: 1, height: 36, border: '1px solid #D5D0C6', borderRadius: 8, background: '#FFFFFF', font: 'inherit', fontSize: 13, cursor: 'pointer' }}>취소</button>
