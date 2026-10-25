@@ -52,7 +52,7 @@ export default async function StudentsPage({ params, searchParams }: Props) {
   return (
     <div style={{ display: 'flex', flex: 1, minHeight: '100vh', background: '#F4F2EE', color: '#1B2430', fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif" }}>
       <AdminSide slug={slug} tenantName={tenant.name} active="students" />
-      <main style={{ flex: 1, padding: '32px 40px', display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 1100 }}>
+      <main style={{ flex: 1, minWidth: 0, padding: '32px 40px', display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 1100 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
           <div>
             <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>학생부</h1>
@@ -89,7 +89,7 @@ export default async function StudentsPage({ params, searchParams }: Props) {
             {q || sp.classId ? '조건에 맞는 학생이 없습니다.' : <>아직 등록된 학생이 없습니다.<br />&ldquo;+ 학생 추가&rdquo;를 누르거나, 상담 관리에서 등록한 상담을 열어 &ldquo;원생으로 등록&rdquo;을 눌러 주세요.</>}
           </div>
         ) : (
-          <div style={{ background: '#FFFFFF', borderRadius: 12, overflow: 'hidden' }}>
+          <div style={{ background: '#FFFFFF', borderRadius: 12, overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
               <thead>
                 <tr style={{ color: '#5A6270', background: '#FAF9F6' }}>

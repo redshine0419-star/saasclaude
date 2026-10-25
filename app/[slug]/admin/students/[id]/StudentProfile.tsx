@@ -246,7 +246,7 @@ export function StudentProfile({ slug, student: s, classes, me, isOwner, today }
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 16, alignItems: 'start' }}>
+      <div className="stu-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 300px', gap: 16, alignItems: 'start' }}>
         {/* 왼쪽: 성적 · 메모 */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <section style={card}>
@@ -295,7 +295,8 @@ export function StudentProfile({ slug, student: s, classes, me, isOwner, today }
                   })}
                 </div>
                 <ScoreChart scores={shownScores} colors={colors} />
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+                <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                <table style={{ width: '100%', minWidth: 520, borderCollapse: 'collapse', fontSize: 14 }}>
                   <thead>
                     <tr style={{ color: '#5A6270', textAlign: 'left' }}>
                       {['날짜', '구분', '시험', '과목', '점수', '등급·백분위', ''].map((h) => <th key={h} style={{ padding: '8px 6px', fontWeight: 600, borderBottom: '1px solid #EEEAE2' }}>{h}</th>)}
@@ -319,6 +320,7 @@ export function StudentProfile({ slug, student: s, classes, me, isOwner, today }
                     ))}
                   </tbody>
                 </table>
+                </div>
               </>
             )}
           </section>

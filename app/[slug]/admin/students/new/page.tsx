@@ -28,7 +28,7 @@ export default async function NewStudentPage({ params, searchParams }: Props) {
   return (
     <div style={{ display: 'flex', flex: 1, minHeight: '100vh', background: '#F4F2EE', color: '#1B2430', fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif" }}>
       <AdminSide slug={slug} tenantName={tenant.name} active="students" />
-      <main style={{ flex: 1, padding: '32px 40px', display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 720 }}>
+      <main style={{ flex: 1, minWidth: 0, padding: '32px 40px', display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 720 }}>
         <Link href={`/${slug}/admin/students`} style={{ fontSize: 14, color: '#5A6270', textDecoration: 'none' }}>← 학생부</Link>
         <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>학생 추가</h1>
         {lead && (

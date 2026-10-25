@@ -176,3 +176,9 @@
   .adm main [style*="grid-template-columns:repeat(2,"],
   .adm main [style*="grid-template-columns:1fr 1fr"] { grid-template-columns: minmax(0, 1fr) !important; }
 }
+
+/* 학생부 상세: 본문 + 오른쪽 칸 — 좁은 노트북·태블릿에서는 한 줄로 */
+@media (max-width: 1100px) {
+  .adm .stu-grid { grid-template-columns: minmax(0, 1fr) !important; }
+}
+

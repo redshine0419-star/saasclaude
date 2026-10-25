@@ -78,7 +78,7 @@ export default async function StudentPage({ params }: Props) {
   return (
     <div style={{ display: 'flex', flex: 1, minHeight: '100vh', background: '#F4F2EE', color: '#1B2430', fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif" }}>
       <AdminSide slug={slug} tenantName={tenant.name} active="students" />
-      <main style={{ flex: 1, padding: '32px 40px', maxWidth: 1180 }}>
+      <main style={{ flex: 1, minWidth: 0, padding: '32px 40px', maxWidth: 1180 }}>
         <StudentProfile slug={slug} student={data} classes={classes} me={email} isOwner={isOwner} today={kstToday()} />
       </main>
     </div>

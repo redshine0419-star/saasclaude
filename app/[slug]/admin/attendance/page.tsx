@@ -29,7 +29,7 @@ export default async function AttendancePage({ params, searchParams }: Props) {
   return (
     <div style={{ display: 'flex', flex: 1, minHeight: '100vh', background: '#F4F2EE', color: '#1B2430', fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif" }}>
       <AdminSide slug={slug} tenantName={tenant.name} active="attendance" />
-      <main style={{ flex: 1, padding: '32px 40px', display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 860 }}>
+      <main style={{ flex: 1, minWidth: 0, padding: '32px 40px', display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 860 }}>
         <div>
           <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>출결</h1>
           <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>재원생의 출석·지각·결석을 기록합니다. 기록은 학생부에 모이며, 학부모에게 자동으로 알리지는 않습니다.</div>
