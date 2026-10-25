@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { PlatformSide } from '@/components/platform/PlatformSide';
 import { SettingsClient } from './SettingsClient';
+import { MailTestCard } from './MailTestCard';
 
 export default async function PlatformSettingsPage() {
   const session = await auth();
@@ -56,6 +57,7 @@ export default async function PlatformSettingsPage() {
           </div>
         </div>
 
+        <MailTestCard />
         <SettingsClient initialSettings={initialSettings} proxyLogs={proxyLogs} />
       </main>
     </div>

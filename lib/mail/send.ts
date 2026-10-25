@@ -26,8 +26,10 @@ export async function sendMail(input: MailInput): Promise<MailResult> {
       signal: AbortSignal.timeout(8000),
     });
     if (!res.ok) {
+      // Resend 오류 문구는 운영자 화면에만 돌려준다(받는 주소가 들어 있을 수 있어 로그에는 상태 코드만)
+      const detail = await res.json().then((d: { message?: string }) => d.message ?? '').catch(() => '');
       console.error('[mail] resend failed:', res.status);
-      return { sent: false, reason: `http ${res.status}` };
+      return { sent: false, reason: `http ${res.status}${detail ? ` — ${detail}` : ''}` };
     }
     return { sent: true };
   } catch (e) {
