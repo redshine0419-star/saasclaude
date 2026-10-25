@@ -6,7 +6,7 @@ import { studentPageAuth } from '@/lib/students/page-auth';
 import { SCORE_KIND_LABEL, STATUS_LABEL, maskPhone } from '@/lib/students/labels';
 import { daysAgo, formatKstDate } from '@/lib/format-date';
 
-type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ q?: string; status?: string; classId?: string }> };
+type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ q?: string; status?: string; classId?: string; withdrawn?: string }> };
 
 const th: React.CSSProperties = { padding: '12px 14px', fontWeight: 600, textAlign: 'left', whiteSpace: 'nowrap' };
 const td: React.CSSProperties = { padding: '12px 14px', borderTop: '1px solid #EEEAE2', verticalAlign: 'middle' };
@@ -21,11 +21,11 @@ export default async function StudentsPage({ params, searchParams }: Props) {
   const sp = await searchParams;
   const { tenant } = await studentPageAuth(slug);
 
-  const status = (['active', 'paused', 'left', 'all'] as const).find((s) => s === sp.status) ?? 'active';
+  const status = (['active', 'paused', 'all'] as const).find((s) => s === sp.status) ?? 'active';
   const q = (sp.q ?? '').trim().slice(0, 40);
   const where: Prisma.StudentWhereInput = {
     tenantId: tenant.id,
-    ...(status !== 'all' && { status }),
+    ...(status === 'all' ? { status: { in: ['active', 'paused'] as StudentStatus[] } } : { status }),
     ...(sp.classId && { classId: sp.classId }),
     ...(q && { OR: [{ name: { contains: q, mode: 'insensitive' } }, { school: { contains: q, mode: 'insensitive' } }, { grade: { contains: q } }] }),
   };
@@ -56,7 +56,7 @@ export default async function StudentsPage({ params, searchParams }: Props) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
           <div>
             <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>학생부</h1>
-            <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>학생별 성적·성격·메모·출결을 한곳에서 봅니다. 학부모 화면에는 보이지 않습니다.</div>
+            <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>학생별 성적·성격·메모·출결을 한곳에서 봅니다. 학부모 화면에는 보이지 않고, 퇴원하면 즉시 삭제됩니다.</div>
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <Link href={`/${slug}/admin/attendance`} style={{ height: 40, padding: '0 16px', borderRadius: 8, border: '1px solid #D5D0C6', background: '#FFFFFF', color: '#1B2430', textDecoration: 'none', fontSize: 14, fontWeight: 600, display: 'inline-flex', alignItems: 'center' }}>출결 체크</Link>
@@ -64,8 +64,12 @@ export default async function StudentsPage({ params, searchParams }: Props) {
           </div>
         </div>
 
+        {sp.withdrawn && (
+          <div role="status" style={{ padding: '12px 14px', borderRadius: 10, background: '#E4EEE9', fontSize: 14 }}>퇴원 처리했습니다. 해당 학생의 학생부(메모·성적·출결)는 즉시 삭제되었습니다.</div>
+        )}
+
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {([['active', `재원 ${countOf('active')}`], ['paused', `휴원 ${countOf('paused')}`], ['left', `퇴원 ${countOf('left')}`], ['all', '전체']] as const).map(([s, label]) => (
+          {([['active', `재원 ${countOf('active')}`], ['paused', `휴원 ${countOf('paused')}`], ['all', '전체']] as const).map(([s, label]) => (
             <Link key={s} href={tabHref(s)} style={{ height: 34, padding: '0 14px', borderRadius: 17, fontSize: 13, fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', background: status === s ? '#1B2430' : '#FFFFFF', color: status === s ? '#FFFFFF' : '#3E4652', border: '1px solid #D5D0C6' }}>{label}</Link>
           ))}
         </div>
@@ -101,6 +105,7 @@ export default async function StudentsPage({ params, searchParams }: Props) {
                     <tr key={s.id}>
                       <td style={td}>
                         <Link href={`/${slug}/admin/students/${s.id}`} style={{ color: '#1B2430', fontWeight: 700, textDecoration: 'none' }}>{s.name}</Link>
+                        {!s.consentAt && <span style={{ marginLeft: 6, padding: '1px 6px', borderRadius: 4, background: '#FFF7E6', color: '#7A4B00', fontSize: 11, fontWeight: 600 }}>동의 기록 없음</span>}
                         {s.traits.length > 0 && <div style={{ fontSize: 12, color: '#5A6270', marginTop: 2 }}>{s.traits.slice(0, 3).join(' · ')}</div>}
                       </td>
                       <td style={td}>{[s.grade, s.school].filter(Boolean).join(' · ') || '–'}</td>

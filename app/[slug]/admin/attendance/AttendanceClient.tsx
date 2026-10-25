@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { AttendanceStatus } from '@prisma/client';
-import { ATTENDANCE_LABEL } from '@/lib/students/labels';
+import { ATTENDANCE_LABEL, findHealthWords } from '@/lib/students/labels';
 
 type Row = { id: string; name: string; grade: string | null; className: string | null; status: AttendanceStatus | null; note: string };
 type Props = { slug: string; date: string; today: string; classId: string; classes: { id: string; name: string; days: string[] }[]; students: Row[] };
@@ -120,7 +120,12 @@ export function AttendanceClient({ slug, date, today, classId, classes, students
                   ))}
                 </div>
                 {(r.status === 'late' || r.status === 'absent' || r.status === 'excused' || r.note) && (
-                  <input value={r.note} onChange={(e) => set(r.id, { note: e.target.value })} maxLength={100} placeholder="사유 (선택)" style={{ flex: '1 1 100%', minWidth: 0, boxSizing: 'border-box', height: 36, padding: '0 10px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 13 }} />
+                  <>
+                    <input value={r.note} onChange={(e) => set(r.id, { note: e.target.value })} maxLength={100} placeholder="사유 (선택, 예: 병결·가족 행사 — 병명은 적지 마세요)" style={{ flex: '1 1 100%', minWidth: 0, boxSizing: 'border-box', height: 36, padding: '0 10px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 13 }} />
+                    {findHealthWords(r.note).length > 0 && (
+                      <div role="note" style={{ flex: '1 1 100%', fontSize: 12, color: '#7A4B00' }}>⚠️ 건강 정보는 민감정보입니다. &ldquo;병결&rdquo;처럼 적어 주세요.</div>
+                    )}
+                  </>
                 )}
               </div>
             ))}

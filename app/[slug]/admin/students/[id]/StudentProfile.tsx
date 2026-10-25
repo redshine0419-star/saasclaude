@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import type { AttendanceStatus, ScoreKind, StudentNoteKind, StudentStatus } from '@prisma/client';
-import { ATTENDANCE_LABEL, NOTE_KIND_LABEL, SCORE_KIND_LABEL, STATUS_LABEL, TRAIT_SUGGESTIONS } from '@/lib/students/labels';
+import { ATTENDANCE_LABEL, CONSENT_METHOD_LABEL, NOTE_KIND_LABEL, SCORE_KIND_LABEL, STATUS_LABEL, TRAIT_SUGGESTIONS, findHealthWords, type ConsentMethod } from '@/lib/students/labels';
 import { formatKstDate, formatKstDateTime } from '@/lib/format-date';
 import { ScoreChart, subjectColors } from './ScoreChart';
 
@@ -12,7 +12,7 @@ type Note = { id: string; createdAt: string; kind: StudentNoteKind; body: string
 type Score = { id: string; kind: ScoreKind; examDate: string; label: string; subject: string; score: number; maxScore: number; rankGrade: number | null; percentile: number | null; memo: string | null; createdBy: string | null };
 type StudentData = {
   id: string; name: string; grade: string; school: string; classId: string; className: string | null; classSchedule: string | null;
-  status: StudentStatus; enrolledAt: string; leftAt: string | null; parentName: string; parentPhone: string; studentPhone: string;
+  status: StudentStatus; enrolledAt: string; consentAt: string | null; consentMethod: string | null; parentName: string; parentPhone: string; studentPhone: string;
   traits: string[]; summary: string; notes: Note[]; scores: Score[];
   attendances: { date: string; status: AttendanceStatus; note: string | null }[];
   lead: {
@@ -69,12 +69,14 @@ export function StudentProfile({ slug, student: s, classes, me, isOwner, today }
     return true;
   }
 
-  async function removeStudent() {
-    if (!confirm(`${s.name} 학생부를 삭제할까요? 메모·성적·출결 기록이 모두 지워지고 되돌릴 수 없습니다.`)) return;
+  async function withdraw() {
+    if (!confirm(`${s.name} 학생을 퇴원 처리할까요?\n\n퇴원하면 학생부(기본 정보·성격·메모·성적·출결)가 즉시 영구 삭제되고 되돌릴 수 없습니다. 필요한 자료는 설정 → 데이터 내보내기로 먼저 받아 두세요.`)) return;
     const r = await send(api, 'DELETE');
-    if (r.ok) router.push(`/${slug}/admin/students`);
-    else setError(r.data.error ?? '삭제하지 못했습니다.');
+    if (r.ok) router.push(`/${slug}/admin/students?withdrawn=1`);
+    else setError(r.data.error ?? '퇴원 처리하지 못했습니다.');
   }
+
+  const [consent, setConsent] = useState<{ method: ConsentMethod; at: string }>({ method: 'written', at: today });
 
   // ── 성격·특성 ──
   const [traits, setTraits] = useState<string[]>(s.traits);
@@ -163,7 +165,8 @@ export function StudentProfile({ slug, student: s, classes, me, isOwner, today }
           </div>
           <div style={{ fontSize: 14, color: '#5A6270', marginTop: 6 }}>
             {[s.grade, s.school, s.className && `${s.className}${s.classSchedule ? ` (${s.classSchedule})` : ''}`].filter(Boolean).join(' · ') || '학년·반 미기재'}
-            {' · '}등록 {s.enrolledAt.replace(/-/g, '.')}{s.leftAt ? ` · 퇴원 ${formatKstDate(s.leftAt)}` : ''}
+            {' · '}등록 {s.enrolledAt.replace(/-/g, '.')}
+            {s.consentAt && ` · 학부모 동의 ${s.consentAt.replace(/-/g, '.')}${s.consentMethod && s.consentMethod in CONSENT_METHOD_LABEL ? ` (${CONSENT_METHOD_LABEL[s.consentMethod as ConsentMethod]})` : ''}`}
           </div>
           {s.traits.length > 0 && (
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
@@ -180,16 +183,28 @@ export function StudentProfile({ slug, student: s, classes, me, isOwner, today }
             aria-label="재원 상태"
             style={{ ...INPUT, width: 'auto', height: 38 }}
           >
-            {(['active', 'paused', 'left'] as const).map((st) => (
-              <option key={st} value={st} disabled={!isOwner && (st === 'left' || s.status === 'left') && st !== s.status}>{STATUS_LABEL[st]}</option>
-            ))}
+            {(['active', 'paused'] as const).map((st) => <option key={st} value={st}>{STATUS_LABEL[st]}</option>)}
           </select>
           <button type="button" onClick={() => setEditing((v) => !v)} style={BTN_GHOST}>{editing ? '수정 닫기' : '정보 수정'}</button>
-          {isOwner && <button type="button" onClick={removeStudent} style={{ ...BTN_GHOST, color: '#B42318' }}>삭제</button>}
+          {isOwner && <button type="button" onClick={withdraw} style={{ ...BTN_GHOST, color: '#B42318' }}>퇴원 처리</button>}
         </div>
       </div>
 
       {error && <div role="alert" style={{ padding: '10px 14px', borderRadius: 8, background: '#FDECEA', color: '#B42318', fontSize: 14 }}>{error}</div>}
+
+      {!s.consentAt && (
+        <section style={{ ...card, background: '#FFF7E6', gap: 10 }}>
+          <div style={{ fontSize: 15, fontWeight: 700 }}>학부모 동의 기록이 없습니다</div>
+          <div style={{ fontSize: 13, color: '#3E4652', lineHeight: 1.6 }}>성적·출결·학습 태도 기록은 학부모(만 14세 미만은 법정대리인)의 개인정보 수집·이용 동의를 받은 뒤 남겨 주세요. 받았다면 아래에 기록하세요.</div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            <select value={consent.method} onChange={(e) => setConsent((p) => ({ ...p, method: e.target.value as ConsentMethod }))} aria-label="동의 방식" style={{ ...INPUT, width: 'auto', flex: '1 1 180px' }}>
+              {(Object.keys(CONSENT_METHOD_LABEL) as ConsentMethod[]).map((k) => <option key={k} value={k}>{CONSENT_METHOD_LABEL[k]}</option>)}
+            </select>
+            <input type="date" value={consent.at} max={today} onChange={(e) => setConsent((p) => ({ ...p, at: e.target.value }))} aria-label="동의 받은 날" style={{ ...INPUT, width: 'auto', flex: '1 1 150px' }} />
+            <button type="button" disabled={busy} onClick={() => { if (confirm('학부모에게 개인정보 수집·이용 동의를 받으셨나요?')) patch({ consentConfirmed: true, consentAt: consent.at, consentMethod: consent.method }); }} style={BTN}>동의 받음으로 기록</button>
+          </div>
+        </section>
+      )}
 
       {editing && (
         <section style={card}>
@@ -316,7 +331,12 @@ export function StudentProfile({ slug, student: s, classes, me, isOwner, today }
                   <button key={k} type="button" onClick={() => setNoteKind(k)} style={{ height: 32, padding: '0 12px', borderRadius: 16, border: '1px solid #D5D0C6', background: noteKind === k ? '#1E5645' : '#FFFFFF', color: noteKind === k ? '#FFFFFF' : '#3E4652', font: 'inherit', fontSize: 13, cursor: 'pointer', minHeight: 0 }}>{NOTE_KIND_LABEL[k]}</button>
                 ))}
               </div>
-              <textarea value={noteBody} onChange={(e) => setNoteBody(e.target.value)} maxLength={2000} rows={3} placeholder="오늘 수업에서 본 모습, 상담 내용, 학부모와 나눈 이야기 등" style={{ ...INPUT, height: 'auto', padding: '10px 12px', resize: 'vertical', lineHeight: 1.6 }} />
+              <textarea value={noteBody} onChange={(e) => setNoteBody(e.target.value)} maxLength={2000} rows={3} placeholder="오늘 수업에서 본 모습, 상담 내용, 학부모와 나눈 이야기 등 (진단명·병력 등 건강 정보는 적지 마세요)" style={{ ...INPUT, height: 'auto', padding: '10px 12px', resize: 'vertical', lineHeight: 1.6 }} />
+              {findHealthWords(noteBody).length > 0 && (
+                <div role="note" style={{ padding: '8px 12px', borderRadius: 8, background: '#FFF7E6', fontSize: 13, lineHeight: 1.6 }}>
+                  ⚠️ 건강·질병 정보로 보이는 표현이 있습니다({findHealthWords(noteBody).join(', ')}). 건강 정보는 민감정보라 별도 동의 없이 기록하지 않습니다. 관찰한 행동만 적어 주세요.
+                </div>
+              )}
               <button type="button" onClick={addNote} disabled={busy || !noteBody.trim()} style={{ ...BTN, alignSelf: 'flex-start', opacity: noteBody.trim() ? 1 : 0.6 }}>메모 남기기</button>
             </div>
 
@@ -367,7 +387,7 @@ export function StudentProfile({ slug, student: s, classes, me, isOwner, today }
                 <button key={t} type="button" onClick={() => addTrait(t)} style={{ height: 26, padding: '0 8px', borderRadius: 13, border: '1px dashed #B7B0A2', background: '#FFFFFF', color: '#5A6270', font: 'inherit', fontSize: 12, cursor: 'pointer', minHeight: 0 }}>+ {t}</button>
               ))}
             </div>
-            <textarea value={summary} onChange={(e) => setSummary(e.target.value)} maxLength={300} rows={3} placeholder="한 줄 요약 (예: 개념 이해는 빠르나 계산 실수가 잦음. 칭찬하면 집중력이 올라감)" style={{ ...INPUT, height: 'auto', padding: '10px 12px', resize: 'vertical', lineHeight: 1.6 }} />
+            <textarea value={summary} onChange={(e) => setSummary(e.target.value)} maxLength={300} rows={3} placeholder="한 줄 요약 (예: 개념 이해는 빠르나 계산 실수가 잦음. 칭찬하면 집중력이 올라감) — 건강 정보는 적지 마세요" style={{ ...INPUT, height: 'auto', padding: '10px 12px', resize: 'vertical', lineHeight: 1.6 }} />
             {traitsDirty && <button type="button" disabled={busy} onClick={() => patch({ traits, summary })} style={{ ...BTN, alignSelf: 'flex-start' }}>성격·특성 저장</button>}
           </section>
 

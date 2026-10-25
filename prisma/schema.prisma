@@ -925,28 +925,30 @@ model TestResponse {
 enum StudentStatus {
   active // 재원
   paused // 휴원
-  left // 퇴원
+  left // (사용 안 함) 퇴원 시 학생부를 즉시 파기한다 — SPEC 14장
 }
 
 model Student {
-  id           String        @id @default(cuid())
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  tenantId     String
-  name         String
-  grade        String? // 예: 중2
-  school       String?
-  classId      String?
-  status       StudentStatus @default(active)
-  enrolledAt   DateTime      @default(now())
-  leftAt       DateTime?
-  parentName   String?
-  parentPhone  String? // 목록에서는 마스킹, 상세에서만 전체 표시
-  studentPhone String?
-  traits       String[]      @default([]) // 성격·특성 태그
-  summary      String? // 한 줄 요약 (선생님 메모)
-  leadId       String?       @unique // 입학 전 상담 건 — 상담 이력·레벨테스트 연결
-  createdBy    String?
+  id            String        @id @default(cuid())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  tenantId      String
+  name          String
+  grade         String? // 예: 중2
+  school        String?
+  classId       String?
+  status        StudentStatus @default(active)
+  enrolledAt    DateTime      @default(now())
+  leftAt        DateTime?
+  parentName    String?
+  parentPhone   String? // 목록에서는 마스킹, 상세에서만 전체 표시
+  studentPhone  String?
+  traits        String[]      @default([]) // 성격·특성 태그
+  summary       String? // 한 줄 요약 (선생님 메모)
+  consentAt     DateTime?     @db.Date // 학부모(법정대리인) 개인정보 수집·이용 동의 받은 날
+  consentMethod String? // written | electronic | other — lib/students/labels.ts
+  leadId        String?       @unique // 입학 전 상담 건 — 상담 이력·레벨테스트 연결
+  createdBy     String?
 
   tenant      Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   class       ClassItem?     @relation(fields: [classId], references: [id], onDelete: SetNull)

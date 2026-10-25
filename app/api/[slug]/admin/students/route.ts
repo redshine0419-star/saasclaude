@@ -16,7 +16,6 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   const parsed = parseStudent(body, false);
   if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
   const data = parsed.data;
-  if (data.status === 'left' && !a.isOwner) return NextResponse.json({ error: '퇴원 처리는 원장만 할 수 있습니다.' }, { status: 403 });
 
   if (data.classId && !(await prisma.classItem.findFirst({ where: { id: data.classId, tenantId: a.tenantId }, select: { id: true } }))) {
     return NextResponse.json({ error: '반을 찾을 수 없습니다.' }, { status: 400 });

@@ -4,7 +4,9 @@ import type { AttendanceStatus, ScoreKind, StudentNoteKind, StudentStatus } from
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string };
 
-const STATUSES: StudentStatus[] = ['active', 'paused', 'left'];
+// 퇴원(left)은 상태로 두지 않고 학생부를 파기한다 (DELETE)
+const STATUSES: StudentStatus[] = ['active', 'paused'];
+const CONSENT_METHODS = ['written', 'electronic', 'other'];
 const NOTE_KINDS: StudentNoteKind[] = ['attitude', 'personality', 'consult', 'parent', 'other'];
 const SCORE_KINDS: ScoreKind[] = ['school', 'mock', 'academy'];
 const ATTENDANCE: AttendanceStatus[] = ['present', 'late', 'absent', 'excused'];
@@ -43,6 +45,8 @@ export type StudentFields = {
   studentPhone?: string | null;
   traits?: string[];
   summary?: string | null;
+  consentAt?: Date;
+  consentMethod?: string;
 };
 
 /** partial=true면 들어온 칸만 검사·반영(PATCH) */
@@ -67,6 +71,7 @@ export function parseStudent(body: Record<string, unknown>, partial: boolean): R
   }
   if (has('summary')) out.summary = opt(body.summary, 300);
   if ('status' in body) {
+    if (body.status === 'left') return { ok: false, error: '퇴원은 "퇴원 처리" 버튼으로 합니다. 퇴원하면 학생부가 즉시 삭제됩니다.' };
     if (!STATUSES.includes(body.status as StudentStatus)) return { ok: false, error: '상태 값이 올바르지 않습니다.' };
     out.status = body.status as StudentStatus;
   }
@@ -74,6 +79,16 @@ export function parseStudent(body: Record<string, unknown>, partial: boolean): R
     const d = parseDateOnly(body.enrolledAt);
     if (!d) return { ok: false, error: '등록일 형식을 확인해 주세요.' };
     out.enrolledAt = d;
+  }
+  // 학부모 동의: 등록 시 필수, 수정 시에는 보낸 경우만 (지울 수는 없다)
+  if (!partial || 'consentAt' in body || 'consentMethod' in body) {
+    if (body.consentConfirmed !== true) return { ok: false, error: '학부모 동의를 받았는지 확인해 주세요.' };
+    const at = parseDateOnly(body.consentAt);
+    if (!at || !CONSENT_METHODS.includes(body.consentMethod as string)) {
+      return { ok: false, error: '학부모 개인정보 수집·이용 동의를 받은 날짜와 방식을 입력해 주세요.' };
+    }
+    out.consentAt = at;
+    out.consentMethod = body.consentMethod as string;
   }
   if ('traits' in body) {
     if (!Array.isArray(body.traits)) return { ok: false, error: '태그 형식이 올바르지 않습니다.' };

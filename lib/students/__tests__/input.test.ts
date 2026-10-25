@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { parseAttendance, parseDateOnly, parseNote, parseScore, parseStudent } from '../input';
-import { maskPhone } from '../labels';
+import { findHealthWords, maskPhone } from '../labels';
+
+const CONSENT = { consentConfirmed: true, consentAt: '2026-03-02', consentMethod: 'written' };
 
 describe('parseStudent', () => {
   it('이름은 필수, 나머지는 빈 값이면 null', () => {
     expect(parseStudent({ name: ' ' }, false)).toEqual({ ok: false, error: '학생 이름을 입력해 주세요.' });
-    const r = parseStudent({ name: '홍길동', grade: '', parentPhone: '010-1234-5678' }, false);
+    const r = parseStudent({ name: '홍길동', grade: '', parentPhone: '010-1234-5678', ...CONSENT }, false);
     expect(r.ok && r.data).toMatchObject({ name: '홍길동', grade: null, parentPhone: '010-1234-5678' });
   });
   it('PATCH는 들어온 칸만 반영한다', () => {
@@ -13,13 +15,42 @@ describe('parseStudent', () => {
     expect(r.ok && r.data).toEqual({ summary: '집중력 좋음' });
   });
   it('잘못된 전화·상태·태그 개수를 거절한다', () => {
-    expect(parseStudent({ name: 'a', parentPhone: '전화' }, false).ok).toBe(false);
+    expect(parseStudent({ name: 'a', parentPhone: '전화', ...CONSENT }, false).ok).toBe(false);
     expect(parseStudent({ status: 'gone' }, true).ok).toBe(false);
     expect(parseStudent({ traits: Array.from({ length: 13 }, (_, i) => `t${i}`) }, true).ok).toBe(false);
   });
   it('태그 중복을 없앤다', () => {
     const r = parseStudent({ traits: ['꼼꼼함', ' 꼼꼼함 ', ''] }, true);
     expect(r.ok && r.data.traits).toEqual(['꼼꼼함']);
+  });
+});
+
+describe('학부모 동의·퇴원', () => {
+  it('등록할 때 동의 확인·날짜·방식이 모두 있어야 한다', () => {
+    expect(parseStudent({ name: '홍길동' }, false).ok).toBe(false);
+    expect(parseStudent({ name: '홍길동', ...CONSENT, consentConfirmed: false }, false).ok).toBe(false);
+    expect(parseStudent({ name: '홍길동', ...CONSENT, consentMethod: 'verbal' }, false).ok).toBe(false);
+    const r = parseStudent({ name: '홍길동', ...CONSENT }, false);
+    expect(r.ok && r.data).toMatchObject({ consentMethod: 'written' });
+    expect(r.ok && r.data.consentAt?.toISOString()).toBe('2026-03-02T00:00:00.000Z');
+  });
+  it('수정은 동의 칸을 보낼 때만 검사한다', () => {
+    expect(parseStudent({ summary: 'x' }, true).ok).toBe(true);
+    expect(parseStudent({ consentAt: '2026-03-02' }, true).ok).toBe(false);
+  });
+  it('퇴원은 상태로 저장하지 않는다(삭제로만)', () => {
+    const r = parseStudent({ status: 'left' }, true);
+    expect(r.ok).toBe(false);
+    expect(!r.ok && r.error).toContain('즉시 삭제');
+    expect(parseStudent({ status: 'paused' }, true).ok).toBe(true);
+  });
+});
+
+describe('findHealthWords', () => {
+  it('건강 정보로 보이는 표현을 찾는다', () => {
+    expect(findHealthWords('ADHD 약 복용 중이라 집중이 짧음')).toEqual(['adhd', '복용']);
+    expect(findHealthWords('숙제를 성실히 해 옴')).toEqual([]);
+    expect(findHealthWords('병결')).toEqual([]);
   });
 });
 
