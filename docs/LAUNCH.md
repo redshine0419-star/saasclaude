@@ -74,7 +74,7 @@
 | `VERCEL_TOKEN`, `VERCEL_PROJECT_ID`, `VERCEL_TEAM_ID` | ○ | 학원 커스텀 도메인 셀프 연결. **0단계 이후 새로 발급한 토큰**, 프로젝트 권한만 |
 | `ANTHROPIC_API_KEY` | ○ | AI 초안(원장 소개·수업·소식). 없으면 기능 숨김 |
 | `RESEND_API_KEY` | ○ | 운영자 알림 메일(무료 진단·제작 대행 신청·셀프 개설). resend.com에서 발급. 없으면 메일 안 나감 |
-| `OPERATOR_NOTIFY_EMAIL` | ○ | 알림 메일 받을 주소(쉼표 구분). 도메인 인증 전에는 Resend 가입 메일만 가능 |
+| `OPERATOR_NOTIFY_EMAIL` | ○ | 넣지 않으면 `lib/mail/operator.ts`의 `OPERATOR_EMAIL`로 보낸다. 다른 주소로 바꿀 때만(쉼표 구분). 도메인 인증 전에는 Resend 가입 메일만 가능 |
 | `MAIL_FROM` | ○ | 보내는 주소. growweb.me 도메인 인증 후 `첫등원 <noreply@growweb.me>` 등. 없으면 `onboarding@resend.dev` |
 
 **완료 조건**: Pro 플랜, 필수 환경변수 모두 입력, 운영자 계정으로 `https://growweb.me/platform` 로그인 성공.

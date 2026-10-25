@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-type Result = { ok: boolean; reason?: string; checks?: { apiKey: boolean; recipients: number; from: string }; error?: string };
+type Result = { ok: boolean; reason?: string; checks?: { apiKey: boolean; recipients: number; to?: string; from: string }; error?: string };
 
 /** 운영자 알림 메일(무료 진단·제작 대행·셀프 개설) 설정 점검 */
 export function MailTestCard() {
@@ -26,7 +26,7 @@ export function MailTestCard() {
     <section style={{ background: '#FFFFFF', borderRadius: 12, padding: 24, marginBottom: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ fontSize: 16, fontWeight: 700 }}>알림 메일</div>
       <div style={{ fontSize: 13, color: '#5A6270', lineHeight: 1.6 }}>
-        무료 진단·제작 대행 신청·셀프 개설이 들어오면 OPERATOR_NOTIFY_EMAIL로 메일을 보냅니다. 아래 버튼으로 설정을 확인하세요.
+        무료 진단·제작 대행 신청·셀프 개설이 들어오면 운영자 메일로 알림을 보냅니다. 아래 버튼으로 설정을 확인하세요.
       </div>
       <button
         type="button"
@@ -44,7 +44,7 @@ export function MailTestCard() {
           {!result.ok && (result.reason || result.error) && <div>{result.reason || result.error}</div>}
           {result.checks && (
             <div style={{ fontSize: 13, color: '#5A6270', marginTop: 4 }}>
-              API 키 {result.checks.apiKey ? '있음' : '없음'} · 받는 주소 {result.checks.recipients}개 · 보내는 주소 {result.checks.from}
+              API 키 {result.checks.apiKey ? '있음' : '없음'} · 받는 주소 {result.checks.to || `${result.checks.recipients}개`} · 보내는 주소 {result.checks.from}
             </div>
           )}
         </div>

@@ -8,8 +8,12 @@ export function parseRecipients(raw: string | undefined): string[] {
   return [...new Set(found.map((e) => e.toLowerCase()))];
 }
 
+/** 운영자 알림을 받는 주소. OPERATOR_NOTIFY_EMAIL을 넣으면 그 값으로 바뀐다(선택) */
+export const OPERATOR_EMAIL = 'redshine0419@gmail.com';
+
 export function operatorRecipients(): string[] {
-  return parseRecipients(process.env.OPERATOR_NOTIFY_EMAIL);
+  const fromEnv = parseRecipients(process.env.OPERATOR_NOTIFY_EMAIL);
+  return fromEnv.length ? fromEnv : [OPERATOR_EMAIL];
 }
 
 /** 메일에는 연락처 원문을 넣지 않는다 — 전체 번호는 플랫폼 관리자 상세에서 확인 */
