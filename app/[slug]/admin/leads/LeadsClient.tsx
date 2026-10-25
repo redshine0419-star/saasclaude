@@ -199,10 +199,11 @@ export function LeadsClient({ slug, academyName, leads: initialLeads, totalBySta
         display: 'flex',
         gap: 24,
         minHeight: 0,
+        minWidth: 0,
       }}
     >
       {/* Left: list */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>상담 관리</h1>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -277,22 +278,20 @@ export function LeadsClient({ slug, academyName, leads: initialLeads, totalBySta
         </div>
 
         {/* Table */}
-        <div style={{ background: '#FFFFFF', borderRadius: 12, overflow: 'hidden' }}>
+        <div style={{ background: '#FFFFFF', borderRadius: 12, overflowX: 'auto' }}>
           {filtered.length === 0 ? (
             <div style={{ padding: 48, textAlign: 'center', color: '#9AA3AF', fontSize: 14 }}>
               해당 상태의 상담이 없습니다.
             </div>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, whiteSpace: 'nowrap' }}>
               <thead>
                 <tr style={{ textAlign: 'left', color: '#5A6270', background: '#FAF9F6' }}>
                   <th style={{ padding: '14px 16px', fontWeight: 600 }}>신청일</th>
-                  <th style={{ padding: '14px 16px', fontWeight: 600 }}>학부모 · 학년</th>
-                  <th style={{ padding: '14px 16px', fontWeight: 600 }}>연락처</th>
-                  <th style={{ padding: '14px 16px', fontWeight: 600 }}>희망</th>
-                  <th style={{ padding: '14px 16px', fontWeight: 600 }}>유입</th>
+                  <th style={{ padding: '14px 16px', fontWeight: 600 }}>학부모 · 연락처</th>
+                  <th style={{ padding: '14px 16px', fontWeight: 600 }}>희망 · 유입</th>
                   <th style={{ padding: '14px 16px', fontWeight: 600 }}>상태</th>
-                  <th style={{ padding: '14px 16px', fontWeight: 600 }}>모집 안내 동의</th>
+                  <th style={{ padding: '14px 16px', fontWeight: 600 }}>모집 동의</th>
                 </tr>
               </thead>
               <tbody>
@@ -310,18 +309,16 @@ export function LeadsClient({ slug, academyName, leads: initialLeads, totalBySta
                       }}
                     >
                       <td style={{ padding: '14px 16px' }}>{formatDate(lead.createdAt)}</td>
-                      <td style={{ padding: '14px 16px', fontWeight: 600 }}>
-                        {maskName(lead.parentName)}
-                        {lead.studentGrade ? ` · ${lead.studentGrade}` : ''}
-                      </td>
-                      <td style={{ padding: '14px 16px', color: '#5A6270', fontVariantNumeric: 'tabular-nums' }}>
-                        {maskPhone(lead.phone)}
+                      <td style={{ padding: '14px 16px' }}>
+                        <div style={{ fontWeight: 600 }}>
+                          {maskName(lead.parentName)}
+                          {lead.studentGrade ? ` · ${lead.studentGrade}` : ''}
+                        </div>
+                        <div style={{ fontSize: 12, color: '#5A6270', fontVariantNumeric: 'tabular-nums' }}>{maskPhone(lead.phone)}</div>
                       </td>
                       <td style={{ padding: '14px 16px' }}>
-                        {CONSULT_LABEL[lead.consultType] ?? lead.consultType}
-                      </td>
-                      <td style={{ padding: '14px 16px', color: '#5A6270' }}>
-                        {lead.source ?? '직접'}
+                        <div>{CONSULT_LABEL[lead.consultType] ?? lead.consultType}</div>
+                        <div style={{ fontSize: 12, color: '#5A6270' }}>{lead.source ?? '직접'}</div>
                       </td>
                       <td style={{ padding: '14px 16px' }}>
                         <span

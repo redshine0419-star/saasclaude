@@ -108,6 +108,7 @@ export default async function AdminLeadsPage({
       <main
         style={{
           flex: 1,
+          minWidth: 0,
           padding: '32px 0 32px 40px',
           display: 'flex',
           gap: 24,

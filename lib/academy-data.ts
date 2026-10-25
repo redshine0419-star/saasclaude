@@ -419,10 +419,7 @@ export const DEMO_DATA_BRIGHT: AcademyPageData = {
 };
 
 // ─── 요일 숫자 → 한글 ────────────────────────────────────────
-const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
-export function weekdayLabel(n: number): string {
-  return WEEKDAYS[n] ?? '';
-}
+export { weekdayLabel } from './weekday';
 
 // ─── DB 조회 ──────────────────────────────────────────────────
 export async function getAcademyPageData(slug: string): Promise<AcademyPageData | null> {

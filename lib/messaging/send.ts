@@ -3,6 +3,7 @@ import { MockAdapter } from './adapters/mock';
 import { KakaoAdapter } from './adapters/kakao';
 import type { SendRequest, MessagingAdapter } from './types';
 import { prisma } from '@/lib/prisma';
+import { isTestPhone } from './test-phone';
 
 function getAdapter(): MessagingAdapter {
   if (process.env.KAKAO_API_KEY) {
@@ -25,7 +26,8 @@ export async function sendMessage(req: SendRequest) {
     return { dispatched: false, reason: result.reason } as const;
   }
 
-  const adapter = getAdapter();
+  // 샘플 번호(010-0000-xxxx)는 키가 있어도 목 어댑터로만
+  const adapter = isTestPhone(req.phone) ? new MockAdapter() : getAdapter();
 
   const adapterResult = await adapter.dispatch({
     tenantId: req.tenantId,

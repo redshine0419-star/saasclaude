@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { weekdayLabel } from '@/lib/academy-data';
+import { weekdayLabel } from '@/lib/weekday';
 import type { AcademyTenant, LevelTestSlot } from '@/lib/academy-data';
 
 type Props = {

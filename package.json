@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && node scripts/migrate-baseline.mjs && (prisma migrate deploy || echo 'migrate deploy failed, continuing') && node scripts/seed-demo.mjs && next build",
+    "build": "prisma generate && node scripts/migrate-baseline.mjs && (prisma migrate deploy || echo 'migrate deploy failed, continuing') && node scripts/seed-demo.mjs && (node scripts/seed-test2.mjs || true) && next build",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate || exit 0",

@@ -1,5 +1,5 @@
 import type { AcademyTenant, LevelTestSlot } from '@/lib/academy-data';
-import { weekdayLabel } from '@/lib/academy-data';
+import { weekdayLabel } from '@/lib/weekday';
 
 type Props = {
   tenant: AcademyTenant;

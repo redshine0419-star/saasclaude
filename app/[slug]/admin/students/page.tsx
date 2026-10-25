@@ -9,7 +9,7 @@ import { daysAgo, formatKstDate } from '@/lib/format-date';
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ q?: string; status?: string; classId?: string; withdrawn?: string }> };
 
 const th: React.CSSProperties = { padding: '12px 14px', fontWeight: 600, textAlign: 'left', whiteSpace: 'nowrap' };
-const td: React.CSSProperties = { padding: '12px 14px', borderTop: '1px solid #EEEAE2', verticalAlign: 'middle' };
+const td: React.CSSProperties = { padding: '12px 14px', borderTop: '1px solid #EEEAE2', verticalAlign: 'middle', whiteSpace: 'nowrap' };
 const STATUS_STYLE: Record<StudentStatus, { bg: string; color: string }> = {
   active: { bg: '#E4EEE9', color: '#1E5645' },
   paused: { bg: '#FBF1CF', color: '#7A4B00' },
