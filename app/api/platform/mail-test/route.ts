@@ -21,7 +21,15 @@ export async function POST() {
     from: process.env.MAIL_FROM || '첫등원 <onboarding@resend.dev> (기본값)',
   };
   if (!checks.apiKey) return NextResponse.json({ ok: false, checks, reason: 'RESEND_API_KEY가 설정되지 않았습니다.' });
-  if (to.length === 0) return NextResponse.json({ ok: false, checks, reason: 'OPERATOR_NOTIFY_EMAIL이 비어 있거나 형식이 올바르지 않습니다.' });
+  if (to.length === 0) {
+    const raw = process.env.OPERATOR_NOTIFY_EMAIL;
+    const reason = raw === undefined
+      ? 'OPERATOR_NOTIFY_EMAIL이 이 배포에 없습니다. Vercel 환경변수에서 Production에 체크했는지 확인하고 Redeploy 해 주세요.'
+      : raw.trim() === ''
+        ? 'OPERATOR_NOTIFY_EMAIL 값이 비어 있습니다.'
+        : `OPERATOR_NOTIFY_EMAIL 값에서 메일 주소를 찾지 못했습니다 (입력값: "${raw.slice(0, 80)}").`;
+    return NextResponse.json({ ok: false, checks, reason });
+  }
 
   const { html, text } = renderOperatorMail(
     {
