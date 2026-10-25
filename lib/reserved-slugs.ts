@@ -3,6 +3,7 @@ export const RESERVED_SLUGS = new Set([
   'platform', 'admin', 'service', 'pricing', 'apply',
   'demo', 'consult', 'api', '_next', 'static', 'auth',
   'start', 'privacy', 'terms',
+  'r', // 학부모 공유 리포트 growweb.me/r/{token}
 ]);
 
 export function isReservedSlug(slug: string): boolean {

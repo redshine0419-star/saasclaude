@@ -4,6 +4,7 @@ import { AdminSide } from '@/components/admin/AdminSide';
 import { studentPageAuth } from '@/lib/students/page-auth';
 import { dateOnlyString, daysAgo, kstToday } from '@/lib/format-date';
 import { StudentProfile } from './StudentProfile';
+import { reportStatus } from '@/lib/students/report';
 
 type Props = { params: Promise<{ slug: string; id: string }> };
 
@@ -20,6 +21,12 @@ export default async function StudentPage({ params }: Props) {
         notes: { where: { tenantId: tenant.id }, orderBy: { createdAt: 'desc' }, take: 300 },
         scores: { where: { tenantId: tenant.id }, orderBy: [{ examDate: 'asc' }, { createdAt: 'asc' }] },
         attendances: { where: { tenantId: tenant.id, date: { gte: since } }, orderBy: { date: 'desc' } },
+        reports: {
+          where: { tenantId: tenant.id },
+          orderBy: { createdAt: 'desc' },
+          take: 20,
+          select: { id: true, token: true, periodStart: true, periodEnd: true, createdAt: true, expiresAt: true, revokedAt: true, viewCount: true, lastViewedAt: true },
+        },
         lead: {
           select: {
             createdAt: true,
@@ -75,11 +82,24 @@ export default async function StudentPage({ params }: Props) {
       : null,
   };
 
+  const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://growweb.me';
+  const reports = student.reports.map((r) => ({
+    id: r.id,
+    url: `${base}/r/${r.token}`,
+    periodStart: dateOnlyString(r.periodStart),
+    periodEnd: dateOnlyString(r.periodEnd),
+    createdAt: r.createdAt.toISOString(),
+    expiresAt: r.expiresAt.toISOString(),
+    status: reportStatus(r),
+    viewCount: r.viewCount,
+    lastViewedAt: r.lastViewedAt?.toISOString() ?? null,
+  }));
+
   return (
     <div style={{ display: 'flex', flex: 1, minHeight: '100vh', background: '#F4F2EE', color: '#1B2430', fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif" }}>
       <AdminSide slug={slug} tenantName={tenant.name} active="students" />
       <main style={{ flex: 1, minWidth: 0, padding: '32px 40px', maxWidth: 1180 }}>
-        <StudentProfile slug={slug} student={data} classes={classes} me={email} isOwner={isOwner} today={kstToday()} />
+        <StudentProfile slug={slug} student={data} classes={classes} me={email} isOwner={isOwner} today={kstToday()} reports={reports} />
       </main>
     </div>
   );

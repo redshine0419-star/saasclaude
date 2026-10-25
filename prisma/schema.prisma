@@ -101,6 +101,7 @@ model Tenant {
   studentNotes       StudentNote[]
   studentScores      StudentScore[]
   attendances        Attendance[]
+  studentReports     StudentReport[]
 
   @@map("tenants")
 }
@@ -950,12 +951,13 @@ model Student {
   leadId        String?       @unique // 입학 전 상담 건 — 상담 이력·레벨테스트 연결
   createdBy     String?
 
-  tenant      Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  class       ClassItem?     @relation(fields: [classId], references: [id], onDelete: SetNull)
-  lead        Lead?          @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  class       ClassItem?      @relation(fields: [classId], references: [id], onDelete: SetNull)
+  lead        Lead?           @relation(fields: [leadId], references: [id], onDelete: SetNull)
   notes       StudentNote[]
   scores      StudentScore[]
   attendances Attendance[]
+  reports     StudentReport[]
 
   @@index([tenantId, status])
   @@index([tenantId, classId])
@@ -1040,4 +1042,28 @@ model Attendance {
   @@unique([studentId, date])
   @@index([tenantId, date])
   @@map("attendances")
+}
+
+// 학부모 공유 리포트 — 발행 시점 스냅샷. 학생부의 다른 기록(관찰 메모·성격 태그)은 넣지 않는다 (SPEC 14장)
+model StudentReport {
+  id           String    @id @default(cuid())
+  createdAt    DateTime  @default(now())
+  tenantId     String
+  studentId    String
+  token        String    @unique // 공유 링크용 추측 불가 토큰
+  periodStart  DateTime  @db.Date
+  periodEnd    DateTime  @db.Date
+  comment      String // 선생님이 학부모에게 쓰는 코멘트
+  snapshot     Json // lib/students/report.ts ReportSnapshot
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  viewCount    Int       @default(0)
+  lastViewedAt DateTime?
+  createdBy    String
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, studentId, createdAt])
+  @@map("student_reports")
 }

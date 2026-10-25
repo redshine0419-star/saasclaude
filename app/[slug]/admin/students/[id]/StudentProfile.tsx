@@ -6,7 +6,8 @@ import { useMemo, useState } from 'react';
 import type { AttendanceStatus, ScoreKind, StudentNoteKind, StudentStatus } from '@prisma/client';
 import { ATTENDANCE_LABEL, CONSENT_METHOD_LABEL, NOTE_KIND_LABEL, SCORE_KIND_LABEL, STATUS_LABEL, TRAIT_SUGGESTIONS, findHealthWords, type ConsentMethod } from '@/lib/students/labels';
 import { formatKstDate, formatKstDateTime } from '@/lib/format-date';
-import { ScoreChart, subjectColors } from './ScoreChart';
+import { ScoreChart, subjectColors } from '@/components/students/ScoreChart';
+import { ReportPanel, type ReportRow } from './ReportPanel';
 
 type Note = { id: string; createdAt: string; kind: StudentNoteKind; body: string; authorEmail: string; authorName: string | null };
 type Score = { id: string; kind: ScoreKind; examDate: string; label: string; subject: string; score: number; maxScore: number; rankGrade: number | null; percentile: number | null; memo: string | null; createdBy: string | null };
@@ -22,7 +23,7 @@ type StudentData = {
   } | null;
 };
 
-type Props = { slug: string; student: StudentData; classes: { id: string; name: string }[]; me: string; isOwner: boolean; today: string };
+type Props = { slug: string; student: StudentData; classes: { id: string; name: string }[]; me: string; isOwner: boolean; today: string; reports: ReportRow[] };
 
 const card: React.CSSProperties = { background: '#FFFFFF', borderRadius: 12, padding: 20, display: 'flex', flexDirection: 'column', gap: 12 };
 const h2: React.CSSProperties = { margin: 0, fontSize: 16, fontWeight: 700 };
@@ -46,7 +47,7 @@ async function send(url: string, method: string, body?: unknown) {
   return { ok: res.ok, data } as { ok: boolean; data: { error?: string; [k: string]: unknown } };
 }
 
-export function StudentProfile({ slug, student: s, classes, me, isOwner, today }: Props) {
+export function StudentProfile({ slug, student: s, classes, me, isOwner, today, reports }: Props) {
   const router = useRouter();
   const api = `/api/${slug}/admin/students/${s.id}`;
   const [error, setError] = useState('');
@@ -370,8 +371,9 @@ export function StudentProfile({ slug, student: s, classes, me, isOwner, today }
           </section>
         </div>
 
-        {/* 오른쪽: 성격 · 연락처 · 출결 · 입학 전 기록 */}
+        {/* 오른쪽: 학부모 리포트 · 성격 · 연락처 · 출결 · 입학 전 기록 */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <ReportPanel slug={slug} studentId={s.id} studentName={s.name} reports={reports} today={today} hasConsent={!!s.consentAt} parentPhone={s.parentPhone} />
           <section style={card}>
             <h2 style={h2}>성격·특성</h2>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>

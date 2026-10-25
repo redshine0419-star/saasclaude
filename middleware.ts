@@ -25,8 +25,8 @@ export async function middleware(req: NextRequest) {
     const slug = await resolveSlugByHost(host);
     if (slug) {
       const first = pathname.split('/')[1] ?? '';
-      // 로그인 쿠키는 growweb.me에 있으므로 관리자·로그인은 플랫폼 도메인으로 보낸다
-      if (['auth', 'platform', 'start'].includes(first) || pathname.startsWith(`/${slug}/admin`)) {
+      // 로그인 쿠키는 growweb.me에 있으므로 관리자·로그인은 플랫폼 도메인으로 보낸다 (학부모 리포트 /r 도 플랫폼 주소)
+      if (['auth', 'platform', 'start', 'r'].includes(first) || pathname.startsWith(`/${slug}/admin`)) {
         return NextResponse.redirect(new URL(`${pathname}${search}`, PLATFORM_ORIGIN));
       }
       if (first === slug) {
