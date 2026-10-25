@@ -27,6 +27,7 @@ export default async function AdminLeadsPage({
     take: 200,
     include: {
       events: { orderBy: { createdAt: 'asc' } },
+      student: { select: { id: true } },
       consents: { where: { type: 'marketing' } },
       messages: {
         orderBy: { createdAt: 'desc' },
@@ -63,6 +64,7 @@ export default async function AdminLeadsPage({
     consultType: l.consultType,
     source: l.source,
     status: l.status,
+    studentId: l.student?.id ?? null,
     statusChangedAt: l.statusChangedAt.toISOString(),
     message: l.message,
     marketingConsent: l.consents.some((c) => c.grantedAt !== null && c.revokedAt === null),

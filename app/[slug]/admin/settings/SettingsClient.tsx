@@ -551,7 +551,7 @@ export function SettingsClient({
           <div>
             <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>데이터 내보내기</div>
             <div style={{ fontSize: 13, color: '#6B6357', lineHeight: 1.6 }}>
-              상담 기록, 후기, 소식, 수업, 강사 정보를 JSON 파일로 내려받습니다.
+              상담 기록, 학생부(성적·메모·출결), 후기, 소식, 수업, 강사 정보를 JSON 파일로 내려받습니다.
             </div>
           </div>
           <button

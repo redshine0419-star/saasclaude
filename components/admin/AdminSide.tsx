@@ -17,7 +17,9 @@ type ActiveKey =
   | 'settings'
   | 'questions'
   | 'tests'
-  | 'grading';
+  | 'grading'
+  | 'students'
+  | 'attendance';
 
 interface AdminSideProps {
   slug: string;
@@ -103,6 +105,8 @@ const ACTIVE_LABEL: Record<ActiveKey, string> = {
   questions: '문제은행',
   tests: '레벨테스트 시험지',
   grading: '채점함',
+  students: '학생부',
+  attendance: '출결',
 };
 
 export function AdminSide({ slug, tenantName, active }: AdminSideProps) {
@@ -112,6 +116,10 @@ export function AdminSide({ slug, tenantName, active }: AdminSideProps) {
     <>
       <NavItem href={`${base}`} label="대시보드" active={active === 'dashboard'} />
       <NavItem href={`${base}/leads`} label="상담 관리" active={active === 'leads'} />
+
+      <SectionLabel>원생</SectionLabel>
+      <NavItem href={`${base}/students`} label="학생부" active={active === 'students'} />
+      <NavItem href={`${base}/attendance`} label="출결" active={active === 'attendance'} />
 
       <SectionLabel>카톡</SectionLabel>
       <NavItem href={`${base}/kakao`} label="자동 발송" active={active === 'kakao'} />

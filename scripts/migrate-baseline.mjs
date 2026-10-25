@@ -230,8 +230,8 @@ async function applyMissingColumns() {
     }
   }
 
-  // 20261020000001_level_test, 20261021000001_level_test_essay — 파일을 빈 줄 단위로 나눠 실행한다 (모든 문장이 멱등)
-  for (const name of ['20261020000001_level_test', '20261021000001_level_test_essay']) {
+  // 20261020000001_level_test, 20261021000001_level_test_essay, 20261025000001_students — 파일을 빈 줄 단위로 나눠 실행한다 (모든 문장이 멱등)
+  for (const name of ['20261020000001_level_test', '20261021000001_level_test_essay', '20261025000001_students']) {
     const fileSql = readFileSync(join(MIGRATIONS_DIR, name, 'migration.sql'), 'utf8');
     for (const stmt of fileSql.split(/\n\s*\n/)) {
       const body = stmt.split('\n').filter((l) => !l.trim().startsWith('--')).join('\n').trim();

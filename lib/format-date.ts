@@ -18,3 +18,19 @@ export function formatKstDateTime(input: Date | string): string {
   const p = parts(input);
   return `${p.y}.${p.m}.${p.d} ${p.hh}:${p.mm}`;
 }
+
+/** 오늘(KST) YYYY-MM-DD — 출결 등 날짜만 다루는 칸의 기본값 */
+export function kstToday(now: Date = new Date()): string {
+  const p = parts(now);
+  return `${p.y}-${p.m}-${p.d}`;
+}
+
+/** DB date 칼럼(UTC 자정) → YYYY-MM-DD */
+export function dateOnlyString(d: Date | string): string {
+  return new Date(d).toISOString().slice(0, 10);
+}
+
+/** 지금부터 n일 전 시각 */
+export function daysAgo(n: number): Date {
+  return new Date(Date.now() - n * 24 * 60 * 60 * 1000);
+}

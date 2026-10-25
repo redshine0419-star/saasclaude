@@ -13,6 +13,7 @@ interface Lead {
   consultType: string;
   source: string | null;
   status: string;
+  studentId: string | null;
   statusChangedAt: string;
   message: string | null;
   marketingConsent: boolean;
@@ -470,6 +471,15 @@ export function LeadsClient({ slug, academyName, leads: initialLeads, totalBySta
               </div>
             )}
           </div>
+
+          {(selected.studentId || selectedStatus === 'enrolled') && (
+            <a
+              href={selected.studentId ? `/${slug}/admin/students/${selected.studentId}` : `/${slug}/admin/students/new?lead=${selected.id}`}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 42, borderRadius: 8, background: selected.studentId ? '#FFFFFF' : '#1E5645', color: selected.studentId ? '#1E5645' : '#FFFFFF', border: selected.studentId ? '1px solid #1E5645' : 'none', fontSize: 14, fontWeight: 700, textDecoration: 'none' }}
+            >
+              {selected.studentId ? '학생부 보기 →' : '원생으로 등록 (학생부 만들기)'}
+            </a>
+          )}
 
           {/* Memo */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

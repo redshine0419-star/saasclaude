@@ -18,7 +18,7 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
   const membership = await getAdminMembership(tenant.id, session.user.email!);
   if (!membership || membership.role !== 'owner') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const [leads, reviews, posts, classes, staff, messages] = await Promise.all([
+  const [leads, reviews, posts, classes, staff, messages, students] = await Promise.all([
     prisma.lead.findMany({
       where: { tenantId: tenant.id },
       orderBy: { createdAt: 'desc' },
@@ -48,6 +48,16 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
       take: 5000,
       select: { scenario: true, kind: true, channel: true, status: true, sentAt: true, createdAt: true },
     }),
+    prisma.student.findMany({
+      where: { tenantId: tenant.id },
+      orderBy: { name: 'asc' },
+      include: {
+        class: { select: { name: true } },
+        notes: { where: { tenantId: tenant.id }, orderBy: { createdAt: 'asc' }, select: { createdAt: true, kind: true, body: true, authorEmail: true } },
+        scores: { where: { tenantId: tenant.id }, orderBy: { examDate: 'asc' }, select: { kind: true, examDate: true, label: true, subject: true, score: true, maxScore: true, rankGrade: true, percentile: true, memo: true } },
+        attendances: { where: { tenantId: tenant.id }, orderBy: { date: 'asc' }, select: { date: true, status: true, note: true } },
+      },
+    }),
   ]);
 
   const payload = {
@@ -71,6 +81,23 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
       statusChangedAt: l.statusChangedAt,
       message: l.message,
       events: l.events,
+    })),
+    students: students.map((st) => ({
+      name: st.name,
+      grade: st.grade,
+      school: st.school,
+      className: st.class?.name ?? null,
+      status: st.status,
+      enrolledAt: st.enrolledAt,
+      leftAt: st.leftAt,
+      parentName: st.parentName,
+      parentPhone: st.parentPhone,
+      studentPhone: st.studentPhone,
+      traits: st.traits,
+      summary: st.summary,
+      notes: st.notes,
+      scores: st.scores,
+      attendances: st.attendances,
     })),
     reviews: reviews.map((r) => ({
       kind: r.kind,
