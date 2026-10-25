@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { after, NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { maskPhoneForMail, notifyOperator } from '@/lib/mail/operator';
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
@@ -44,6 +45,25 @@ export async function POST(req: NextRequest) {
 
   // 운영자는 P-04 칸반에서 확인한다. 로그에는 연락처를 남기지 않는다.
   console.log('[apply] 제작 대행 신청 접수:', { id: application.id, academy: application.academyName, queueOrder: application.queueOrder });
+
+  const a = application;
+  after(() =>
+    notifyOperator({
+      subject: `[첫등원] 제작 대행 신청 — ${a.academyName}`,
+      heading: `제작 대행 신청이 들어왔습니다 (대기 ${a.queueOrder}번)`,
+      rows: [
+        ['학원명', a.academyName],
+        ['지역 · 과목', `${a.area} · ${a.subject}`],
+        ['원장', a.directorName],
+        ['연락처', maskPhoneForMail(a.phone)],
+        ['현재 홈페이지', a.currentUrl ?? '없음'],
+        ['사진 촬영 희망', a.wantsPhotoShoot ? '예' : '아니오'],
+        ['첨부 자료', `${a.uploadedFiles.length}개`],
+      ],
+      linkPath: '/platform/queue',
+      linkLabel: '제작 대기열에서 보기',
+    }),
+  );
 
   return NextResponse.json({ ok: true, id: application.id, queueOrder: application.queueOrder });
 }

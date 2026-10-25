@@ -1,10 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { after, NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { ensureUser } from '@/lib/users';
 import { slugError } from '@/lib/tenant';
 import { DEFAULT_SECTION_ORDER, isThemeKey } from '@/lib/sections';
 import { recordSiteVersion } from '@/lib/site-versions';
+import { maskPhoneForMail, notifyOperator } from '@/lib/mail/operator';
 
 const SELF_SERVE_LIMIT = 1;
 
@@ -104,6 +105,24 @@ export async function POST(req: NextRequest) {
 
   await recordSiteVersion(tenant.id, email, 'onboarding');
   console.log('[start] self-serve tenant created:', tenant.slug);
+
+  const created = tenant;
+  after(() =>
+    notifyOperator({
+      subject: `[첫등원] 셀프 개설 — ${name}`,
+      heading: '새 학원이 직접 홈페이지를 만들었습니다',
+      rows: [
+        ['학원명', name],
+        ['주소', `growweb.me/${created.slug}`],
+        ['과목 · 대상', [subjects, targetGrades].filter(Boolean).join(' · ')],
+        ['테마', String(theme)],
+        ['대표 전화', maskPhoneForMail(phone)],
+        ['지역', address.split(/\s+/).slice(0, 2).join(' ')],
+      ],
+      linkPath: `/platform/academies/${created.id}`,
+      linkLabel: '학원 상세 보기',
+    }),
+  );
 
   return NextResponse.json({ ok: true, slug: tenant.slug });
 }

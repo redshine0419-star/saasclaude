@@ -1,7 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { after, NextRequest, NextResponse } from 'next/server';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { runDiagnosis } from '@/lib/diagnosis/run';
+import { maskPhoneForMail, notifyOperator } from '@/lib/mail/operator';
+
+const SCORE_LABEL = { homepage: '홈페이지 현황', seo: 'SEO 노출도', conversion: '상담 전환 구조', mobile: '모바일 최적화' } as const;
 
 export const maxDuration = 20;
 
@@ -47,6 +50,24 @@ export async function POST(req: NextRequest) {
       resultNote: '자동 진단 완료',
     },
   });
+
+  after(() =>
+    notifyOperator({
+      subject: `[첫등원] 무료 진단 신청 — ${academyName}`,
+      heading: '무료 진단 신청이 들어왔습니다',
+      rows: [
+        ['학원명', academyName],
+        ['지역 · 과목', `${area} · ${subject}`],
+        ['연락처', maskPhoneForMail(phone)],
+        ['현재 홈페이지', currentUrl ?? '없음'],
+        ...(Object.keys(SCORE_LABEL) as (keyof typeof SCORE_LABEL)[]).map(
+          (k): [string, string] => [SCORE_LABEL[k], `${result.items[k].score}/3 · ${result.items[k].note}`],
+        ),
+      ],
+      linkPath: '/platform/diagnosis',
+      linkLabel: '플랫폼 관리자에서 보기',
+    }),
+  );
 
   return NextResponse.json({ ok: true, id: record.id });
 }
