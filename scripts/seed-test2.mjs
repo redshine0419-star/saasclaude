@@ -14,7 +14,8 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaNeon } from '@prisma/adapter-neon';
 
 const SLUG = 'test2';
-const MARKER = 'seed:test2:v1';
+// v1: 학생 10명 / v2: 학생 20명까지 채움 (v1이 이미 돌았으면 빠진 학생만 더 넣는다)
+const MARKER = 'seed:test2:v2';
 
 if (!process.env.DATABASE_URL) {
   console.log('[seed-test2] DATABASE_URL 없음 — 건너뜀');
@@ -318,7 +319,10 @@ async function main() {
   }
 
   // ── 9. 학생부·성적·메모·출결 ────────────────────────────────
-  if ((await count('student')) === 0) {
+  {
+    const existing = await prisma.student.findMany({ where: { tenantId: T }, select: { name: true, leadId: true } });
+    const existingNames = new Set(existing.map((x) => x.name));
+    const linkedLeads = new Set(existing.map((x) => x.leadId).filter(Boolean));
     const cls = (band) => classes.find((c) => c.gradeBand === band) ?? null;
     const STU = [
       // [이름, 학년, 학교, 학부모, 상담건, 실력(0~1), 태그, 요약, 등록 며칠 전]
@@ -332,10 +336,22 @@ async function main() {
       ['윤태민', '중1', '○○중', '윤정아', null, 0.55, ['기초 부족', '숙제 미흡'], '초등 분수 계산이 약함. 주 1회 기초 보충 진행 중.', 90],
       ['장예린', '중3', '△△중', '장수경', null, 0.8, ['끈기 있음'], '고1 수학(상) 선행을 무리 없이 따라오는 중.', 260],
       ['임하준', '중1', '○○중', '임소라', null, 0.68, ['활발함'], '친구들과 풀이를 설명하는 시간에 적극적.', 75],
+      ['송지안', '중1', '△△중', '송은정', null, 0.73, ['꼼꼼함', '내성적'], '노트 정리가 깔끔함. 질문을 먼저 하도록 기회를 주는 중.', 110],
+      ['권도현', '중1', '○○중', '권미숙', null, 0.62, ['덤벙댐', '활발함'], '빨리 풀고 검산을 하지 않음. 검산 체크리스트를 쓰기로 함.', 64],
+      ['배수아', '중1', '□□중', '배지현', null, 0.8, ['숙제 성실', '끈기 있음'], '어려운 문제도 끝까지 붙잡는 편. 심화 문제를 조금씩 늘리는 중.', 150],
+      ['유건우', '중2', '○○중', '유선희', null, 0.57, ['집중 짧음', '기초 부족'], '중1 일차방정식 개념이 흔들림. 주 1회 보충 진행.', 58],
+      ['문채원', '중2', '△△중', '문혜진', null, 0.84, ['승부욕 강함', '질문 많음'], '단원평가 1등을 목표로 함. 질문이 구체적이라 수업 분위기를 이끔.', 230],
+      ['신유준', '중3', '○○중', '신은영', null, 0.69, ['시험 불안', '숙제 성실'], '평소 실력보다 시험 점수가 낮게 나옴. 시간 재고 푸는 연습 중.', 140],
+      ['홍예서', '중3', '□□중', '홍지은', null, 0.9, ['꼼꼼함', '선행 필요'], '고1 수학(상)까지 무리 없이 따라옴. 고등 내신 서술형 대비 중.', 300],
+      ['노시현', '중3', '△△중', '노미란', null, 0.63, ['칭찬에 반응', '숙제 미흡'], '숙제를 자주 빠뜨림. 학부모님과 숙제 확인 루틴을 함께 정함.', 45],
+      ['안서진', '초6', '○○초', '안수연', null, 0.76, ['활발함', '질문 많음'], '예비중 과정을 즐겁게 따라옴. 문장제 읽기 연습 필요.', 80],
+      ['조이안', '초6', '□□초', '조민정', null, 0.66, ['내성적', '끈기 있음'], '조용히 끝까지 푸는 편. 분수 나눗셈 보충 중.', 33],
     ];
     const SUBJECTS_SCORE = english ? ['영어'] : ['수학', '영어'];
     for (const [k, [name, grade, school, parentName, leadName, skill, traits, summary, enrolledAgo]] of STU.entries()) {
-      const lead = leadName ? leadByName[leadName] : null;
+      if (existingNames.has(name)) continue;
+      const found = leadName ? leadByName[leadName] : null;
+      const lead = found && !linkedLeads.has(found.id) ? found : null;
       const c = cls(grade);
       const st = await prisma.student.create({ data: {
         tenantId: T, name, grade, school, classId: c?.id ?? null, status: 'active', enrolledAt: day(enrolledAgo),
