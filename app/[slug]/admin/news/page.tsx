@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
-import { auth } from '@/auth';
+import { adminSession } from '@/lib/demo-viewer';
 import { prisma } from '@/lib/prisma';
 import { getAdminMembership } from '@/lib/admin-auth';
 import { AdminSide } from '@/components/admin/AdminSide';
@@ -29,7 +29,7 @@ export default async function AdminNewsPage({
 }) {
   const { slug } = await params;
 
-  const session = await auth();
+  const session = await adminSession(slug);
   if (!session?.user?.email) redirect('/auth/signin');
 
   const tenant = await prisma.tenant.findUnique({ where: { slug, status: 'active' } });

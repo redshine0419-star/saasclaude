@@ -1,5 +1,5 @@
 import { notFound, redirect } from 'next/navigation';
-import { auth } from '@/auth';
+import { adminSession } from '@/lib/demo-viewer';
 import { prisma } from '@/lib/prisma';
 import { getAdminMembership } from '@/lib/admin-auth';
 import { AdminSide } from '@/components/admin/AdminSide';
@@ -16,7 +16,7 @@ type Props = { params: Promise<{ slug: string }> };
 export default async function AdminSectionsPage({ params }: Props) {
   const { slug } = await params;
 
-  const session = await auth();
+  const session = await adminSession(slug);
   if (!session?.user?.email) redirect('/auth/signin');
 
   const tenant = await prisma.tenant.findUnique({

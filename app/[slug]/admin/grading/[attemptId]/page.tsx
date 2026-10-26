@@ -1,5 +1,5 @@
 import { notFound, redirect } from 'next/navigation';
-import { auth } from '@/auth';
+import { adminSession } from '@/lib/demo-viewer';
 import { prisma } from '@/lib/prisma';
 import { getAdminMembership } from '@/lib/admin-auth';
 import { AdminSide } from '@/components/admin/AdminSide';
@@ -15,7 +15,7 @@ function maskName(name: string) {
 
 export default async function GradeAttemptPage({ params }: Props) {
   const { slug, attemptId } = await params;
-  const session = await auth();
+  const session = await adminSession(slug);
   if (!session?.user?.email) redirect('/auth/signin');
   const tenant = await prisma.tenant.findUnique({ where: { slug, status: 'active' }, select: { id: true, name: true } });
   if (!tenant) notFound();

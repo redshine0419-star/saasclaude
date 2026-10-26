@@ -1,5 +1,5 @@
 import { notFound, redirect } from 'next/navigation';
-import { auth } from '@/auth';
+import { adminSession } from '@/lib/demo-viewer';
 import { prisma } from '@/lib/prisma';
 import { PLATFORM_TEMPLATES } from '@/lib/messaging/templates';
 import { getAdminMembership } from '@/lib/admin-auth';
@@ -13,7 +13,7 @@ export default async function AdminKakaoPage({
 }) {
   const { slug } = await params;
 
-  const session = await auth();
+  const session = await adminSession(slug);
   if (!session?.user?.email) redirect('/auth/signin');
 
   const tenant = await prisma.tenant.findUnique({
