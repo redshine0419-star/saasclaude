@@ -1,11 +1,14 @@
 import type { AcademyPrinciple } from '@/lib/academy-data';
+import { TitleLines } from '@/components/academy/TitleLines';
+import { SECTION_COPY_SPEC } from '@/lib/section-copy';
 
 type Props = {
+  title?: string;
   principles: AcademyPrinciple[];
   slug: string;
 };
 
-export default function PrinciplesSection({ principles, slug }: Props) {
+export default function PrinciplesSection({ principles, slug, title = SECTION_COPY_SPEC.principles.title }: Props) {
   if (principles.length === 0) return null;
 
   return (
@@ -14,7 +17,7 @@ export default function PrinciplesSection({ principles, slug }: Props) {
         <p className="text-[15px] font-bold text-accent mb-3">수업 원칙</p>
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
           <h2 className="font-serif text-[28px] md:text-[38px] leading-snug m-0">
-            흔들리지 않는 수업의 기준
+            <TitleLines text={title} />
           </h2>
           <a
             href={`/${slug}/about`}

@@ -1,6 +1,9 @@
 import type { AcademyClass } from '@/lib/academy-data';
+import { TitleLines } from '@/components/academy/TitleLines';
+import { SECTION_COPY_SPEC } from '@/lib/section-copy';
 
 type Props = {
+  title?: string;
   classes: AcademyClass[];
   slug: string;
 };
@@ -8,7 +11,7 @@ type Props = {
 const DAYS = ['월', '화', '수', '목', '금', '토'];
 const DAY_NUMS = ['1', '2', '3', '4', '5', '6'];
 
-export default function TimetableSection({ classes, slug }: Props) {
+export default function TimetableSection({ classes, slug, title = SECTION_COPY_SPEC.timetable.title }: Props) {
   if (classes.length === 0) return null;
 
   // Group classes by day for a column-based view
@@ -30,7 +33,7 @@ export default function TimetableSection({ classes, slug }: Props) {
         <p className="text-[15px] font-bold text-accent mb-3">주간 시간표</p>
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
           <h2 className="font-serif text-[28px] md:text-[38px] leading-snug m-0">
-            요일별 수업 편성
+            <TitleLines text={title} />
           </h2>
           <a
             href={`/${slug}/classes`}

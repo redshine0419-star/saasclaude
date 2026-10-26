@@ -1,6 +1,9 @@
 import type { AcademyFee, AcademyTenant } from '@/lib/academy-data';
+import { TitleLines } from '@/components/academy/TitleLines';
+import { SECTION_COPY_SPEC } from '@/lib/section-copy';
 
 type Props = {
+  title?: string;
   tenant: AcademyTenant;
   fees: AcademyFee[];
   extraCosts: { id: string; label: string; amount: number; note: string | null }[];
@@ -10,7 +13,7 @@ function formatAmount(n: number) {
   return n.toLocaleString('ko-KR') + '원';
 }
 
-export default function FeesSection({ tenant, fees, extraCosts }: Props) {
+export default function FeesSection({ tenant, fees, extraCosts, title = SECTION_COPY_SPEC.fees.title }: Props) {
   if (fees.length === 0) return null;
 
   return (
@@ -19,7 +22,7 @@ export default function FeesSection({ tenant, fees, extraCosts }: Props) {
         {/* 설명 */}
         <div className="md:w-[360px] md:flex-shrink-0 flex flex-col gap-3 md:gap-4 mb-6 md:mb-0">
           <div className="text-[14px] md:text-[15px] font-bold text-label">교습비</div>
-          <h2 className="m-0 font-serif text-[28px] md:text-[40px] font-bold text-ink leading-tight">숨김 없이<br />먼저 알려드립니다</h2>
+          <h2 className="m-0 font-serif text-[28px] md:text-[40px] font-bold text-ink leading-tight"><TitleLines text={title} /></h2>
           <p className="m-0 text-[14px] md:text-[15px] leading-[1.7] text-muted">
             관할 교육지원청에 신고한 교습비입니다. 교재비 등 기타 경비는 별도로 표기했습니다.
           </p>

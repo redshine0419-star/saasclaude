@@ -1,10 +1,13 @@
 import type { AcademyClass } from '@/lib/academy-data';
+import { TitleLines } from '@/components/academy/TitleLines';
+import { SECTION_COPY_SPEC } from '@/lib/section-copy';
 
 type Props = {
+  title?: string;
   classes: AcademyClass[];
 };
 
-export default function CurriculumSection({ classes }: Props) {
+export default function CurriculumSection({ classes, title = SECTION_COPY_SPEC.curriculum.title }: Props) {
   if (classes.length === 0) return null;
 
   // Group classes by gradeBand
@@ -21,7 +24,7 @@ export default function CurriculumSection({ classes }: Props) {
   return (
     <section id="curriculum" className="px-5 md:px-20 pt-24 md:pt-[120px] flex flex-col gap-8">
       <div className="max-w-[1440px] mx-auto w-full flex flex-col gap-8">
-        <h2 className="m-0 font-grotesk text-[28px] md:text-[40px] font-extrabold tracking-tight">학년별 커리큘럼</h2>
+        <h2 className="m-0 font-grotesk text-[28px] md:text-[40px] font-extrabold tracking-tight"><TitleLines text={title} /></h2>
 
         {/* Desktop table */}
         <div className="hidden md:block border border-line rounded-[10px] overflow-hidden">

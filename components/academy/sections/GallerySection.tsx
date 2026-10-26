@@ -1,18 +1,21 @@
 import type { AcademyPost } from '@/lib/academy-data';
+import { TitleLines } from '@/components/academy/TitleLines';
+import { SECTION_COPY_SPEC } from '@/lib/section-copy';
 
 type Props = {
+  title?: string;
   posts: AcademyPost[];
   slug: string;
 };
 
-export default function GallerySection({ posts, slug }: Props) {
+export default function GallerySection({ posts, slug, title = SECTION_COPY_SPEC.gallery.title }: Props) {
   const galleryPosts = posts.filter((p) => p.category === 'gallery').slice(0, 4);
   if (galleryPosts.length === 0) return null;
 
   return (
     <section id="gallery" className="px-5 md:px-16 pt-24 md:pt-28 flex flex-col gap-8">
       <div className="flex justify-between items-end">
-        <h2 className="m-0 font-round text-[32px] md:text-[42px] text-ink">이번 달 수업 모습</h2>
+        <h2 className="m-0 font-round text-[32px] md:text-[42px] text-ink"><TitleLines text={title} /></h2>
         <a href={`/${slug}/news`} className="text-[16px] font-bold text-accent no-underline">더 보기 →</a>
       </div>
 

@@ -1,6 +1,8 @@
 import type { AcademyPost } from '@/lib/academy-data';
+import { TitleLines } from '@/components/academy/TitleLines';
+import { SECTION_COPY_SPEC } from '@/lib/section-copy';
 
-type Props = { posts: AcademyPost[]; slug: string };
+type Props = { posts: AcademyPost[]; slug: string; title?: string };
 
 function formatDate(date: Date | string | null) {
   if (!date) return '';
@@ -14,7 +16,7 @@ const CATEGORY_LABEL: Record<string, string> = {
   news: '소식',
 };
 
-export default function NewsSection({ posts, slug }: Props) {
+export default function NewsSection({ posts, slug, title = SECTION_COPY_SPEC.news.title }: Props) {
   if (posts.length === 0) return null;
 
   const featured = posts[0];
@@ -27,7 +29,7 @@ export default function NewsSection({ posts, slug }: Props) {
         <div className="flex items-end justify-between">
           <div className="flex flex-col gap-2.5 md:gap-3">
             <div className="text-[14px] md:text-[15px] font-bold text-label">학원 소식</div>
-            <h2 className="m-0 font-serif text-[28px] md:text-[40px] font-bold text-ink">새 소식</h2>
+            <h2 className="m-0 font-serif text-[28px] md:text-[40px] font-bold text-ink"><TitleLines text={title} /></h2>
           </div>
           <a href={`/${slug}/news`} className="text-[14px] text-accent font-semibold hover:underline hidden md:block">전체 보기 →</a>
         </div>

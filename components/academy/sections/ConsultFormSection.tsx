@@ -3,13 +3,16 @@
 import { useState } from 'react';
 import { weekdayLabel } from '@/lib/weekday';
 import type { AcademyTenant, LevelTestSlot } from '@/lib/academy-data';
+import { TitleLines } from '@/components/academy/TitleLines';
+import { SECTION_COPY_SPEC } from '@/lib/section-copy';
 
 type Props = {
+  title?: string;
   tenant: AcademyTenant;
   slots: LevelTestSlot[];
 };
 
-export default function ConsultFormSection({ tenant, slots }: Props) {
+export default function ConsultFormSection({ tenant, slots, title = SECTION_COPY_SPEC.consult_form.title }: Props) {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [grade, setGrade] = useState('');
@@ -60,7 +63,7 @@ export default function ConsultFormSection({ tenant, slots }: Props) {
         <div className="md:w-[360px] md:flex-shrink-0 flex flex-col gap-3 md:gap-4 mb-8 md:mb-0">
           <div className="text-[14px] md:text-[15px] font-bold text-label">무료 레벨 테스트</div>
           <h2 className="m-0 font-serif text-[28px] md:text-[40px] font-bold text-ink leading-tight">
-            지금 바로<br />신청하세요
+            <TitleLines text={title} />
           </h2>
           <p className="m-0 text-[14px] md:text-[15px] leading-[1.7] text-muted">
             무료 레벨 테스트와 상담을 통해 우리 아이에게 맞는 반을 찾아드립니다.

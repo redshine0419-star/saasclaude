@@ -1,11 +1,14 @@
 import type { AcademyReview, AcademyTenant } from '@/lib/academy-data';
+import { TitleLines } from '@/components/academy/TitleLines';
+import { SECTION_COPY_SPEC } from '@/lib/section-copy';
 
 type Props = {
+  title?: string;
   tenant: AcademyTenant;
   reviews: AcademyReview[];
 };
 
-export default function ScoreCasesSection({ tenant, reviews }: Props) {
+export default function ScoreCasesSection({ tenant, reviews, title = SECTION_COPY_SPEC.score_cases.title }: Props) {
   const cases = reviews.filter((r) => r.kind === 'score_case');
   if (cases.length === 0) return null;
 
@@ -14,7 +17,7 @@ export default function ScoreCasesSection({ tenant, reviews }: Props) {
   return (
     <section className="px-5 md:px-20 pt-24 md:pt-[120px] flex flex-col gap-8">
       <div className="max-w-[1440px] mx-auto w-full flex flex-col gap-8">
-        <h2 className="m-0 font-grotesk text-[28px] md:text-[40px] font-extrabold tracking-tight">성적 변화 사례</h2>
+        <h2 className="m-0 font-grotesk text-[28px] md:text-[40px] font-extrabold tracking-tight"><TitleLines text={title} /></h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {cases.map((c) => (

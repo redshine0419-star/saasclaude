@@ -21,6 +21,7 @@ export type AcademyTenant = {
   heroTitle: string | null;
   heroSubtitle: string | null;
   heroPhotos: string[];
+  sectionCopy: SectionCopy;
   ga4MeasurementId: string | null;
   naverSiteVerification: string | null;
 };
@@ -168,6 +169,7 @@ export const DEMO_DATA: AcademyPageData = {
     heroTitle: null,
     heroSubtitle: null,
     heroPhotos: [],
+    sectionCopy: {},
     ga4MeasurementId: null,
     naverSiteVerification: null,
   },
@@ -299,6 +301,7 @@ export const DEMO_DATA_RESULT: AcademyPageData = {
     heroTitle: null,
     heroSubtitle: null,
     heroPhotos: [],
+    sectionCopy: {},
     ga4MeasurementId: null,
     naverSiteVerification: null,
   },
@@ -384,6 +387,8 @@ export const DEMO_DATA_BRIGHT: AcademyPageData = {
     heroTitle: null,
     heroSubtitle: null,
     heroPhotos: [],
+    // 데모(밝은 친근형)만 예시 안심 항목을 보여 준다 — 실제 학원은 원장이 입력한 항목만
+    sectionCopy: { safety: { items: [{ title: '셔틀 동승 선생님', body: '모든 노선 동승' }, { title: '교실 CCTV', body: '녹화 운영' }, { title: '선생님 자격', body: '성범죄 경력 조회 완료' }] } },
     ga4MeasurementId: null,
     naverSiteVerification: null,
   },
@@ -436,6 +441,7 @@ export const DEMO_DATA_BRIGHT: AcademyPageData = {
 
 // ─── 요일 숫자 → 한글 ────────────────────────────────────────
 export { weekdayLabel } from './weekday';
+import { readSectionCopy, type SectionCopy } from './section-copy';
 
 // ─── DB 조회 ──────────────────────────────────────────────────
 export async function getAcademyPageData(slug: string): Promise<AcademyPageData | null> {
@@ -497,6 +503,7 @@ export async function getAcademyPageData(slug: string): Promise<AcademyPageData 
         heroTitle: tenant.heroTitle,
         heroSubtitle: tenant.heroSubtitle,
         heroPhotos: tenant.heroPhotos,
+        sectionCopy: readSectionCopy(tenant.sectionCopy),
         ga4MeasurementId: tenant.ga4MeasurementId,
         naverSiteVerification: tenant.naverSiteVerification,
       },

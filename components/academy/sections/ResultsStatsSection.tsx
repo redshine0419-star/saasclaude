@@ -1,11 +1,14 @@
 import type { AcademyResultStat, AcademyTenant } from '@/lib/academy-data';
+import { TitleLines } from '@/components/academy/TitleLines';
+import { SECTION_COPY_SPEC } from '@/lib/section-copy';
 
 type Props = {
+  title?: string;
   tenant: AcademyTenant;
   resultStats: AcademyResultStat[];
 };
 
-export default function ResultsStatsSection({ tenant, resultStats }: Props) {
+export default function ResultsStatsSection({ tenant, resultStats, title = SECTION_COPY_SPEC.results_stats.title }: Props) {
   const stat = resultStats[0];
   if (!stat) return null;
 
@@ -15,7 +18,7 @@ export default function ResultsStatsSection({ tenant, resultStats }: Props) {
     <section id="results" className="px-5 md:px-20 pt-20 md:pt-24 flex flex-col gap-8">
       <div className="max-w-[1440px] mx-auto w-full flex flex-col gap-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-          <h2 className="m-0 font-grotesk text-[28px] md:text-[40px] font-extrabold tracking-tight">숫자로 보는 지난 학기</h2>
+          <h2 className="m-0 font-grotesk text-[28px] md:text-[40px] font-extrabold tracking-tight"><TitleLines text={title} /></h2>
           <span className="text-[14px] text-body bg-subtle px-3 py-1 rounded-md">{stat.termLabel}</span>
         </div>
 

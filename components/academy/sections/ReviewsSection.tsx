@@ -1,8 +1,10 @@
 import type { AcademyReview } from '@/lib/academy-data';
+import { TitleLines } from '@/components/academy/TitleLines';
+import { SECTION_COPY_SPEC } from '@/lib/section-copy';
 
-type Props = { reviews: AcademyReview[] };
+type Props = { reviews: AcademyReview[]; title?: string };
 
-export default function ReviewsSection({ reviews }: Props) {
+export default function ReviewsSection({ reviews, title = SECTION_COPY_SPEC.reviews.title }: Props) {
   if (reviews.length === 0) return null;
 
   const textReviews = reviews.filter((r) => r.kind === 'review').slice(0, 2);
@@ -14,7 +16,7 @@ export default function ReviewsSection({ reviews }: Props) {
         {/* 헤더 */}
         <div className="flex flex-col gap-2.5 md:gap-3">
           <div className="text-[14px] md:text-[15px] font-bold text-label">성과·후기</div>
-          <h2 className="m-0 font-serif text-[28px] md:text-[40px] font-bold text-ink">학부모님이 직접 남긴 이야기</h2>
+          <h2 className="m-0 font-serif text-[28px] md:text-[40px] font-bold text-ink"><TitleLines text={title} /></h2>
         </div>
 
         {/* 카드 그리드 */}

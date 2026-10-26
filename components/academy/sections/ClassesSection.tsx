@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import type { AcademyClass } from '@/lib/academy-data';
+import { TitleLines } from '@/components/academy/TitleLines';
+import { SECTION_COPY_SPEC } from '@/lib/section-copy';
 
-type Props = { classes: AcademyClass[] };
+type Props = { classes: AcademyClass[]; title?: string };
 
 function SeatBadge({ seatsLeft, waitlistCount }: { seatsLeft: number | null; waitlistCount: number }) {
   if (seatsLeft === 0) {
@@ -61,7 +63,7 @@ function ClassCard({ cls }: { cls: AcademyClass }) {
   );
 }
 
-export default function ClassesSection({ classes }: Props) {
+export default function ClassesSection({ classes, title = SECTION_COPY_SPEC.classes.title }: Props) {
   const tabs = Array.from(new Set(classes.map((c) => c.gradeBand).filter(Boolean))) as string[];
   const [activeTab, setActiveTab] = useState(tabs[0] ?? '');
 
@@ -78,7 +80,7 @@ export default function ClassesSection({ classes }: Props) {
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <div className="flex flex-col gap-2.5 md:gap-3">
             <div className="text-[14px] md:text-[15px] font-bold text-label">수업 안내</div>
-            <h2 className="m-0 font-serif text-[28px] md:text-[40px] font-bold text-ink">학년별 반 구성</h2>
+            <h2 className="m-0 font-serif text-[28px] md:text-[40px] font-bold text-ink"><TitleLines text={title} /></h2>
           </div>
 
           {/* 탭 */}

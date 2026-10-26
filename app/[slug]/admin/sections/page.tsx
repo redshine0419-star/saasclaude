@@ -5,9 +5,11 @@ import { getAdminMembership } from '@/lib/admin-auth';
 import { AdminSide } from '@/components/admin/AdminSide';
 import { SectionsClient } from './SectionsClient';
 import { HeroEditor } from './HeroEditor';
+import { SectionCopyEditor } from './SectionCopyEditor';
+import { readSectionCopy } from '@/lib/section-copy';
 import { VersionHistory, type VersionRow } from './VersionHistory';
 import { SITE_VERSION_KEEP, type SiteSnapshot } from '@/lib/site-versions';
-import { DEFAULT_SECTION_ORDER, normalizeSections, type ThemeKey } from '@/lib/sections';
+import { DEFAULT_SECTION_ORDER, SECTION_LABELS, normalizeSections, type ThemeKey } from '@/lib/sections';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -60,6 +62,13 @@ export default async function AdminSectionsPage({ params }: Props) {
           initial={{ heroBadge: tenant.heroBadge, heroTitle: tenant.heroTitle, heroSubtitle: tenant.heroSubtitle, heroPhotos: tenant.heroPhotos }}
         />
         <SectionsClient slug={slug} theme={theme} sections={sections} canEdit={membership.role === 'owner'} />
+        <SectionCopyEditor
+          slug={slug}
+          sectionKeys={sections.map((x) => x.key)}
+          labels={SECTION_LABELS}
+          initial={readSectionCopy(tenant.sectionCopy)}
+          canEdit={membership.role === 'owner'}
+        />
         <VersionHistory slug={slug} versions={versions} canEdit={membership.role === 'owner'} />
       </main>
     </div>

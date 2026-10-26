@@ -27,6 +27,7 @@ import TeachersSection from '@/components/academy/sections/TeachersSection';
 
 // Theme C sections
 import HeroSectionBright from '@/components/academy/sections/HeroSectionBright';
+import { sectionItems, sectionTitle } from '@/lib/section-copy';
 import DayFlowSection from '@/components/academy/sections/DayFlowSection';
 import GallerySection from '@/components/academy/sections/GallerySection';
 import SafetySection from '@/components/academy/sections/SafetySection';
@@ -59,6 +60,9 @@ export default async function AcademyPage({
       else displayOrder.push(key);
     }
   }
+
+  const copy = data.tenant.sectionCopy;
+  const T = (k: string) => sectionTitle(copy, k);
 
   function renderSection(key: string) {
     switch (key) {
@@ -95,7 +99,7 @@ export default async function AcademyPage({
 
       case 'fees':
         return (
-          <FeesSection
+          <FeesSection title={T('fees')}
             key="fees"
             tenant={data!.tenant}
             fees={data!.fees}
@@ -105,7 +109,7 @@ export default async function AcademyPage({
 
       case 'consult_form':
         return (
-          <ConsultFormSection
+          <ConsultFormSection title={T('consult_form')}
             key="consult_form"
             tenant={data!.tenant}
             slots={data!.levelTestSlots}
@@ -120,31 +124,31 @@ export default async function AcademyPage({
           <DirectorSection key="director" tenant={data!.tenant} director={data!.director} />
         ) : null;
       case 'classes':
-        return data!.classes.length > 0 ? <ClassesSection key="classes" classes={data!.classes} /> : null;
+        return data!.classes.length > 0 ? <ClassesSection title={T('classes')} key="classes" classes={data!.classes} /> : null;
       case 'reviews':
         return data!.reviews.filter((r) => r.kind === 'review').length > 0 ? (
-          <ReviewsSection key="reviews" reviews={data!.reviews} />
+          <ReviewsSection title={T('reviews')} key="reviews" reviews={data!.reviews} />
         ) : null;
       case 'news':
-        return data!.posts.length > 0 ? <NewsSection key="news" posts={data!.posts} slug={slug} /> : null;
+        return data!.posts.length > 0 ? <NewsSection title={T('news')} key="news" posts={data!.posts} slug={slug} /> : null;
 
       // ── Theme B sections ──
       case 'results_stats':
         return data!.resultStats.length > 0 ? (
-          <ResultsStatsSection
+          <ResultsStatsSection title={T('results_stats')}
             key="results_stats"
             tenant={data!.tenant}
             resultStats={data!.resultStats}
           />
         ) : null;
       case 'exam_system':
-        return <ExamSystemSection key="exam_system" tenant={data!.tenant} />;
+        return <ExamSystemSection key="exam_system" tenant={data!.tenant} title={T('exam_system')} items={sectionItems(copy, 'exam_system')} />;
       case 'curriculum':
-        return data!.classes.length > 0 ? <CurriculumSection key="curriculum" classes={data!.classes} /> : null;
+        return data!.classes.length > 0 ? <CurriculumSection title={T('curriculum')} key="curriculum" classes={data!.classes} /> : null;
       case 'score_cases': {
         const scoreCases = data!.reviews.filter((r) => r.kind === 'score_case');
         return scoreCases.length > 0 ? (
-          <ScoreCasesSection
+          <ScoreCasesSection title={T('score_cases')}
             key="score_cases"
             tenant={data!.tenant}
             reviews={data!.reviews}
@@ -153,7 +157,7 @@ export default async function AcademyPage({
       }
       case 'teachers':
         return data!.staff.length > 0 ? (
-          <TeachersSection
+          <TeachersSection title={T('teachers')}
             key="teachers"
             tenant={data!.tenant}
             staff={data!.staff}
@@ -162,23 +166,23 @@ export default async function AcademyPage({
 
       // ── Theme C sections ──
       case 'day_flow':
-        return <DayFlowSection key="day_flow" tenant={data!.tenant} />;
+        return <DayFlowSection key="day_flow" tenant={data!.tenant} title={T('day_flow')} items={sectionItems(copy, 'day_flow')} />;
       case 'gallery':
-        return data!.posts.length > 0 ? <GallerySection key="gallery" posts={data!.posts} slug={slug} /> : null;
+        return data!.posts.length > 0 ? <GallerySection title={T('gallery')} key="gallery" posts={data!.posts} slug={slug} /> : null;
       case 'safety':
-        return <SafetySection key="safety" reviews={data!.reviews} shuttle={data!.shuttle} />;
+        return <SafetySection key="safety" reviews={data!.reviews} shuttle={data!.shuttle} title={T('safety')} items={sectionItems(copy, 'safety')} />;
 
       case 'location':
         return <LocationSection key="location" tenant={data!.tenant} shuttle={data!.shuttle} slug={slug} />;
 
       case 'principles':
         return data!.principles.length > 0 ? (
-          <PrinciplesSection key="principles" principles={data!.principles} slug={slug} />
+          <PrinciplesSection title={T('principles')} key="principles" principles={data!.principles} slug={slug} />
         ) : null;
 
       case 'timetable':
         return data!.classes.length > 0 ? (
-          <TimetableSection key="timetable" classes={data!.classes} slug={slug} />
+          <TimetableSection title={T('timetable')} key="timetable" classes={data!.classes} slug={slug} />
         ) : null;
 
       case 'faq':
