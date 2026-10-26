@@ -1,4 +1,5 @@
 import type { AcademyTenant, AcademyClass, LevelTestSlot } from '@/lib/academy-data';
+import { heroDefaults, titleLines } from '@/lib/hero';
 
 type Props = {
   tenant: AcademyTenant;
@@ -6,21 +7,28 @@ type Props = {
   levelTestSlots: LevelTestSlot[];
 };
 
-const PASTEL_CHIPS = [
-  { bg: '#FFF3C4', label: '7세' },
-  { bg: '#DDF1FF', label: '초1 ~ 초3' },
-  { bg: '#FFE3EC', label: '초4 ~ 초6' },
+const PASTEL = ['#FFF3C4', '#DDF1FF', '#FFE3EC'];
+// 사진 칸 — 사진이 없으면 같은 색의 장식 칸만 보인다
+const SLOTS = [
+  { cls: 'row-span-2 bg-pastel-sky', alt: '수업 모습' },
+  { cls: 'bg-highlight-soft', alt: '교실' },
+  { cls: 'bg-pastel-pink', alt: '활동' },
 ];
 
 export default function HeroSectionBright({ tenant, classes }: Props) {
   const gradeBands = [...new Set(classes.map((c) => c.gradeBand).filter(Boolean))] as string[];
-  const chips = gradeBands.length > 0
-    ? gradeBands.map((g, i) => ({ bg: PASTEL_CHIPS[i % PASTEL_CHIPS.length].bg, label: g }))
-    : PASTEL_CHIPS;
+  // 반이 없으면 대상 학년, 그것도 없으면 칩을 보이지 않는다 (사실이 아닌 학년을 띄우지 않게)
+  const labels = gradeBands.length > 0 ? gradeBands : tenant.targetGrades ? [tenant.targetGrades] : [];
+  const chips = labels.map((g, i) => ({ bg: PASTEL[i % PASTEL.length], label: g }));
+  const def = heroDefaults('bright', tenant.subjects);
+  const lines = titleLines(tenant.heroTitle || def.title);
 
   return (
     <section className="px-5 md:px-16 pt-10 md:pt-10 pb-10 flex flex-col md:flex-row gap-10 md:gap-14 items-center">
       <div className="flex-1 flex flex-col gap-6">
+        {tenant.heroBadge && (
+          <span className="self-start px-3 py-[6px] rounded-full text-[14px] font-bold bg-accent text-on-accent">{tenant.heroBadge}</span>
+        )}
         {/* Age chips */}
         <div className="flex gap-2 flex-wrap">
           {chips.map((c) => (
@@ -31,12 +39,13 @@ export default function HeroSectionBright({ tenant, classes }: Props) {
         </div>
 
         <h1 className="m-0 font-round text-[40px] md:text-[64px] leading-[1.25] text-ink">
-          {tenant.subjects ? `${tenant.subjects}가` : '공부가'} 재밌어지는<br />우리 동네 첫 학원
+          {lines.map((l, i) => (
+            <span key={i}>{i > 0 && <br />}{l}</span>
+          ))}
         </h1>
 
         <p className="m-0 text-[17px] md:text-[19px] leading-[1.75] text-body max-w-[520px]">
-          한 반 최대 6명, 말하기로 시작하는 수업.
-          아이가 먼저 &ldquo;오늘 학원 가?&rdquo; 하고 묻는 곳이 되고 싶습니다.
+          {tenant.heroSubtitle || def.subtitle}
         </p>
 
         <div className="flex gap-3 flex-wrap">
@@ -51,13 +60,16 @@ export default function HeroSectionBright({ tenant, classes }: Props) {
         </div>
       </div>
 
-      {/* Photo collage */}
+      {/* Photo collage — 대표 사진 3장 (관리자 > 홈페이지 구성) */}
       <div className="w-full md:w-[620px] h-[340px] md:h-[520px] grid grid-cols-2 grid-rows-2 gap-3 md:gap-4">
-        <div className="row-span-2 rounded-[24px] md:rounded-[32px] bg-pastel-sky flex items-center justify-center text-body text-sm text-center p-4">
-          수업 중 아이들<br/>사진
-        </div>
-        <div className="rounded-[24px] md:rounded-[32px] bg-highlight-soft flex items-center justify-center text-body text-sm">교실 사진</div>
-        <div className="rounded-[24px] md:rounded-[32px] bg-pastel-pink flex items-center justify-center text-body text-sm">발표·활동</div>
+        {SLOTS.map((slot, i) => (
+          <div key={i} className={`${slot.cls} rounded-[24px] md:rounded-[32px] overflow-hidden`}>
+            {tenant.heroPhotos[i] && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={tenant.heroPhotos[i]} alt={`${tenant.name} ${slot.alt}`} className="w-full h-full object-cover" />
+            )}
+          </div>
+        ))}
       </div>
     </section>
   );

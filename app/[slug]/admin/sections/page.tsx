@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getAdminMembership } from '@/lib/admin-auth';
 import { AdminSide } from '@/components/admin/AdminSide';
 import { SectionsClient } from './SectionsClient';
+import { HeroEditor } from './HeroEditor';
 import { VersionHistory, type VersionRow } from './VersionHistory';
 import { SITE_VERSION_KEEP, type SiteSnapshot } from '@/lib/site-versions';
 import { DEFAULT_SECTION_ORDER, normalizeSections, type ThemeKey } from '@/lib/sections';
@@ -50,7 +51,14 @@ export default async function AdminSectionsPage({ params }: Props) {
   return (
     <div style={{ display: 'flex', flex: 1, minHeight: '100vh', background: '#F4F2EE', color: '#1B2430', fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif" }}>
       <AdminSide slug={slug} tenantName={tenant.name} active="sections" />
-      <main style={{ flex: 1, padding: '32px 40px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <main style={{ flex: 1, minWidth: 0, padding: '32px 40px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <HeroEditor
+          slug={slug}
+          theme={theme}
+          subjects={tenant.subjects}
+          canEdit={membership.role === 'owner'}
+          initial={{ heroBadge: tenant.heroBadge, heroTitle: tenant.heroTitle, heroSubtitle: tenant.heroSubtitle, heroPhotos: tenant.heroPhotos }}
+        />
         <SectionsClient slug={slug} theme={theme} sections={sections} canEdit={membership.role === 'owner'} />
         <VersionHistory slug={slug} versions={versions} canEdit={membership.role === 'owner'} />
       </main>

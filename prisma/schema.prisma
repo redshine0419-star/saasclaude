@@ -49,6 +49,11 @@ model Tenant {
   locationHeadline      String?
   transitInfo           String?
   parkingInfo           String?
+  // 메인 히어로 (원장이 관리자 "홈페이지 구성"에서 편집, 비우면 테마 기본 문구)
+  heroBadge             String?
+  heroTitle             String?
+  heroSubtitle          String?
+  heroPhotos            String[] @default([])
   ga4MeasurementId      String?
   naverSiteVerification String? // 네이버 서치어드바이저 인증 코드
   naverPlaceMirror      Json? // { phone, hours, address } — 플레이스 불일치 비교용

@@ -1,4 +1,5 @@
 import type { AcademyTenant, AcademyResultStat, LevelTestSlot } from '@/lib/academy-data';
+import { heroDefaults, titleLines } from '@/lib/hero';
 
 type Props = {
   tenant: AcademyTenant;
@@ -8,21 +9,25 @@ type Props = {
 
 export default function HeroSectionResult({ tenant, resultStat }: Props) {
   const accent = tenant.accentColor ?? '#1D3FA8';
+  const def = heroDefaults('result', tenant.subjects);
+  const lines = titleLines(tenant.heroTitle || def.title);
+  const photo = tenant.heroPhotos[0] ?? null;
 
   return (
     <section className="px-5 md:px-20 pt-14 md:pt-20 pb-16 md:pb-20 bg-dark text-on-dark">
       <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row gap-10 md:gap-16 items-start md:items-center">
         {/* 텍스트 */}
         <div className="flex-1 flex flex-col gap-6 md:gap-7">
-          {tenant.targetGrades && (
-            <div className="text-[15px] font-semibold text-on-dark-muted">{tenant.targetGrades} 내신 전문</div>
+          {(tenant.heroBadge || tenant.targetGrades) && (
+            <div className="text-[15px] font-semibold text-on-dark-muted">{tenant.heroBadge || `${tenant.targetGrades} 내신 전문`}</div>
           )}
           <h1 className="m-0 font-grotesk text-[34px] md:text-[50px] leading-[1.24] font-extrabold tracking-tight">
-            지난 학기 성과를<br />숫자로 보여드립니다
+            {lines.map((l, i) => (
+              <span key={i}>{i > 0 && <br />}{l}</span>
+            ))}
           </h1>
           <p className="m-0 text-[16px] md:text-[18px] leading-[1.75] text-on-dark-muted max-w-[560px]">
-            학교별 기출과 출제 경향을 시험 4주 전부터 반복합니다.
-            결과는 매 학기 이 페이지에 그대로 공개합니다.
+            {tenant.heroSubtitle || def.subtitle}
           </p>
           <div className="flex gap-3 flex-wrap">
             <a href="#apply" style={{ background: accent }}
@@ -35,6 +40,12 @@ export default function HeroSectionResult({ tenant, resultStat }: Props) {
             </a>
           </div>
         </div>
+
+        {/* 성적표가 없으면 대표 사진 */}
+        {!resultStat && photo && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={photo} alt={`${tenant.name} 수업`} className="w-full md:w-[520px] h-[240px] md:h-[360px] rounded-xl object-cover" />
+        )}
 
         {/* 성적표 패널 */}
         {resultStat && (

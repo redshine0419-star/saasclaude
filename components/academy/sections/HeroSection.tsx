@@ -1,5 +1,6 @@
 import type { AcademyTenant, LevelTestSlot } from '@/lib/academy-data';
 import { weekdayLabel } from '@/lib/weekday';
+import { heroDefaults, titleLines } from '@/lib/hero';
 
 type Props = {
   tenant: AcademyTenant;
@@ -9,6 +10,11 @@ type Props = {
 
 export default function HeroSection({ tenant, directorPhoto, levelTestSlots }: Props) {
   const activeSlots = levelTestSlots.slice(0, 3);
+  const def = heroDefaults('warm', tenant.subjects);
+  const lines = titleLines(tenant.heroTitle || def.title);
+  const photo = tenant.heroPhotos[0] ?? null;
+  const mobileSrc = directorPhoto ?? photo;
+  const desktopSrc = photo ?? directorPhoto;
 
   return (
     <section id="top" className="px-5 md:px-20 pt-12 md:pt-[72px] pb-10 md:pb-16">
@@ -16,22 +22,22 @@ export default function HeroSection({ tenant, directorPhoto, levelTestSlots }: P
         {/* ─── 텍스트 ─── */}
         <div className="flex-1 flex flex-col gap-5 md:gap-7">
           {/* 뱃지 */}
-          <span className="self-start px-3 py-[5px] rounded-md bg-highlight text-highlight-ink text-[13px] md:text-sm font-semibold">
-            {new Date().getFullYear()} 겨울방학 특강 모집 중
-          </span>
+          {tenant.heroBadge && (
+            <span className="self-start px-3 py-[5px] rounded-md bg-highlight text-highlight-ink text-[13px] md:text-sm font-semibold">
+              {tenant.heroBadge}
+            </span>
+          )}
 
           {/* 제목 */}
           <h1 className="m-0 font-serif text-[32px] md:text-[60px] leading-[1.3] md:leading-[1.25] font-bold tracking-tight text-ink">
-            한 반{' '}
-            {tenant.targetGrades ? '' : '8'}
-            명,<br />
-            원장이 직접 가르칩니다.
+            {lines.map((l, i) => (
+              <span key={i}>{i > 0 && <br />}{l}</span>
+            ))}
           </h1>
 
           {/* 설명 */}
           <p className="m-0 text-[15px] md:text-[19px] leading-[1.7] text-body max-w-[560px]">
-            {tenant.subjects} 내신 대비부터 수능 기초까지.
-            레벨테스트로 아이 수준을 먼저 확인하고, 맞는 반을 정해 드립니다.
+            {tenant.heroSubtitle || def.subtitle}
           </p>
 
           {/* CTA 버튼 — 데스크톱만 */}
@@ -56,20 +62,19 @@ export default function HeroSection({ tenant, directorPhoto, levelTestSlots }: P
 
         {/* ─── 이미지 + 슬롯 카드 ─── */}
         <div className="relative mt-5 md:mt-0 md:w-[580px] md:h-[440px] md:flex-shrink-0">
-          {/* 모바일: 교실 사진 / 데스크톱: 교실 사진 (SPEC: 모바일은 원장 사진) */}
+          {/* 모바일은 원장 사진 우선(SPEC), 데스크톱은 대표 사진 우선. 둘 다 없으면 장식 칸 */}
           <div className="w-full h-[200px] md:w-[580px] md:h-[440px] rounded-2xl bg-subtle flex items-center justify-center text-muted text-sm md:text-base overflow-hidden">
-            {directorPhoto ? (
+            {mobileSrc && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={directorPhoto}
-                alt={`${tenant.name} 원장`}
-                className="w-full h-full object-cover md:hidden"
-              />
-            ) : null}
-            <span className={directorPhoto ? 'md:block hidden' : ''}>
-              {/* 이미지 미등록 플레이스홀더 */}
+              <img src={mobileSrc} alt={directorPhoto ? `${tenant.name} 원장` : `${tenant.name} 교실`} className="w-full h-full object-cover md:hidden" />
+            )}
+            {desktopSrc && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={desktopSrc} alt={photo ? `${tenant.name} 교실` : `${tenant.name} 원장`} className="w-full h-full object-cover hidden md:block" />
+            )}
+            {!photo && !directorPhoto && (
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="opacity-30" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-            </span>
+            )}
           </div>
 
           {/* 레벨테스트 슬롯 카드 — 데스크톱만 */}
