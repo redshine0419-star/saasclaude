@@ -444,12 +444,27 @@ export { weekdayLabel } from './weekday';
 import { readSectionCopy, type SectionCopy } from './section-copy';
 
 // ─── DB 조회 ──────────────────────────────────────────────────
-export async function getAcademyPageData(slug: string): Promise<AcademyPageData | null> {
-  // Static demo data — no DB required
-  if (slug === 'demo' || slug === 'demo-warm') return { ...DEMO_DATA, tenant: { ...DEMO_DATA.tenant, slug } };
+// 데모 주소 → DB의 데모 학원 (관리자에서 고친 샘플 데이터). 'demo'는 demo-warm의 별칭
+const DEMO_DB_SLUG: Record<string, string> = { demo: 'demo-warm', 'demo-warm': 'demo-warm', 'demo-result': 'demo-result', 'demo-bright': 'demo-bright' };
+
+function staticDemo(slug: string): AcademyPageData {
   if (slug === 'demo-result') return DEMO_DATA_RESULT;
   if (slug === 'demo-bright') return DEMO_DATA_BRIGHT;
+  return { ...DEMO_DATA, tenant: { ...DEMO_DATA.tenant, slug } };
+}
 
+export async function getAcademyPageData(slug: string): Promise<AcademyPageData | null> {
+  const demoDb = DEMO_DB_SLUG[slug];
+  if (demoDb) {
+    // 샘플 데이터가 채워진 데모는 DB 내용을, 비어 있거나 DB 오류면 코드의 고정 샘플을 보여 준다 (데모 페이지는 깨지면 안 된다)
+    const db = await loadAcademyFromDb(demoDb).catch(() => null);
+    if (db && (db.classes.length > 0 || db.director)) return slug === demoDb ? db : { ...db, tenant: { ...db.tenant, slug } };
+    return staticDemo(slug);
+  }
+  return loadAcademyFromDb(slug);
+}
+
+async function loadAcademyFromDb(slug: string): Promise<AcademyPageData | null> {
   try {
     const tenant = await prisma.tenant.findUnique({
       where: { slug, status: 'active' },
@@ -582,6 +597,11 @@ export async function getAcademyPageData(slug: string): Promise<AcademyPageData 
 
 // ─── 소식 상세 조회 ───────────────────────────────────────────
 export async function getPostData(slug: string, postId: string): Promise<AcademyPost | null> {
+  const demoDb = DEMO_DB_SLUG[slug];
+  if (demoDb) {
+    const dbPost = await findPublishedPost(demoDb, postId).catch(() => null);
+    if (dbPost) return dbPost;
+  }
   if (slug === 'demo' || slug === 'demo-warm') {
     return DEMO_DATA.posts.find((p) => p.id === postId) ?? null;
   }
@@ -591,6 +611,10 @@ export async function getPostData(slug: string, postId: string): Promise<Academy
   if (slug === 'demo-bright') {
     return DEMO_DATA_BRIGHT.posts.find((p) => p.id === postId) ?? null;
   }
+  return findPublishedPost(slug, postId);
+}
+
+async function findPublishedPost(slug: string, postId: string): Promise<AcademyPost | null> {
   try {
     const post = await prisma.post.findFirst({
       where: { id: postId, tenant: { slug }, status: 'published' },
