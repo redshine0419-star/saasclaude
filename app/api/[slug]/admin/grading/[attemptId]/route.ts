@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { guardAdmin } from '@/lib/level-test/guard';
-import { ERROR_TYPES, parseManualPoints } from '@/lib/level-test/grading';
+import { parseManualPoints } from '@/lib/level-test/grading';
+import { errorTypesFor, readErrorTypeConfig } from '@/lib/level-test/error-types';
 import { validateStrokes } from '@/lib/level-test/marks';
 import { recomputeAttemptScore } from '@/lib/level-test/attempt';
 
@@ -15,7 +16,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
 
   const attempt = await prisma.testAttempt.findFirst({
     where: { id: attemptId, tenantId: g.tenant.id, status: 'submitted' },
-    include: { test: { include: { items: { include: { question: { select: { type: true } } } } } }, responses: true },
+    include: { test: { include: { items: { include: { question: { select: { type: true, subject: true } } } } } }, responses: true },
   });
   if (!attempt) return NextResponse.json({ error: '응시를 찾을 수 없습니다.' }, { status: 404 });
 
@@ -25,7 +26,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
 
   const points = parseManualPoints(b.points, item.points);
   if (points === null) return NextResponse.json({ error: `점수는 0~${item.points} 사이 정수로 입력해 주세요.` }, { status: 400 });
-  const errorType = b.errorType && b.errorType in ERROR_TYPES ? String(b.errorType) : null;
+  // 오답 유형: 이 문항 과목에 맞는 학원 목록(없으면 기본 목록) 안에서만
+  const tenantCfg = await prisma.tenant.findUnique({ where: { id: g.tenant.id }, select: { errorTypes: true } });
+  const allowed = errorTypesFor(item.question.subject, readErrorTypeConfig(tenantCfg?.errorTypes));
+  const errorType = typeof b.errorType === 'string' && allowed.includes(b.errorType) ? b.errorType : null;
   const feedback = typeof b.feedback === 'string' && b.feedback.trim() ? b.feedback.trim().slice(0, 1000) : null;
 
   const existing = attempt.responses.find((r) => r.questionId === item.questionId);

@@ -5,6 +5,7 @@ import { getAdminMembership } from '@/lib/admin-auth';
 import { AdminSide } from '@/components/admin/AdminSide';
 import { parseMarks } from '@/lib/level-test/marks';
 import { formatKstDateTime } from '@/lib/format-date';
+import { errorTypeLabel, errorTypesFor, readErrorTypeConfig } from '@/lib/level-test/error-types';
 import { GradeClient, type EssayItem, type AutoItem } from './GradeClient';
 
 type Props = { params: Promise<{ slug: string; attemptId: string }> };
@@ -17,7 +18,7 @@ export default async function GradeAttemptPage({ params }: Props) {
   const { slug, attemptId } = await params;
   const session = await adminSession(slug);
   if (!session?.user?.email) redirect('/auth/signin');
-  const tenant = await prisma.tenant.findUnique({ where: { slug, status: 'active' }, select: { id: true, name: true } });
+  const tenant = await prisma.tenant.findUnique({ where: { slug, status: 'active' }, select: { id: true, name: true, errorTypes: true } });
   if (!tenant) notFound();
   const membership = await getAdminMembership(tenant.id, session.user.email);
   if (!membership) redirect('/auth/signin');
@@ -33,6 +34,7 @@ export default async function GradeAttemptPage({ params }: Props) {
   if (!attempt) notFound();
 
   const byQ = new Map(attempt.responses.map((r) => [r.questionId, r]));
+  const errCfg = readErrorTypeConfig(tenant.errorTypes);
   const essays: EssayItem[] = [];
   const autos: AutoItem[] = [];
   attempt.test.items.forEach((it, idx) => {
@@ -42,7 +44,7 @@ export default async function GradeAttemptPage({ params }: Props) {
       essays.push({
         questionId: q.id, no: idx + 1, body: q.body, imageUrl: q.imageUrl, modelAnswer: q.explanation, maxPoints: it.points,
         answer: r?.answer ?? '', photos: r?.photos ?? [], points: r?.points ?? null, feedback: r?.feedback ?? '',
-        errorType: r?.errorType ?? '', marks: (r?.photos ?? []).map((_, i) => parseMarks(r?.marks[i])),
+        errorType: errorTypeLabel(r?.errorType) ?? '', errorTypes: errorTypesFor(q.subject, errCfg), marks: (r?.photos ?? []).map((_, i) => parseMarks(r?.marks[i])),
       });
     } else {
       const choices = Array.isArray(q.choices) ? (q.choices as string[]) : null;

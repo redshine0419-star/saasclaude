@@ -102,14 +102,7 @@ export function weakUnits(units: GradeResult['units'], limit = 3) {
 /** 서술형 문항당 풀이 사진 최대 장수 */
 export const MAX_ESSAY_PHOTOS = 3;
 
-export const ERROR_TYPES = {
-  concept: '개념 오류',
-  calculation: '계산 실수',
-  condition: '조건 누락',
-  reading: '문제 해석',
-  other: '기타',
-} as const;
-export type ErrorType = keyof typeof ERROR_TYPES;
+// 오답 유형은 lib/level-test/error-types.ts (과목별 기본 + 학원 설정)
 
 /** 최종 점수: 채점된 문항 점수의 합. 채점 안 된 문항이 남아 있으면 complete=false */
 export function finalScore(items: { points: number | null; maxPoints: number }[]) {

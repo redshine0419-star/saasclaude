@@ -55,6 +55,7 @@ model Tenant {
   heroSubtitle          String?
   heroPhotos            String[] @default([])
   sectionCopy           Json? // 섹션 제목·항목 문구 { [sectionKey]: { title?, items? } } — lib/section-copy.ts
+  errorTypes            Json? // 과목별 오답 유형 { 수학: [...], 영어: [...] } — lib/level-test/error-types.ts, 없으면 기본 목록
   ga4MeasurementId      String?
   naverSiteVerification String? // 네이버 서치어드바이저 인증 코드
   naverPlaceMirror      Json? // { phone, hours, address } — 플레이스 불일치 비교용

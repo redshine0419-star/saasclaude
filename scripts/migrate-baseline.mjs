@@ -230,8 +230,8 @@ async function applyMissingColumns() {
     }
   }
 
-  // 20261020000001_level_test, 20261021000001_level_test_essay, 20261025000001_students, 20261026000001_student_consent, 20261027000001_student_reports, 20261028000001_hero_content, 20261029000001_section_copy — 파일을 빈 줄 단위로 나눠 실행한다 (모든 문장이 멱등)
-  for (const name of ['20261020000001_level_test', '20261021000001_level_test_essay', '20261025000001_students', '20261026000001_student_consent', '20261027000001_student_reports', '20261028000001_hero_content', '20261029000001_section_copy']) {
+  // 20261020000001_level_test, 20261021000001_level_test_essay, 20261025000001_students, 20261026000001_student_consent, 20261027000001_student_reports, 20261028000001_hero_content, 20261029000001_section_copy, 20261030000001_error_types — 파일을 빈 줄 단위로 나눠 실행한다 (모든 문장이 멱등)
+  for (const name of ['20261020000001_level_test', '20261021000001_level_test_essay', '20261025000001_students', '20261026000001_student_consent', '20261027000001_student_reports', '20261028000001_hero_content', '20261029000001_section_copy', '20261030000001_error_types']) {
     const fileSql = readFileSync(join(MIGRATIONS_DIR, name, 'migration.sql'), 'utf8');
     for (const stmt of fileSql.split(/\n\s*\n/)) {
       const body = stmt.split('\n').filter((l) => !l.trim().startsWith('--')).join('\n').trim();

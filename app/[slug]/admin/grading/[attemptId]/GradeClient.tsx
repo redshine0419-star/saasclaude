@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { MathText } from '@/components/level-test/MathText';
 import { MarkedPhoto } from '@/components/level-test/MarkedPhoto';
 import { PhotoAnnotator } from '@/components/level-test/PhotoAnnotator';
-import { ERROR_TYPES } from '@/lib/level-test/grading';
 import type { Stroke } from '@/lib/level-test/marks';
 
 export type EssayItem = {
@@ -20,6 +19,8 @@ export type EssayItem = {
   points: number | null;
   feedback: string;
   errorType: string;
+  /** 이 문항 과목의 오답 유형 목록 (학원 설정 또는 기본) */
+  errorTypes: string[];
   marks: Stroke[][];
 };
 
@@ -141,10 +142,10 @@ export function GradeClient({ slug, attemptId, resultUrl, needsGrading, essays: 
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <span style={label}>오답 유형 (선택)</span>
+            <span style={{ ...label, display: 'flex', justifyContent: 'space-between' }}>오답 유형 (선택)<a href={`/${slug}/admin/grading?types=1#error-types`} style={{ fontWeight: 400, color: '#1E5645' }}>유형 바꾸기</a></span>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              {Object.entries(ERROR_TYPES).map(([k, v]) => (
-                <button key={k} type="button" aria-pressed={it.errorType === k} onClick={() => update(it.questionId, { errorType: it.errorType === k ? '' : k })} style={{ height: 34, padding: '0 12px', borderRadius: 999, border: it.errorType === k ? '2px solid #B7791F' : '1px solid #D5D0C6', background: it.errorType === k ? '#FBF1CF' : '#FFFFFF', font: 'inherit', fontSize: 13, cursor: 'pointer' }}>{v}</button>
+              {[...it.errorTypes, ...(it.errorType && !it.errorTypes.includes(it.errorType) ? [it.errorType] : [])].map((k) => (
+                <button key={k} type="button" aria-pressed={it.errorType === k} onClick={() => update(it.questionId, { errorType: it.errorType === k ? '' : k })} style={{ height: 34, padding: '0 12px', borderRadius: 999, border: it.errorType === k ? '2px solid #B7791F' : '1px solid #D5D0C6', background: it.errorType === k ? '#FBF1CF' : '#FFFFFF', font: 'inherit', fontSize: 13, cursor: 'pointer' }}>{k}</button>
               ))}
             </div>
           </div>

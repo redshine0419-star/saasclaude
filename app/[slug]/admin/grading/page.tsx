@@ -5,18 +5,21 @@ import { prisma } from '@/lib/prisma';
 import { getAdminMembership } from '@/lib/admin-auth';
 import { AdminSide } from '@/components/admin/AdminSide';
 import { formatKstDateTime } from '@/lib/format-date';
+import { ERROR_SUBJECTS, errorSubjectOf, readErrorTypeConfig, type ErrorSubject } from '@/lib/level-test/error-types';
+import { ErrorTypesEditor } from './ErrorTypesEditor';
 
-type Props = { params: Promise<{ slug: string }> };
+type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ types?: string }> };
 
 function maskName(name: string) {
   return name ? `${name[0]}${'○'.repeat(Math.max(1, name.length - 1))}` : '';
 }
 
-export default async function GradingInboxPage({ params }: Props) {
+export default async function GradingInboxPage({ params, searchParams }: Props) {
   const { slug } = await params;
+  const { types } = await searchParams;
   const session = await adminSession(slug);
   if (!session?.user?.email) redirect('/auth/signin');
-  const tenant = await prisma.tenant.findUnique({ where: { slug, status: 'active' }, select: { id: true, name: true } });
+  const tenant = await prisma.tenant.findUnique({ where: { slug, status: 'active' }, select: { id: true, name: true, subjects: true, errorTypes: true } });
   if (!tenant) notFound();
   const membership = await getAdminMembership(tenant.id, session.user.email);
   if (!membership) redirect('/auth/signin');
@@ -33,6 +36,11 @@ export default async function GradingInboxPage({ params }: Props) {
       orderBy: { gradedAt: 'desc' }, take: 20, include,
     }),
   ]);
+
+  // 오답 유형 설정에 보일 과목: 학원 교습과목 + 문제은행에 있는 과목 (없으면 전체)
+  const qSubjects = await prisma.question.findMany({ where: { tenantId: tenant.id }, distinct: ['subject'], select: { subject: true } });
+  const used = new Set<ErrorSubject>([...(tenant.subjects ?? '').split(/[,·\s/]+/).filter(Boolean), ...qSubjects.map((q) => q.subject)].map(errorSubjectOf));
+  const editorSubjects = ERROR_SUBJECTS.filter((s) => used.has(s));
 
   const row = (a: (typeof pending)[number], done: boolean) => {
     const essays = a.test.items.filter((i) => i.question.type === 'essay').length;
@@ -69,6 +77,13 @@ export default async function GradingInboxPage({ params }: Props) {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>{head}<tbody>{pending.map((a) => row(a, false))}</tbody></table>
           )}
         </section>
+        <ErrorTypesEditor
+          slug={slug}
+          subjects={editorSubjects.length ? editorSubjects : [...ERROR_SUBJECTS]}
+          initial={readErrorTypeConfig(tenant.errorTypes)}
+          canEdit={membership.role === 'owner'}
+          open={types === '1'}
+        />
         {recent.length > 0 && (
           <section style={{ background: '#FFFFFF', borderRadius: 12, overflow: 'hidden' }}>
             <div style={{ padding: '16px 20px 8px', fontWeight: 700 }}>최근 채점 완료</div>

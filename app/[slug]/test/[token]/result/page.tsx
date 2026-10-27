@@ -1,6 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
 import { findAttemptByToken, isPastDeadline, submitAttempt } from '@/lib/level-test/attempt';
-import { ERROR_TYPES, unitRates, weakUnits, type ErrorType } from '@/lib/level-test/grading';
+import { unitRates, weakUnits } from '@/lib/level-test/grading';
+import { errorTypeLabel } from '@/lib/level-test/error-types';
 import { parseMarks } from '@/lib/level-test/marks';
 import { MarkedPhoto } from '@/components/level-test/MarkedPhoto';
 import { MathText } from '@/components/level-test/MathText';
@@ -73,8 +74,8 @@ export default async function TestResultPage({ params }: Props) {
                     <span>{r?.points ?? 0} / {i.points}점</span>
                   </div>
                   <MathText text={i.question.body} style={{ fontSize: 14, lineHeight: 1.7, color: '#3E4652' }} />
-                  {r?.errorType && r.errorType in ERROR_TYPES && (
-                    <span style={{ alignSelf: 'flex-start', fontSize: 12, padding: '3px 8px', borderRadius: 999, background: '#FBF1CF' }}>{ERROR_TYPES[r.errorType as ErrorType]}</span>
+                  {errorTypeLabel(r?.errorType) && (
+                    <span style={{ alignSelf: 'flex-start', fontSize: 12, padding: '3px 8px', borderRadius: 999, background: '#FBF1CF' }}>{errorTypeLabel(r?.errorType)}</span>
                   )}
                   {r?.feedback && (
                     <div style={{ padding: '10px 12px', borderRadius: 10, background: '#E4EEE9', fontSize: 15, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
