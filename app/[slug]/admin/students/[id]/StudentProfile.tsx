@@ -37,7 +37,7 @@ const STATUS_STYLE: Record<StudentStatus, { background: string; color: string }>
 };
 // 출결 상태색 — 항상 글자(라벨·개수)와 함께 쓴다
 const ATT_COLOR: Record<AttendanceStatus, string> = { present: '#1E5645', late: '#B7791F', absent: '#B42318', excused: '#9AA3AF' };
-const EVENT_LABEL: Record<string, string> = { created: '홈페이지 상담 신청', status_changed: '상태 변경', note: '원장 메모', message_sent: '알림톡 발송', call: '원장 통화' };
+const EVENT_LABEL: Record<string, string> = { created: '홈페이지 상담 신청', status_changed: '상태 변경', note: '원장 메모', message_sent: '알림톡 발송', sms_manual: '문자 보내기', call: '원장 통화' };
 
 const pctOf = (s: { score: number; maxScore: number }) => Math.round((s.score / s.maxScore) * 100);
 

@@ -6,6 +6,7 @@ import type { ReportSnapshot } from '@/lib/students/report';
 import { findHealthWords } from '@/lib/students/labels';
 import { formatKstDate } from '@/lib/format-date';
 import { ReportView } from '@/components/students/ReportView';
+import { smsHref } from '@/lib/messaging/sms-link';
 
 export type ReportRow = { id: string; url: string; periodStart: string; periodEnd: string; createdAt: string; expiresAt: string; status: 'active' | 'expired' | 'revoked'; viewCount: number; lastViewedAt: string | null };
 
@@ -34,9 +35,6 @@ function presets(today: string): [string, string, string][] {
   ];
 }
 
-function smsHref(phone: string, text: string) {
-  return `sms:${phone.replace(/[^0-9+]/g, '')}?body=${encodeURIComponent(text)}`;
-}
 
 export function ReportPanel({ slug, studentId, studentName, reports, today, hasConsent, parentPhone }: Props) {
   const router = useRouter();

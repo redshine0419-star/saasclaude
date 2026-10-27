@@ -65,6 +65,7 @@ export default async function AdminLeadsPage({
     source: l.source,
     status: l.status,
     studentId: l.student?.id ?? null,
+    testAt: l.testAt?.toISOString() ?? null,
     statusChangedAt: l.statusChangedAt.toISOString(),
     message: l.message,
     marketingConsent: l.consents.some((c) => c.grantedAt !== null && c.revokedAt === null),

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { smsHref as buildSmsHref } from '@/lib/messaging/sms-link';
 
 export type LeadAttempt = { id: string; testTitle: string; status: 'issued' | 'in_progress' | 'submitted'; needsGrading: boolean; score: number | null; maxScore: number | null; url: string; createdAt: string };
 export type TestOption = { id: string; title: string; grade: string | null };
@@ -44,7 +45,7 @@ export function LeadLevelTest({ slug, leadId, phone, academyName, tests, attempt
 
   // TODO(확인 필요): 응시 링크 알림톡 템플릿 등록 후 카톡 자동 발송으로 바꾼다. 지금은 원장 휴대폰 문자앱으로 보낸다.
   const smsHref = (url: string) =>
-    `sms:${phone.replace(/[^0-9]/g, '')}?body=${encodeURIComponent(`[${academyName}] 레벨테스트 링크입니다. 학생이 직접 풀어 주세요.\n${url}`)}`;
+    buildSmsHref(phone, `[${academyName}] 레벨테스트 링크입니다. 학생이 직접 풀어 주세요.\n${url}`);
 
   const btn: React.CSSProperties = { height: 32, padding: '0 10px', borderRadius: 6, border: '1px solid #D5D0C6', background: '#FFFFFF', color: '#1B2430', font: 'inherit', fontSize: 13, cursor: 'pointer', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' };
 

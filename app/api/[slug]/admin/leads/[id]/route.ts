@@ -69,6 +69,18 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
     });
   }
 
+  // 선생님이 휴대폰 문자 앱을 연 기록 (본문·번호는 저장하지 않는다)
+  if (typeof body.smsOpened === 'string') {
+    await prisma.leadEvent.create({
+      data: {
+        leadId: id,
+        type: 'message_sent',
+        payload: { channel: 'sms_manual', template: body.smsOpened.slice(0, 20) },
+        actorId: session.user.email,
+      },
+    });
+  }
+
   if (body.message !== undefined) {
     await prisma.leadEvent.create({
       data: {

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { LeadLevelTest, type LeadAttempt, type TestOption } from './LeadLevelTest';
+import { LeadSms } from './LeadSms';
 
 interface Lead {
   id: string;
@@ -14,6 +15,7 @@ interface Lead {
   source: string | null;
   status: string;
   studentId: string | null;
+  testAt: string | null;
   statusChangedAt: string;
   message: string | null;
   marketingConsent: boolean;
@@ -152,6 +154,7 @@ export function LeadsClient({ slug, academyName, leads: initialLeads, totalBySta
   });
 
   const selected = leads.find((l) => l.id === selectedId) ?? null;
+  const [smsOpen, setSmsOpen] = useState(false);
   const selectedStatus = statusValue[selectedId ?? ''] ?? selected?.status ?? '';
   const selectedMemo = memoValue[selectedId ?? ''] ?? selected?.message ?? '';
 
@@ -402,21 +405,36 @@ export function LeadsClient({ slug, academyName, leads: initialLeads, totalBySta
             </a>
             <button
               type="button"
+              onClick={() => setSmsOpen((v) => !v)}
+              aria-expanded={smsOpen}
               style={{
                 flex: 1,
                 height: 44,
                 border: '1px solid #D5D0C6',
                 borderRadius: 8,
-                background: '#FFFFFF',
+                background: smsOpen ? '#F4F2EE' : '#FFFFFF',
                 font: 'inherit',
                 fontSize: 14,
                 fontWeight: 600,
                 cursor: 'pointer',
               }}
             >
-              알림톡 보내기
+              문자 보내기
             </button>
           </div>
+
+          {smsOpen && (
+            <LeadSms
+              key={`sms-${selected.id}`}
+              slug={slug}
+              leadId={selected.id}
+              phone={selected.phoneFull}
+              academyName={academyName}
+              parentName={selected.parentName}
+              grade={selected.studentGrade}
+              testAt={selected.testAt}
+            />
+          )}
 
           {/* Status */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -550,7 +568,7 @@ export function LeadsClient({ slug, academyName, leads: initialLeads, totalBySta
                   />
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 600 }}>
-                      {EVENT_LABEL[ev.type] ?? ev.type}
+                      {ev.type === 'message_sent' && payload?.channel === 'sms_manual' ? '문자 보내기' : (EVENT_LABEL[ev.type] ?? ev.type)}
                       {payload?.note ? ` · ${payload.note}` : ''}
                     </div>
                     <div style={{ fontSize: 13, color: '#5A6270' }}>{formatDate(ev.createdAt)}</div>

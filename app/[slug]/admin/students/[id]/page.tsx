@@ -73,7 +73,10 @@ export default async function StudentPage({ params }: Props) {
       ? {
           createdAt: student.lead.createdAt.toISOString(),
           message: student.lead.message,
-          events: student.lead.events.map((e) => ({ id: e.id, type: e.type, createdAt: e.createdAt.toISOString(), note: (e.payload as { note?: string } | null)?.note ?? null })),
+          events: student.lead.events.map((e) => {
+            const p = e.payload as { note?: string; channel?: string } | null;
+            return { id: e.id, type: e.type === 'message_sent' && p?.channel === 'sms_manual' ? 'sms_manual' : e.type, createdAt: e.createdAt.toISOString(), note: p?.note ?? null };
+          }),
           attempts: student.lead.testAttempts.map((a) => ({
             id: a.id, title: a.test.title, score: a.score, maxScore: a.maxScore, needsGrading: a.needsGrading,
             submittedAt: a.submittedAt?.toISOString() ?? null, resultUrl: `/${slug}/test/${a.token}/result`,
