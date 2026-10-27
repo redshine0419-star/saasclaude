@@ -74,7 +74,7 @@ export default async function AdminSettingsPage({
           proxyLogs={proxyLogs.map((l) => ({ id: l.id, accessedAt: l.accessedAt.toISOString(), adminEmail: l.adminEmail }))}
           isOwner={membership.role === 'owner'}
           members={allMembers.map((m) => ({ id: m.id, email: m.user.email ?? '', name: m.user.name, role: m.role }))}
-          pendingInvites={pendingInvites.map((i) => ({ id: i.id, email: i.email, role: i.role, expiresAt: i.expiresAt.toISOString() }))}
+          pendingInvites={pendingInvites.map((i) => ({ id: i.id, email: i.email, role: i.role, expiresAt: i.expiresAt.toISOString(), inviteUrl: `${process.env.NEXT_PUBLIC_BASE_URL ?? 'https://growweb.me'}/auth/accept-invite?token=${i.token}` }))}
         />
         {membership.role === 'owner' && (
           <DomainCard

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { getAdminMembership } from '@/lib/admin-auth';
+import { sendMail } from '@/lib/mail/send';
+import { renderInviteMail } from '@/lib/mail/invite';
 
 type Params = Promise<{ slug: string }>;
 
@@ -41,6 +43,7 @@ export async function GET(_req: NextRequest, { params }: { params: Params }) {
       email: i.email,
       role: i.role,
       expiresAt: i.expiresAt.toISOString(),
+      inviteUrl: `${process.env.NEXT_PUBLIC_BASE_URL ?? 'https://growweb.me'}/auth/accept-invite?token=${i.token}`,
     })),
   });
 }
@@ -91,10 +94,11 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://growweb.me';
   const inviteUrl = `${baseUrl}/auth/accept-invite?token=${invite.token}`;
 
-  // TODO: 실제 이메일 발송 연동 전까지 콘솔 출력
-  console.log(`[invite] ${email} → ${inviteUrl}`);
+  // 초대 메일 — 실패해도 초대는 유효하다(화면에서 링크를 직접 보낼 수 있게 돌려준다). 로그에 이메일·링크를 남기지 않는다
+  const mail = renderInviteMail({ academyName: tenant.name, inviteUrl, expiresAt });
+  const sent = await sendMail({ to: [email], subject: mail.subject, html: mail.html, text: mail.text });
 
-  return NextResponse.json({ ok: true, status: 'invited', inviteUrl });
+  return NextResponse.json({ ok: true, status: 'invited', inviteUrl, mailed: sent.sent });
 }
 
 // DELETE — remove member

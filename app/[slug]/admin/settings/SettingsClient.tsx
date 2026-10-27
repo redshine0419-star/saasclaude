@@ -27,6 +27,7 @@ interface InviteRow {
   id: string;
   email: string;
   role: string;
+  inviteUrl?: string;
   expiresAt: string;
 }
 
@@ -89,6 +90,16 @@ export function SettingsClient({
   const [inviteSaving, setInviteSaving] = useState(false);
   const [inviteError, setInviteError] = useState('');
   const [inviteDone, setInviteDone] = useState('');
+  const [copiedInvite, setCopiedInvite] = useState<string | null>(null);
+
+  async function copyInvite(id: string, url: string) {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedInvite(id);
+    } catch {
+      window.prompt('초대 링크를 복사해 직원에게 보내 주세요', url);
+    }
+  }
   const [exporting, setExporting] = useState(false);
 
   async function handleExport() {
@@ -124,7 +135,11 @@ export function SettingsClient({
       if (data.status === 'added') {
         setInviteDone(`${inviteEmail.trim()}을(를) 직원으로 추가했습니다.`);
       } else {
-        setInviteDone(`초대 링크를 ${inviteEmail.trim()}으로 발송했습니다.`);
+        setInviteDone(
+          data.mailed
+            ? `${inviteEmail.trim()}으로 초대 메일을 보냈습니다. 메일이 안 보이면 스팸함을 확인하거나 아래 '링크 복사'로 직접 보내 주세요.`
+            : `초대를 만들었지만 메일은 보내지 못했습니다. 아래 '초대 대기 중'에서 링크를 복사해 카톡·문자로 직원에게 보내 주세요.`,
+        );
       }
       setInviteEmail('');
       // 목록 새로고침
@@ -514,7 +529,10 @@ export function SettingsClient({
               <div style={{ fontSize: 13, fontWeight: 600, color: '#5A6270', marginBottom: 6 }}>초대 대기 중</div>
               {invites.map((inv) => (
                 <div key={inv.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 14px', borderRadius: 8, background: '#FFFBF0', fontSize: 13, marginBottom: 6 }}>
-                  <span>{inv.email} <span style={{ color: '#8A93A8' }}>(만료: {formatKstDate(inv.expiresAt)})</span></span>
+                  <span style={{ minWidth: 0, overflowWrap: 'anywhere' }}>{inv.email} <span style={{ color: '#8A93A8' }}>(만료: {formatKstDate(inv.expiresAt)})</span></span>
+                  {inv.inviteUrl && (
+                    <button type="button" onClick={() => copyInvite(inv.id, inv.inviteUrl!)} style={{ fontSize: 12, color: '#1E5645', fontWeight: 600, border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>{copiedInvite === inv.id ? '복사됨' : '링크 복사'}</button>
+                  )}
                   <button type="button" onClick={() => cancelInvite(inv.id)} style={{ fontSize: 12, color: '#8A3A1C', border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: 'inherit' }}>취소</button>
                 </div>
               ))}
@@ -541,7 +559,8 @@ export function SettingsClient({
             </button>
           </div>
           {inviteError && <div style={{ fontSize: 13, color: '#8A3A1C' }}>{inviteError}</div>}
-          {inviteDone && <div style={{ fontSize: 13, color: '#1E5645' }}>{inviteDone}</div>}
+          {inviteDone && <div style={{ fontSize: 13, color: '#1E5645', lineHeight: 1.6 }}>{inviteDone}</div>}
+          <div style={{ fontSize: 12, color: '#9AA3AF', lineHeight: 1.6 }}>직원은 초대받은 이메일의 Google 계정으로 로그인해야 합니다. 이미 첫등원에 로그인한 적이 있는 계정은 바로 추가됩니다.</div>
         </div>
       )}
 
