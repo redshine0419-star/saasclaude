@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { FdHeader } from '@/components/fd/FdHeader';
 import { FdFooter } from '@/components/fd/FdFooter';
 import { StartClient } from './StartClient';
+import { requireSignupConsent } from '@/lib/legal/consent';
 
 export const metadata = {
   title: '학원 홈페이지 만들기 — 첫등원',
@@ -13,7 +14,8 @@ export const metadata = {
 
 export default async function StartPage() {
   const session = await auth();
-  if (!session?.user?.email) redirect('/auth/signin?callbackUrl=/start');
+  if (!session?.user?.email) redirect('/signup?next=/start');
+  await requireSignupConsent(session.user.email, '/start');
 
   const isPlatformAdmin = (process.env.PLATFORM_ADMIN_EMAILS ?? '')
     .split(',').map((e) => e.trim()).includes(session.user.email);

@@ -190,9 +190,33 @@ model User {
   name      String?
   image     String?
 
+  // 회원가입 동의 (lib/legal) — 필수 동의가 없거나 문서 버전이 바뀌면 다시 받는다
+  ageConfirmedAt     DateTime? // 만 14세 이상 확인
+  termsAgreedAt      DateTime?
+  privacyAgreedAt    DateTime?
+  consentVersion     String? // 동의한 약관·처리방침 버전
+  marketingAgreedAt  DateTime? // 선택: 마케팅 정보 수신 (이메일·문자)
+  marketingRevokedAt DateTime?
+
   memberships Membership[]
+  consentLogs UserConsentLog[]
 
   @@map("users")
+}
+
+// 회원 동의·철회 이력 (증빙용, 지우지 않는다 — 탈퇴 시 회원과 함께 삭제)
+model UserConsentLog {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  userId    String
+  type      String // age | terms | privacy | marketing
+  action    String // agree | revoke
+  version   String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("user_consent_logs")
 }
 
 model Membership {

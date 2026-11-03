@@ -144,7 +144,7 @@ export default function ConsultFormSection({ tenant, slots, title = SECTION_COPY
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-1 w-4 h-4 accent-accent flex-shrink-0" />
                   <span className="text-[13px] text-muted leading-[1.6]">
-                    <b>[필수]</b> 개인정보 수집·이용 동의. 수집 항목(이름, 연락처, 학년)은 상담 목적으로만 사용하며 1년 후 파기합니다.
+                    <b>[필수]</b> 개인정보 수집·이용 동의. 수집 항목(이름, 연락처, 학년)은 상담 목적으로만 사용하며 상담 종료 후 1년 뒤 파기합니다. <a href={`/${tenant.slug}/privacy`} target="_blank" rel="noopener noreferrer" className="underline">개인정보처리방침</a>
                   </span>
                 </label>
                 <label className="flex items-start gap-3 cursor-pointer">

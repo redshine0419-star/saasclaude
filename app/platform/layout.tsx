@@ -2,10 +2,12 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import '@/styles/admin.css';
+import { requireSignupConsent } from '@/lib/legal/consent';
 
 export default async function PlatformLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   if (!session?.user?.email) redirect('/auth/signin');
+  await requireSignupConsent(session.user.email, '/platform');
 
   const isPlatformAdminEmail = (process.env.PLATFORM_ADMIN_EMAILS ?? '')
     .split(',').map(e => e.trim()).includes(session.user.email);

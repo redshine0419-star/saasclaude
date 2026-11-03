@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { ensureUser } from '@/lib/users';
+import { requireSignupConsent } from '@/lib/legal/consent';
 
 export default async function AcceptInvitePage({
   searchParams,
@@ -27,7 +28,7 @@ export default async function AcceptInvitePage({
 
   // 로그인하지 않은 경우 — Google 로그인 후 돌아오기
   if (!session?.user?.email) {
-    redirect(`/auth/signin?callbackUrl=/auth/accept-invite?token=${token}`);
+    redirect(`/signup?next=${encodeURIComponent(`/auth/accept-invite?token=${token}`)}`);
   }
 
   // 로그인한 이메일이 초대 이메일과 다른 경우
@@ -44,6 +45,9 @@ export default async function AcceptInvitePage({
       </div>
     );
   }
+
+  // 회원가입 동의 전이면 동의 먼저 (동의 후 이 초대 화면으로 돌아온다)
+  await requireSignupConsent(session.user.email, `/auth/accept-invite?token=${token}`);
 
   // 이미 멤버인지 확인
   const tenant = await prisma.tenant.findUnique({ where: { id: invite.tenantId } });

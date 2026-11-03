@@ -6,6 +6,7 @@ import { slugError } from '@/lib/tenant';
 import { DEFAULT_SECTION_ORDER, isThemeKey } from '@/lib/sections';
 import { recordSiteVersion } from '@/lib/site-versions';
 import { maskPhoneForMail, notifyOperator } from '@/lib/mail/operator';
+import { hasSignupConsent } from '@/lib/legal/consent';
 
 const SELF_SERVE_LIMIT = 1;
 
@@ -21,6 +22,7 @@ export async function POST(req: NextRequest) {
   const session = await auth();
   const email = session?.user?.email;
   if (!email) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
+  if (!(await hasSignupConsent(email))) return NextResponse.json({ error: '회원가입 약관 동의가 필요합니다.' }, { status: 403 });
 
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: '잘못된 요청입니다.' }, { status: 400 });

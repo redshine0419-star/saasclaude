@@ -27,6 +27,7 @@ export default function SiteFooter({ tenant, slug }: Props) {
           </div>
 
           <div className="flex flex-col gap-2 text-[12px] text-muted">
+            <a href={`/${tenant.slug}/privacy`} className="text-ink font-semibold hover:underline">개인정보처리방침</a>
             <div>© {new Date().getFullYear()} {tenant.name}. All rights reserved.</div>
             <div>
               Powered by{' '}

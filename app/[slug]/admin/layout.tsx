@@ -4,6 +4,7 @@ import { adminSession, isDemoViewer } from '@/lib/demo-viewer';
 import { DemoReadOnly } from '@/components/admin/DemoReadOnly';
 import { prisma } from '@/lib/prisma';
 import '@/styles/admin.css';
+import { requireSignupConsent } from '@/lib/legal/consent';
 
 export default async function AdminLayout({
   children,
@@ -43,6 +44,9 @@ export default async function AdminLayout({
       </>
     );
   }
+
+  // 회원가입 필수 동의 전이면 동의 화면으로 (둘러보기 방문자는 위에서 끝남)
+  await requireSignupConsent(session.user.email, `/${slug}/admin`);
 
   const isPlatformAdminEmail = (process.env.PLATFORM_ADMIN_EMAILS ?? '')
     .split(',').map(e => e.trim()).includes(session.user.email);

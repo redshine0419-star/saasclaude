@@ -227,12 +227,12 @@ export default function ConsultForm({ slug, slots }: { slug: string; slots: Leve
             onChange={(e) => setAgree1(e.target.checked)}
           />
           <span><b>[필수]</b> 개인정보 수집·이용 동의</span>
-          <a href="#" className="ml-auto text-[14px] text-accent no-underline">보기</a>
+          <a href={`/${slug}/privacy`} target="_blank" rel="noopener noreferrer" className="ml-auto text-[14px] text-accent no-underline">보기</a>
         </label>
         <label className="flex items-center gap-2.5 cursor-pointer">
           <input id="c-a2" name="agree2" type="checkbox" className="w-5 h-5" />
           <span><b>[선택]</b> 특강·모집 안내 수신 동의 (카카오톡·문자)</span>
-          <a href="#" className="ml-auto text-[14px] text-accent no-underline">보기</a>
+          <a href={`/${slug}/privacy`} target="_blank" rel="noopener noreferrer" className="ml-auto text-[14px] text-accent no-underline">보기</a>
         </label>
         <label className="flex items-center gap-2.5 cursor-pointer pl-7">
           <input id="c-a3" name="agree3" type="checkbox" className="w-5 h-5" />
