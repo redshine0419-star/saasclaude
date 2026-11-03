@@ -1,13 +1,23 @@
 import Link from 'next/link';
 import { FdHeader } from '@/components/fd/FdHeader';
 import { FdFooter } from '@/components/fd/FdFooter';
+import { prisma } from '@/lib/prisma';
+import { PLAN_TIERS, formatWon, tierPrice } from '@/lib/plan-tier';
 
 export const metadata = {
   title: '요금 — 첫등원',
   description: '첫등원 베타 기간 3개월 무료. 이후 월 구독 요금을 확인하세요.',
 };
 
-export default function PricingPage() {
+// 금액은 플랫폼 관리자 설정에서 바뀌므로 요청마다 읽는다
+export const dynamic = 'force-dynamic';
+
+export default async function PricingPage() {
+  const priceRows = await prisma.platformSetting
+    .findMany({ where: { key: { in: ['price_tier_standard', 'price_tier_plus'] } } })
+    .catch(() => []);
+  const priceSettings = Object.fromEntries(priceRows.map((r) => [r.key, r.value]));
+
   const features = [
     '학원 홈페이지 (3가지 테마 중 선택)',
     '상담 신청 폼 + 레벨테스트 일정',
@@ -21,6 +31,10 @@ export default function PricingPage() {
   ];
 
   const faq = [
+    {
+      q: '학생 수는 어떻게 세나요?',
+      a: '관리자 학생부에 "재원"으로 등록된 학생 수입니다. 휴원·퇴원 학생과 상담만 한 학부모는 세지 않습니다. 재원생 5명까지는 계속 무료입니다.',
+    },
     {
       q: '베타 기간 3개월이 지나면 어떻게 되나요?',
       a: '베타 종료 2주 전에 운영자가 직접 연락드립니다. 유료 전환 또는 서비스 종료를 선택하실 수 있습니다. 종료 시 데이터는 30일간 유지된 후 삭제됩니다.',
@@ -63,7 +77,7 @@ export default function PricingPage() {
               <span style={{ fontSize: 48, fontWeight: 700, letterSpacing: '-2px' }}>₩0</span>
               <span style={{ fontSize: 16, color: '#4A5568' }}>/ 3개월</span>
             </div>
-            <div style={{ fontSize: 14, color: '#4A5568', marginTop: 4 }}>이후 요금은 협의 후 안내</div>
+            <div style={{ fontSize: 14, color: '#4A5568', marginTop: 4 }}>이후에는 재원생 수에 따른 요금 (아래 참고)</div>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -80,6 +94,28 @@ export default function PricingPage() {
           <Link href="/start" style={{ height: 56, borderRadius: 12, background: '#14213D', color: '#FFFFFF', textDecoration: 'none', fontSize: 17, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             무료로 바로 만들기
           </Link>
+        </div>
+      </section>
+
+      {/* 정식 요금 — 재원생 수 구간 */}
+      <section style={{ padding: '0 clamp(20px, 4vw, 56px) clamp(56px, 7vw, 96px)' }}>
+        <div style={{ maxWidth: 960, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div style={{ textAlign: 'center' }}>
+            <h2 style={{ margin: 0, fontSize: 28, fontWeight: 700 }}>베타 이후 요금</h2>
+            <p style={{ margin: '8px 0 0', fontSize: 15, color: '#4A5568', lineHeight: 1.7 }}>학생부에 등록된 재원생 수에 따라 정해집니다. 모든 구간에서 기능은 같습니다.</p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+            {PLAN_TIERS.map((t) => (
+              <div key={t.key} style={{ padding: 28, borderRadius: 16, border: t.key === 'standard' ? '2px solid #14213D' : '1px solid #E3E7EE', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#8A6400' }}>{t.label}</div>
+                <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-1px' }}>{tierPrice(t.key, priceSettings) === 0 ? '₩0' : formatWon(tierPrice(t.key, priceSettings))}</div>
+                <div style={{ fontSize: 15, color: '#4A5568' }}>{t.range}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ fontSize: 13, color: '#8A93A8', textAlign: 'center', lineHeight: 1.7 }}>
+            금액이 정해지지 않은 구간은 베타 종료 전에 안내드립니다. 자동 결제는 하지 않습니다.
+          </div>
         </div>
       </section>
 

@@ -7,6 +7,7 @@ import { SettingsClient } from './SettingsClient';
 import { DomainCard } from './DomainCard';
 import { getDomainAdapter } from '@/lib/domains/adapter';
 import { requiredDnsRecords } from '@/lib/domains/validate';
+import { formatWon, tierFor, tierPrice } from '@/lib/plan-tier';
 
 export default async function AdminSettingsPage({
   params,
@@ -24,7 +25,7 @@ export default async function AdminSettingsPage({
   const membership = await getAdminMembership(tenant.id, session.user.email!);
   if (!membership) redirect('/auth/signin');
 
-  const [recipients, proxyLogs, allMembers, pendingInvites] = await Promise.all([
+  const [recipients, proxyLogs, allMembers, pendingInvites, activeStudents, priceRows] = await Promise.all([
     prisma.notifyRecipient.findMany({
       where: { tenantId: tenant.id },
       orderBy: { id: 'asc' },
@@ -42,7 +43,16 @@ export default async function AdminSettingsPage({
       where: { tenantId: tenant.id, expiresAt: { gte: new Date() } },
       orderBy: { createdAt: 'desc' },
     }),
+    prisma.student.count({ where: { tenantId: tenant.id, status: 'active' } }),
+    prisma.platformSetting.findMany({ where: { key: { in: ['price_tier_standard', 'price_tier_plus'] } } }),
   ]);
+  const tier = tierFor(activeStudents);
+  const tierInfo = {
+    students: activeStudents,
+    label: tier.label,
+    range: tier.range,
+    price: formatWon(tierPrice(tier.key, Object.fromEntries(priceRows.map((r) => [r.key, r.value])))),
+  };
 
   return (
     <div
@@ -70,6 +80,7 @@ export default async function AdminSettingsPage({
           naverVerified={!!tenant.naverSiteVerification}
           plan={tenant.planStatus}
           betaEndsAt={tenant.betaEndsAt?.toISOString() ?? null}
+          tierInfo={tierInfo}
           accentColor={tenant.accentColor ?? ''}
           proxyLogs={proxyLogs.map((l) => ({ id: l.id, accessedAt: l.accessedAt.toISOString(), adminEmail: l.adminEmail }))}
           isOwner={membership.role === 'owner'}

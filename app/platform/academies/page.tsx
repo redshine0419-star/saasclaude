@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { PlatformSide } from '@/components/platform/PlatformSide';
+import { tierFor } from '@/lib/plan-tier';
 
 function betaDaysLeft(betaEndsAt: Date | null): number | null {
   if (!betaEndsAt) return null;
@@ -28,7 +29,7 @@ export default async function PlatformAcademiesPage() {
   const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
   const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
 
-  const [tenants, kakaoLimitSetting, recentPostCounts, monthlyMessageCounts] = await Promise.all([
+  const [tenants, kakaoLimitSetting, recentPostCounts, monthlyMessageCounts, activeStudentCounts] = await Promise.all([
     prisma.tenant.findMany({
       orderBy: { createdAt: 'desc' },
       include: { _count: { select: { leads: true, memberships: true } } },
@@ -44,11 +45,14 @@ export default async function PlatformAcademiesPage() {
       where: { createdAt: { gte: monthStart }, status: 'sent' },
       _count: { id: true },
     }),
+    // 정식 요금 구간 기준: 학생부 재원생 수
+    prisma.student.groupBy({ by: ['tenantId'], where: { status: 'active' }, _count: { id: true } }),
   ]);
 
   const kakaoLimit = parseInt(kakaoLimitSetting?.value ?? '300', 10);
   const recentPostMap = new Map(recentPostCounts.map((r) => [r.tenantId, r._count.id]));
   const monthlyMsgMap = new Map(monthlyMessageCounts.map((r) => [r.tenantId, r._count.id]));
+  const activeStudentMap = new Map(activeStudentCounts.map((r) => [r.tenantId, r._count.id]));
 
   const totalActive = tenants.filter((t) => t.status === 'active').length;
   const totalBeta = tenants.filter((t) => t.planStatus === 'beta').length;
@@ -103,6 +107,7 @@ export default async function PlatformAcademiesPage() {
                 <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>베타 남은 일수</th>
                 <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>상담 수</th>
                 <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>카톡 (이번달)</th>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>재원생 · 요금 구간</th>
                 <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}></th>
               </tr>
             </thead>
@@ -158,6 +163,9 @@ export default async function PlatformAcademiesPage() {
                     <td style={{ padding: '14px 16px', color: kakaoOverload ? '#8A3A1C' : '#5A6270', fontWeight: kakaoOverload ? 700 : 400 }}>
                       {msgCount} / {kakaoLimit}
                     </td>
+                    <td style={{ padding: '14px 16px', color: '#5A6270', whiteSpace: 'nowrap' }}>
+                      {activeStudentMap.get(t.id) ?? 0}명 · <b style={{ color: '#1B2430' }}>{tierFor(activeStudentMap.get(t.id) ?? 0).label}</b>
+                    </td>
                     <td style={{ padding: '14px 16px' }}>
                       <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                         <Link href={`/platform/academies/${t.id}`} style={{ color: '#1E5645', fontWeight: 600, textDecoration: 'none', fontSize: 13 }}>편집</Link>
@@ -168,7 +176,7 @@ export default async function PlatformAcademiesPage() {
                 );
               })}
               {tenants.length === 0 && (
-                <tr><td colSpan={8} style={{ padding: '40px 20px', textAlign: 'center', color: '#9AA3AF' }}>등록된 학원이 없습니다.</td></tr>
+                <tr><td colSpan={9} style={{ padding: '40px 20px', textAlign: 'center', color: '#9AA3AF' }}>등록된 학원이 없습니다.</td></tr>
               )}
             </tbody>
           </table>
