@@ -18,8 +18,8 @@ const SETTING_DEFS = [
   {
     section: '정식 요금',
     items: [
-      { key: 'price_tier_standard', label: '스탠다드 월 요금 (원) — 재원생 6~50명', type: 'number', hint: '재원생 5명까지는 무료. 비우면 요금 페이지에 "금액 미정".' },
-      { key: 'price_tier_plus', label: '플러스 월 요금 (원) — 재원생 51명 이상', type: 'number', hint: '비우면 "금액 미정".' },
+      { key: 'price_tier_standard', label: '스탠다드 월 요금 (원) — 재원생 6~50명', type: 'number', hint: '재원생 5명까지는 무료. 비우면 기본 30,000원.' },
+      { key: 'price_tier_plus', label: '플러스 월 요금 (원) — 재원생 51명 이상', type: 'number', hint: '비우면 기본 50,000원.' },
       { key: 'beta_discount_pct', label: '베타 참여자 할인율 (%)', type: 'number', hint: '정식 전환 시 적용. 미확정.' },
     ],
   },

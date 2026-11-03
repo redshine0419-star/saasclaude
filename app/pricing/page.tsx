@@ -36,6 +36,10 @@ export default async function PricingPage() {
       a: '관리자 학생부에 "재원"으로 등록된 학생 수입니다. 휴원·퇴원 학생과 상담만 한 학부모는 세지 않습니다. 재원생 5명까지는 계속 무료입니다.',
     },
     {
+      q: '결제는 어떻게 하나요?',
+      a: '베타 기간에는 결제가 없습니다. 베타 이후에는 카드 정기결제(매월)로만 이용할 수 있고, 첫 결제 전에 미리 안내드립니다. 언제든 해지할 수 있습니다.',
+    },
+    {
       q: '베타 기간 3개월이 지나면 어떻게 되나요?',
       a: '베타 종료 2주 전에 운영자가 직접 연락드립니다. 유료 전환 또는 서비스 종료를 선택하실 수 있습니다. 종료 시 데이터는 30일간 유지된 후 삭제됩니다.',
     },
@@ -102,7 +106,7 @@ export default async function PricingPage() {
         <div style={{ maxWidth: 960, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
           <div style={{ textAlign: 'center' }}>
             <h2 style={{ margin: 0, fontSize: 28, fontWeight: 700 }}>베타 이후 요금</h2>
-            <p style={{ margin: '8px 0 0', fontSize: 15, color: '#4A5568', lineHeight: 1.7 }}>학생부에 등록된 재원생 수에 따라 정해집니다. 모든 구간에서 기능은 같습니다.</p>
+            <p style={{ margin: '8px 0 0', fontSize: 15, color: '#4A5568', lineHeight: 1.7 }}>학생부에 등록된 재원생 수에 따라 정해지고, 학생 수가 바뀌면 그 달부터 바로 해당 구간이 적용됩니다. 모든 구간에서 기능은 같습니다.</p>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
             {PLAN_TIERS.map((t) => (
@@ -114,7 +118,7 @@ export default async function PricingPage() {
             ))}
           </div>
           <div style={{ fontSize: 13, color: '#8A93A8', textAlign: 'center', lineHeight: 1.7 }}>
-            금액이 정해지지 않은 구간은 베타 종료 전에 안내드립니다. 자동 결제는 하지 않습니다.
+            부가세 별도 여부 등 세부 조건은 베타 종료 전에 안내드립니다. 결제는 카드 정기결제(매월)이며, 베타 기간에는 결제가 없습니다.
           </div>
         </div>
       </section>

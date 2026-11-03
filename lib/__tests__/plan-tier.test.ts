@@ -10,9 +10,11 @@ describe('plan tier', () => {
     expect(tierFor(51).key).toBe('plus');
     expect(tierFor(500).key).toBe('plus');
   });
-  it('금액: 무료 0원, 설정 없으면 미정', () => {
+  it('금액: 무료 0원, 설정 없으면 기본값(3만·5만), 설정 있으면 그 값', () => {
     expect(tierPrice('free', {})).toBe(0);
-    expect(tierPrice('standard', {})).toBeNull();
+    expect(tierPrice('standard', {})).toBe(30000);
+    expect(tierPrice('plus', {})).toBe(50000);
+    expect(tierPrice('standard', { price_tier_standard: '' })).toBe(30000);
     expect(tierPrice('standard', { price_tier_standard: '29000' })).toBe(29000);
     expect(formatWon(29000)).toBe('월 29,000원');
     expect(formatWon(null)).toBe('금액 미정');
