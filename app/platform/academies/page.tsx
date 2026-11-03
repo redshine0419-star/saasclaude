@@ -29,7 +29,7 @@ export default async function PlatformAcademiesPage() {
   const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
   const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
 
-  const [tenants, kakaoLimitSetting, recentPostCounts, monthlyMessageCounts, activeStudentCounts] = await Promise.all([
+  const [tenants, kakaoLimitSetting, recentPostCounts, monthlyMessageCounts, activeStudentCounts, subscriptions] = await Promise.all([
     prisma.tenant.findMany({
       orderBy: { createdAt: 'desc' },
       include: { _count: { select: { leads: true, memberships: true } } },
@@ -47,7 +47,10 @@ export default async function PlatformAcademiesPage() {
     }),
     // 정식 요금 구간 기준: 학생부 재원생 수
     prisma.student.groupBy({ by: ['tenantId'], where: { status: 'active' }, _count: { id: true } }),
+    prisma.subscription.findMany({ select: { tenantId: true, status: true } }),
   ]);
+  const SUB_LABEL: Record<string, [string, string]> = { active: ['카드 등록', '#1E5645'], past_due: ['결제 실패', '#B42318'], canceled: ['해지', '#9AA3AF'] };
+  const subMap = new Map(subscriptions.map((x) => [x.tenantId, x.status]));
 
   const kakaoLimit = parseInt(kakaoLimitSetting?.value ?? '300', 10);
   const recentPostMap = new Map(recentPostCounts.map((r) => [r.tenantId, r._count.id]));
@@ -165,6 +168,7 @@ export default async function PlatformAcademiesPage() {
                     </td>
                     <td style={{ padding: '14px 16px', color: '#5A6270', whiteSpace: 'nowrap' }}>
                       {activeStudentMap.get(t.id) ?? 0}명 · <b style={{ color: '#1B2430' }}>{tierFor(activeStudentMap.get(t.id) ?? 0).label}</b>
+                      <div style={{ fontSize: 12, color: SUB_LABEL[subMap.get(t.id) ?? '']?.[1] ?? '#9AA3AF' }}>{SUB_LABEL[subMap.get(t.id) ?? '']?.[0] ?? '카드 미등록'}</div>
                     </td>
                     <td style={{ padding: '14px 16px' }}>
                       <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>

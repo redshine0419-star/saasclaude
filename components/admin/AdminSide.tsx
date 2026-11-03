@@ -19,7 +19,8 @@ type ActiveKey =
   | 'tests'
   | 'grading'
   | 'students'
-  | 'attendance';
+  | 'attendance'
+  | 'billing';
 
 interface AdminSideProps {
   slug: string;
@@ -107,6 +108,7 @@ const ACTIVE_LABEL: Record<ActiveKey, string> = {
   grading: '채점함',
   students: '학생부',
   attendance: '출결',
+  billing: '결제',
 };
 
 export function AdminSide({ slug, tenantName, active }: AdminSideProps) {
@@ -142,6 +144,7 @@ export function AdminSide({ slug, tenantName, active }: AdminSideProps) {
 
       <SectionLabel>운영</SectionLabel>
       <NavItem href={`${base}/report`} label="월간 리포트" active={active === 'report'} />
+      <NavItem href={`${base}/billing`} label="결제" active={active === 'billing'} />
       <NavItem href={`${base}/settings`} label="설정" active={active === 'settings'} />
       <NavItem href={`/${slug}`} label="내 홈페이지 보기 ↗" active={false} />
     </>

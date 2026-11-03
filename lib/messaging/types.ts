@@ -7,7 +7,8 @@ export type MessageKind =
   | 'campaign'      // 모집 공지 — 광고성, 원장 수동
   | 'owner_reminder' // 매일 아침 미응대 상담 요약 — 정보성, 원장에게
   | 'reconfirm'     // 수신 동의 재확인 — 정보성, 동의 2년 도래 30일 전
-  | 'beta_notice';  // 첫등원 → 원장 베타 종료 안내 — 정보성 (TODO(확인 필요): 카카오 템플릿 등록)
+  | 'beta_notice'   // 첫등원 → 원장 베타 종료 안내 — 정보성 (TODO(확인 필요): 카카오 템플릿 등록)
+  | 'billing_failed'; // 첫등원 → 원장 이용료 결제 실패 안내 — 정보성 (TODO(확인 필요): 카카오 템플릿 등록)
 
 // 수신자의 동의 상태
 export type RecipientConsent = {

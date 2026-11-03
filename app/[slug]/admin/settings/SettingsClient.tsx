@@ -415,6 +415,7 @@ export function SettingsClient({
             재원생은 학생부의 &lsquo;재원&rsquo; 학생 수입니다. 5명까지 무료 · 6~50명 스탠다드 · 51명 이상 플러스{plan === 'beta' ? ' — 베타 기간에는 구간과 상관없이 무료입니다.' : ''}
           </div>
         </div>
+        <a href={`/${slug}/admin/billing`} style={{ fontSize: 14, fontWeight: 700, color: '#1E5645', textDecoration: 'none' }}>결제·카드 관리 →</a>
         <a href={`mailto:contact@growweb.me`} style={{ fontSize: 14, fontWeight: 600, color: '#1E5645', textDecoration: 'none' }}>
           관리 담당자에게 문의
         </a>

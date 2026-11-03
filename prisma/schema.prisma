@@ -109,6 +109,8 @@ model Tenant {
   studentScores      StudentScore[]
   attendances        Attendance[]
   studentReports     StudentReport[]
+  subscription       Subscription?
+  payments           Payment[]
 
   @@map("tenants")
 }
@@ -1073,4 +1075,61 @@ model StudentReport {
 
   @@index([tenantId, studentId, createdAt])
   @@map("student_reports")
+}
+
+// ─── 카드 정기결제 (SPEC 10장) ─────────────────────────────────────────────
+// 지금은 모의 결제(lib/billing/mock.ts). 카드 번호는 어떤 경우에도 저장하지 않는다 — PG가 준 빌링키·표시용 카드 이름만
+
+enum SubscriptionStatus {
+  active // 정상 — 결제일에 자동 청구
+  past_due // 결제 실패 — 재시도 중
+  canceled // 해지 — 더 청구하지 않음
+}
+
+model Subscription {
+  id            String             @id @default(cuid())
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  tenantId      String             @unique
+  status        SubscriptionStatus @default(active)
+  provider      String // mock | (PG 연동 후) toss 등
+  billingKey    String // PG 빌링키 (모의: mock_...)
+  cardLabel     String // 화면 표시용 (예: 모의카드 ****4242)
+  nextBillingAt DateTime
+  failCount     Int                @default(0)
+  consentAt     DateTime // 정기결제 동의 시각
+  consentBy     String // 동의한 원장 이메일
+  canceledAt    DateTime?
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  payments Payment[]
+
+  @@index([status, nextBillingAt])
+  @@map("subscriptions")
+}
+
+enum PaymentStatus {
+  paid
+  failed
+}
+
+model Payment {
+  id             String        @id @default(cuid())
+  createdAt      DateTime      @default(now())
+  tenantId       String
+  subscriptionId String
+  orderId        String        @unique
+  tierKey        String // free | standard | plus
+  activeStudents Int // 청구 시점 재원생 수
+  amount         Int // 원
+  status         PaymentStatus
+  failReason     String?
+  periodStart    DateTime
+  periodEnd      DateTime
+
+  tenant       Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, createdAt])
+  @@map("payments")
 }
