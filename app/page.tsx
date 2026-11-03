@@ -62,7 +62,7 @@ export default function MarketingHome() {
     '상담 단계별 관리 + 미등록 사유 기록',
     '원장님 관리 화면 제공',
     '월간 방문·신청·등록·미등록 사유 리포트',
-    'AI 검색 노출 점검',
+    'AI 검색(ChatGPT 등)으로 들어온 상담 자동 집계',
   ];
 
   return (

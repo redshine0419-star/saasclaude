@@ -92,10 +92,18 @@ export default async function AdminReportPage({ params }: Props) {
     where: { tenantId_month: { tenantId: tenant.id, month } },
   });
 
-  const aiCheck = (report?.aiCheck ?? null) as {
-    query: string;
-    engines: { name: string; mentioned: boolean; source: string }[];
-  } | null;
+  // AI 검색 유입 (상담 신청의 유입 경로로 자동 집계 — app/api/[slug]/consult)
+  const AI_SOURCES: [string, string][] = [['ai_chatgpt', 'ChatGPT'], ['ai_perplexity', 'Perplexity'], ['ai_gemini', 'Gemini']];
+  const aiLeads = allLeads.filter((l) => l.source?.startsWith('ai_'));
+  const thisMonth = aiLeads.filter((l) => {
+    const d = new Date(l.createdAt);
+    return d >= monthStart && d < monthEnd;
+  });
+  const aiInflow = {
+    month: AI_SOURCES.map(([key, name]) => ({ name, count: thisMonth.filter((l) => l.source === key).length })),
+    sixMonths: aiLeads.length,
+    sixMonthsEnrolled: aiLeads.filter((l) => l.status === 'enrolled').length,
+  };
 
   return (
     <div style={{ display: 'flex', flex: 1, minHeight: '100vh', background: '#F4F2EE', color: '#1B2430', fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif" }}>
@@ -107,7 +115,7 @@ export default async function AdminReportPage({ params }: Props) {
           monthLabel={formatMonthLabel(month)}
           history={history}
           keywords={keywords}
-          aiCheck={aiCheck}
+          aiInflow={aiInflow}
           managerNote={report?.managerNote ?? null}
           messageSentCount={messageSentCount}
         />

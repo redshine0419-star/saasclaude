@@ -14,15 +14,11 @@ interface SearchKeyword {
   count: number;
 }
 
-interface AiEngine {
-  name: string;
-  mentioned: boolean;
-  source: string;
-}
-
-interface AiCheck {
-  query: string;
-  engines: AiEngine[];
+/** AI 검색(ChatGPT·Perplexity·Gemini 답변의 링크)으로 들어와 상담을 신청한 수 — 유입 경로로 자동 집계 */
+interface AiInflow {
+  month: { name: string; count: number }[];
+  sixMonths: number;
+  sixMonthsEnrolled: number;
 }
 
 interface Props {
@@ -31,25 +27,14 @@ interface Props {
   monthLabel: string;
   history: MonthStat[];
   keywords: SearchKeyword[];
-  aiCheck: AiCheck | null;
+  aiInflow: AiInflow;
   managerNote: string | null;
   messageSentCount: number;
 }
 
-export function ReportClient({ slug, month, monthLabel, history, keywords, aiCheck: initialAiCheck, managerNote: initialNote, messageSentCount }: Props) {
+export function ReportClient({ slug, month, monthLabel, history, keywords, aiInflow, managerNote: initialNote, messageSentCount }: Props) {
   const [note, setNote] = useState(initialNote ?? '');
   const [noteSaving, setNoteSaving] = useState(false);
-  const [aiCheck, setAiCheck] = useState<AiCheck>(
-    initialAiCheck ?? {
-      query: '',
-      engines: [
-        { name: 'ChatGPT', mentioned: false, source: '' },
-        { name: 'Perplexity', mentioned: false, source: '' },
-        { name: 'Gemini', mentioned: false, source: '' },
-      ],
-    }
-  );
-  const [aiSaving, setAiSaving] = useState(false);
   const [kakaoSending, setKakaoSending] = useState(false);
   const [kakaoResult, setKakaoResult] = useState<string | null>(null);
 
@@ -90,25 +75,6 @@ export function ReportClient({ slug, month, monthLabel, history, keywords, aiChe
     }
   }
 
-  async function saveAiCheck() {
-    setAiSaving(true);
-    try {
-      await fetch(`/api/${slug}/admin/report/${month}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ aiCheck }),
-      });
-    } finally {
-      setAiSaving(false);
-    }
-  }
-
-  function updateEngine(i: number, field: keyof AiEngine, value: string | boolean) {
-    setAiCheck((prev) => ({
-      ...prev,
-      engines: prev.engines.map((e, idx) => idx === i ? { ...e, [field]: value } : e),
-    }));
-  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -216,55 +182,30 @@ export function ReportClient({ slug, month, monthLabel, history, keywords, aiChe
 
       {/* Bottom row: AI check + manager note */}
       <div style={{ display: 'flex', gap: 16, flex: 1 }}>
-        {/* AI check */}
+        {/* AI 검색 유입 (자동 집계) */}
         <div style={{ flex: 1, padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div style={{ fontSize: 16, fontWeight: 700 }}>AI 검색 노출 점검</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>검색 질문</label>
-            <input
-              type="text"
-              value={aiCheck.query}
-              onChange={(e) => setAiCheck((p) => ({ ...p, query: e.target.value }))}
-              placeholder="예: OO동 중학생 수학학원 추천해줘"
-              style={{ height: 40, padding: '0 10px', border: '1px solid #D5D0C6', borderRadius: 8, fontFamily: 'inherit', fontSize: 14 }}
-            />
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 700 }}>AI 검색으로 들어온 상담</div>
+            <div style={{ fontSize: 13, color: '#5A6270', marginTop: 2 }}>학부모가 ChatGPT·Perplexity·Gemini 답변의 링크로 들어와 상담을 신청한 수입니다.</div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+            <span style={{ fontSize: 32, fontWeight: 800 }}>{aiInflow.month.reduce((t, e) => t + e.count, 0)}건</span>
+            <span style={{ fontSize: 13, color: '#5A6270' }}>이번 달</span>
           </div>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <tbody>
-              {aiCheck.engines.map((eng, i) => (
-                <tr key={eng.name} style={{ borderTop: '1px solid #EEEAE2' }}>
-                  <td style={{ padding: '10px 0', width: 100 }}>{eng.name}</td>
-                  <td style={{ padding: '10px 0', width: 80 }}>
-                    <select
-                      value={eng.mentioned ? 'yes' : 'no'}
-                      onChange={(e) => updateEngine(i, 'mentioned', e.target.value === 'yes')}
-                      style={{ height: 32, padding: '0 8px', border: '1px solid #D5D0C6', borderRadius: 6, fontFamily: 'inherit', fontSize: 13, color: eng.mentioned ? '#1E5645' : '#8A3A1C', fontWeight: 600 }}
-                    >
-                      <option value="yes">언급됨</option>
-                      <option value="no">언급 안 됨</option>
-                    </select>
-                  </td>
-                  <td style={{ padding: '10px 0', paddingLeft: 8 }}>
-                    <input
-                      type="text"
-                      value={eng.source}
-                      onChange={(e) => updateEngine(i, 'source', e.target.value)}
-                      placeholder="인용 출처"
-                      style={{ width: '100%', height: 32, padding: '0 8px', border: '1px solid #D5D0C6', borderRadius: 6, fontFamily: 'inherit', fontSize: 13, boxSizing: 'border-box' }}
-                    />
-                  </td>
+              {aiInflow.month.map((e) => (
+                <tr key={e.name} style={{ borderTop: '1px solid #EEEAE2' }}>
+                  <td style={{ padding: '10px 0' }}>{e.name}</td>
+                  <td style={{ padding: '10px 0', textAlign: 'right', fontWeight: 600 }}>{e.count}건</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <button
-            type="button"
-            onClick={saveAiCheck}
-            disabled={aiSaving}
-            style={{ alignSelf: 'flex-start', height: 36, padding: '0 16px', border: 'none', borderRadius: 8, background: '#1E5645', color: '#FFFFFF', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: aiSaving ? 'wait' : 'pointer' }}
-          >
-            {aiSaving ? '저장 중…' : '저장'}
-          </button>
+          <div style={{ fontSize: 13, color: '#5A6270', lineHeight: 1.6 }}>
+            최근 6개월 {aiInflow.sixMonths}건{aiInflow.sixMonths > 0 ? ` · 그중 등록 ${aiInflow.sixMonthsEnrolled}건` : ''}.
+            학원 정보·교습비·FAQ를 빠짐없이 채울수록 AI가 학원을 더 정확하게 소개합니다.
+          </div>
         </div>
 
         {/* Manager note */}
