@@ -56,6 +56,7 @@ model Tenant {
   heroPhotos            String[] @default([])
   sectionCopy           Json? // 섹션 제목·항목 문구 { [sectionKey]: { title?, items? } } — lib/section-copy.ts
   errorTypes            Json? // 과목별 오답 유형 { 수학: [...], 영어: [...] } — lib/level-test/error-types.ts, 없으면 기본 목록
+  studentRegToken       String?  @unique // 학부모용 학생 등록 링크 토큰 — 재발급하면 예전 링크는 막힌다
   ga4MeasurementId      String?
   naverSiteVerification String? // 네이버 서치어드바이저 인증 코드
   naverPlaceMirror      Json? // { phone, hours, address } — 플레이스 불일치 비교용
@@ -71,46 +72,47 @@ model Tenant {
   customDomainVerifiedAt DateTime?
 
   // 관계
-  sections           TenantSection[]
-  memberships        Membership[]
-  memberInvites      MemberInvite[]
-  notifyRecipients   NotifyRecipient[]
-  directorProfile    DirectorProfile?
-  teachingPrinciples TeachingPrinciple[]
-  facilities         Facility[]
-  staffProfiles      StaffProfile[]
-  classes            ClassItem[]
-  levelTestSlots     LevelTestSlot[]
-  fees               Fee[]
-  extraCosts         ExtraCost[]
-  refundPolicyText   RefundPolicyText?
-  leads              Lead[]
-  consents           Consent[]
-  posts              Post[]
-  reviews            Review[]
-  resultStats        ResultStat[]
-  messageTemplates   MessageTemplate[]
-  automationSettings AutomationSetting[]
-  messages           Message[]
-  monthlyReports     MonthlyReport[]
-  contactLogs        TenantContactLog[]
-  proxyAccessLogs    ProxyAccessLog[]
-  feeChangeLogs      FeeChangeLog[]
-  shuttleStops       ShuttleStop[]
-  faqItems           FaqItem[]
-  siteVersions       SiteVersion[]
-  aiDraftLogs        AiDraftLog[]
-  questions          Question[]
-  tests              Test[]
-  testAttempts       TestAttempt[]
-  testResponses      TestResponse[]
-  students           Student[]
-  studentNotes       StudentNote[]
-  studentScores      StudentScore[]
-  attendances        Attendance[]
-  studentReports     StudentReport[]
-  subscription       Subscription?
-  payments           Payment[]
+  sections             TenantSection[]
+  memberships          Membership[]
+  memberInvites        MemberInvite[]
+  notifyRecipients     NotifyRecipient[]
+  directorProfile      DirectorProfile?
+  teachingPrinciples   TeachingPrinciple[]
+  facilities           Facility[]
+  staffProfiles        StaffProfile[]
+  classes              ClassItem[]
+  levelTestSlots       LevelTestSlot[]
+  fees                 Fee[]
+  extraCosts           ExtraCost[]
+  refundPolicyText     RefundPolicyText?
+  leads                Lead[]
+  consents             Consent[]
+  posts                Post[]
+  reviews              Review[]
+  resultStats          ResultStat[]
+  messageTemplates     MessageTemplate[]
+  automationSettings   AutomationSetting[]
+  messages             Message[]
+  monthlyReports       MonthlyReport[]
+  contactLogs          TenantContactLog[]
+  proxyAccessLogs      ProxyAccessLog[]
+  feeChangeLogs        FeeChangeLog[]
+  shuttleStops         ShuttleStop[]
+  faqItems             FaqItem[]
+  siteVersions         SiteVersion[]
+  aiDraftLogs          AiDraftLog[]
+  questions            Question[]
+  tests                Test[]
+  testAttempts         TestAttempt[]
+  testResponses        TestResponse[]
+  students             Student[]
+  studentRegistrations StudentRegistration[]
+  studentNotes         StudentNote[]
+  studentScores        StudentScore[]
+  attendances          Attendance[]
+  studentReports       StudentReport[]
+  subscription         Subscription?
+  payments             Payment[]
 
   @@map("tenants")
 }
@@ -995,6 +997,28 @@ model Student {
   @@index([tenantId, status])
   @@index([tenantId, classId])
   @@map("students")
+}
+
+/// 학부모가 등록 링크로 제출한 학생 정보 — 원장이 승인하면 Student로 옮기고 이 행은 지운다.
+/// 승인하지 않은 건은 30일 뒤 자동 삭제 (lib/students/registration.ts)
+model StudentRegistration {
+  id             String   @id @default(cuid())
+  createdAt      DateTime @default(now())
+  tenantId       String
+  studentName    String
+  grade          String?
+  school         String?
+  studentPhone   String?
+  parentName     String
+  parentPhone    String
+  memo           String?
+  consentAt      DateTime // 학부모(법정대리인) 전자 동의 시각
+  consentVersion String
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, createdAt])
+  @@map("student_registrations")
 }
 
 enum StudentNoteKind {

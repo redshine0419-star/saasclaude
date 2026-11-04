@@ -5,6 +5,8 @@ import { AdminSide } from '@/components/admin/AdminSide';
 import { studentPageAuth } from '@/lib/students/page-auth';
 import { SCORE_KIND_LABEL, STATUS_LABEL, maskPhone } from '@/lib/students/labels';
 import { daysAgo, formatKstDate } from '@/lib/format-date';
+import { registrationCutoff } from '@/lib/students/registration';
+import JoinPanel from './JoinPanel';
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ q?: string; status?: string; classId?: string; withdrawn?: string }> };
 
@@ -19,7 +21,7 @@ const STATUS_STYLE: Record<StudentStatus, { bg: string; color: string }> = {
 export default async function StudentsPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const sp = await searchParams;
-  const { tenant } = await studentPageAuth(slug);
+  const { tenant, isOwner } = await studentPageAuth(slug);
 
   const status = (['active', 'paused', 'all'] as const).find((s) => s === sp.status) ?? 'active';
   const q = (sp.q ?? '').trim().slice(0, 40);
@@ -30,8 +32,10 @@ export default async function StudentsPage({ params, searchParams }: Props) {
     ...(q && { OR: [{ name: { contains: q, mode: 'insensitive' } }, { school: { contains: q, mode: 'insensitive' } }, { grade: { contains: q } }] }),
   };
   const since = daysAgo(30);
+  // 승인하지 않은 등록 요청은 30일 뒤 지운다
+  await prisma.studentRegistration.deleteMany({ where: { tenantId: tenant.id, createdAt: { lt: registrationCutoff() } } }).catch(() => null);
 
-  const [students, classes, counts] = await Promise.all([
+  const [students, classes, counts, regTenant, pending] = await Promise.all([
     prisma.student.findMany({
       where,
       orderBy: [{ grade: 'asc' }, { name: 'asc' }],
@@ -45,7 +49,11 @@ export default async function StudentsPage({ params, searchParams }: Props) {
     }),
     prisma.classItem.findMany({ where: { tenantId: tenant.id }, orderBy: { sortOrder: 'asc' }, select: { id: true, name: true } }),
     prisma.student.groupBy({ by: ['status'], where: { tenantId: tenant.id }, _count: true }),
+    prisma.tenant.findUnique({ where: { id: tenant.id }, select: { studentRegToken: true } }),
+    prisma.studentRegistration.findMany({ where: { tenantId: tenant.id }, orderBy: { createdAt: 'desc' }, take: 200 }),
   ]);
+  const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://growweb.me';
+  const joinUrl = regTenant?.studentRegToken ? `${base}/${slug}/join/${regTenant.studentRegToken}` : null;
   const countOf = (s: StudentStatus) => counts.find((c) => c.status === s)?._count ?? 0;
   const tabHref = (s: string) => `/${slug}/admin/students?status=${s}${sp.classId ? `&classId=${sp.classId}` : ''}${q ? `&q=${encodeURIComponent(q)}` : ''}`;
 
@@ -67,6 +75,23 @@ export default async function StudentsPage({ params, searchParams }: Props) {
         {sp.withdrawn && (
           <div role="status" style={{ padding: '12px 14px', borderRadius: 10, background: '#E4EEE9', fontSize: 14 }}>퇴원 처리했습니다. 해당 학생의 학생부(메모·성적·출결)는 즉시 삭제되었습니다.</div>
         )}
+
+        <JoinPanel
+          slug={slug}
+          linkUrl={joinUrl}
+          isOwner={isOwner}
+          classes={classes}
+          pending={pending.map((p) => ({
+            id: p.id,
+            createdAt: formatKstDate(p.createdAt),
+            studentName: p.studentName,
+            grade: p.grade,
+            school: p.school,
+            parentName: p.parentName,
+            parentPhoneMasked: maskPhone(p.parentPhone),
+            memo: p.memo,
+          }))}
+        />
 
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {([['active', `재원 ${countOf('active')}`], ['paused', `휴원 ${countOf('paused')}`], ['all', '전체']] as const).map(([s, label]) => (
