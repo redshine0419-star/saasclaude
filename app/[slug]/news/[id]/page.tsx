@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation';
 import { getAcademyPageData, getPostData } from '@/lib/academy-data';
 import SiteHeader from '@/components/academy/SiteHeader';
 import SiteFooter from '@/components/academy/SiteFooter';
-import MobileBottomBar from '@/components/academy/MobileBottomBar';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string; id: string }> }): Promise<Metadata> {
   const { slug, id } = await params;
@@ -127,7 +126,6 @@ export default async function NewsDetailPage({
         </div>
       </main>
       <SiteFooter tenant={tenant} slug={slug} />
-      <MobileBottomBar tenant={tenant} slug={slug} />
     </>
   );
 }

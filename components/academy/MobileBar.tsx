@@ -10,7 +10,7 @@ export default function MobileBar({ slug, phone, kakaoChannelUrl }: Props) {
   return (
     <>
       {/* spacer so content isn't hidden behind the bar */}
-      <div className="h-[84px] md:hidden" aria-hidden="true" />
+      <div className="h-[96px] md:hidden" aria-hidden="true" />
 
       <div
         className="md:hidden"

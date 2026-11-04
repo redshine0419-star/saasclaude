@@ -5,7 +5,6 @@ import SiteHeader from '@/components/academy/SiteHeader';
 import SiteHeaderResult from '@/components/academy/SiteHeaderResult';
 import SiteHeaderBright from '@/components/academy/SiteHeaderBright';
 import SiteFooter from '@/components/academy/SiteFooter';
-import MobileBottomBar from '@/components/academy/MobileBottomBar';
 
 // Theme A sections
 import HeroSection from '@/components/academy/sections/HeroSection';
@@ -251,7 +250,6 @@ export default async function AcademyPage({
         {displayOrder.map(renderSection)}
       </main>
       <SiteFooter tenant={data.tenant} slug={slug} />
-      <MobileBottomBar tenant={data.tenant} slug={slug} />
     </>
   );
 }

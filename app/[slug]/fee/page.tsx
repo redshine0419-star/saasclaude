@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation';
 import { getAcademyPageData } from '@/lib/academy-data';
 import ThemeHeader from '@/components/academy/ThemeHeader';
 import SiteFooter from '@/components/academy/SiteFooter';
-import MobileBottomBar from '@/components/academy/MobileBottomBar';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -139,7 +138,6 @@ export default async function FeePage({
         </section>
       </main>
       <SiteFooter tenant={tenant} slug={slug} />
-      <MobileBottomBar tenant={tenant} slug={slug} />
     </>
   );
 }

@@ -6,13 +6,6 @@ type Props = { tenant: AcademyTenant; slug?: string };
 export default function SiteFooter({ tenant, slug }: Props) {
   return (
     <>
-      {slug && (
-        <MobileBar
-          slug={slug}
-          phone={tenant.phone ?? null}
-          kakaoChannelUrl={tenant.kakaoChannelUrl ?? null}
-        />
-      )}
       <footer className="px-5 md:px-20 py-10 md:py-14 border-t border-line bg-bg">
         <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
           <div className="flex flex-col gap-3">
@@ -36,6 +29,14 @@ export default function SiteFooter({ tenant, slug }: Props) {
           </div>
         </div>
       </footer>
+      {/* 하단 고정 바 — 여백(spacer)이 푸터 뒤에 와야 마지막 줄이 바에 가리지 않는다 */}
+      {slug && (
+        <MobileBar
+          slug={slug}
+          phone={tenant.phone ?? null}
+          kakaoChannelUrl={tenant.kakaoChannelUrl ?? null}
+        />
+      )}
     </>
   );
 }
