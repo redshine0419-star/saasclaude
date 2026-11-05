@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { OPERATOR } from '@/lib/legal/documents';
 
 export function FdFooter() {
   return (
@@ -33,6 +34,15 @@ export function FdFooter() {
             <span style={{ fontSize: 20, fontWeight: 700, color: '#FFFFFF' }}>첫등원</span>
           </div>
           <div>동네 학원·교습소 전용 홈페이지와 상담 관리</div>
+          {/* 전자상거래법 사업자 정보 표시 */}
+          <div style={{ marginTop: 12, color: '#8A93A8', fontSize: 12, lineHeight: 1.8 }}>
+            <div>상호 {OPERATOR.name} · 대표 {OPERATOR.ceo} · 사업자등록번호 {OPERATOR.bizNo}</div>
+            <div>{OPERATOR.address}</div>
+            <div>
+              이메일 {OPERATOR.privacyEmail}
+              {OPERATOR.mailOrderNo && <> · 통신판매업 신고 {OPERATOR.mailOrderNo}</>}
+            </div>
+          </div>
           <div style={{ marginTop: 8, color: '#8A93A8', fontSize: 13 }}>
             © {new Date().getFullYear()} 첫등원. All rights reserved.
           </div>

@@ -10,12 +10,14 @@ export const PRIVACY_VERSION = '2026-11-04';
 export const CONSENT_VERSION = `${TERMS_VERSION}/${PRIVACY_VERSION}`;
 
 export const OPERATOR = {
-  name: '[운영자 상호]',
-  ceo: '[대표자 이름]',
-  bizNo: '[사업자등록번호]',
-  address: '[사업장 주소]',
-  privacyOfficer: '[개인정보 보호책임자 이름]',
-  privacyEmail: '[개인정보 문의 이메일]',
+  name: '스테이 문',
+  ceo: '이규영',
+  bizNo: '405-58-00910',
+  address: '경기도 수원시 장안구 파장로 33-1, 1층 101호(파장동)',
+  privacyOfficer: '이규영 (대표)',
+  privacyEmail: 'redshine0419@gmail.com',
+  // TODO(확인 필요): 통신판매업 신고번호 — 신고 후 채우면 서비스 사이트 하단에 표시된다
+  mailOrderNo: '',
 };
 
 export type LegalSection = { title: string; body: string[] };
