@@ -15,6 +15,12 @@ describe('searchHelp', () => {
     ['메인 사진 바꾸기', 'sections'],
     ['문자 보내기', 'leads'],
     ['교습비 공개', 'info'],
+    ['강사진이 홈페이지에 안 보여요', 'staff'],
+    ['테마 바꾸고 싶어요', 'sections'],
+    ['결제 실패했어요', 'billing'],
+    ['수식 쓰는 법', 'questions'],
+    ['후기가 안 보여요', 'reviews'],
+    ['예약 대기가 뭐예요', 'kakaolog'],
   ])('%s → %s', (q, key) => {
     expect(top(q)?.topic.key).toBe(key);
   });

@@ -17,7 +17,7 @@ export type HelpTopic = {
 export type HelpHit = { topic: HelpTopic; faq: HelpFaq; score: number };
 
 // 질문에 흔히 붙지만 뜻을 가르지 않는 말
-const STOP = ['어떻게', '어디서', '어디', '하나요', '하나', '해요', '되나요', '되요', '돼요', '할수', '수있', '있나요', '있어요', '방법', '알려줘', '알려', '주세요', '싶어요', '싶은데', '은', '는', '이', '가', '을', '를', '에', '좀', '왜', '뭐', '무엇'];
+const STOP = ['어떻게', '어디서', '어디', '하나요', '하나', '해요', '되나요', '되요', '돼요', '할수', '수있', '있나요', '있어요', '방법', '알려줘', '알려', '주세요', '싶어요', '싶은데', '은', '는', '이', '가', '을', '를', '에', '좀', '왜', '뭐', '무엇', '법', '쓰는', '하는', '하려면', '되는', '보는', '예요', '이에요', '인가요', '뭐예요'];
 
 export function normalize(s: string): string {
   return s.toLowerCase().replace(/[^0-9a-z가-힣]+/g, ' ').trim();
@@ -50,10 +50,16 @@ export function scoreFaq(query: string, topic: HelpTopic, faq: HelpFaq): number 
   const qn = normalize(query).replace(/ /g, '');
   // 질문 문장과 겹침이 가장 중요, 답변 본문은 가볍게
   let score = (overlap(qb, bigrams(faq.q)) / qb.size) * 3 + (overlap(qb, bigrams(faq.a)) / qb.size) * 1;
-  for (const k of [...(faq.keywords ?? []), ...(topic.keywords ?? []), topic.label]) {
+  const keys = [...(faq.keywords ?? []), ...(topic.keywords ?? []), topic.label];
+  for (const k of keys) {
     const kn = normalize(k).replace(/ /g, '');
     if (kn && qn.includes(kn)) score += kn.length >= 3 ? 1.5 : 1;
   }
+  // 질문 낱말 중 절반 이상이 어딘가 맞아야 한다 — "오늘 날씨"의 "오늘" 하나만 맞는 경우를 거른다
+  const ws = words(query);
+  const target = bigrams([faq.q, faq.a, ...keys].join(' '));
+  const matched = ws.filter((w) => [...bigrams(w)].some((g) => target.has(g))).length;
+  if (ws.length > 1 && matched / ws.length < 0.5) score *= 0.3;
   return score;
 }
 
