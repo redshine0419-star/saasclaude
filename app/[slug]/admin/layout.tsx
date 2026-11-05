@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { adminSession, isDemoViewer } from '@/lib/demo-viewer';
 import { DemoReadOnly } from '@/components/admin/DemoReadOnly';
+import { HelpBot } from '@/components/admin/HelpBot';
 import { prisma } from '@/lib/prisma';
 import '@/styles/admin.css';
 import { requireSignupConsent } from '@/lib/legal/consent';
@@ -41,6 +42,7 @@ export default async function AdminLayout({
         <div className="adm" style={{ paddingTop: 32 }}>
           {children}
         </div>
+        <HelpBot slug={slug} />
       </>
     );
   }
@@ -95,6 +97,7 @@ export default async function AdminLayout({
       <div className="adm" style={isProxy ? { paddingTop: 32 } : undefined}>
         {children}
       </div>
+      <HelpBot slug={slug} />
     </>
   );
 }

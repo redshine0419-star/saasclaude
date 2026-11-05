@@ -182,3 +182,10 @@
   .adm .stu-grid { grid-template-columns: minmax(0, 1fr) !important; }
 }
 
+
+/* 사용법 도우미 버튼이 화면 마지막 줄을 가리지 않게 */
+.adm { padding-bottom: 72px; }
+@media print {
+  .adm-help-fab, .adm-help-panel { display: none !important; }
+  .adm { padding-bottom: 0; }
+}
