@@ -1,5 +1,5 @@
 import type { LegalSection } from './documents';
-import { OPERATOR } from './documents';
+import { OPERATOR, OVERSEAS_TRANSFERS } from './documents';
 
 export const ACADEMY_PRIVACY_VERSION = '2026-11-04';
 
@@ -38,6 +38,16 @@ export function academyPrivacy(t: { name: string; phone: string | null; address:
       ],
     },
     { title: '4. 제3자 제공', body: ['학원은 정보주체의 동의나 법령에 근거가 있는 경우가 아니면 개인정보를 제3자에게 제공하지 않습니다.'] },
+    {
+      title: '4-2. 국외 이전',
+      body: [
+        '학원 홈페이지와 관리 시스템을 운영하기 위해 아래와 같이 개인정보가 국외에 보관·처리됩니다(개인정보 보호법 제28조의8). 이전은 상담 신청·학생부 입력 등 서비스 이용 시 수시로, 암호화된 네트워크(HTTPS)를 통해 이루어집니다.',
+        ...OVERSEAS_TRANSFERS.filter((x) => x.name === 'Vercel Inc.' || x.name === 'Neon Inc.').map(
+          (x) => `· ${x.name} — 이전 국가: ${x.country} · 연락처: ${x.contact} · ${x.purpose} / 이전 항목: 이 방침 2번의 항목 / 보유 기간: 이 방침 2번의 기간`,
+        ),
+        '· 국외 이전을 원하지 않으면 학원에 알려 주세요. 다만 이 시스템 없이는 온라인 상담 신청·학생부 관리를 할 수 없어, 전화·방문으로 상담을 진행합니다.',
+      ],
+    },
     {
       title: '5. 만 14세 미만 아동',
       body: ['상담 신청은 학부모(법정대리인)가 합니다. 만 14세 미만 학생의 정보는 법정대리인의 동의를 받아 처리합니다.'],

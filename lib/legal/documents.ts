@@ -129,6 +129,50 @@ export const TERMS: LegalSection[] = [
   { title: '부칙', body: [`이 약관은 ${TERMS_VERSION}부터 시행합니다.`] },
 ];
 
+/** 국외 이전 내역 — 개인정보처리방침 6번에 그대로 표시된다. 업체를 바꾸면 여기도 고친다. */
+export const OVERSEAS_TRANSFERS = [
+  {
+    name: 'Vercel Inc.',
+    country: '미국 (서비스 서버 지역: [Vercel 배포 지역])',
+    contact: 'privacy@vercel.com',
+    items: '서비스 이용 중 전송·저장되는 모든 정보(회원·학원·상담·학생부 정보, 올린 사진·파일, 접속 기록)',
+    purpose: '웹 서비스 호스팅, 사진·파일 저장(Vercel Blob)',
+    retention: '이 방침 2번의 보유 기간 또는 위탁 계약 종료 시까지',
+  },
+  {
+    name: 'Neon Inc.',
+    country: '미국 (데이터베이스 지역: [Neon 프로젝트 리전])',
+    contact: 'privacy@neon.tech',
+    items: '데이터베이스에 저장되는 모든 정보(회원·학원·상담·학생부·결제 기록)',
+    purpose: '데이터베이스 운영·백업',
+    retention: '이 방침 2번의 보유 기간 또는 위탁 계약 종료 시까지',
+  },
+  {
+    name: 'Google LLC',
+    country: '미국',
+    contact: 'https://support.google.com/policies',
+    items: '로그인 시 이름·이메일·프로필 사진, 방문 통계용 쿠키·기기·접속 정보',
+    purpose: 'Google 계정 로그인 인증, 방문 통계(Google Analytics)',
+    retention: '회원 탈퇴 시까지(로그인) / Google Analytics 보관 설정 기간',
+  },
+  {
+    name: 'Resend, Inc.',
+    country: '미국',
+    contact: 'privacy@resend.com',
+    items: '받는 사람 이메일 주소, 메일 내용(직원 초대·운영자 알림)',
+    purpose: '이메일 발송',
+    retention: '발송 후 Resend의 기록 보관 기간',
+  },
+  {
+    name: 'Anthropic, PBC',
+    country: '미국',
+    contact: 'privacy@anthropic.com',
+    items: 'AI 글 초안 기능에 원장이 입력한 글',
+    purpose: 'AI 글 초안 작성 (원장이 기능을 쓸 때만)',
+    retention: '처리 후 Anthropic의 API 데이터 보관 기간',
+  },
+] as const;
+
 export const PRIVACY: LegalSection[] = [
   {
     title: '1. 개인정보의 처리 목적',
@@ -171,6 +215,7 @@ export const PRIVACY: LegalSection[] = [
       '· Neon Inc. — 데이터베이스 운영',
       '· Google LLC — 로그인 인증, 방문 통계(Google Analytics)',
       '· Resend, Inc. — 이메일 발송',
+      '· Anthropic, PBC — AI 글 초안 작성 (원장이 이 기능을 쓸 때만)',
       '· (주)알리고 — 카카오 알림톡·문자 발송',
       '· [결제대행사] — 카드 정기결제 (연동 후)',
       '[TODO(확인 필요): 위탁사 법인명·업무 범위 확정]',
@@ -179,13 +224,18 @@ export const PRIVACY: LegalSection[] = [
   {
     title: '6. 개인정보의 국외 이전',
     body: [
-      '운영자는 위 위탁 업무를 위해 개인정보를 국외에 보관·처리합니다(개인정보 보호법 제28조의8).',
-      '· 이전받는 자: Vercel Inc., Neon Inc., Resend, Inc., Google LLC (미국 등)',
-      '· 이전 항목: 이 방침 2번의 항목',
-      '· 이전 시기·방법: 서비스 이용 시 네트워크를 통해 전송',
-      '· 보유 기간: 이 방침 2번의 보유 기간',
-      '· 거부 방법: 국외 이전을 거부하려면 회원 탈퇴 또는 서비스 이용을 중단하면 됩니다. 국외 이전 없이는 서비스를 제공할 수 없습니다.',
-      '[TODO(확인 필요): 서버 소재 국가·연락처 확정]',
+      '운영자는 서비스 제공에 필요한 처리 위탁·보관을 위해 아래와 같이 개인정보를 국외로 이전합니다(개인정보 보호법 제28조의8 제1항 제3호). 이전은 서비스 가입·이용 시 수시로, 암호화된 네트워크(HTTPS)를 통해 이루어집니다.',
+      ...OVERSEAS_TRANSFERS.flatMap((t) => [
+        `■ ${t.name} — 이전 국가: ${t.country} · 연락처: ${t.contact}`,
+        `  · 이전 항목: ${t.items}`,
+        `  · 이전 목적: ${t.purpose}`,
+        `  · 보유·이용 기간: ${t.retention}`,
+      ]),
+      '■ 거부 방법과 효과',
+      '  · 국외 이전을 원하지 않으면 개인정보 보호책임자에게 알리거나 회원 탈퇴로 거부할 수 있습니다.',
+      '  · 호스팅·데이터베이스·로그인(Vercel, Neon, Google 로그인)은 서비스 제공에 꼭 필요해 거부하면 서비스를 이용할 수 없습니다.',
+      '  · AI 글 초안(Anthropic)은 원장이 그 기능을 쓸 때만 이전되며, 쓰지 않으면 이전되지 않습니다. 방문 통계(Google Analytics)는 브라우저에서 쿠키를 거부하면 수집되지 않습니다.',
+      'TODO(확인 필요): 각 회사의 서버 소재 국가(리전)와 개인정보 문의 연락처를 계약·설정 화면에서 확인해 확정',
     ],
   },
   {
