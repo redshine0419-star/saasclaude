@@ -14,8 +14,8 @@ const NAV_ITEMS = [
   { key: 'classes', label: '연령별 반' },
   { key: 'gallery', label: '수업 사진' },
   { key: 'safe', label: '안전·셔틀' },
-  { key: 'location', label: '오시는 길' },
   { key: 'consult', label: '상담 신청' },
+  { key: 'location', label: '오시는 길' },
 ];
 
 export default function SiteHeaderBright({ name, slug, phone, kakaoChannelUrl }: Props) {

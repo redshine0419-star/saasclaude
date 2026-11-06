@@ -16,8 +16,8 @@ const NAV_ITEMS = [
   { key: 'curriculum', label: '커리큘럼' },
   { key: 'teachers', label: '강사진' },
   { key: 'fee', label: '교습비' },
-  { key: 'location', label: '오시는 길' },
   { key: 'consult', label: '상담 신청' },
+  { key: 'location', label: '오시는 길' },
 ];
 
 export default function SiteHeaderResult({ name, slug, phone, kakaoChannelUrl }: Props) {
