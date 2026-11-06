@@ -23,9 +23,10 @@ model PlatformSetting {
 // ─────────────────────────────────────────────────────────
 
 model Tenant {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String    @id @default(cuid())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  inactiveAt DateTime? // 비공개 전환 시각 — 이 시각부터 TENANT_PURGE_DAYS 뒤 학원 데이터 전체 파기 (lib/retention.ts)
 
   slug          String       @unique
   name          String
@@ -1161,6 +1162,26 @@ model Subscription {
 enum PaymentStatus {
   paid
   failed
+}
+
+/// 파기된 학원의 결제 기록 — 전자상거래법(대금 결제·공급 기록 5년) 보관용. 학원 테이블과 연결하지 않는다.
+model PaymentArchive {
+  id          String   @id @default(cuid())
+  archivedAt  DateTime @default(now())
+  deleteAfter DateTime // 결제일 + 5년
+  tenantName  String
+  tenantSlug  String
+  regNo       String?
+  orderId     String   @unique
+  tierKey     String
+  amount      Int
+  status      String
+  periodStart DateTime
+  periodEnd   DateTime
+  paidAt      DateTime
+
+  @@index([deleteAfter])
+  @@map("payment_archives")
 }
 
 model Payment {

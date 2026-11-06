@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { TENANT_PURGE_DAYS } from '@/lib/retention';
 import { sendMessage } from '@/lib/messaging/send';
 import { hashPhone } from '@/lib/messaging/hash';
 import { betaStatus, formatKstDate, type BetaNoticeKey } from '@/lib/beta';
@@ -22,7 +23,8 @@ export function betaNoticeBody(key: BetaNoticeKey, t: { name: string; slug: stri
     head[key],
     '',
     `종료 후 ${off}까지는 그대로 공개되고, 그 뒤 비공개로 전환됩니다.`,
-    '계속 이용하시려면 관리자 화면에서 "계속 이용 신청"을 눌러 주세요. 상담 기록은 언제든 내보낼 수 있습니다.',
+    `비공개 전환 후 ${TENANT_PURGE_DAYS}일이 지나면 학원의 모든 데이터(상담·학생부·글·사진)가 영구 삭제됩니다.`,
+    '계속 이용하시려면 관리자 화면에서 "계속 이용 신청"을 눌러 주세요. 필요한 자료는 설정 > 데이터 내보내기로 미리 받아 두세요.',
     '',
     admin,
   ].join('\n');

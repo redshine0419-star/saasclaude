@@ -30,7 +30,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
     data: {
       ...(theme && { theme }),
       ...(accentColor !== undefined && { accentColor: accentColor || null }),
-      ...(status && { status }),
+      // 비공개로 바꾸면 파기 기한(30일)이 시작되고, 다시 공개하면 취소된다
+      ...(status === 'inactive' && tenant.status !== 'inactive' && { status, inactiveAt: new Date() }),
+      ...(status === 'active' && { status, inactiveAt: null }),
       ...(phone !== undefined && { phone: phone || null }),
       ...(address !== undefined && { address: address || null }),
       ...(hours !== undefined && { hours: hours || null }),
@@ -57,6 +59,6 @@ export async function DELETE(req: NextRequest, { params }: { params: Params }) {
   const { id } = await params;
   if (!(await checkPlatformAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  await prisma.tenant.update({ where: { id }, data: { status: 'inactive' } });
+  await prisma.tenant.update({ where: { id }, data: { status: 'inactive', inactiveAt: new Date() } });
   return NextResponse.json({ ok: true });
 }

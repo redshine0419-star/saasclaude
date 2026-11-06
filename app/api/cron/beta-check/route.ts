@@ -60,7 +60,7 @@ export async function GET(req: Request) {
   if (toDeactivate.length > 0) {
     await prisma.tenant.updateMany({
       where: { id: { in: toDeactivate.map((t) => t.id) } },
-      data: { status: 'inactive' },
+      data: { status: 'inactive', inactiveAt: now },
     });
   }
 
