@@ -33,14 +33,16 @@ interface NavItemProps {
   label: string;
   active: boolean;
   badge?: number;
+  /** 메뉴 이름 아래 한 줄 설명 */
+  desc?: string;
 }
 
-function NavItem({ href, label, active, badge }: NavItemProps) {
+function NavItem({ href, label, active, badge, desc }: NavItemProps) {
   return (
     <Link
       href={href}
       style={{
-        padding: '11px 12px',
+        padding: desc ? '8px 12px' : '11px 12px',
         borderRadius: 8,
         background: active ? '#2C3747' : 'transparent',
         color: active ? '#FFFFFF' : '#C8CDD5',
@@ -50,9 +52,15 @@ function NavItem({ href, label, active, badge }: NavItemProps) {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
+        gap: 8,
       }}
     >
-      {label}
+      <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        <span>{label}</span>
+        {desc && (
+          <span style={{ fontSize: 12, fontWeight: 400, lineHeight: 1.45, marginTop: 2, color: active ? '#C8CDD5' : '#8E97A4' }}>{desc}</span>
+        )}
+      </span>
       {badge != null && badge > 0 && (
         <span
           style={{
@@ -116,37 +124,37 @@ export function AdminSide({ slug, tenantName, active }: AdminSideProps) {
 
   const nav = (
     <>
-      <NavItem href={`${base}`} label="대시보드" active={active === 'dashboard'} />
-      <NavItem href={`${base}/leads`} label="상담 관리" active={active === 'leads'} />
+      <NavItem href={`${base}`} label="대시보드" desc="이번 달 현황과 오늘 할 일" active={active === 'dashboard'} />
+      <NavItem href={`${base}/leads`} label="상담 관리" desc="상담 신청 확인·연락·등록 처리" active={active === 'leads'} />
 
       <SectionLabel>원생</SectionLabel>
-      <NavItem href={`${base}/students`} label="학생부" active={active === 'students'} />
-      <NavItem href={`${base}/attendance`} label="출결" active={active === 'attendance'} />
+      <NavItem href={`${base}/students`} label="학생부" desc="학생별 성적·성격·메모·리포트" active={active === 'students'} />
+      <NavItem href={`${base}/attendance`} label="출결" desc="하루 단위 출석·지각·결석 체크" active={active === 'attendance'} />
 
       <SectionLabel>카톡</SectionLabel>
-      <NavItem href={`${base}/kakao`} label="자동 발송" active={active === 'kakao'} />
-      <NavItem href={`${base}/kakao/log`} label="발송 내역·수신 동의" active={active === 'kakaolog'} />
+      <NavItem href={`${base}/kakao`} label="자동 발송" desc="카톡 자동 메시지 켜기·문구 수정" active={active === 'kakao'} />
+      <NavItem href={`${base}/kakao/log`} label="발송 내역·수신 동의" desc="보낸 메시지와 광고 수신 동의 현황" active={active === 'kakaolog'} />
 
       <SectionLabel>레벨테스트</SectionLabel>
-      <NavItem href={`${base}/tests`} label="시험지·결과" active={active === 'tests'} />
-      <NavItem href={`${base}/grading`} label="채점함" active={active === 'grading'} />
-      <NavItem href={`${base}/questions`} label="문제은행" active={active === 'questions'} />
+      <NavItem href={`${base}/tests`} label="시험지·결과" desc="레벨테스트 시험지 만들기·결과 보기" active={active === 'tests'} />
+      <NavItem href={`${base}/grading`} label="채점함" desc="서술형 답안 채점·첨삭" active={active === 'grading'} />
+      <NavItem href={`${base}/questions`} label="문제은행" desc="레벨테스트 문제 모아 두기" active={active === 'questions'} />
 
       <SectionLabel>홈페이지 콘텐츠</SectionLabel>
-      <NavItem href={`${base}/mobile`} label="📱 모바일 글쓰기" active={false} />
-      <NavItem href={`${base}/news`} label="소식" active={active === 'news'} />
-      <NavItem href={`${base}/reviews`} label="후기·성과" active={active === 'reviews'} />
-      <NavItem href={`${base}/result-stats`} label="입시 실적" active={active === 'result-stats'} />
-      <NavItem href={`${base}/classes`} label="수업·시간표" active={active === 'classes'} />
-      <NavItem href={`${base}/info`} label="학원 정보·교습비" active={active === 'info'} />
-      <NavItem href={`${base}/staff`} label="강사진" active={active === 'staff'} />
-      <NavItem href={`${base}/sections`} label="홈페이지 구성" active={active === 'sections'} />
+      <NavItem href={`${base}/mobile`} label="📱 모바일 글쓰기" desc="휴대폰으로 소식 빠르게 올리기" active={false} />
+      <NavItem href={`${base}/news`} label="소식" desc="홈페이지 공지·모집·갤러리 글" active={active === 'news'} />
+      <NavItem href={`${base}/reviews`} label="후기·성과" desc="학부모 후기·성적 사례 (동의 필수)" active={active === 'reviews'} />
+      <NavItem href={`${base}/result-stats`} label="입시 실적" desc="합격·등급 실적 숫자 (근거 필수)" active={active === 'result-stats'} />
+      <NavItem href={`${base}/classes`} label="수업·시간표" desc="반 정보·잔여석·레벨테스트 시간" active={active === 'classes'} />
+      <NavItem href={`${base}/info`} label="학원 정보·교습비" desc="주소·원장 소개·교습비·환불 기준" active={active === 'info'} />
+      <NavItem href={`${base}/staff`} label="강사진" desc="홈페이지 강사 프로필" active={active === 'staff'} />
+      <NavItem href={`${base}/sections`} label="홈페이지 구성" desc="테마·섹션 순서·메인 사진·문구" active={active === 'sections'} />
 
       <SectionLabel>운영</SectionLabel>
-      <NavItem href={`${base}/report`} label="월간 리포트" active={active === 'report'} />
-      <NavItem href={`${base}/billing`} label="결제" active={active === 'billing'} />
-      <NavItem href={`${base}/settings`} label="설정" active={active === 'settings'} />
-      <NavItem href={`/${slug}`} label="내 홈페이지 보기 ↗" active={false} />
+      <NavItem href={`${base}/report`} label="월간 리포트" desc="한 달 상담·등록 흐름과 유입 경로" active={active === 'report'} />
+      <NavItem href={`${base}/billing`} label="결제" desc="요금 구간·정기결제 카드" active={active === 'billing'} />
+      <NavItem href={`${base}/settings`} label="설정" desc="알림 번호·직원 초대·연결 상태" active={active === 'settings'} />
+      <NavItem href={`/${slug}`} label="내 홈페이지 보기 ↗" desc="학부모가 보는 화면 열기" active={false} />
     </>
   );
 
