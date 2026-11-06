@@ -15,6 +15,7 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   if (a instanceof NextResponse) return a;
   const body = await req.json().catch(() => null);
   if (body?.consent !== true) return NextResponse.json({ error: '정기결제 안내를 확인하고 동의해 주세요.' }, { status: 400 });
+  if (body?.thirdPartyConsent !== true) return NextResponse.json({ error: '결제대행사 개인정보 제공에 동의해야 카드를 등록할 수 있습니다.' }, { status: 400 });
 
   const now = new Date();
   const card = await getBillingAdapter().registerCard({ customerKey: a.tenant.id, testFail: body.testFail === true });
@@ -25,8 +26,8 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
 
   const sub = await prisma.subscription.upsert({
     where: { tenantId: a.tenant.id },
-    create: { tenantId: a.tenant.id, provider: getBillingAdapter().provider, billingKey: card.billingKey, cardLabel: card.cardLabel, nextBillingAt, consentAt: now, consentBy: a.email },
-    update: { provider: getBillingAdapter().provider, billingKey: card.billingKey, cardLabel: card.cardLabel, nextBillingAt, status: 'active', failCount: 0, canceledAt: null, consentAt: now, consentBy: a.email },
+    create: { tenantId: a.tenant.id, provider: getBillingAdapter().provider, billingKey: card.billingKey, cardLabel: card.cardLabel, nextBillingAt, consentAt: now, consentBy: a.email, thirdPartyConsentAt: now },
+    update: { provider: getBillingAdapter().provider, billingKey: card.billingKey, cardLabel: card.cardLabel, nextBillingAt, status: 'active', failCount: 0, canceledAt: null, consentAt: now, consentBy: a.email, thirdPartyConsentAt: now },
   });
 
   let charged = null;

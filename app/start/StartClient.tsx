@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { ConsentList } from '@/components/legal/ConsentList';
+import { START_CONSENTS, requiredAgreed } from '@/lib/legal/consents';
 import { useRouter } from 'next/navigation';
 
 type ThemeKey = 'warm' | 'result' | 'bright';
@@ -11,14 +13,7 @@ const THEMES: { value: ThemeKey; label: string; desc: string; color: string; bg:
   { value: 'bright', label: '밝은 친근형', desc: '유아·초등 대상, 사진과 하루 일과 중심', color: '#0F766E', bg: '#DCFCE7', demo: '/demo-bright' },
 ];
 
-const CONSENTS = [
-  { key: 'consentTerms', label: '[필수] 서비스 이용약관에 동의합니다.', required: true },
-  { key: 'consentPrivacy', label: '[필수] 개인정보 수집·이용에 동의합니다. (목적: 서비스 제공, 보유: 이용 종료 후 3년)', required: true },
-  { key: 'consentBeta', label: '[필수] 베타 조건을 확인했습니다. (홈페이지 오픈일부터 3개월 무료, 자동 결제 없음)', required: true },
-  { key: 'consentCase', label: '[선택] 익명 성공 사례로 활용하는 데 동의합니다.', required: false },
-] as const;
-
-type ConsentKey = (typeof CONSENTS)[number]['key'];
+// 동의 항목은 lib/legal/consents.ts (약관·개인정보는 회원가입 때 받았다)
 
 const input: React.CSSProperties = {
   height: 48, padding: '0 14px', borderRadius: 10, border: '1px solid #D1D5DB',
@@ -46,8 +41,8 @@ export function StartClient() {
     name: '', slug: '', regNo: '', subjects: '', targetGrades: '', phone: '', address: '',
   });
   const [theme, setTheme] = useState<ThemeKey | null>(null);
-  const [consents, setConsents] = useState<Record<ConsentKey, boolean>>({
-    consentTerms: false, consentPrivacy: false, consentBeta: false, consentCase: false,
+  const [consents, setConsents] = useState<Record<string, boolean>>({
+    beta: false, case: false,
   });
   const [slugState, setSlugState] = useState<{ checking: boolean; available?: boolean; error?: string }>({ checking: false });
   const [submitting, setSubmitting] = useState(false);
@@ -74,7 +69,7 @@ export function StartClient() {
   }, [form.slug]);
 
   const step1Ok = !!(form.name.trim() && form.regNo.trim() && form.subjects.trim() && form.phone.trim() && form.address.trim() && slugState.available);
-  const step3Ok = consents.consentTerms && consents.consentPrivacy && consents.consentBeta;
+  const step3Ok = requiredAgreed(START_CONSENTS, consents);
 
   async function submit() {
     setSubmitting(true);
@@ -83,7 +78,7 @@ export function StartClient() {
       const res = await fetch('/api/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, theme, ...consents }),
+        body: JSON.stringify({ ...form, theme, consentBeta: consents.beta, consentCase: consents.case }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -199,28 +194,7 @@ export function StartClient() {
             <div style={{ color: '#4A5568' }}>growweb.me/{form.slug}</div>
             <div style={{ color: '#4A5568' }}>만들기를 누르면 홈페이지가 <b>바로 공개</b>됩니다. 비어 있는 섹션은 내용을 채울 때까지 자동으로 숨겨집니다.</div>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <label style={{ display: 'flex', gap: 10, alignItems: 'center', fontSize: 15, fontWeight: 700 }}>
-              <input
-                type="checkbox"
-                style={{ width: 20, height: 20 }}
-                checked={CONSENTS.every((c) => consents[c.key])}
-                onChange={(e) => setConsents({ consentTerms: e.target.checked, consentPrivacy: e.target.checked, consentBeta: e.target.checked, consentCase: e.target.checked })}
-              />
-              전체 동의
-            </label>
-            {CONSENTS.map((c) => (
-              <label key={c.key} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontSize: 14, lineHeight: 1.6 }}>
-                <input
-                  type="checkbox"
-                  style={{ width: 20, height: 20, marginTop: 1, flexShrink: 0 }}
-                  checked={consents[c.key]}
-                  onChange={(e) => setConsents((p) => ({ ...p, [c.key]: e.target.checked }))}
-                />
-                {c.label}
-              </label>
-            ))}
-          </div>
+          <ConsentList items={START_CONSENTS} values={consents} onChange={setConsents} idPrefix="start" />
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
             <button type="button" onClick={() => setStep(2)} style={secondary}>이전</button>
             <button type="button" disabled={!step3Ok || submitting} onClick={submit} style={primary(step3Ok && !submitting)}>

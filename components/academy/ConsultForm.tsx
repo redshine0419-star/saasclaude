@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { ConsentList } from '@/components/legal/ConsentList';
+import { consultConsents, requiredAgreed } from '@/lib/legal/consents';
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { LevelTestSlot } from '@/lib/academy-data';
 
@@ -13,7 +15,7 @@ function slotLabel(s: LevelTestSlot) {
   return `${wd} ${s.time ?? ''}`.trim();
 }
 
-export default function ConsultForm({ slug, slots }: { slug: string; slots: LevelTestSlot[] }) {
+export default function ConsultForm({ slug, slots, academyName = '학원' }: { slug: string; slots: LevelTestSlot[]; academyName?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const utm = {
@@ -37,14 +39,15 @@ export default function ConsultForm({ slug, slots }: { slug: string; slots: Leve
   const [customTime, setCustomTime] = useState(false);
   const [grade, setGrade] = useState('');
   const [message, setMessage] = useState(defaultMessage);
-  const [agree1, setAgree1] = useState(false);
+  const consentItems = consultConsents(academyName);
+  const [consents, setConsents] = useState<Record<string, boolean>>({ guardian: false, privacy: false, ad: false, night: false });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!agree1) {
-      setError('개인정보 수집·이용 동의가 필요합니다.');
+    if (!requiredAgreed(consentItems, consents)) {
+      setError('필수 동의 항목(학부모 확인, 개인정보 수집·이용)에 동의해 주세요.');
       return;
     }
     setSubmitting(true);
@@ -59,8 +62,10 @@ export default function ConsultForm({ slug, slots }: { slug: string; slots: Leve
       consultType,
       slotId: customTime ? 'custom' : selectedSlot,
       message: message || (fd.get('message') as string),
-      agreeMarketing: !!(fd.get('agree2')),
-      agreeNight: !!(fd.get('agree3')),
+      guardianConfirmed: consents.guardian,
+      agreePrivacy: consents.privacy,
+      agreeMarketing: consents.ad,
+      agreeNight: consents.ad && consents.night,
       utm: Object.values(utm).some(Boolean) ? utm : undefined,
       _hp: fd.get('_hp') as string, // honeypot: 봇이 채우면 서버에서 무시
     };
@@ -216,29 +221,9 @@ export default function ConsultForm({ slug, slots }: { slug: string; slots: Leve
         />
       </div>
 
-      {/* 동의 */}
-      <div className="flex flex-col gap-3 p-5 bg-bg rounded-[12px] text-[15px]">
-        <label className="flex items-center gap-2.5 cursor-pointer">
-          <input
-            id="c-a1"
-            type="checkbox"
-            className="w-5 h-5"
-            checked={agree1}
-            onChange={(e) => setAgree1(e.target.checked)}
-          />
-          <span><b>[필수]</b> 개인정보 수집·이용 동의</span>
-          <a href={`/${slug}/privacy`} target="_blank" rel="noopener noreferrer" className="ml-auto text-[14px] text-accent no-underline">보기</a>
-        </label>
-        <label className="flex items-center gap-2.5 cursor-pointer">
-          <input id="c-a2" name="agree2" type="checkbox" className="w-5 h-5" />
-          <span><b>[선택]</b> 특강·모집 안내 수신 동의 (카카오톡·문자)</span>
-          <a href={`/${slug}/privacy`} target="_blank" rel="noopener noreferrer" className="ml-auto text-[14px] text-accent no-underline">보기</a>
-        </label>
-        <label className="flex items-center gap-2.5 cursor-pointer pl-7">
-          <input id="c-a3" name="agree3" type="checkbox" className="w-5 h-5" />
-          <span className="text-[14px] text-body">[선택] 21시~08시 수신 동의</span>
-        </label>
-      </div>
+      {/* 동의 — 학원이 개인정보처리자 (lib/legal/consents.ts consultConsents) */}
+      <ConsentList items={consentItems} values={consents} onChange={setConsents} idPrefix="consult" />
+      <a href={`/${slug}/privacy`} target="_blank" rel="noopener noreferrer" className="self-start text-[13px] text-body underline">개인정보처리방침 전문 보기</a>
 
       {error && <p className="text-red-600 text-[14px]">{error}</p>}
 

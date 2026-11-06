@@ -1,6 +1,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { ConsentList } from '@/components/legal/ConsentList';
+import { billingConsents } from '@/lib/legal/consents';
 import { useState } from 'react';
 import { formatKstDate } from '@/lib/format-date';
 
@@ -21,7 +23,8 @@ const STATUS: Record<Sub['status'], [string, string, string]> = {
 
 export function BillingClient({ slug, isMock, isOwner, planStatus, betaEndsAt, activeStudents, tier, tiers, subscription: sub, payments }: Props) {
   const router = useRouter();
-  const [consent, setConsent] = useState(false);
+  const [consents, setConsents] = useState<Record<string, boolean>>({ autopay: false, thirdParty: false });
+  const consentOk = consents.autopay && consents.thirdParty;
   const [testFail, setTestFail] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
@@ -32,7 +35,7 @@ export function BillingClient({ slug, isMock, isOwner, planStatus, betaEndsAt, a
     setBusy(true);
     setMsg(null);
     try {
-      const res = await fetch(`/api/${slug}/admin/billing/card`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ consent: true, testFail }) });
+      const res = await fetch(`/api/${slug}/admin/billing/card`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ consent: consents.autopay, thirdPartyConsent: consents.thirdParty, testFail }) });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) return setMsg({ ok: false, text: data.error ?? '카드를 등록하지 못했습니다.' });
       const c = data.charged as { status: string; amount: number; reason?: string } | null;
@@ -46,7 +49,7 @@ export function BillingClient({ slug, isMock, isOwner, planStatus, betaEndsAt, a
               ? '카드를 등록했습니다. 이번 달은 무료 구간이라 결제하지 않았습니다.'
               : `카드는 등록했지만 결제에 실패했습니다 (${c.reason}). 내일 다시 시도합니다.`,
       });
-      setConsent(false);
+      setConsents({ autopay: false, thirdParty: false });
       router.refresh();
     } catch {
       setMsg({ ok: false, text: '카드를 등록하지 못했습니다.' });
@@ -120,13 +123,16 @@ export function BillingClient({ slug, isMock, isOwner, planStatus, betaEndsAt, a
                 결제 실패 테스트 카드로 등록 (모의)
               </label>
             )}
-            <label style={{ display: 'flex', flexWrap: 'nowrap', gap: 8, alignItems: 'flex-start', fontSize: 14, lineHeight: 1.6, cursor: 'pointer' }}>
-              <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ width: 18, height: 18, margin: '2px 0 0', flexShrink: 0 }} />
-              {`${inBeta ? `베타 종료일(${formatKstDate(betaEndsAt!)})부터` : '오늘부터'} 매월 같은 날 재원생 수에 따른 이용료가 이 카드로 자동 결제되는 것에 동의합니다. 언제든 해지할 수 있습니다.`}
-            </label>
+            <ConsentList
+              items={billingConsents(`${inBeta ? `베타 종료일(${formatKstDate(betaEndsAt!)})부터` : '오늘부터'} 매월 같은 날 재원생 수에 따른 이용료가 이 카드로 자동 결제됩니다. 언제든 해지할 수 있습니다.`)}
+              values={consents}
+              onChange={setConsents}
+              allLabel="정기결제와 결제대행사 정보 제공에 모두 동의합니다."
+              idPrefix="bill"
+            />
             {/* TODO(확인 필요): 정기결제 이용약관·자동 갱신 사전 고지·무료→유료 전환 고지(전자상거래법) 문구 확정 */}
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <button type="button" onClick={register} disabled={busy || !consent} style={{ ...BTN, opacity: consent ? 1 : 0.5 }}>
+              <button type="button" onClick={register} disabled={busy || !consentOk} style={{ ...BTN, opacity: consentOk ? 1 : 0.5 }}>
                 {busy ? '처리 중…' : needsCard ? (isMock ? '테스트 카드 등록' : '카드 등록') : '카드 바꾸기'}
               </button>
               {sub && sub.status !== 'canceled' && <button type="button" onClick={cancel} disabled={busy} style={{ ...BTN_GHOST, color: '#B42318' }}>정기결제 해지</button>}

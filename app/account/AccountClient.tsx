@@ -5,26 +5,29 @@ import { useState } from 'react';
 import { signOut } from 'next-auth/react';
 
 type Props = {
-  email: string; name: string | null; joinedAt: string; consentAt: string | null; marketing: boolean;
+  email: string; name: string | null; joinedAt: string; consentAt: string | null; marketing: boolean; promo: boolean;
   academies: { name: string; slug: string; role: string }[];
   logs: { id: string; at: string; label: string; action: string; version: string }[];
 };
 
 const card: React.CSSProperties = { background: '#FFFFFF', borderRadius: 14, padding: 22, display: 'flex', flexDirection: 'column', gap: 10 };
 
-export function AccountClient({ email, name, joinedAt, consentAt, marketing: initial, academies, logs }: Props) {
+export function AccountClient({ email, name, joinedAt, consentAt, marketing: initial, promo: promoInitial, academies, logs }: Props) {
   const [marketing, setMarketing] = useState(initial);
+  const [promo, setPromo] = useState(promoInitial);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
-  async function toggleMarketing() {
+  async function toggle(type: 'ad' | 'promo') {
+    const cur = type === 'ad' ? marketing : promo;
+    const label = type === 'ad' ? '광고성 정보 수신' : '홍보 목적 개인정보 수집·이용';
     setBusy(true);
     setMsg(null);
-    const res = await fetch('/api/account/marketing', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ agree: !marketing }) });
+    const res = await fetch('/api/account/marketing', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type, agree: !cur }) });
     setBusy(false);
     if (res.ok) {
-      setMarketing(!marketing);
-      setMsg({ ok: true, text: !marketing ? '마케팅 정보 수신에 동의했습니다.' : '마케팅 정보 수신 동의를 철회했습니다.' });
+      (type === 'ad' ? setMarketing : setPromo)(!cur);
+      setMsg({ ok: true, text: !cur ? `${label}에 동의했습니다.` : `${label} 동의를 철회했습니다.` });
     } else setMsg({ ok: false, text: '저장하지 못했습니다.' });
   }
 
@@ -62,14 +65,23 @@ export function AccountClient({ email, name, joinedAt, consentAt, marketing: ini
         </section>
 
         <section style={card}>
-          <h2 style={{ margin: 0, fontSize: 16 }}>마케팅 정보 수신 (선택)</h2>
-          <div style={{ fontSize: 14, color: '#4A5568', lineHeight: 1.7 }}>첫등원 새 기능·이벤트·혜택을 이메일·문자로 받습니다. 동의하지 않아도 서비스 이용에는 제한이 없습니다.</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-            <b style={{ color: marketing ? '#1E5645' : '#4A5568' }}>{marketing ? '동의함' : '동의하지 않음'}</b>
-            <button type="button" onClick={toggleMarketing} disabled={busy} style={{ height: 38, padding: '0 14px', borderRadius: 8, border: '1px solid #D5D9E0', background: '#FFFFFF', font: 'inherit', fontSize: 14, cursor: 'pointer' }}>
-              {marketing ? '동의 철회' : '동의하기'}
-            </button>
-          </div>
+          <h2 style={{ margin: 0, fontSize: 16 }}>선택 동의</h2>
+          <div style={{ fontSize: 14, color: '#4A5568', lineHeight: 1.7 }}>동의하지 않아도 서비스 이용에는 제한이 없고, 언제든 바꿀 수 있습니다.</div>
+          {([
+            ['promo', '홍보 목적 개인정보 수집·이용', '이름·이메일·휴대폰 번호를 첫등원 소식·혜택 안내에 씁니다.', promo],
+            ['ad', '광고성 정보 수신', '첫등원 새 기능·이벤트·혜택 안내를 이메일·문자·카카오톡으로 받습니다.', marketing],
+          ] as const).map(([type, title, desc, on]) => (
+            <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', paddingTop: 10, borderTop: '1px solid #EEF0F3' }}>
+              <div style={{ flex: '1 1 240px', minWidth: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: 14 }}>{title}</div>
+                <div style={{ fontSize: 13, color: '#4A5568' }}>{desc}</div>
+              </div>
+              <b style={{ color: on ? '#1E5645' : '#4A5568', fontSize: 14 }}>{on ? '동의함' : '동의하지 않음'}</b>
+              <button type="button" onClick={() => toggle(type)} disabled={busy} style={{ height: 38, padding: '0 14px', borderRadius: 8, border: '1px solid #D5D9E0', background: '#FFFFFF', font: 'inherit', fontSize: 14, cursor: 'pointer' }}>
+                {on ? '동의 철회' : '동의하기'}
+              </button>
+            </div>
+          ))}
         </section>
 
         <section style={card}>

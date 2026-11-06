@@ -4,7 +4,7 @@ import { getAcademyPageData } from '@/lib/academy-data';
 import { prisma } from '@/lib/prisma';
 import ThemeHeader from '@/components/academy/ThemeHeader';
 import SiteFooter from '@/components/academy/SiteFooter';
-import { isRegToken, registrationConsentText } from '@/lib/students/registration';
+import { isRegToken } from '@/lib/students/registration';
 import JoinForm from './JoinForm';
 
 type Props = { params: Promise<{ slug: string; token: string }> };
@@ -25,7 +25,6 @@ export default async function JoinPage({ params }: Props) {
   const valid =
     isRegToken(token) &&
     !!(await prisma.tenant.findFirst({ where: { slug, status: 'active', studentRegToken: token }, select: { id: true } }));
-  const consent = registrationConsentText(tenant.name);
 
   return (
     <>
@@ -50,7 +49,7 @@ export default async function JoinPage({ params }: Props) {
             </p>
           </div>
           {valid ? (
-            <JoinForm slug={slug} token={token} consent={consent} />
+            <JoinForm slug={slug} token={token} academyName={tenant.name} />
           ) : (
             <div className="p-6 md:p-10 bg-white rounded-[24px] text-[16px] leading-relaxed">
               만료되었거나 올바르지 않은 등록 링크입니다.<br />

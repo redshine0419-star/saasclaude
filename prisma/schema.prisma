@@ -204,7 +204,9 @@ model User {
   privacyAgreedAt    DateTime?
   consentVersion     String? // 동의한 약관·처리방침 버전
   marketingAgreedAt  DateTime? // 선택: 마케팅 정보 수신 (이메일·문자)
-  marketingRevokedAt DateTime?
+  marketingRevokedAt DateTime? // 광고성 정보 수신 동의 (marketingAgreedAt과 짝)
+  promoAgreedAt      DateTime? // 홍보 목적 개인정보 수집·이용 동의 (선택)
+  promoRevokedAt     DateTime?
 
   memberships Membership[]
   consentLogs UserConsentLog[]
@@ -751,14 +753,16 @@ model DiagnosticRequest {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
-  academyName String
-  area        String
-  subject     String
-  phone       String
-  currentUrl  String?
-  status      DiagnosticStatus @default(pending)
-  resultNote  String?
-  scores      Json? // { item1: {score:1-3, note:""}, item2: ..., item3: ..., item4: ... }
+  academyName     String
+  area            String
+  subject         String
+  phone           String
+  currentUrl      String?
+  status          DiagnosticStatus @default(pending)
+  resultNote      String?
+  scores          Json? // { item1: {score:1-3, note:""}, item2: ..., item3: ..., item4: ... }
+  privacyAgreedAt DateTime? // 개인정보 수집·이용 동의 (필수)
+  adAgreedAt      DateTime? // 광고성 정보 수신 동의 (선택)
 
   @@map("diagnostic_requests")
 }
@@ -1143,19 +1147,20 @@ enum SubscriptionStatus {
 }
 
 model Subscription {
-  id            String             @id @default(cuid())
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-  tenantId      String             @unique
-  status        SubscriptionStatus @default(active)
-  provider      String // mock | (PG 연동 후) toss 등
-  billingKey    String // PG 빌링키 (모의: mock_...)
-  cardLabel     String // 화면 표시용 (예: 모의카드 ****4242)
-  nextBillingAt DateTime
-  failCount     Int                @default(0)
-  consentAt     DateTime // 정기결제 동의 시각
-  consentBy     String // 동의한 원장 이메일
-  canceledAt    DateTime?
+  id                  String             @id @default(cuid())
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  tenantId            String             @unique
+  status              SubscriptionStatus @default(active)
+  provider            String // mock | (PG 연동 후) toss 등
+  billingKey          String // PG 빌링키 (모의: mock_...)
+  cardLabel           String // 화면 표시용 (예: 모의카드 ****4242)
+  nextBillingAt       DateTime
+  failCount           Int                @default(0)
+  consentAt           DateTime // 정기결제 동의 시각
+  consentBy           String // 동의한 원장 이메일
+  thirdPartyConsentAt DateTime? // 결제대행사 개인정보 제3자 제공 동의
+  canceledAt          DateTime?
 
   tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   payments Payment[]

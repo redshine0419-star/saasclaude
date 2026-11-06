@@ -76,7 +76,7 @@ export default async function ConsultPage({
           {/* 오른쪽: 폼 */}
           <div className="flex-1">
             <Suspense fallback={<div className="p-6 bg-white rounded-[24px] text-body text-[15px]">로딩 중...</div>}>
-              <ConsultForm slug={slug} slots={levelTestSlots} />
+              <ConsultForm slug={slug} slots={levelTestSlots} academyName={tenant.name} />
             </Suspense>
           </div>
         </section>

@@ -45,8 +45,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '대표 전화번호 형식을 확인해 주세요.', field: 'phone' }, { status: 400 });
   }
   if (!isThemeKey(theme)) return NextResponse.json({ error: '테마를 선택해 주세요.' }, { status: 400 });
-  if (!body.consentTerms || !body.consentPrivacy || !body.consentBeta) {
-    return NextResponse.json({ error: '필수 동의 항목에 동의해 주세요.' }, { status: 400 });
+  // 약관·개인정보 수집·이용은 회원가입 동의(hasSignupConsent)로 확인한다
+  if (body.consentBeta !== true) {
+    return NextResponse.json({ error: '베타 이용 조건을 확인하고 동의해 주세요.' }, { status: 400 });
   }
 
   if (!isPlatformAdmin(email)) {
@@ -83,8 +84,8 @@ export async function POST(req: NextRequest) {
         status: 'active',
         onboardedVia: 'self_serve',
         signupConsents: {
-          terms: true,
-          privacy: true,
+          terms: 'signup',
+          privacy: 'signup',
           beta: true,
           case: !!body.consentCase,
           at: now.toISOString(),

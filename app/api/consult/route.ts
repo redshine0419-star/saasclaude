@@ -25,12 +25,14 @@ export async function POST(req: NextRequest) {
   if (!academyName || !area || !subject || !phone) {
     return NextResponse.json({ error: '필수 항목을 모두 입력해주세요.' }, { status: 400 });
   }
-  if (!body.agreed) {
+  // 필수: 개인정보 수집·이용 (예전 화면은 agreed만 보낸다)
+  if (body.agreePrivacy !== true && body.agreed !== true) {
     return NextResponse.json({ error: '개인정보 수집·이용에 동의해주세요.' }, { status: 400 });
   }
+  const now = new Date();
 
   const record = await prisma.diagnosticRequest.create({
-    data: { academyName, area, subject, phone, currentUrl },
+    data: { academyName, area, subject, phone, currentUrl, privacyAgreedAt: now, adAgreedAt: body.agreeAd === true ? now : null },
   });
 
   // 자동 진단: 결과를 바로 보여주고, 운영자는 P-03에서 필요할 때만 보완한다.

@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { FdHeader } from '@/components/fd/FdHeader';
 import { FdFooter } from '@/components/fd/FdFooter';
+import { ConsentList } from '@/components/legal/ConsentList';
+import { DIAGNOSIS_CONSENTS, requiredAgreed } from '@/lib/legal/consents';
 
 export default function ConsultPage() {
   const [form, setForm] = useState({
@@ -13,7 +15,8 @@ export default function ConsultPage() {
     phone: '',
     currentUrl: '',
   });
-  const [agreed, setAgreed] = useState(false);
+  const [consents, setConsents] = useState<Record<string, boolean>>({ privacy: false, ad: false });
+  const agreed = requiredAgreed(DIAGNOSIS_CONSENTS, consents);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -30,7 +33,7 @@ export default function ConsultPage() {
       const res = await fetch('/api/consult', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, agreed }),
+        body: JSON.stringify({ ...form, agreed, agreePrivacy: consents.privacy, agreeAd: consents.ad }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error ?? '오류가 발생했습니다.'); return; }
@@ -113,15 +116,7 @@ export default function ConsultPage() {
               />
             </label>
 
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}>
-              <input
-                type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)}
-                style={{ marginTop: 3, width: 16, height: 16, accentColor: '#14213D', flexShrink: 0 }}
-              />
-              <span style={{ fontSize: 14, lineHeight: 1.6, color: '#3C4659' }}>
-                [필수] 개인정보 수집·이용에 동의합니다. 수집 정보(학원명, 연락처)는 진단 상담 목적으로만 사용하며 1년 후 파기합니다.
-              </span>
-            </label>
+            <ConsentList items={DIAGNOSIS_CONSENTS} values={consents} onChange={setConsents} idPrefix="diag" />
 
             {error && <p style={{ margin: 0, color: '#8A3A1C', fontSize: 14 }}>{error}</p>}
 

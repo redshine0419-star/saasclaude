@@ -44,6 +44,11 @@ export async function POST(
     return NextResponse.json({ error: '필수 항목을 입력해주세요.' }, { status: 400 });
   }
 
+  // 필수 동의: 학부모(법정대리인) 확인 + 개인정보 수집·이용 (lib/legal/consents.ts consultConsents) — 서버에서 막는다
+  if (body.guardianConfirmed !== true || body.agreePrivacy !== true) {
+    return NextResponse.json({ error: '필수 동의 항목(학부모 확인, 개인정보 수집·이용)에 동의해 주세요.' }, { status: 400 });
+  }
+
   // 허니팟 필드: 봇은 채우고 사람은 비운다 (필드명은 _hp로 숨김)
   if (body._hp) {
     return NextResponse.json({ ok: true }); // 봇에게는 성공처럼 보임

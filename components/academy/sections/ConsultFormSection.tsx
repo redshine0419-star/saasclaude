@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { ConsentList } from '@/components/legal/ConsentList';
+import { consultConsents, requiredAgreed } from '@/lib/legal/consents';
 import { weekdayLabel } from '@/lib/weekday';
 import type { AcademyTenant, LevelTestSlot } from '@/lib/academy-data';
 import { TitleLines } from '@/components/academy/TitleLines';
@@ -18,9 +20,9 @@ export default function ConsultFormSection({ tenant, slots, eyebrow = '무료 �
   const [phone, setPhone] = useState('');
   const [grade, setGrade] = useState('');
   const [slotId, setSlotId] = useState('');
-  const [agreed, setAgreed] = useState(false);
-  const [agreeMarketing, setAgreeMarketing] = useState(false);
-  const [agreeNight, setAgreeNight] = useState(false);
+  const consentItems = consultConsents(tenant.name);
+  const [consents, setConsents] = useState<Record<string, boolean>>({ guardian: false, privacy: false, ad: false, night: false });
+  const agreed = requiredAgreed(consentItems, consents);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -38,8 +40,10 @@ export default function ConsultFormSection({ tenant, slots, eyebrow = '무료 �
           grade,
           consultType: '레벨테스트 예약',
           slotId: slotId || null,
-          agreeMarketing,
-          agreeNight,
+          guardianConfirmed: consents.guardian,
+          agreePrivacy: consents.privacy,
+          agreeMarketing: consents.ad,
+          agreeNight: consents.ad && consents.night,
         }),
       });
       if (res.ok) {
@@ -143,24 +147,10 @@ export default function ConsultFormSection({ tenant, slots, eyebrow = '무료 �
                 </label>
               )}
 
-              {/* 동의 */}
-              <div className="sm:col-span-2 flex flex-col gap-2.5">
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-1 w-4 h-4 accent-accent flex-shrink-0" />
-                  <span className="text-[13px] text-muted leading-[1.6]">
-                    <b>[필수]</b> 개인정보 수집·이용 동의. 수집 항목(이름, 연락처, 학년)은 상담 목적으로만 사용하며 상담 종료 후 1년 뒤 파기합니다. <a href={`/${tenant.slug}/privacy`} target="_blank" rel="noopener noreferrer" className="underline">개인정보처리방침</a>
-                  </span>
-                </label>
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input type="checkbox" checked={agreeMarketing} onChange={(e) => setAgreeMarketing(e.target.checked)} className="mt-1 w-4 h-4 accent-accent flex-shrink-0" />
-                  <span className="text-[13px] text-muted leading-[1.6]">[선택] 특강·모집 안내 수신 동의 (카카오톡·문자)</span>
-                </label>
-                {agreeMarketing && (
-                  <label className="flex items-start gap-3 cursor-pointer pl-7">
-                    <input type="checkbox" checked={agreeNight} onChange={(e) => setAgreeNight(e.target.checked)} className="mt-1 w-4 h-4 accent-accent flex-shrink-0" />
-                    <span className="text-[13px] text-muted leading-[1.6]">[선택] 21시~08시 수신 동의</span>
-                  </label>
-                )}
+              {/* 동의 — 학원이 개인정보처리자 (lib/legal/consents.ts consultConsents) */}
+              <div className="sm:col-span-2 flex flex-col gap-2">
+                <ConsentList items={consentItems} values={consents} onChange={setConsents} idPrefix="home-consult" />
+                <a href={`/${tenant.slug}/privacy`} target="_blank" rel="noopener noreferrer" className="self-start text-[13px] text-body underline">개인정보처리방침 전문 보기</a>
               </div>
 
               <button

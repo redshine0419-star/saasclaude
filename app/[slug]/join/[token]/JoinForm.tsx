@@ -1,15 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import { ConsentList } from '@/components/legal/ConsentList';
+import { joinConsents } from '@/lib/legal/consents';
 
-type Consent = { title: string; items: readonly (readonly [string, string])[]; note: string };
-type Props = { slug: string; token: string; consent: Consent };
+type Props = { slug: string; token: string; academyName: string };
 
 const input = 'h-[52px] px-4 rounded-[10px] border border-input-line text-[16px] bg-bg focus:outline-none focus:border-accent w-full min-w-0';
 const label = 'text-[14px] font-semibold';
 const GRADES = ['초1', '초2', '초3', '초4', '초5', '초6', '중1', '중2', '중3', '고1', '고2', '고3', '기타'];
 
-export default function JoinForm({ slug, token, consent }: Props) {
+export default function JoinForm({ slug, token, academyName }: Props) {
   const [f, setF] = useState({ studentName: '', grade: '', school: '', studentPhone: '', parentName: '', parentPhone: '', memo: '', _hp: '' });
   const [guardian, setGuardian] = useState(false);
   const [agree, setAgree] = useState(false);
@@ -100,26 +101,7 @@ export default function JoinForm({ slug, token, consent }: Props) {
         </div>
       </fieldset>
 
-      <div className="flex flex-col gap-3 p-5 bg-bg rounded-[12px] text-[14px] leading-relaxed">
-        <div className="text-[15px] font-bold">{consent.title}</div>
-        <dl className="m-0 grid grid-cols-[84px_1fr] gap-x-3 gap-y-1.5">
-          {consent.items.map(([k, v]) => (
-            <div key={k} className="contents">
-              <dt className="font-semibold">{k}</dt>
-              <dd className="m-0 text-body">{v}</dd>
-            </div>
-          ))}
-        </dl>
-        <div className="text-body">{consent.note}</div>
-        <label className="flex items-start gap-2.5 cursor-pointer text-[15px] mt-1">
-          <input type="checkbox" checked={guardian} onChange={(e) => setGuardian(e.target.checked)} className="w-5 h-5 mt-0.5 flex-shrink-0" />
-          <span>학생의 학부모(법정대리인)입니다.</span>
-        </label>
-        <label className="flex items-start gap-2.5 cursor-pointer text-[15px]">
-          <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="w-5 h-5 mt-0.5 flex-shrink-0" />
-          <span>위 개인정보 수집·이용에 동의합니다. (필수)</span>
-        </label>
-      </div>
+      <ConsentList items={joinConsents(academyName)} values={{ guardian, privacy: agree }} onChange={(v) => { setGuardian(!!v.guardian); setAgree(!!v.privacy); }} allLabel="아래 내용에 모두 동의합니다." idPrefix="join" />
 
       {error && <div role="alert" className="text-[14px] text-[#B42318]">{error}</div>}
 
