@@ -762,6 +762,7 @@ enum DiagnosticStatus {
   done
 }
 
+/// 제작 대행 신청(F-06) — 기능은 2026-11 삭제. 기존 신청 데이터 보관용으로만 남긴다(화면·API 없음).
 model Application {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())

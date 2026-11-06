@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 type Result = { ok: boolean; reason?: string; checks?: { apiKey: boolean; recipients: number; to?: string; from: string }; error?: string };
 
-/** 운영자 알림 메일(무료 진단·제작 대행·셀프 개설) 설정 점검 */
+/** 운영자 알림 메일(무료 진단·셀프 개설) 설정 점검 */
 export function MailTestCard() {
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
@@ -26,7 +26,7 @@ export function MailTestCard() {
     <section style={{ background: '#FFFFFF', borderRadius: 12, padding: 24, marginBottom: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ fontSize: 16, fontWeight: 700 }}>알림 메일</div>
       <div style={{ fontSize: 13, color: '#5A6270', lineHeight: 1.6 }}>
-        무료 진단·제작 대행 신청·셀프 개설이 들어오면 운영자 메일로 알림을 보냅니다. 아래 버튼으로 설정을 확인하세요.
+        무료 진단·셀프 개설이 들어오면 운영자 메일로 알림을 보냅니다. 아래 버튼으로 설정을 확인하세요.
       </div>
       <button
         type="button"

@@ -27,8 +27,8 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
     `[첫등원] ${request.academyName} 무료 진단 결과입니다.\n\n` +
     `과목: ${request.subject} / 지역: ${request.area}\n\n` +
     `${resultNote || '담당자가 곧 상세 결과를 안내해 드립니다.'}\n\n` +
-    `첫등원 홈페이지 제작 서비스로 더 많은 원생을 모집해보세요.\n` +
-    `상담 신청: ${process.env.NEXT_PUBLIC_BASE_URL ?? 'https://growweb.me'}/apply`;
+    `첫등원으로 학원 홈페이지를 직접 만들어 보세요. 5분이면 열립니다.\n` +
+    `바로 만들기: ${process.env.NEXT_PUBLIC_BASE_URL ?? 'https://growweb.me'}/start`;
 
   const recipientHash = hashPhone(request.phone);
 

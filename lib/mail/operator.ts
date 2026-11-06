@@ -1,6 +1,6 @@
 import { sendMail } from './send';
 
-/** 운영자 알림 메일 — 무료 진단·제작 대행 신청·셀프 개설 접수 시 OPERATOR_NOTIFY_EMAIL로 보낸다 */
+/** 운영자 알림 메일 — 무료 진단·셀프 개설 접수 시 OPERATOR_NOTIFY_EMAIL로 보낸다 */
 
 /** 따옴표·"이름 <메일>"·세미콜론·공백 구분도 받아 준다 */
 export function parseRecipients(raw: string | undefined): string[] {

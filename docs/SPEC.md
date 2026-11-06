@@ -73,18 +73,18 @@
 | F-04 | 요금 | `marketing/Pricing.dc.html` |
 | F-05 | 상담 · 무료 진단 | `marketing/Consult.dc.html` |
 | F-05a | 무료 진단 접수 완료 | `marketing/ConsultDone.dc.html` |
-| F-06 | 베타 신청 | `marketing/Apply.dc.html` |
-| F-06a | 베타 신청 완료 | `marketing/ApplyDone.dc.html` |
+| ~~F-06~~ | ~~베타(제작 대행) 신청~~ — **2026-11 삭제**. `/apply`는 `/start`로 보낸다 | `marketing/Apply.dc.html` |
+| ~~F-06a~~ | ~~베타 신청 완료~~ — 2026-11 삭제 | `marketing/ApplyDone.dc.html` |
 | F-07 | 셀프 개설 (`/start`) | 시안 없음 — 12장 참고 |
 
 ### 3-4. 플랫폼 관리자 (첫등원 운영자용)
 
 | ID | 화면 | 주요 내용 | 디자인 파일 |
 |---|---|---|---|
-| P-01 | 학원 목록 | 운영 요약, 할 일 알림(베타 종료 2주 이내, 자료 2주 미제출, 카톡 한도 90%), 상태 필터, 카톡 사용량, 관리자 대행 접속 | `academy/PlatAcademies.dc.html` |
+| P-01 | 학원 목록 | 운영 요약, 할 일 알림(베타 종료 2주 이내, 카톡 한도 90%), 상태 필터, 카톡 사용량, 관리자 대행 접속 | `academy/PlatAcademies.dc.html` |
 | P-02 | 학원 상세·설정 | 탭(기본 정보/테마·섹션/플랜·베타/계정·연결), 테마 선택, 강조색 대비 검사, 홈 섹션 켜기·순서, 같은 지역·과목 경고, 원장 연락 기록 | `academy/PlatAcademyEdit.dc.html` |
 | P-03 | 무료 진단 | 요청 목록(기한 표시), 4개 항목 판정·메모, 카톡 미리보기·발송 | `academy/PlatDiagnosis.dc.html` |
-| P-04 | 베타 신청·제작 | 칸반: 신청 접수 → 자료 대기 → 제작 중 → 시안 확인 → 오픈 준비, 순번·예상 시작일·자료 진행률 | `academy/PlatQueue.dc.html` |
+| ~~P-04~~ | ~~베타 신청·제작 칸반~~ — 2026-11 삭제 (제작 대행 신청 기능 폐지) | `academy/PlatQueue.dc.html` |
 | P-05 | 서비스 설정 | 베타 조건, 정식 요금, 카카오 발송 대행사, 운영자 계정·대행 접속 기록 | `academy/PlatSettings.dc.html` |
 
 - 운영자 로그인은 A-00과 같은 화면, 역할로 분기한다.
@@ -116,7 +116,7 @@
 - **messages**: tenant_id, lead_id(nullable), scenario, kind, channel(`alimtalk`|`brand`|`sms_fallback`), recipient_hash, status, cost, sent_at, error
 - **monthly_reports**: tenant_id, month, snapshot(json), ai_check(json), manager_note
 - **diagnostic_requests** (F-05): academy_name, area, subject, phone, current_url, status, result_note
-- **applications** (F-06): plan, academy 정보, uploaded_files[], wants_photo_shoot, pilot_consent, status
+- **applications** (F-06, 기능 삭제): 기존 신청 데이터 보관용으로만 테이블이 남아 있다. 화면·API 없음. 정리 후 마이그레이션으로 삭제 예정
 
 ## 5. 테마와 섹션
 
@@ -196,8 +196,7 @@ source 판별 순서: UTM → referrer (naver.com 검색/플레이스, kakao, bl
   - 자동 결제 없음, 카드 정보 받지 않음. 원장(새 상담 알림 번호)에게 D-14·D-3·D-0·비공개 7일 전 자동 안내(`tenants.lifecycleNotices`에 기록, 하루 1건), 대시보드 배너에서 "계속 이용 신청"·내보내기. 운영자는 P-01 "계속 이용 신청" 태그를 보고 플랜 전환
   - 종료 후 미전환 시 [30]일 유지 후 비공개 전환, 상담 기록·콘텐츠 내보내기 제공, 도메인은 학원 명의
   - 베타 한도: 카톡 월 [300]건, 콘텐츠 대행 월 [1]회. 한도 도달 시 운영자 알림 (발송 차단 여부 `TODO(확인 필요)`)
-  - 신청 순서대로 제작: applications에 `queue_order`, `expected_start_date`
-- 신청(F-06): 학원 정보, 자료 업로드(신청 후 [2주] 안 제출 가능), 필수 동의 4종(약관, 개인정보, 베타 참여 조건, 익명 사례 공개)
+- 베타 참여는 셀프 개설(F-07, `/start`)로만 한다. 제작 대행 신청(F-06)은 2026-11 삭제
 - **정식 요금 (2026-11 결정): 재원생 수 구간** — 학생부 '재원' 학생 수 기준, 기능은 모든 구간 동일 (`lib/plan-tier.ts`)
   - 무료: 재원생 5명까지 / 스탠다드: 6~50명 / 플러스: 51명 이상
   - 금액: 스탠다드 월 30,000원, 플러스 월 50,000원 (2026-11 결정, `lib/plan-tier.ts` 기본값). 플랫폼 관리자 설정(`price_tier_standard`, `price_tier_plus`)에 값을 넣으면 그 값이 우선. 베타 참여자 할인율은 미정
@@ -231,7 +230,7 @@ source 판별 순서: UTM → referrer (naver.com 검색/플레이스, kakao, bl
 
 ## 12. 셀프서비스 (고객 접점 최소화)
 
-원장이 운영자 도움 없이 홈페이지를 만들고 고친다. 운영자는 제작자가 아니라 예외 처리자다. 제작 대행(F-06)과 콘텐츠 대행 월 [1]회는 선택지로 유지한다.
+원장이 운영자 도움 없이 홈페이지를 만들고 고친다. 운영자는 제작자가 아니라 예외 처리자다. 제작 대행 신청(F-06)은 2026-11 삭제했다. 콘텐츠 대행 월 [1]회만 선택지로 유지한다.
 
 - **셀프 개설 F-07** (`/start`): Google 로그인 → 학원 정보(학원명·주소 slug·학원등록번호·교습과목·대상 학년·대표 전화·주소) → 테마 선택 → 필수 동의 3종(+선택 1종) → **즉시 공개** (`noindex` 없음, 운영자 사전 승인 없음)
   - 생성: tenant(`onboardedVia=self_serve`, `signupConsents`에 동의 기록), 기본 섹션, owner 멤버십, 베타 기간(오픈일=개설일부터 3개월)
