@@ -66,7 +66,7 @@ export default async function AdminClassesPage({
       }}
     >
       <AdminSide slug={slug} tenantName={tenant.name} active="classes" />
-      <main style={{ flex: 1, padding: '32px 40px', display: 'flex', gap: 20 }}>
+      <main style={{ flex: 1, minWidth: 0, padding: '32px 40px', display: 'flex', gap: 20 }}>
         <ClassesClient slug={slug} classes={serializedClasses} levelTestSlots={serializedSlots} aiDraftEnabled={aiDraftAvailable()} />
       </main>
     </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AiDraftPanel } from '@/components/admin/AiDraftPanel';
 
 interface ClassItem {
@@ -44,6 +44,15 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
   const [slots, setSlots] = useState(initialSlots.filter((s) => s.active));
   const [selectedId, setSelectedId] = useState<string | null>(initialClasses[0]?.id ?? null);
   const [form, setForm] = useState<Partial<ClassItem>>({});
+  const panelRef = useRef<HTMLDivElement>(null);
+  const picked = useRef(false);
+  // 좁은 화면에서는 편집 칸이 목록 아래에 있으므로, 반을 고르면 편집 칸으로 내려간다
+  useEffect(() => {
+    if (!picked.current) return;
+    picked.current = false;
+    const el = panelRef.current;
+    if (el && el.getBoundingClientRect().top > window.innerHeight * 0.6) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [selectedId]);
   const [saving, setSaving] = useState(false);
   const [seatsLoading, setSeatsLoading] = useState<string | null>(null);
   const [showAddSlot, setShowAddSlot] = useState(false);
@@ -150,9 +159,9 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
   const waitlistClasses = classes.filter((c) => c.waitlistCount > 0 && (c.seatsLeft ?? 1) <= 0);
 
   return (
-    <div style={{ display: 'flex', gap: 20, flex: 1, minHeight: 0 }}>
-      {/* Left */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', gap: 20, flex: 1, minHeight: 0, minWidth: 0, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+      {/* Left — 편집 칸이 옆에 들어갈 폭이 없으면 편집 칸이 아래로 내려간다 */}
+      <div style={{ flex: '1 1 420px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>
         {waitlistClasses.length > 0 && (
           <div style={{ padding: '14px 18px', background: '#FEF3E2', borderRadius: 10, border: '1px solid #F5C67B', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <div>
@@ -198,7 +207,7 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
         </div>
 
         {/* Class table */}
-        <div style={{ background: '#FFFFFF', borderRadius: 12, overflow: 'hidden' }}>
+        <div style={{ background: '#FFFFFF', borderRadius: 12, overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ textAlign: 'left', color: '#5A6270', background: '#FAF9F6' }}>
@@ -214,14 +223,14 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
                 return (
                   <tr
                     key={cls.id}
-                    onClick={() => { setSelectedId(cls.id); setForm({}); }}
+                    onClick={() => { picked.current = true; setSelectedId(cls.id); setForm({}); }}
                     style={{
                       borderTop: '1px solid #EEEAE2',
                       background: isSelected ? '#EEF5F1' : 'transparent',
                       cursor: 'pointer',
                     }}
                   >
-                    <td style={{ padding: '14px 16px', fontWeight: 600 }}>{cls.name}</td>
+                    <td style={{ padding: '14px 16px', fontWeight: 600, minWidth: 96, wordBreak: 'keep-all' }}>{cls.name}</td>
                     <td style={{ padding: '14px 16px' }}>
                       {cls.days.join('·') || '–'} {cls.startTime ?? ''}{cls.endTime ? `~${cls.endTime}` : ''}
                     </td>
@@ -349,8 +358,11 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
       {/* Right: edit panel */}
       {selected && (
         <div
+          ref={panelRef}
           style={{
-            width: 420,
+            flex: '0 1 420px',
+            minWidth: 0,
+            maxWidth: '100%',
             padding: 24,
             boxSizing: 'border-box',
             background: '#FFFFFF',
@@ -369,13 +381,13 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
               type="text"
               value={(fieldVal('name') as string) ?? ''}
               onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-              style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
+              style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14, width: '100%', minWidth: 0, boxSizing: 'border-box' }}
             />
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>요일</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 6 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, minmax(0, 1fr))', gap: 6 }}>
               {WEEKDAYS.map((d) => {
                 const days = (fieldVal('days') as string[]) ?? [];
                 const active = days.includes(d);
@@ -408,7 +420,7 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>시작 시간</label>
               <input
@@ -416,7 +428,7 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
                 value={(fieldVal('startTime') as string) ?? ''}
                 onChange={(e) => setForm((p) => ({ ...p, startTime: e.target.value }))}
                 placeholder="17:00"
-                style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
+                style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14, width: '100%', minWidth: 0, boxSizing: 'border-box' }}
               />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -426,12 +438,12 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
                 value={(fieldVal('endTime') as string) ?? ''}
                 onChange={(e) => setForm((p) => ({ ...p, endTime: e.target.value }))}
                 placeholder="19:00"
-                style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
+                style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14, width: '100%', minWidth: 0, boxSizing: 'border-box' }}
               />
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <label style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>정원</label>
               <input
@@ -439,7 +451,7 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
                 value={(fieldVal('capacity') as number) ?? ''}
                 onChange={(e) => setForm((p) => ({ ...p, capacity: Number(e.target.value) }))}
                 placeholder="8"
-                style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
+                style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14, width: '100%', minWidth: 0, boxSizing: 'border-box' }}
               />
             </div>
           </div>
@@ -465,7 +477,7 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
               value={(fieldVal('textbook') as string) ?? ''}
               onChange={(e) => setForm((p) => ({ ...p, textbook: e.target.value }))}
               placeholder="교재명"
-              style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
+              style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14, width: '100%', minWidth: 0, boxSizing: 'border-box' }}
             />
           </div>
 
