@@ -23,7 +23,7 @@ export default function NewsSection({ posts, slug, title = SECTION_COPY_SPEC.new
   const items = posts.slice(0, 3);
 
   return (
-    <section id="news" className="py-14 md:py-[76px] bg-surface">
+    <section id="news" className="acad-section bg-surface">
       <div className="acad-wrap">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6 md:mb-8">
           <div className="min-w-0">

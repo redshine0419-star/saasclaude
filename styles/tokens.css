@@ -62,6 +62,23 @@
   --button-lg: 56px;
   --container: 1200px;
 
+  /* 학원 홈페이지 섹션 틀 (테마마다 덮어쓴다) */
+  --wrap-max: 1180px;
+  --gutter: 22px;
+  --gutter-m: 16px;
+  --sec-py: 100px;
+  --sec-py-m: 72px;
+  --font-heading: var(--font-sans);
+  --h2-size: 40px;
+  --h2-size-m: 28px;
+  --h2-weight: 800;
+  --h2-ls: -0.04em;
+  --eyebrow-size: 13px;
+  --eyebrow-weight: 800;
+  --eyebrow-ls: 0.04em;
+  --card-radius: 14px;
+  --btn-radius: 10px;
+
   /* 푸터 (테마 A는 어두운 띠) */
   --footer-bg: var(--bg);
   --footer-ink: var(--ink);
@@ -134,60 +151,108 @@
   --footer-ink: #ffffff;
   --footer-muted: #c2cbd1;
   --section-shadow: 0 18px 48px rgba(31, 43, 37, 0.10);
+  --wrap-max: 1280px;
+  --gutter: 24px;
+  --sec-py: 76px;
+  --sec-py-m: 56px;
+  --font-heading: var(--font-serif);
+  --h2-size: 38px;
+  --h2-size-m: 27px;
+  --h2-weight: 700;
+  --eyebrow-size: 14px;
+  --card-radius: 18px;
+  --btn-radius: 11px;
 }
 
-/* ── 테마 B 성과 중심형 ── */
+/* ── 테마 B 성과 중심형 ── (2026-11 시안: 남색 첫 화면, 파랑 강조, 라임 포인트, 굵은 고딕) */
 [data-theme="result"] {
   --bg: #ffffff;
   --surface: #ffffff;
-  --subtle: #f2f4f7;
-  --ink: #0f1b2d;
-  --body: #4a5568;
-  --muted: #4a5568;
-  --line: #e2e6ec;
-  --input-line: #cbd3dd;
-  --accent: #1d3fa8;
+  --subtle: #f7f9fc;
+  --ink: #17233b;
+  --body: #4f5b70;
+  --muted: #69758b;
+  --line: #e4e9f1;
+  --input-line: #d3dae6;
+  --accent: #3159d9;
   --on-accent: #ffffff;
-  --accent-soft: #e5eaf8;
-  --accent-ink: #132c7a;
-  --highlight: #9db2e8;
-  --highlight-soft: #e5eaf8;
-  --highlight-ink: #132c7a;
-  --label: #1d3fa8;
+  --accent-soft: #f0f4ff;
+  --accent-ink: #2347b8;
+  --highlight: #d9f36a;
+  --highlight-soft: #f3fbd0;
+  --highlight-ink: #17233b;
+  --label: #3159d9;
   --warn-bg: #f3e3dc;
   --warn-ink: #8a3a1c;
-  --dark: #0f1b2d;
-  --dark-surface: #17263f;
+  --dark: #101c35;
+  --dark-surface: #18294a;
   --on-dark: #ffffff;
-  --on-dark-muted: #c7d0de;
-  --pastel-sky: #f2f4f7;
-  --pastel-pink: #f2f4f7;
+  --on-dark-muted: #bdc8dc;
+  --pastel-sky: #f7f9fc;
+  --pastel-pink: #f7f9fc;
+  --font-grotesk: "Noto Sans KR", "Gothic A1", "Apple SD Gothic Neo", sans-serif;
+  --font-heading: var(--font-grotesk);
+  --h2-size: 40px;
+  --h2-size-m: 28px;
+  --h2-weight: 900;
+  --h2-ls: -0.04em;
+  --eyebrow-size: 12px;
+  --eyebrow-weight: 900;
+  --eyebrow-ls: 0.12em;
+  --card-radius: 13px;
+  --btn-radius: 7px;
+  --footer-bg: #0b1428;
+  --footer-ink: #ffffff;
+  --footer-muted: #9eabc2;
+  --section-shadow: 0 15px 40px rgba(23, 35, 59, 0.06);
 }
 
-/* ── 테마 C 밝은 친근형 ── */
+/* ── 테마 C 밝은 친근형 ── (2026-11 시안: 흰 바탕 + 파스텔, 청록 강조, 노랑 버튼, 둥근 제목) */
 [data-theme="bright"] {
   --bg: #ffffff;
   --surface: #ffffff;
-  --subtle: #f3f6fa;
+  --subtle: #f8f8f4;
   --ink: #1f2a37;
-  --body: #3a4656;
-  --muted: #3a4656;
-  --line: #e8edf3;
-  --input-line: #cbd3dd;
+  --body: #536170;
+  --muted: #6b7783;
+  --line: #e9e7df;
+  --input-line: #dddcd4;
   --accent: #0f766e;
   --on-accent: #ffffff;
-  --accent-soft: #e0f5ef;
+  --accent-soft: #eaf7f3;
   --accent-ink: #0b5a54;
-  --highlight: #ffd54f;
-  --highlight-soft: #fff3c4;
+  --highlight: #ffd85e;
+  --highlight-soft: #fff0b9;
   --highlight-ink: #1f2a37;
   --label: #0f766e;
-  --warn-bg: #ffe3ec;
+  --warn-bg: #ffe5ed;
   --warn-ink: #8a2a4a;
-  --dark: #1f2a37;
+  --dark: #202c39;
   --dark-surface: #2c3a4c;
   --on-dark: #ffffff;
-  --on-dark-muted: #d5dce5;
-  --pastel-sky: #ddf1ff;
-  --pastel-pink: #ffe3ec;
+  --on-dark-muted: #b5c0c9;
+  --pastel-sky: #dff2ff;
+  --pastel-pink: #ffe5ed;
+  --pastel-mint: #e0f5ec;
+  --pastel-cream: #fffaf0;
+  --font-round: "Gowun Dodum", "Jua", "Apple SD Gothic Neo", sans-serif;
+  --font-heading: var(--font-round);
+  --h2-size: 44px;
+  --h2-size-m: 30px;
+  --h2-weight: 400;
+  --h2-ls: -0.04em;
+  --eyebrow-size: 13px;
+  --eyebrow-weight: 800;
+  --eyebrow-ls: 0.08em;
+  --wrap-max: 1180px;
+  --gutter: 24px;
+  --gutter-m: 18px;
+  --sec-py: 105px;
+  --sec-py-m: 72px;
+  --card-radius: 22px;
+  --btn-radius: 999px;
+  --footer-bg: #202c39;
+  --footer-ink: #ffffff;
+  --footer-muted: #b5c0c9;
+  --section-shadow: 0 18px 55px rgba(31, 42, 55, 0.09);
 }

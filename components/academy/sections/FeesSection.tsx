@@ -4,6 +4,7 @@ import { SECTION_COPY_SPEC } from '@/lib/section-copy';
 
 type Props = {
   title?: string;
+  eyebrow?: string;
   tenant: AcademyTenant;
   fees: AcademyFee[];
   extraCosts: { id: string; label: string; amount: number; note: string | null }[];
@@ -13,15 +14,15 @@ function formatAmount(n: number) {
   return n.toLocaleString('ko-KR') + '원';
 }
 
-export default function FeesSection({ tenant, fees, extraCosts, title = SECTION_COPY_SPEC.fees.title }: Props) {
+export default function FeesSection({ fees, extraCosts, eyebrow = '교습비', title = SECTION_COPY_SPEC.fees.title }: Props) {
   if (fees.length === 0) return null;
 
   return (
-    <section id="fee" className="py-14 md:py-[76px] bg-surface">
+    <section id="fee" className="acad-section acad-fees">
       <div className="acad-wrap grid grid-cols-1 md:grid-cols-[0.7fr_1.3fr] gap-6 md:gap-[45px] items-start">
         {/* 설명 */}
         <div className="min-w-0">
-          <p className="acad-eyebrow">교습비</p>
+          <p className="acad-eyebrow">{eyebrow}</p>
           <h2 className="acad-h2 mb-[15px]"><TitleLines text={title} /></h2>
           <p className="m-0 text-[14px] md:text-[15px] leading-[1.7] text-body">
             관할 교육지원청에 신고한 교습비입니다. 교재비 등 기타 경비는 별도로 표기했습니다.
@@ -29,7 +30,7 @@ export default function FeesSection({ tenant, fees, extraCosts, title = SECTION_
         </div>
 
         {/* 표 */}
-        <div className="bg-surface border border-line rounded-[18px] overflow-x-auto min-w-0">
+        <div className="acad-card overflow-x-auto min-w-0">
           <table className="w-full border-collapse text-[14px]">
             <thead>
               <tr className="bg-subtle text-left">
@@ -53,7 +54,7 @@ export default function FeesSection({ tenant, fees, extraCosts, title = SECTION_
                   <td className="px-4 md:px-5 py-4 text-body hidden md:table-cell">
                     {[fee.sessionsPerWeek && `주 ${fee.sessionsPerWeek}회`, fee.monthlyHours && `월 ${fee.monthlyHours}시간`].filter(Boolean).join(' · ') || '—'}
                   </td>
-                  <td className="px-4 md:px-5 py-4 text-ink"><strong className="text-[15px] md:text-[16px]">{formatAmount(fee.amount)}</strong></td>
+                  <td className="px-4 md:px-5 py-4 text-ink"><strong className="acad-fee-amount text-[15px] md:text-[16px]">{formatAmount(fee.amount)}</strong></td>
                   <td className="px-4 md:px-5 py-4 text-muted hidden lg:table-cell">{fee.note ?? '—'}</td>
                 </tr>
               ))}

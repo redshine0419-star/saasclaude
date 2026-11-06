@@ -8,11 +8,12 @@ import { SECTION_COPY_SPEC } from '@/lib/section-copy';
 
 type Props = {
   title?: string;
+  eyebrow?: string;
   tenant: AcademyTenant;
   slots: LevelTestSlot[];
 };
 
-export default function ConsultFormSection({ tenant, slots, title = SECTION_COPY_SPEC.consult_form.title }: Props) {
+export default function ConsultFormSection({ tenant, slots, eyebrow = '무료 레벨 테스트', title = SECTION_COPY_SPEC.consult_form.title }: Props) {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [grade, setGrade] = useState('');
@@ -57,21 +58,26 @@ export default function ConsultFormSection({ tenant, slots, title = SECTION_COPY
   }
 
   return (
-    <section id="consult" className="py-14 md:py-[76px] bg-surface">
+    <section id="consult" className="acad-section acad-consult">
       <div className="acad-wrap grid grid-cols-1 md:grid-cols-[0.7fr_1.3fr] gap-7 md:gap-[50px] items-start">
         {/* 설명 */}
         <div className="min-w-0">
-          <p className="acad-eyebrow">무료 레벨 테스트</p>
+          <p className="acad-eyebrow">{eyebrow}</p>
           <h2 className="acad-h2 mb-3.5"><TitleLines text={title} /></h2>
-          <p className="m-0 text-[14px] md:text-[15px] leading-[1.7] text-body">
+          <p className="acad-consult-lead m-0 text-[14px] md:text-[15px] leading-[1.8] text-body">
             무료 레벨 테스트와 상담을 통해 우리 아이에게 맞는 반을 찾아드립니다.
           </p>
+          {(tenant.address || tenant.phone || tenant.hours) && (
+            <p className="acad-consult-lead m-0 mt-4 text-[14px] leading-[1.8] text-body">
+              {[tenant.address, tenant.phone, tenant.hours].filter(Boolean).map((t, i) => <span key={i} className="block">{t}</span>)}
+            </p>
+          )}
         </div>
 
         {/* 폼 */}
         <div className="min-w-0">
           {submitted ? (
-            <div className="bg-surface border border-line rounded-[18px] p-8 flex flex-col items-center gap-4 text-center">
+            <div className="acad-form acad-card p-8 flex flex-col items-center gap-4 text-center text-ink">
               <div className="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-accent" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
               </div>
@@ -79,7 +85,7 @@ export default function ConsultFormSection({ tenant, slots, title = SECTION_COPY
               <p className="m-0 text-[15px] text-muted">곧 연락드리겠습니다.</p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="bg-surface border border-line rounded-[18px] p-[18px] md:p-[30px] grid grid-cols-1 sm:grid-cols-2 gap-[17px]">
+            <form onSubmit={handleSubmit} className="acad-form acad-card p-[18px] md:p-[30px] grid grid-cols-1 sm:grid-cols-2 gap-[17px] text-ink">
               <div className="contents">
                 <label className="flex flex-col gap-[7px] min-w-0">
                   <span className="text-[14px] font-semibold text-ink">학생 이름 <span className="text-warn-ink">*</span></span>
@@ -160,7 +166,7 @@ export default function ConsultFormSection({ tenant, slots, title = SECTION_COPY
               <button
                 type="submit"
                 disabled={!agreed || loading}
-                className="sm:col-span-2 w-full h-[52px] rounded-[11px] bg-accent text-on-accent font-bold text-[15px] disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed transition-opacity"
+                className="acad-btn sm:col-span-2 w-full h-[52px] text-[15px] border-0 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
               >
                 {loading ? '신청 중...' : '무료 레벨 테스트 신청'}
               </button>

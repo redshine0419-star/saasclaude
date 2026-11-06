@@ -34,7 +34,7 @@ import LocationSection from '@/components/academy/sections/LocationSection';
 import PrinciplesSection from '@/components/academy/sections/PrinciplesSection';
 import TimetableSection from '@/components/academy/sections/TimetableSection';
 import FaqSection from '@/components/academy/sections/FaqSection';
-import { DEFAULT_SECTION_ORDER, LOCKED_SECTIONS, isThemeKey, type ThemeKey } from '@/lib/sections';
+import { DEFAULT_SECTION_ORDER, LOCKED_SECTIONS, isThemeKey, sectionEyebrow, type ThemeKey } from '@/lib/sections';
 
 
 export default async function AcademyPage({
@@ -62,7 +62,8 @@ export default async function AcademyPage({
 
   // 테마 A 섹션 사진: 메인 사진 2번째부터 → 교실·시설 사진 순서로 나눠 쓴다
   const photoPool = [...data.tenant.heroPhotos.slice(1), ...data.facilities.map((f) => f.photo).filter((p): p is string => !!p)];
-  const sectionPhoto = (i: number) => (theme === 'warm' ? photoPool[i] ?? photoPool[0] ?? null : null);
+  const sectionPhoto = (i: number) => photoPool[i] ?? photoPool[0] ?? null;
+  const E = (k: string) => sectionEyebrow(theme, k);
   const renderedKeys = displayOrder.filter((k) => k !== 'classes' || data.classes.length > 0);
 
   const copy = data.tenant.sectionCopy;
@@ -103,7 +104,7 @@ export default async function AcademyPage({
 
       case 'fees':
         return (
-          <FeesSection title={T('fees')}
+          <FeesSection title={T('fees')} eyebrow={E('fees')}
             key="fees"
             tenant={data!.tenant}
             fees={data!.fees}
@@ -113,7 +114,7 @@ export default async function AcademyPage({
 
       case 'consult_form':
         return (
-          <ConsultFormSection title={T('consult_form')}
+          <ConsultFormSection title={T('consult_form')} eyebrow={E('consult_form')}
             key="consult_form"
             tenant={data!.tenant}
             slots={data!.levelTestSlots}
@@ -128,10 +129,10 @@ export default async function AcademyPage({
           <DirectorSection key="director" tenant={data!.tenant} director={data!.director} />
         ) : null;
       case 'classes':
-        return data!.classes.length > 0 ? <ClassesSection title={T('classes')} key="classes" classes={data!.classes} slug={slug} /> : null;
+        return data!.classes.length > 0 ? <ClassesSection title={T('classes')} eyebrow={E('classes')} key="classes" classes={data!.classes} slug={slug} look={theme === 'bright' ? 'detail' : 'photo'} /> : null;
       case 'reviews':
         return data!.reviews.filter((r) => r.kind === 'review').length > 0 ? (
-          <ReviewsSection title={T('reviews')} key="reviews" reviews={data!.reviews} slug={slug} photo={sectionPhoto(1)} />
+          <ReviewsSection title={T('reviews')} eyebrow={E('reviews')} key="reviews" reviews={data!.reviews} slug={slug} photo={theme === 'warm' ? sectionPhoto(1) : null} />
         ) : null;
       case 'news':
         return data!.posts.length > 0 ? <NewsSection title={T('news')} key="news" posts={data!.posts} slug={slug} /> : null;
@@ -139,20 +140,20 @@ export default async function AcademyPage({
       // ── Theme B sections ──
       case 'results_stats':
         return data!.resultStats.length > 0 ? (
-          <ResultsStatsSection title={T('results_stats')}
+          <ResultsStatsSection title={T('results_stats')} eyebrow={E('results_stats')} photo={sectionPhoto(0)}
             key="results_stats"
             tenant={data!.tenant}
             resultStats={data!.resultStats}
           />
         ) : null;
       case 'exam_system':
-        return <ExamSystemSection key="exam_system" tenant={data!.tenant} title={T('exam_system')} items={sectionItems(copy, 'exam_system')} />;
+        return <ExamSystemSection key="exam_system" tenant={data!.tenant} eyebrow={E('exam_system')} title={T('exam_system')} items={sectionItems(copy, 'exam_system')} />;
       case 'curriculum':
-        return data!.classes.length > 0 ? <CurriculumSection title={T('curriculum')} key="curriculum" classes={data!.classes} /> : null;
+        return data!.classes.length > 0 ? <CurriculumSection title={T('curriculum')} eyebrow={E('curriculum')} key="curriculum" classes={data!.classes} /> : null;
       case 'score_cases': {
         const scoreCases = data!.reviews.filter((r) => r.kind === 'score_case');
         return scoreCases.length > 0 ? (
-          <ScoreCasesSection title={T('score_cases')}
+          <ScoreCasesSection title={T('score_cases')} eyebrow={E('score_cases')} photos={photoPool.slice(1)}
             key="score_cases"
             tenant={data!.tenant}
             reviews={data!.reviews}
@@ -161,7 +162,7 @@ export default async function AcademyPage({
       }
       case 'teachers':
         return data!.staff.length > 0 ? (
-          <TeachersSection title={T('teachers')}
+          <TeachersSection title={T('teachers')} eyebrow={E('teachers')}
             key="teachers"
             tenant={data!.tenant}
             staff={data!.staff}
@@ -170,14 +171,14 @@ export default async function AcademyPage({
 
       // ── Theme C sections ──
       case 'day_flow':
-        return <DayFlowSection key="day_flow" tenant={data!.tenant} title={T('day_flow')} items={sectionItems(copy, 'day_flow')} />;
+        return <DayFlowSection key="day_flow" tenant={data!.tenant} eyebrow={E('day_flow')} title={T('day_flow')} items={sectionItems(copy, 'day_flow')} />;
       case 'gallery':
-        return data!.posts.length > 0 ? <GallerySection title={T('gallery')} key="gallery" posts={data!.posts} slug={slug} /> : null;
+        return data!.posts.length > 0 ? <GallerySection title={T('gallery')} eyebrow={E('gallery')} key="gallery" posts={data!.posts} slug={slug} /> : null;
       case 'safety':
-        return <SafetySection key="safety" reviews={data!.reviews} shuttle={data!.shuttle} title={T('safety')} items={sectionItems(copy, 'safety')} />;
+        return <SafetySection key="safety" eyebrow={E('safety')} reviews={data!.reviews} shuttle={data!.shuttle} title={T('safety')} items={sectionItems(copy, 'safety')} />;
 
       case 'location':
-        return <LocationSection key="location" tenant={data!.tenant} shuttle={data!.shuttle} slug={slug} photo={sectionPhoto(2)} />;
+        return <LocationSection key="location" tenant={data!.tenant} shuttle={theme === 'bright' ? [] : data!.shuttle} slug={slug} eyebrow={E('location')} photo={photoPool[photoPool.length - 1] ?? null} />;
 
       case 'principles':
         return data!.principles.length > 0 ? (
@@ -191,7 +192,7 @@ export default async function AcademyPage({
 
       case 'faq':
         return data!.faqItems.length > 0 ? (
-          <FaqSection key="faq" items={data!.faqItems} />
+          <FaqSection key="faq" items={data!.faqItems} eyebrow={E('faq')} />
         ) : null;
 
       default:

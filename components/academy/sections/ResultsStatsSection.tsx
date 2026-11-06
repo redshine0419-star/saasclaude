@@ -4,41 +4,56 @@ import { SECTION_COPY_SPEC } from '@/lib/section-copy';
 
 type Props = {
   title?: string;
+  eyebrow?: string;
   tenant: AcademyTenant;
   resultStats: AcademyResultStat[];
+  /** 왼쪽 사진 (교실). 없으면 카드만 */
+  photo?: string | null;
 };
 
-export default function ResultsStatsSection({ tenant, resultStats, title = SECTION_COPY_SPEC.results_stats.title }: Props) {
+export default function ResultsStatsSection({ tenant, resultStats, photo = null, eyebrow = 'PROVEN RESULTS', title = SECTION_COPY_SPEC.results_stats.title }: Props) {
   const stat = resultStats[0];
   if (!stat) return null;
-
-  const accent = tenant.accentColor ?? '#1D3FA8';
+  const cards = stat.metrics.slice(0, 4);
 
   return (
-    <section id="results" className="px-5 md:px-20 pt-20 md:pt-24 flex flex-col gap-8">
-      <div className="max-w-[1440px] mx-auto w-full flex flex-col gap-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-          <h2 className="m-0 font-grotesk text-[28px] md:text-[40px] font-extrabold tracking-tight"><TitleLines text={title} /></h2>
-          <span className="text-[14px] text-body bg-subtle px-3 py-1 rounded-md">{stat.termLabel}</span>
+    <section id="results" className="acad-section">
+      <div className="acad-wrap">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-8 md:mb-[38px]">
+          <div className="min-w-0">
+            <p className="acad-eyebrow">{eyebrow}</p>
+            <h2 className="acad-h2"><TitleLines text={title} /></h2>
+          </div>
+          <p className="acad-sub">{stat.termLabel}</p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {stat.metrics.map((m, i) => {
-            const isLast = i === stat.metrics.length - 1;
-            return (
-              <div key={i}
-                style={isLast ? { background: accent } : undefined}
-                className={`p-6 md:p-7 rounded-[10px] border ${isLast ? 'border-transparent text-white' : 'border-line'} flex flex-col gap-2`}>
-                <div className={`text-[14px] ${isLast ? 'text-white/80' : 'text-body'}`}>{m.label}</div>
-                <div className="font-grotesk text-[42px] md:text-[52px] font-extrabold leading-none mt-2">
-                  {m.value}<span className="text-[20px] md:text-[22px]">{m.unit}</span>
-                </div>
-              </div>
-            );
-          })}
+        <div className={`grid grid-cols-1 gap-[14px] md:gap-7 ${photo ? 'md:grid-cols-[1.1fr_0.9fr]' : ''}`}>
+          {photo && (
+            <div className="h-[230px] md:h-[360px] rounded-[15px] overflow-hidden bg-subtle">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photo} alt={`${tenant.name} 수업`} className="w-full h-full object-cover" />
+            </div>
+          )}
+          <div className="min-w-0">
+            <div className={`grid grid-cols-2 gap-2 md:gap-[13px] ${photo ? '' : 'md:grid-cols-4'}`}>
+              {cards.map((m, i) => {
+                const feature = i === Math.min(2, cards.length - 1);
+                return (
+                  <div
+                    key={i}
+                    className={`p-[17px] md:p-6 border rounded-[12px] ${feature ? 'bg-accent text-on-accent border-transparent' : 'bg-surface border-line'}`}
+                  >
+                    <span className={`text-[12px] ${feature ? 'opacity-85' : 'text-muted'}`}>{m.label}</span>
+                    <b className="block mt-[14px] text-[27px] md:text-[34px] tracking-[-1px] font-black font-grotesk">
+                      {m.value}<span className="text-[16px] md:text-[18px]">{m.unit}</span>
+                    </b>
+                  </div>
+                );
+              })}
+            </div>
+            {stat.basisText && <p className="mt-[18px] mb-0 text-[12px] text-muted leading-relaxed">{stat.basisText}</p>}
+          </div>
         </div>
-
-        <div className="text-[13px] text-body">{stat.basisText}</div>
       </div>
     </section>
   );

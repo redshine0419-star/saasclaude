@@ -4,9 +4,28 @@ export const THEME_KEYS: ThemeKey[] = ['warm', 'result', 'bright'];
 
 export const DEFAULT_SECTION_ORDER: Record<ThemeKey, string[]> = {
   warm: ['hero', 'quick_info', 'director', 'principles', 'classes', 'timetable', 'fees', 'reviews', 'news', 'faq', 'consult_form', 'location'],
-  result: ['hero', 'results_stats', 'exam_system', 'curriculum', 'score_cases', 'teachers', 'fees', 'faq', 'consult_form'],
-  bright: ['hero', 'day_flow', 'classes', 'gallery', 'safety', 'reviews', 'faq', 'consult_form'],
+  result: ['hero', 'results_stats', 'exam_system', 'curriculum', 'score_cases', 'teachers', 'fees', 'faq', 'consult_form', 'location'],
+  bright: ['hero', 'day_flow', 'classes', 'gallery', 'safety', 'reviews', 'faq', 'consult_form', 'location'],
 };
+
+/** 섹션 머리 작은 라벨 — 테마마다 말투가 다르다 (A 한글, B·C 영문) */
+const EYEBROW: Record<ThemeKey, Record<string, string>> = {
+  warm: {
+    director: '원장 소개', principles: '수업 원칙', classes: '수업 안내', timetable: '주간 시간표', fees: '교습비',
+    reviews: '성과·후기', news: '학원 소식', faq: '자주 묻는 질문', consult_form: '무료 레벨 테스트', location: '오시는 길',
+  },
+  result: {
+    results_stats: 'PROVEN RESULTS', exam_system: 'EXAM STRATEGY', curriculum: 'CURRICULUM', score_cases: 'STUDENT STORIES',
+    teachers: 'OUR TEACHERS', fees: 'TUITION GUIDE', faq: 'FAQ', consult_form: 'FREE LEVEL TEST', location: 'LOCATION',
+  },
+  bright: {
+    day_flow: 'A HAPPY DAY', classes: 'OUR CLASSES', gallery: 'CLASS GALLERY', safety: 'SAFE & CARE', reviews: "PARENTS' VOICE",
+    faq: 'FAQ', consult_form: 'FREE TRIAL CLASS', location: 'COME VISIT',
+  },
+};
+export function sectionEyebrow(theme: ThemeKey, key: string): string | undefined {
+  return EYEBROW[theme][key];
+}
 
 // 원장이 끌 수 없는 섹션. hero는 항상 맨 위에 고정된다.
 export const LOCKED_SECTIONS = new Set(['hero', 'consult_form']);

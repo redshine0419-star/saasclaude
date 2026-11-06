@@ -14,7 +14,7 @@ export default function PrinciplesSection({ principles, slug, photo = null, titl
   if (principles.length === 0) return null;
 
   return (
-    <section id="principles" className="py-14 md:py-[76px] bg-surface">
+    <section id="principles" className="acad-section bg-surface">
       <div className={`acad-wrap grid grid-cols-1 gap-8 md:gap-11 items-center ${photo ? 'md:grid-cols-[0.8fr_1.2fr]' : ''}`}>
         <div className="min-w-0">
           <p className="acad-eyebrow">수업 원칙</p>

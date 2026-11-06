@@ -67,7 +67,12 @@ export default async function AcademyLayout({
   const theme = data.tenant.theme;
 
   return (
-    <div data-theme={theme} className="min-h-screen bg-bg text-ink font-sans">
+    <div
+      data-theme={theme}
+      className="min-h-screen bg-bg text-ink font-sans"
+      // 관리자 설정의 강조색은 테마 강조색 토큰을 덮어쓴다
+      style={/^#[0-9a-fA-F]{6}$/.test(data.tenant.accentColor ?? '') ? ({ '--accent': data.tenant.accentColor, '--accent-ink': data.tenant.accentColor } as React.CSSProperties) : undefined}
+    >
       {data.tenant.ga4MeasurementId && (
         <GA4Script measurementId={data.tenant.ga4MeasurementId} />
       )}

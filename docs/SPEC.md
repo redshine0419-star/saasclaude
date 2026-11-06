@@ -124,9 +124,9 @@
 
 | 테마 | S-01 홈 기본 순서 | 헤더 CTA |
 |---|---|---|
-| A 원장 직강형 | hero(원장 직강) → quick_info → director → classes → fees → reviews → news → consult_form+location | 무료 레벨테스트 신청 |
-| B 성과 중심형 | hero(학교별 점수표) → results_stats → exam_system → curriculum → score_cases → teachers → fees+consult_form | 레벨테스트 신청 |
-| C 밝은 친근형 | hero(사진 콜라주·연령 칩) → day_flow → classes(연령별) → gallery → safety+reviews → consult_form(체험 수업) | 체험 수업 신청 |
+| A 원장 직강형 | hero(사진+레벨테스트 시간) → quick_info → director → principles → classes → timetable → fees → reviews → news → faq → consult_form → location (2026-11 시안) | 무료 레벨테스트 신청 |
+| B 성과 중심형 | hero(사진+성적 태그, 아래 숫자 띠) → results_stats → exam_system → curriculum → score_cases → teachers → fees → faq → consult_form → location (2026-11 시안, 오시는 길 추가) | 레벨테스트 신청 |
+| C 밝은 친근형 | hero(사진 콜라주·연령 칩) → day_flow → classes(연령별) → gallery → safety → reviews → faq → consult_form(체험 수업) → location (2026-11 시안, 오시는 길 추가) | 체험 수업 신청 |
 
 - 원장(owner)은 테마 선택, 강조색, 섹션 켜기/끄기·순서를 직접 바꿀 수 있다. staff는 읽기 전용. 저장 즉시 공개 홈페이지에 반영된다.
 - 원장이 바꿀 수 없는 것: 폰트·레이아웃·간격, `hero`(항상 맨 위·항상 표시), `consult_form`(항상 표시), 푸터 법정 표기, 동의 체크박스. 규칙은 `lib/sections.ts` 한 곳에서 정의하고 서버에서 강제한다.

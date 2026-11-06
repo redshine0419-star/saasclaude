@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@500;600;700&family=Gothic+A1:wght@400;700;800&family=Jua&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@500;600;700&family=Gothic+A1:wght@400;700;800&family=Jua&family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap");
 @import "tailwindcss";
 @import "../styles/tokens.css";
 
@@ -77,15 +77,43 @@ body {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* 학원 홈페이지 섹션 안쪽 폭 — 테마 B·C는 기존처럼 좌우 20/80px, 테마 A는 가운데 1280px 상자 */
-.acad-wrap { padding-left: 20px; padding-right: 20px; }
-@media (min-width: 768px) { .acad-wrap { padding-left: 80px; padding-right: 80px; } }
-[data-theme="warm"] .acad-wrap { max-width: 1312px; margin-left: auto; margin-right: auto; padding-left: 16px; padding-right: 16px; }
-@media (min-width: 768px) { [data-theme="warm"] .acad-wrap { padding-left: 24px; padding-right: 24px; } }
+@layer components {
+/* ── 학원 홈페이지 섹션 틀 — 폭·여백·라벨·제목 모양은 테마 토큰(styles/tokens.css)이 정한다 ── */
+.acad-wrap { max-width: calc(var(--wrap-max) + 2 * var(--gutter)); margin-left: auto; margin-right: auto; padding-left: var(--gutter-m); padding-right: var(--gutter-m); }
+@media (min-width: 768px) { .acad-wrap { padding-left: var(--gutter); padding-right: var(--gutter); } }
+.acad-section { padding-top: var(--sec-py-m); padding-bottom: var(--sec-py-m); }
+@media (min-width: 768px) { .acad-section { padding-top: var(--sec-py); padding-bottom: var(--sec-py); } }
 
-/* 섹션 머리말 (작은 주황 라벨 + 명조 제목) */
-.acad-eyebrow { margin: 0 0 12px; font-size: 14px; font-weight: 800; letter-spacing: 0.04em; color: var(--label); }
-.acad-h2 { margin: 0; font-family: var(--font-serif); font-weight: 700; font-size: 27px; line-height: 1.4; letter-spacing: -0.04em; color: var(--ink); text-wrap: balance; }
-@media (min-width: 768px) { .acad-h2 { font-size: 38px; } }
+.acad-eyebrow { margin: 0 0 12px; font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight); letter-spacing: var(--eyebrow-ls); color: var(--label); }
+.acad-h2 { margin: 0; font-family: var(--font-heading); font-weight: var(--h2-weight); font-size: var(--h2-size-m); line-height: 1.32; letter-spacing: var(--h2-ls); color: var(--ink); text-wrap: balance; word-break: keep-all; }
+@media (min-width: 768px) { .acad-h2 { font-size: var(--h2-size); } }
+.acad-sub { margin: 0; font-size: 13px; color: var(--muted); }
 .acad-more { font-size: 14px; font-weight: 700; color: var(--accent); white-space: nowrap; text-decoration: none; }
 .acad-more:hover { text-decoration: underline; }
+.acad-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--card-radius); }
+.acad-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: var(--btn-radius); background: var(--accent); color: var(--on-accent); font-weight: 800; text-decoration: none; transition: transform .2s, box-shadow .2s; }
+.acad-btn:hover { transform: translateY(-2px); }
+[data-theme="bright"] .acad-btn { background: var(--highlight); color: var(--ink); box-shadow: 0 8px 18px rgba(255, 216, 94, .28); }
+
+/* 상담 신청 — 테마 B는 남색 띠 위 흰 상자, 테마 C는 연회색 둥근 상자 */
+.acad-consult { background: var(--surface); }
+[data-theme="result"] .acad-consult { background: var(--dark); color: var(--on-dark); }
+[data-theme="result"] .acad-consult .acad-h2 { color: var(--on-dark); }
+[data-theme="result"] .acad-consult .acad-eyebrow { color: var(--highlight); }
+[data-theme="result"] .acad-consult .acad-consult-lead { color: var(--on-dark-muted); }
+[data-theme="result"] .acad-form { border: 0; color: var(--ink); }
+[data-theme="bright"] .acad-form { background: var(--subtle); border: 0; border-radius: 26px; }
+[data-theme="bright"] .acad-form input, [data-theme="bright"] .acad-form select { background: var(--surface); }
+
+/* 자주 묻는 질문 — 테마 B는 밑줄만 있는 목록 */
+.acad-faq { background: var(--bg); }
+[data-theme="bright"] .acad-faq { background: #fafaf7; }
+[data-theme="result"] .acad-faq-item { border: 0 !important; border-bottom: 1px solid var(--line) !important; border-radius: 0 !important; background: transparent !important; }
+[data-theme="result"] .acad-faq-item button { padding-left: 4px; padding-right: 4px; }
+
+/* 교습비 — 테마 B는 연한 바탕 띠, 금액 파랑 */
+.acad-fees { background: var(--surface); }
+[data-theme="result"] .acad-fees { background: var(--subtle); }
+[data-theme="result"] .acad-fee-amount { color: var(--accent); }
+[data-theme="result"] .acad-fees th { background: #f0f3f9; font-size: 12px; color: #52617b; }
+}

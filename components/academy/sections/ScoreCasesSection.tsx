@@ -4,40 +4,48 @@ import { SECTION_COPY_SPEC } from '@/lib/section-copy';
 
 type Props = {
   title?: string;
+  eyebrow?: string;
   tenant: AcademyTenant;
   reviews: AcademyReview[];
+  /** 사례 카드 왼쪽 사진 (교실·공부 사진). 학생 얼굴 사진은 쓰지 않는다 */
+  photos?: string[];
 };
 
-export default function ScoreCasesSection({ tenant, reviews, title = SECTION_COPY_SPEC.score_cases.title }: Props) {
+export default function ScoreCasesSection({ reviews, photos = [], eyebrow = 'STUDENT STORIES', title = SECTION_COPY_SPEC.score_cases.title }: Props) {
   const cases = reviews.filter((r) => r.kind === 'score_case');
   if (cases.length === 0) return null;
 
-  const accent = tenant.accentColor ?? '#1D3FA8';
-
   return (
-    <section className="px-5 md:px-20 pt-24 md:pt-[120px] flex flex-col gap-8">
-      <div className="max-w-[1440px] mx-auto w-full flex flex-col gap-8">
-        <h2 className="m-0 font-grotesk text-[28px] md:text-[40px] font-extrabold tracking-tight"><TitleLines text={title} /></h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {cases.map((c) => (
-            <div key={c.id} className="p-6 md:p-7 border border-line rounded-[10px] flex flex-col gap-4">
-              <div className="text-[14px] text-body">
-                {c.authorLabel}{c.periodLabel ? ` · ${c.periodLabel}` : ''}
-              </div>
-              <div className="flex items-baseline gap-3 font-grotesk font-extrabold">
-                <span className="text-[36px] md:text-[40px] text-muted">{c.beforeValue}</span>
-                <span className="text-[20px]">→</span>
-                <span className="text-[36px] md:text-[40px]" style={{ color: accent }}>{c.afterValue}</span>
-              </div>
-              {c.comment && (
-                <p className="m-0 text-[14px] md:text-[15px] leading-[1.7] text-body">{c.comment}</p>
-              )}
-            </div>
-          ))}
+    <section className="acad-section bg-subtle">
+      <div className="acad-wrap">
+        <div className="mb-8 md:mb-[38px]">
+          <p className="acad-eyebrow">{eyebrow}</p>
+          <h2 className="acad-h2"><TitleLines text={title} /></h2>
         </div>
 
-        <div className="text-[13px] text-body">학생·학부모 서면 동의를 받은 사례만 게재합니다.</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-[18px]">
+          {cases.map((c, i) => {
+            const photo = photos.length ? photos[i % photos.length] : null;
+            return (
+              <article key={c.id} className={`grid ${photo ? 'grid-cols-[112px_1fr] sm:grid-cols-[145px_1fr]' : 'grid-cols-1'} border border-line rounded-[13px] overflow-hidden bg-surface`}>
+                {photo && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={photo} alt="" className="w-full h-full min-h-[170px] object-cover" />
+                )}
+                <div className="p-4 sm:p-[22px] min-w-0">
+                  <span className="text-[12px] text-muted">{[c.authorLabel, c.periodLabel].filter(Boolean).join(' · ')}</span>
+                  {c.beforeValue && c.afterValue && (
+                    <div className="my-3 text-[21px] sm:text-[26px] font-black font-grotesk">
+                      {c.beforeValue} → <em className="not-italic text-accent">{c.afterValue}</em>
+                    </div>
+                  )}
+                  {c.comment && <p className="m-0 text-[13px] leading-[1.7] text-muted break-keep">{c.comment}</p>}
+                </div>
+              </article>
+            );
+          })}
+        </div>
+        <p className="mt-[18px] mb-0 text-[12px] text-muted">학생·학부모 서면 동의를 받은 사례만 게재합니다.</p>
       </div>
     </section>
   );

@@ -14,7 +14,8 @@ const NAV_ITEMS = [
   { key: 'classes', label: '연령별 반' },
   { key: 'gallery', label: '수업 사진' },
   { key: 'safe', label: '안전·셔틀' },
-  { key: 'trial', label: '오시는 길' },
+  { key: 'location', label: '오시는 길' },
+  { key: 'consult', label: '상담 신청' },
 ];
 
 export default function SiteHeaderBright({ name, slug, phone, kakaoChannelUrl }: Props) {
@@ -22,33 +23,33 @@ export default function SiteHeaderBright({ name, slug, phone, kakaoChannelUrl }:
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-surface border-b border-line">
-        <div className="max-w-[1440px] mx-auto px-5 md:px-16 h-[60px] md:h-[84px] flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <svg width="32" height="32" viewBox="0 0 36 36" aria-hidden="true">
-              <circle cx="18" cy="18" r="17" fill="#FFD54F"/>
+      <header className="sticky top-0 z-50 border-b border-line backdrop-blur-md" style={{ background: 'rgba(255,255,255,.92)' }}>
+        <div className="acad-wrap h-[68px] md:h-[82px] flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <svg width="37" height="37" viewBox="0 0 36 36" aria-hidden="true" className="flex-shrink-0">
+              <circle cx="18" cy="18" r="17" fill="var(--highlight)"/>
               <circle cx="13" cy="15" r="2" fill="#1F2A37"/>
               <circle cx="23" cy="15" r="2" fill="#1F2A37"/>
               <path d="M12 22 Q18 27 24 22" stroke="#1F2A37" strokeWidth="2" fill="none" strokeLinecap="round"/>
             </svg>
-            <a href={`/${slug}`} className="font-round text-2xl md:text-[28px] text-ink no-underline">
+            <a href={`/${slug}`} className="font-round text-[21px] md:text-[25px] font-bold text-ink no-underline whitespace-nowrap truncate">
               {name}
             </a>
           </div>
 
-          <nav className="hidden md:flex items-center gap-1 p-[6px] rounded-full bg-subtle text-[15px]">
+          <nav className="hidden lg:flex items-center gap-[27px] text-[14px] font-semibold">
             {NAV_ITEMS.map(({ key, label }) => (
-              <a key={key} href={`#${key}`} className="px-[18px] py-[10px] rounded-full text-body hover:text-ink hover:bg-surface transition-colors no-underline">
+              <a key={key} href={`#${key}`} className="text-body hover:text-accent transition-colors no-underline">
                 {label}
               </a>
             ))}
           </nav>
 
-          <a href="#trial" className="hidden md:flex items-center h-12 px-[22px] rounded-full bg-accent text-on-accent text-[15px] font-bold no-underline hover:opacity-90">
-            체험 수업 신청
+          <a href="#consult" className="acad-btn hidden lg:inline-flex h-12 px-[25px] text-[15px]">
+            체험 수업 신청 →
           </a>
 
-          <button type="button" className="md:hidden w-11 h-11 flex items-center justify-center text-ink" onClick={() => setMenuOpen(true)} aria-label="메뉴 열기">
+          <button type="button" className="lg:hidden w-11 h-11 flex items-center justify-center text-ink" onClick={() => setMenuOpen(true)} aria-label="메뉴 열기">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
               <path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/>
             </svg>
@@ -57,7 +58,7 @@ export default function SiteHeaderBright({ name, slug, phone, kakaoChannelUrl }:
       </header>
 
       {menuOpen && (
-        <div className="md:hidden fixed inset-0 z-[100] bg-bg flex flex-col">
+        <div className="lg:hidden fixed inset-0 z-[100] bg-bg flex flex-col">
           <div className="h-[60px] px-5 flex items-center justify-between border-b border-line">
             <span className="font-round text-2xl text-ink">{name}</span>
             <button type="button" onClick={() => setMenuOpen(false)} className="w-11 h-11 flex items-center justify-center text-ink" aria-label="메뉴 닫기">
@@ -84,7 +85,7 @@ export default function SiteHeaderBright({ name, slug, phone, kakaoChannelUrl }:
                 <a href={kakaoChannelUrl} className="h-[52px] border border-input-line rounded-full text-ink no-underline font-semibold flex items-center justify-center">카톡 상담</a>
               )}
             </div>
-            <a href="#trial" onClick={() => setMenuOpen(false)} className="h-[56px] rounded-full bg-accent text-on-accent no-underline text-[17px] font-bold flex items-center justify-center">
+            <a href="#consult" onClick={() => setMenuOpen(false)} className="h-[56px] rounded-full bg-accent text-on-accent no-underline text-[17px] font-bold flex items-center justify-center">
               체험 수업 신청
             </a>
           </div>

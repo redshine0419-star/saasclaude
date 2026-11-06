@@ -87,7 +87,8 @@ if (!membership) return NextResponse.json({ error: 'Forbidden' }, { status: 403 
 CSS 변수는 `styles/tokens.css`, Tailwind 연결은 `tailwind.config.ts`.
 
 - 테마 A 원장 직강형: 종이색 바탕, 칠판 녹색 강조, 주황 섹션 라벨, 명조 제목 (Noto Serif KR + IBM Plex Sans KR) — 2026-11 시안으로 교체, 가운데 1280px 상자 레이아웃
-- 테마 B 성과 중심형: 남색·흰색, 진한 파랑 강조, 굵은 고딕 제목 (Gothic A1 + IBM Plex Sans KR)
-- 테마 C 밝은 친근형: 흰 바탕 + 파스텔 카드, 청록 강조, 둥근 제목 (Jua + IBM Plex Sans KR)
+- 테마 B 성과 중심형: 남색 첫 화면·흰 바탕, 파랑 강조, 라임 포인트, 굵은 고딕 제목 (Noto Sans KR 900 + IBM Plex Sans KR) — 2026-11 시안
+- 테마 C 밝은 친근형: 흰 바탕 + 파스텔 카드, 청록 강조, 노랑 둥근 버튼, 둥근 제목 (Gowun Dodum + IBM Plex Sans KR) — 2026-11 시안
+- 섹션 틀(폭·여백·라벨·제목·카드 둥글기)은 테마 토큰으로 정한다: `.acad-wrap` `.acad-section` `.acad-eyebrow` `.acad-h2` (app/globals.css), 섹션 라벨 문구는 `lib/sections.ts` `sectionEyebrow`
 - 관리자: 테마와 무관하게 공통 (남색 사이드바, 녹색 주요 버튼)
 - 첫등원 서비스 사이트: 남색 + 스쿨버스 노랑, IBM Plex Sans KR

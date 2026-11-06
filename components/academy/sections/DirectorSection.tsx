@@ -18,7 +18,7 @@ export default function DirectorSection({ tenant, director }: Props) {
   ].filter((l) => l.value);
 
   return (
-    <section id="about" className="py-14 md:py-[76px] bg-surface">
+    <section id="about" className="acad-section bg-surface">
       <div className="acad-wrap grid grid-cols-1 md:grid-cols-[0.8fr_1.2fr] md:items-center gap-7 md:gap-[56px]">
         {/* 사진 */}
         <div className="w-full h-[280px] md:h-[460px] rounded-[20px] bg-subtle overflow-hidden flex items-center justify-center text-muted">

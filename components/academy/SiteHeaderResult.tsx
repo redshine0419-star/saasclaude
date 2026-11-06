@@ -16,45 +16,36 @@ const NAV_ITEMS = [
   { key: 'curriculum', label: '커리큘럼' },
   { key: 'teachers', label: '강사진' },
   { key: 'fee', label: '교습비' },
-  { key: 'apply', label: '오시는 길' },
+  { key: 'location', label: '오시는 길' },
+  { key: 'consult', label: '상담 신청' },
 ];
 
-export default function SiteHeaderResult({ name, slug, phone, kakaoChannelUrl, accentColor }: Props) {
+export default function SiteHeaderResult({ name, slug, phone, kakaoChannelUrl }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const accent = accentColor ?? '#1D3FA8';
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-dark border-b border-[#2A3B5A]">
-        <div className="max-w-[1440px] mx-auto px-5 md:px-20 h-[60px] md:h-[76px] flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <a href={`/${slug}`} className="font-grotesk text-xl md:text-2xl font-extrabold text-on-dark no-underline tracking-tight">
-              {name}
-            </a>
-            <span className="hidden md:inline-block px-2 py-[3px] border border-[#5B6B85] rounded text-[13px] text-on-dark-muted">
-              내신·입시 수학
-            </span>
-          </div>
+      <header className="sticky top-0 z-50 bg-dark border-b border-white/10">
+        <div className="acad-wrap h-[65px] md:h-[76px] flex items-center justify-between gap-4">
+          <a href={`/${slug}`} className="font-grotesk text-[19px] md:text-[22px] font-black text-on-dark no-underline tracking-[-1px] whitespace-nowrap">
+            {name}
+          </a>
 
-          <nav className="hidden md:flex items-center gap-8 text-[15px]">
+          <nav className="hidden lg:flex items-center gap-[27px] text-[13px]">
             {NAV_ITEMS.map(({ key, label }) => (
-              <a key={key} href={`#${key}`} className="text-on-dark-muted hover:text-on-dark transition-colors no-underline">
+              <a key={key} href={`#${key}`} className="text-on-dark-muted hover:text-highlight transition-colors no-underline">
                 {label}
               </a>
             ))}
           </nav>
 
-          <a
-            href="#apply"
-            style={{ background: accent }}
-            className="hidden md:flex items-center h-11 px-5 rounded-[6px] text-white text-[15px] font-bold no-underline hover:opacity-90"
-          >
-            레벨테스트 신청
+          <a href="#consult" className="acad-btn hidden lg:inline-flex h-11 px-[18px] text-[13px]">
+            레벨테스트 신청 ↗
           </a>
 
           <button
             type="button"
-            className="md:hidden w-11 h-11 flex items-center justify-center text-on-dark"
+            className="lg:hidden w-11 h-11 flex items-center justify-center text-on-dark"
             onClick={() => setMenuOpen(true)}
             aria-label="메뉴 열기"
           >
@@ -66,7 +57,7 @@ export default function SiteHeaderResult({ name, slug, phone, kakaoChannelUrl, a
       </header>
 
       {menuOpen && (
-        <div className="md:hidden fixed inset-0 z-[100] bg-dark flex flex-col">
+        <div className="lg:hidden fixed inset-0 z-[100] bg-dark flex flex-col">
           <div className="h-[60px] px-5 flex items-center justify-between border-b border-[#2A3B5A]">
             <span className="font-grotesk text-xl font-extrabold text-on-dark">{name}</span>
             <button type="button" onClick={() => setMenuOpen(false)} className="w-11 h-11 flex items-center justify-center text-on-dark" aria-label="메뉴 닫기">
@@ -97,7 +88,7 @@ export default function SiteHeaderResult({ name, slug, phone, kakaoChannelUrl, a
                 </a>
               )}
             </div>
-            <a href="#apply" onClick={() => setMenuOpen(false)} style={{ background: accent }} className="h-[56px] rounded-xl text-white no-underline text-[17px] font-bold flex items-center justify-center">
+            <a href="#consult" onClick={() => setMenuOpen(false)} className="acad-btn h-[56px] text-[17px]">
               레벨테스트 신청
             </a>
           </div>

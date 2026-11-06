@@ -4,42 +4,42 @@ import { SECTION_COPY_SPEC, type CopyItem } from '@/lib/section-copy';
 
 type Props = {
   title?: string;
+  eyebrow?: string;
   items?: CopyItem[];
   tenant: AcademyTenant;
 };
 
-const STEP_COLORS = ['#FFF3C4', '#DDF1FF', '#FFE3EC', '#E0F5EF', '#EDE7FB'];
+const STEP_BG = ['var(--highlight-soft)', 'var(--pastel-sky)', 'var(--pastel-pink)', 'var(--pastel-mint, var(--accent-soft))'];
 
-
-export default function DayFlowSection({ tenant, title = SECTION_COPY_SPEC.day_flow.title, items = SECTION_COPY_SPEC.day_flow.items!.defaults }: Props) {
-  const accent = tenant.accentColor ?? '#0F766E';
+export default function DayFlowSection({ eyebrow = 'A HAPPY DAY', title = SECTION_COPY_SPEC.day_flow.title, items = SECTION_COPY_SPEC.day_flow.items!.defaults }: Props) {
+  if (items.length === 0) return null;
+  const cols = items.length >= 5 ? 'md:grid-cols-5' : items.length === 4 ? 'md:grid-cols-4' : 'md:grid-cols-3';
 
   return (
-    <section id="day" className="mx-5 md:mx-16 mt-24 md:mt-28 p-10 md:p-14 rounded-[32px] md:rounded-[40px] bg-subtle flex flex-col gap-8">
-      <h2 className="m-0 font-round text-[32px] md:text-[42px] text-ink"><TitleLines text={title} /></h2>
-
-      <div className={`grid grid-cols-2 gap-3 md:gap-4 ${items.length >= 5 ? 'md:grid-cols-5' : items.length === 4 ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
-        {items.map((step, i) => {
-          const isLast = i === items.length - 1;
-          const bg = isLast ? accent : STEP_COLORS[i % STEP_COLORS.length];
-          const textColor = isLast ? '#FFFFFF' : '#1F2A37';
-          const numBg = isLast ? '#FFFFFF' : bg;
-          const numColor = isLast ? '#1F2A37' : '#1F2A37';
-
-          return (
-            <div key={i} className="p-5 md:p-6 rounded-[20px] md:rounded-[24px] flex flex-col gap-3"
-              style={{ background: bg, color: textColor }}>
-              <div className="w-12 h-12 rounded-full flex items-center justify-center font-round text-[22px]"
-                style={{ background: numBg, color: numColor }}>
-                {i + 1}
-              </div>
-              <div className="text-[16px] md:text-[17px] font-bold">{step.title}</div>
-              <div className="text-[13px] md:text-[14px] leading-[1.65]" style={{ color: isLast ? 'rgba(255,255,255,0.85)' : '#3A4656' }}>
-                {step.body}
-              </div>
-            </div>
-          );
-        })}
+    <section className="acad-section">
+      <div className="acad-wrap">
+        <div id="day" className="bg-subtle rounded-[24px] md:rounded-[34px] px-5 py-[27px] md:p-12">
+          <div className="mb-6 md:mb-[30px]">
+            <p className="acad-eyebrow">{eyebrow}</p>
+            <h2 className="acad-h2"><TitleLines text={title} /></h2>
+          </div>
+          <div className={`grid grid-cols-2 sm:grid-cols-3 ${cols} gap-[9px] md:gap-[13px]`}>
+            {items.map((step, i) => {
+              const isLast = i === items.length - 1;
+              return (
+                <div
+                  key={i}
+                  className={`p-[17px] md:px-[18px] md:py-[22px] rounded-[22px] min-h-[150px] md:min-h-[190px] ${isLast && items.length % 2 === 1 ? 'col-span-2 sm:col-span-1' : ''}`}
+                  style={{ background: isLast ? 'var(--accent)' : STEP_BG[i % STEP_BG.length], color: isLast ? 'var(--on-accent)' : 'var(--ink)' }}
+                >
+                  <div className="w-[39px] h-[39px] rounded-full grid place-items-center font-extrabold mb-[17px] text-ink" style={{ background: 'rgba(255,255,255,.8)' }}>{i + 1}</div>
+                  <h3 className="m-0 mb-2 text-[17px] font-bold">{step.title}</h3>
+                  <p className="m-0 text-[13px] leading-[1.7] break-keep" style={{ color: isLast ? 'rgba(255,255,255,.85)' : 'var(--body)' }}>{step.body}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </section>
   );
