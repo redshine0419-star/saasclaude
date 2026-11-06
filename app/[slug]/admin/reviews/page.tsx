@@ -72,6 +72,10 @@ export default async function AdminReviewsPage({
       <main
         style={{ flex: 1, padding: '32px 40px', display: 'flex', flexDirection: 'column', gap: 20 }}
       >
+        <div>
+          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>후기·성과</h1>
+          <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>학부모 후기·성적 변화 사례·성과 통계를 관리합니다. 동의가 확인된 것만 홈페이지에 공개됩니다.</div>
+        </div>
         <ReviewsClient slug={slug} reviews={serialized} resultStats={serializedStats} />
       </main>
     </div>

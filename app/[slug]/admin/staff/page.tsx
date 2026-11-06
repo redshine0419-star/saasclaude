@@ -31,7 +31,7 @@ export default async function AdminStaffPage({
       <AdminSide slug={slug} tenantName={tenant.name} active="staff" />
       <main style={{ flex: 1, padding: '32px 40px', display: 'flex', flexDirection: 'column', gap: 16 }}>
         <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>강사진 관리</h1>
-        <div style={{ fontSize: 14, color: '#5A6270' }}>테마 B(성과 중심형) 홈페이지에 노출되는 강사 프로필입니다.</div>
+        <div style={{ fontSize: 14, color: '#5A6270' }}>홈페이지에 보일 강사 프로필을 관리합니다. 테마 B(성과 중심형)에서만 보이며, 관리자 계정 초대는 설정에서 합니다.</div>
         <StaffClient slug={slug} initialStaff={staffList.map((s) => ({
           id: s.id,
           name: s.name,

@@ -52,6 +52,7 @@ export default async function AdminInfoPage({
         style={{ flex: 1, padding: '32px 40px', display: 'flex', flexDirection: 'column', gap: 16 }}
       >
         <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>학원 정보·교습비</h1>
+        <div style={{ fontSize: 14, color: '#5A6270', marginTop: -8 }}>주소·원장 소개·교습비·환불 정책 등 홈페이지에 나가는 학원의 공식 정보를 입력합니다.</div>
 
         {/* Naver Place mismatch warning — shown only when naverPlaceUrl is set */}
         {tenant.naverPlaceUrl && (

@@ -208,7 +208,10 @@ export function LeadsClient({ slug, academyName, leads: initialLeads, totalBySta
       {/* Left: list */}
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>상담 관리</h1>
+          <div>
+            <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>상담 관리</h1>
+            <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>홈페이지 상담 신청을 확인하고, 연락·레벨테스트·등록까지 상태를 관리합니다.</div>
+          </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <input
               type="search"

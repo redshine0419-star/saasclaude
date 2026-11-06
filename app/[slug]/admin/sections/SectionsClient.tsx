@@ -93,7 +93,10 @@ export function SectionsClient({ slug, theme: initTheme, sections: initSections,
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24, maxWidth: 720 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-        <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700 }}>홈페이지 구성</h1>
+        <div>
+            <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700 }}>홈페이지 구성</h1>
+            <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>테마, 섹션 순서·표시, 메인 화면 사진과 문구를 바꿉니다. 저장하면 홈페이지에 바로 반영됩니다.</div>
+          </div>
         {canEdit && (
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             {saved && <span style={{ fontSize: 13, color: '#1E5645', fontWeight: 600 }}>저장되어 홈페이지에 바로 반영되었습니다</span>}

@@ -90,7 +90,7 @@ export function ReportClient({ slug, month, monthLabel, history, keywords, aiInf
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>{monthLabel} 리포트</h1>
-          <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>매월 3일 원장님 카카오톡으로 요약본이 발송됩니다</div>
+          <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>한 달 상담·등록 흐름과 유입 경로를 봅니다. 매월 1일 알림 번호로 카카오톡 요약본이 발송됩니다.</div>
         </div>
         <div data-print-hide style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {kakaoResult && (

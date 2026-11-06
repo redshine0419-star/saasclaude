@@ -173,7 +173,10 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
         )}
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>수업·시간표</h1>
+          <div>
+            <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>수업·시간표</h1>
+            <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>반 정보·잔여석과 레벨테스트 가능 시간을 관리합니다. 저장하면 홈페이지에 바로 반영됩니다.</div>
+          </div>
           <button
             type="button"
             onClick={addClass}

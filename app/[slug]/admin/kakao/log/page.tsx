@@ -133,7 +133,10 @@ export default async function KakaoLogPage({
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>발송 내역·수신 동의</h1>
+          <div>
+            <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>발송 내역·수신 동의</h1>
+            <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>보낸 카카오톡·문자 결과와 학부모의 광고 수신 동의 현황을 달별로 봅니다.</div>
+          </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             {monthOptions.slice(0, 6).map((o) => (
               <a
