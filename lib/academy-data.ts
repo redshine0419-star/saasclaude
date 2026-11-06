@@ -467,8 +467,9 @@ export async function getAcademyPageData(slug: string): Promise<AcademyPageData 
 
 async function loadAcademyFromDb(slug: string): Promise<AcademyPageData | null> {
   try {
+    // 원장이 비공개로 돌린 홈페이지(published=false)는 학부모 화면에서 보이지 않는다
     const tenant = await prisma.tenant.findUnique({
-      where: { slug, status: 'active' },
+      where: { slug, status: 'active', published: true },
       include: {
         sections: { orderBy: { sortOrder: 'asc' } },
         directorProfile: true,

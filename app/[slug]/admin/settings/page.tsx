@@ -1,4 +1,5 @@
 import { notFound, redirect } from 'next/navigation';
+import { SiteControlCard } from './SiteControlCard';
 import { adminSession } from '@/lib/demo-viewer';
 import { prisma } from '@/lib/prisma';
 import { getAdminMembership } from '@/lib/admin-auth';
@@ -87,6 +88,14 @@ export default async function AdminSettingsPage({
           isOwner={membership.role === 'owner'}
           members={allMembers.map((m) => ({ id: m.id, email: m.user.email ?? '', name: m.user.name, role: m.role }))}
           pendingInvites={pendingInvites.map((i) => ({ id: i.id, email: i.email, role: i.role, expiresAt: i.expiresAt.toISOString(), inviteUrl: `${process.env.NEXT_PUBLIC_BASE_URL ?? 'https://growweb.me'}/auth/accept-invite?token=${i.token}` }))}
+        />
+        <SiteControlCard
+          slug={slug}
+          tenantName={tenant.name}
+          isOwner={membership.role === 'owner'}
+          published={tenant.published}
+          unpublishedAt={tenant.unpublishedAt?.toISOString() ?? null}
+          deletionRequestedAt={tenant.deletionRequestedAt?.toISOString() ?? null}
         />
         {membership.role === 'owner' && (
           <DomainCard

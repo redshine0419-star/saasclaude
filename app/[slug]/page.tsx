@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getAcademyPageData } from '@/lib/academy-data';
+import { prisma } from '@/lib/prisma';
 import SiteHeader from '@/components/academy/SiteHeader';
 import SiteHeaderResult from '@/components/academy/SiteHeaderResult';
 import SiteHeaderBright from '@/components/academy/SiteHeaderBright';
@@ -44,7 +45,19 @@ export default async function AcademyPage({
 }) {
   const { slug } = await params;
   const data = await getAcademyPageData(slug);
-  if (!data) notFound();
+  if (!data) {
+    // 원장이 잠시 비공개로 돌린 학원은 안내만 보여 준다
+    const hidden = await prisma.tenant.findUnique({ where: { slug }, select: { name: true, phone: true, status: true, published: true } });
+    if (!hidden || hidden.status !== 'active' || hidden.published) notFound();
+    return (
+      <main className="min-h-screen flex items-center justify-center px-5 bg-[#F6F3EC] text-[#1B2430]" style={{ fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif" }}>
+        <div className="max-w-[420px] text-center flex flex-col gap-3">
+          <h1 className="m-0 text-[24px] font-bold">{hidden.name}</h1>
+          <p className="m-0 text-[15px] leading-relaxed text-[#3E4652]">지금은 홈페이지를 잠시 쉬고 있습니다.{hidden.phone && <><br />문의: {hidden.phone}</>}</p>
+        </div>
+      </main>
+    );
+  }
 
   const isDemoSlug = ['demo-warm', 'demo-result', 'demo-bright'].includes(slug);
 

@@ -23,10 +23,15 @@ model PlatformSetting {
 // ─────────────────────────────────────────────────────────
 
 model Tenant {
-  id         String    @id @default(cuid())
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  inactiveAt DateTime? // 비공개 전환 시각 — 이 시각부터 TENANT_PURGE_DAYS 뒤 학원 데이터 전체 파기 (lib/retention.ts)
+  id                  String    @id @default(cuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  inactiveAt          DateTime? // 운영 중지(status=inactive) 시각 — 베타 만료·운영자 처리. 자동 삭제하지 않는다
+  published           Boolean   @default(true) // 홈페이지 공개 여부 — 원장이 켜고 끈다. 꺼도 관리자 화면은 그대로 쓴다
+  unpublishedAt       DateTime? // 홈페이지를 비공개로 바꾼 시각
+  deletionRequestedAt DateTime? // 원장의 학원 삭제 요청 — 운영자가 확인 후 수동 삭제 (lib/retention.ts purgeTenant)
+  deletionRequestedBy String?
+  deletionReason      String?
 
   slug          String       @unique
   name          String

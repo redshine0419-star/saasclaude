@@ -21,7 +21,7 @@ function themeBadge(theme: string) {
 function statusBadge(status: string) {
   return status === 'active'
     ? { label: '운영 중', bg: '#D8E8E0', color: '#1E5645' }
-    : { label: '비공개', bg: '#F3E3DC', color: '#8A3A1C' };
+    : { label: '운영 중지', bg: '#F3E3DC', color: '#8A3A1C' };
 }
 
 export default async function PlatformAcademiesPage() {

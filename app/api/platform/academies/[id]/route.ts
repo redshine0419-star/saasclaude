@@ -7,6 +7,8 @@ type Params = Promise<{ id: string }>;
 async function checkPlatformAdmin() {
   const session = await auth();
   if (!session?.user?.email) return false;
+  // 플랫폼 화면과 같은 기준: 환경변수 운영자 목록 또는 platform_admin 역할
+  if ((process.env.PLATFORM_ADMIN_EMAILS ?? '').split(',').map((e) => e.trim()).includes(session.user.email)) return true;
   const m = await prisma.membership.findFirst({
     where: { user: { email: session.user.email }, role: 'platform_admin' },
   });
@@ -23,16 +25,19 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
   const tenant = await prisma.tenant.findUnique({ where: { id } });
   if (!tenant) return NextResponse.json({ error: '학원을 찾을 수 없습니다.' }, { status: 404 });
 
-  const { theme, accentColor, status, sections, phone, address, hours, kakaoChannelUrl } = body;
+  const { theme, accentColor, status, published, sections, phone, address, hours, kakaoChannelUrl } = body;
 
   await prisma.tenant.update({
     where: { id },
     data: {
       ...(theme && { theme }),
       ...(accentColor !== undefined && { accentColor: accentColor || null }),
-      // 비공개로 바꾸면 파기 기한(30일)이 시작되고, 다시 공개하면 취소된다
+      // 운영 중지 시각을 남긴다 (자동 삭제 없음). 다시 운영하면 지운다
       ...(status === 'inactive' && tenant.status !== 'inactive' && { status, inactiveAt: new Date() }),
       ...(status === 'active' && { status, inactiveAt: null }),
+      // 홈페이지 공개 여부 (원장 화면과 같은 칸)
+      ...(published === true && { published: true, unpublishedAt: null }),
+      ...(published === false && tenant.published && { published: false, unpublishedAt: new Date() }),
       ...(phone !== undefined && { phone: phone || null }),
       ...(address !== undefined && { address: address || null }),
       ...(hours !== undefined && { hours: hours || null }),

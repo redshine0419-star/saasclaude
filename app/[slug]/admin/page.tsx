@@ -8,7 +8,6 @@ import { SetupChecklist } from '@/components/admin/SetupChecklist';
 import { getSetupChecklist } from '@/lib/setup-checklist';
 import { BetaBanner } from '@/components/admin/BetaBanner';
 import { betaStatus, formatKstDate } from '@/lib/beta';
-import { purgeDueAt } from '@/lib/retention';
 
 function maskName(name: string) {
   if (name.length <= 1) return name + '○○';
@@ -84,13 +83,9 @@ export default async function AdminDashboardPage({
           {betaBanner ?? (
             <div style={{ padding: 20, borderRadius: 12, background: '#FFFFFF' }}>홈페이지가 비공개 상태입니다. 첫등원에 문의해 주세요.</div>
           )}
-          {tenant.inactiveAt && (
-            <div role="alert" style={{ padding: 20, borderRadius: 12, background: '#FBE9E7', color: '#8A3A1C', lineHeight: 1.7 }}>
-              <b>{formatKstDate(purgeDueAt(tenant.inactiveAt))}</b>에 학원의 모든 데이터(상담·학생부·글·사진)가 영구 삭제됩니다.
-              필요한 자료는 <a href={`/api/${slug}/admin/export`} style={{ color: '#8A3A1C', fontWeight: 700 }}>데이터 내보내기</a>로 미리 받아 두세요.
-              다시 공개하려면 첫등원에 문의해 주세요.
-            </div>
-          )}
+          <div style={{ padding: 20, borderRadius: 12, background: '#FFFFFF', lineHeight: 1.7 }}>
+            자료는 <a href={`/api/${slug}/admin/export`} style={{ color: '#1E5645', fontWeight: 700 }}>데이터 내보내기</a>로 받을 수 있습니다. 데이터는 학원 삭제 요청이 처리되기 전까지 지워지지 않습니다.
+          </div>
         </div>
       </main>
     );

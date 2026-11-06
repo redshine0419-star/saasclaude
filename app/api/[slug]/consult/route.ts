@@ -57,7 +57,7 @@ export async function POST(
 
   // ── 테넌트 조회 ──────────────────────────────────────────────────────
   const tenant = await prisma.tenant.findUnique({
-    where: { slug, status: 'active' },
+    where: { slug, status: 'active', published: true },
     include: { notifyRecipients: true },
   });
   if (!tenant) {

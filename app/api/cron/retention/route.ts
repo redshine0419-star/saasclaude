@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { runRetention } from '@/lib/retention';
 
-// Vercel Cron: 매일 18:00 UTC (KST 03:00) — 비공개 30일 지난 학원 파기, 만료된 직원 초대·5년 지난 결제 보관 기록 삭제
+// Vercel Cron: 매일 18:00 UTC (KST 03:00) — 만료된 직원 초대·5년 지난 결제 보관 기록 삭제 (학원은 자동 삭제하지 않음)
 export const maxDuration = 300;
 
 export async function GET(req: Request) {
@@ -10,11 +10,6 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   const result = await runRetention();
-  console.log('[retention]', {
-    purged: result.purged.map((p) => p.slug),
-    failed: result.failed.length,
-    expiredInvites: result.expiredInvites,
-    expiredPaymentArchives: result.expiredPaymentArchives,
-  });
+  console.log('[retention]', result);
   return NextResponse.json({ ok: true, ...result });
 }

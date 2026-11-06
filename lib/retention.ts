@@ -5,17 +5,17 @@ import { prisma } from '@/lib/prisma';
 
 /**
  * 개인정보 보유 기간 정리 (개인정보처리방침 2·7번).
- * - 학원: 홈페이지가 비공개로 바뀐 뒤 TENANT_PURGE_DAYS일이 지나면 학원의 모든 데이터를 영구 삭제한다.
- *   결제 기록만 전자상거래법(5년)에 따라 PaymentArchive로 옮겨 보관한다.
- * - 직원 초대: 만료된 초대는 지운다.
+ * - 학원 삭제: 비공개와 별개로, 운영자가 플랫폼 관리자에서 직접 누를 때만 purgeTenant로 영구 삭제한다 (자동 삭제 없음).
+ *   원장은 설정에서 삭제를 요청할 수 있다. 결제 기록만 전자상거래법(5년)에 따라 PaymentArchive로 옮겨 보관한다.
+ * - 직원 초대: 만료된 초대는 매일 지운다.
  * - 보관 결제 기록: 5년이 지나면 지운다.
  */
-export const TENANT_PURGE_DAYS = 30;
 export const PAYMENT_KEEP_YEARS = 5;
 const DAY = 24 * 60 * 60 * 1000;
 
-export function purgeDueAt(inactiveAt: Date): Date {
-  return new Date(inactiveAt.getTime() + TENANT_PURGE_DAYS * DAY);
+/** 비공개로 바뀐 뒤 지난 날수 (오늘 바꿨으면 0) */
+export function daysSince(at: Date, now: Date = new Date()): number {
+  return Math.max(0, Math.floor((now.getTime() - at.getTime()) / DAY));
 }
 
 export function paymentDeleteAfter(paidAt: Date): Date {
@@ -87,25 +87,9 @@ export async function purgeTenant(tenantId: string): Promise<{ slug: string; pay
   return { slug: tenant.slug, payments: payments.length, files };
 }
 
-/** 매일 한 번 (Vercel Cron) */
+/** 매일 한 번 (Vercel Cron) — 학원은 자동으로 지우지 않는다 */
 export async function runRetention(now: Date = new Date()) {
-  const cutoff = new Date(now.getTime() - TENANT_PURGE_DAYS * DAY);
-  const due = await prisma.tenant.findMany({
-    where: { status: 'inactive', inactiveAt: { not: null, lt: cutoff } },
-    select: { id: true },
-  });
-  const purged: { slug: string; payments: number; files: number }[] = [];
-  const failed: string[] = [];
-  for (const t of due) {
-    try {
-      purged.push(await purgeTenant(t.id));
-    } catch (e) {
-      // 다음 날 다시 시도한다. 로그에는 학원 id만 남긴다
-      console.error('[retention] 학원 파기 실패', t.id, e instanceof Error ? e.message : e);
-      failed.push(t.id);
-    }
-  }
   const invites = await prisma.memberInvite.deleteMany({ where: { expiresAt: { lt: now } } });
   const archives = await prisma.paymentArchive.deleteMany({ where: { deleteAfter: { lt: now } } });
-  return { purged, failed, expiredInvites: invites.count, expiredPaymentArchives: archives.count };
+  return { expiredInvites: invites.count, expiredPaymentArchives: archives.count };
 }

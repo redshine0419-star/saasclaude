@@ -62,7 +62,12 @@ export default async function AcademyLayout({
 }) {
   const { slug } = await params;
   const data = await getAcademyPageData(slug);
-  if (!data) notFound();
+  if (!data) {
+    // 비공개·운영 중지 학원도 관리자 화면(/{slug}/admin)은 열려야 한다 — 학부모 화면은 각 페이지가 404로 막는다
+    const exists = await prisma.tenant.findUnique({ where: { slug }, select: { id: true } });
+    if (!exists) notFound();
+    return <>{children}</>;
+  }
 
   const theme = data.tenant.theme;
 

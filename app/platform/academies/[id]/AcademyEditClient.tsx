@@ -343,14 +343,14 @@ export function AcademyEditClient(props: Props) {
               <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 14 }}>학원 상태</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: '#5A6270' }}>공개 상태</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#5A6270' }}>운영 상태 <span style={{ fontWeight: 400 }}>(홈페이지만 숨기는 비공개는 원장 설정 또는 &lsquo;비공개·삭제 요청&rsquo; 메뉴)</span></span>
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
                     style={{ height: 38, padding: '0 10px', borderRadius: 8, border: '1px solid #D5D0C6', fontSize: 13, fontFamily: 'inherit' }}
                   >
-                    <option value="active">운영 중 (공개)</option>
-                    <option value="inactive">비공개</option>
+                    <option value="active">운영 중</option>
+                    <option value="inactive">운영 중지 (홈페이지·관리자 모두 닫힘)</option>
                   </select>
                 </label>
                 {props.betaEndsAt && (

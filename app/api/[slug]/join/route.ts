@@ -15,7 +15,7 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
 
   const token = typeof body.token === 'string' ? body.token : '';
   if (!isRegToken(token)) return NextResponse.json({ error: '등록 링크가 올바르지 않습니다. 학원에 새 링크를 요청해 주세요.' }, { status: 404 });
-  const tenant = await prisma.tenant.findFirst({ where: { slug, status: 'active', studentRegToken: token }, select: { id: true } });
+  const tenant = await prisma.tenant.findFirst({ where: { slug, status: 'active', published: true, studentRegToken: token }, select: { id: true } });
   if (!tenant) return NextResponse.json({ error: '만료되었거나 올바르지 않은 등록 링크입니다. 학원에 새 링크를 요청해 주세요.' }, { status: 404 });
 
   const parsed = parseRegistration(body);
