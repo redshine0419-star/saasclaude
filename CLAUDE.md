@@ -86,7 +86,7 @@ if (!membership) return NextResponse.json({ error: 'Forbidden' }, { status: 403 
 **기준 파일은 `design/design-system/tokens.json`**. 사용 규칙은 `design/design-system/README.md`. 화면 모습은 `design/screenshots/`.
 CSS 변수는 `styles/tokens.css`, Tailwind 연결은 `tailwind.config.ts`.
 
-- 테마 A 원장 직강형: 종이색 바탕, 칠판 녹색 강조, 명조 제목 (Gowun Batang + IBM Plex Sans KR)
+- 테마 A 원장 직강형: 종이색 바탕, 칠판 녹색 강조, 주황 섹션 라벨, 명조 제목 (Noto Serif KR + IBM Plex Sans KR) — 2026-11 시안으로 교체, 가운데 1280px 상자 레이아웃
 - 테마 B 성과 중심형: 남색·흰색, 진한 파랑 강조, 굵은 고딕 제목 (Gothic A1 + IBM Plex Sans KR)
 - 테마 C 밝은 친근형: 흰 바탕 + 파스텔 카드, 청록 강조, 둥근 제목 (Jua + IBM Plex Sans KR)
 - 관리자: 테마와 무관하게 공통 (남색 사이드바, 녹색 주요 버튼)

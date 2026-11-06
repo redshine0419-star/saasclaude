@@ -17,53 +17,47 @@ export default function HeroSection({ tenant, directorPhoto, levelTestSlots }: P
   const desktopSrc = photo ?? directorPhoto;
 
   return (
-    <section id="top" className="px-5 md:px-20 pt-12 md:pt-[72px] pb-10 md:pb-16">
-      <div className="flex flex-col md:flex-row md:items-center md:gap-16">
+    <section id="top" className="pt-9 pb-8 md:pt-14 md:pb-12">
+      <div className="acad-wrap grid grid-cols-1 md:grid-cols-[0.88fr_1.12fr] items-center gap-8 md:gap-[42px]">
         {/* ─── 텍스트 ─── */}
-        <div className="flex-1 flex flex-col gap-5 md:gap-7">
-          {/* 뱃지 */}
-          {tenant.heroBadge && (
-            <span className="self-start px-3 py-[5px] rounded-md bg-highlight text-highlight-ink text-[13px] md:text-sm font-semibold">
-              {tenant.heroBadge}
-            </span>
-          )}
+        <div className="flex flex-col">
+          {tenant.heroBadge && <p className="acad-eyebrow">{tenant.heroBadge}</p>}
 
-          {/* 제목 */}
-          <h1 className="m-0 font-serif text-[32px] md:text-[60px] leading-[1.3] md:leading-[1.25] font-bold tracking-tight text-ink">
+          <h1 className="m-0 mb-[22px] font-serif font-bold text-ink text-[34px] md:text-[clamp(34px,4vw,54px)] leading-[1.28] tracking-[-0.055em] break-keep">
             {lines.map((l, i) => (
               <span key={i}>{i > 0 && <br />}{l}</span>
             ))}
           </h1>
 
-          {/* 설명 */}
-          <p className="m-0 text-[15px] md:text-[19px] leading-[1.7] text-body max-w-[560px]">
+          <p className="m-0 mb-7 text-[15px] md:text-[18px] leading-[1.8] text-body max-w-[520px]">
             {tenant.heroSubtitle || def.subtitle}
           </p>
 
-          {/* CTA 버튼 — 데스크톱만 */}
-          <div className="hidden md:flex gap-3">
+          <div className="flex flex-wrap gap-2.5">
             <a
               href={`/${tenant.slug}/consult`}
-              className="flex items-center h-14 px-7 rounded-xl bg-accent text-on-accent font-bold text-[17px] hover:opacity-90 transition-opacity no-underline"
+              className="inline-flex items-center h-12 px-6 rounded-[11px] bg-accent text-on-accent font-bold text-[15px] no-underline transition-transform hover:-translate-y-0.5"
             >
-              무료 레벨테스트 신청
+              무료 레벨테스트 신청 →
             </a>
             {tenant.kakaoChannelUrl && (
               <a
                 href={tenant.kakaoChannelUrl}
-                className="flex items-center gap-2 h-14 px-6 rounded-xl border border-ink text-ink font-semibold text-[17px] hover:bg-subtle transition-colors no-underline"
+                className="hidden md:inline-flex items-center gap-2 h-12 px-5 rounded-[11px] border border-line bg-surface text-ink font-bold text-[15px] no-underline hover:bg-subtle"
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.8-.8L3 21l1.9-4.6A8.1 8.1 0 0 1 3 11.5 8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg>
                 카카오톡 채널 상담
               </a>
             )}
           </div>
         </div>
 
-        {/* ─── 이미지 + 슬롯 카드 ─── */}
-        <div className="relative mt-5 md:mt-0 md:w-[580px] md:h-[440px] md:flex-shrink-0">
+        {/* ─── 사진 + 레벨테스트 시간 ─── */}
+        <div className="relative">
           {/* 모바일은 원장 사진 우선(SPEC), 데스크톱은 대표 사진 우선. 둘 다 없으면 장식 칸 */}
-          <div className="w-full h-[200px] md:w-[580px] md:h-[440px] rounded-2xl bg-subtle flex items-center justify-center text-muted text-sm md:text-base overflow-hidden">
+          <div
+            className="w-full h-[245px] sm:h-[350px] md:h-[440px] rounded-[24px] bg-subtle overflow-hidden flex items-center justify-center text-muted"
+            style={{ boxShadow: 'var(--section-shadow)' }}
+          >
             {mobileSrc && (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={mobileSrc} alt={directorPhoto ? `${tenant.name} 원장` : `${tenant.name} 교실`} className="w-full h-full object-cover md:hidden" />
@@ -77,23 +71,13 @@ export default function HeroSection({ tenant, directorPhoto, levelTestSlots }: P
             )}
           </div>
 
-          {/* 레벨테스트 슬롯 카드 — 데스크톱만 */}
           {activeSlots.length > 0 && (
             <div
-              className="hidden md:flex flex-col gap-2.5 absolute -left-10 -bottom-7 w-[300px] bg-surface rounded-2xl p-5"
-              style={{ boxShadow: 'var(--shadow-float)' }}
+              className="absolute left-3 bottom-3 md:-left-[22px] md:bottom-[22px] bg-surface rounded-2xl px-[15px] py-3 md:px-[22px] md:py-[18px] text-[13px] text-muted max-w-[calc(100%-24px)]"
+              style={{ boxShadow: 'var(--section-shadow)' }}
             >
-              <div className="text-[13px] font-semibold text-muted">이번 주 레벨테스트 가능 시간</div>
-              <div className="flex gap-2 flex-wrap">
-                {activeSlots.map((s) => (
-                  <span
-                    key={s.id}
-                    className="px-2.5 py-[6px] rounded-md bg-accent-soft text-accent-ink text-sm font-semibold"
-                  >
-                    {s.weekday !== null ? weekdayLabel(s.weekday) : ''} {s.time}
-                  </span>
-                ))}
-              </div>
+              <strong className="block text-ink text-[14px] md:text-[16px] mb-1">이번 주 레벨테스트 가능 시간</strong>
+              {activeSlots.map((s) => `${s.weekday !== null ? weekdayLabel(s.weekday) : ''} ${s.time ?? ''}`.trim()).join('  ·  ')}
             </div>
           )}
         </div>

@@ -45,6 +45,7 @@ export default async function AdminClassesPage({
     waitlistCount: c.waitlistCount,
     textbook: c.textbook,
     description: c.description,
+    photo: c.photo,
   }));
 
   const serializedSlots = levelTestSlots.map((s) => ({

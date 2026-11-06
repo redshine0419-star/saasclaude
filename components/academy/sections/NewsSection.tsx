@@ -7,76 +7,58 @@ type Props = { posts: AcademyPost[]; slug: string; title?: string };
 function formatDate(date: Date | string | null) {
   if (!date) return '';
   const d = typeof date === 'string' ? new Date(date) : date;
-  return d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+  return d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul' });
 }
 
 const CATEGORY_LABEL: Record<string, string> = {
   recruit: '모집',
   notice: '공지',
+  exam: '시험',
+  gallery: '갤러리',
   news: '소식',
 };
 
 export default function NewsSection({ posts, slug, title = SECTION_COPY_SPEC.news.title }: Props) {
   if (posts.length === 0) return null;
-
-  const featured = posts[0];
-  const rest = posts.slice(1, 4);
+  const items = posts.slice(0, 3);
 
   return (
-    <section id="news" className="px-5 md:px-20 pt-16 md:pt-[120px]">
-      <div className="flex flex-col gap-6 md:gap-8">
-        {/* 헤더 */}
-        <div className="flex items-end justify-between">
-          <div className="flex flex-col gap-2.5 md:gap-3">
-            <div className="text-[14px] md:text-[15px] font-bold text-label">학원 소식</div>
-            <h2 className="m-0 font-serif text-[28px] md:text-[40px] font-bold text-ink"><TitleLines text={title} /></h2>
+    <section id="news" className="py-14 md:py-[76px] bg-surface">
+      <div className="acad-wrap">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6 md:mb-8">
+          <div className="min-w-0">
+            <p className="acad-eyebrow">학원 소식</p>
+            <h2 className="acad-h2"><TitleLines text={title} /></h2>
           </div>
-          <a href={`/${slug}/news`} className="text-[14px] text-accent font-semibold hover:underline hidden md:block">전체 보기 →</a>
+          <a href={`/${slug}/news`} className="acad-more">전체 보기 →</a>
         </div>
 
-        {/* 피처드 + 목록 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-          {/* 큰 카드 */}
-          <div className="bg-surface rounded-2xl overflow-hidden flex flex-col">
-            <div className="w-full h-[200px] md:h-[220px] bg-subtle flex items-center justify-center text-muted">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" aria-hidden="true">
-                <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2z"/>
-                <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
-                <path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>
-              </svg>
-            </div>
-            <div className="p-5 md:p-6 flex flex-col gap-2 flex-1">
-              <div className="flex items-center gap-2">
-                {featured.category && (
-                  <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-accent/10 text-accent">
-                    {CATEGORY_LABEL[featured.category] ?? featured.category}
-                  </span>
+        <div className={`grid grid-cols-1 sm:grid-cols-2 gap-[18px] ${items.length >= 3 ? 'md:grid-cols-[1.2fr_1fr_1fr]' : ''}`}>
+          {items.map((post, i) => (
+            <a
+              key={post.id}
+              href={`/${slug}/news/${post.id}`}
+              className={`bg-surface border border-line rounded-[16px] overflow-hidden no-underline text-ink flex flex-col min-w-0 transition-shadow hover:[box-shadow:var(--section-shadow)] ${i === 0 && items.length >= 3 ? 'sm:col-span-2 md:col-span-1' : ''}`}
+            >
+              <div className="w-full h-[190px] bg-subtle flex items-center justify-center text-muted overflow-hidden">
+                {post.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={post.imageUrl} alt="" className="block w-full h-full object-cover" />
+                ) : (
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="opacity-40" aria-hidden="true">
+                    <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2z"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>
+                  </svg>
                 )}
-                <span className="text-[12px] text-muted">{formatDate(featured.publishedAt)}</span>
               </div>
-              <h3 className="m-0 font-serif text-[18px] md:text-[20px] font-bold text-ink leading-snug">{featured.title}</h3>
-            </div>
-          </div>
-
-          {/* 작은 목록 */}
-          <div className="flex flex-col gap-3">
-            {rest.map((post) => (
-              <div key={post.id} className="p-5 bg-surface rounded-2xl flex flex-col gap-1.5">
-                <div className="flex items-center gap-2">
-                  {post.category && (
-                    <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-accent/10 text-accent">
-                      {CATEGORY_LABEL[post.category] ?? post.category}
-                    </span>
-                  )}
-                  <span className="text-[12px] text-muted">{formatDate(post.publishedAt)}</span>
-                </div>
-                <div className="font-bold text-ink text-[15px] leading-snug">{post.title}</div>
+              <div className="p-[18px]">
+                <small className="text-[13px] text-muted">
+                  {[CATEGORY_LABEL[post.category] ?? post.category, formatDate(post.publishedAt)].filter(Boolean).join(' · ')}
+                </small>
+                <h3 className="m-0 mt-[7px] text-[17px] leading-[1.5] font-bold">{post.title}</h3>
               </div>
-            ))}
-          </div>
+            </a>
+          ))}
         </div>
-
-        <a href={`/${slug}/news`} className="text-[14px] text-accent font-semibold hover:underline md:hidden self-start">전체 보기 →</a>
       </div>
     </section>
   );

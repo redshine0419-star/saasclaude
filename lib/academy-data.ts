@@ -69,6 +69,7 @@ export type AcademyClass = {
   capacity: number | null;
   waitlistCount: number;
   sortOrder: number;
+  photo?: string | null;
 };
 
 export type AcademyFee = {
@@ -535,12 +536,12 @@ async function loadAcademyFromDb(slug: string): Promise<AcademyPageData | null> 
       classes: tenant.classes.map((c: {
         id: string; name: string; gradeBand: string | null; days: string[]; startTime: string | null;
         endTime: string | null; textbook: string | null; description: string | null;
-        seatsLeft: number | null; capacity: number | null; waitlistCount: number; sortOrder: number;
+        seatsLeft: number | null; capacity: number | null; waitlistCount: number; sortOrder: number; photo: string | null;
       }) => ({
         id: c.id, name: c.name, gradeBand: c.gradeBand, days: c.days,
         startTime: c.startTime, endTime: c.endTime, textbook: c.textbook,
         description: c.description, seatsLeft: c.seatsLeft, capacity: c.capacity,
-        waitlistCount: c.waitlistCount, sortOrder: c.sortOrder,
+        waitlistCount: c.waitlistCount, sortOrder: c.sortOrder, photo: c.photo,
       })),
       fees: tenant.fees.map((f: {
         id: string; classId: string | null; label: string; sessionsPerWeek: number | null;

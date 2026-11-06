@@ -41,6 +41,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
       seatsLeft: newSeatsLeft,
       textbook: body.textbook ?? existing.textbook,
       description: body.description ?? existing.description,
+      // 사진: 우리가 올린 주소(https 또는 /)만 받는다. 빈 값이면 사진을 뺀다
+      photo: body.photo === undefined ? existing.photo
+        : typeof body.photo === 'string' && /^(https:\/\/|\/)[^\s"'<>]{1,1000}$/.test(body.photo) ? body.photo : null,
     },
   });
 

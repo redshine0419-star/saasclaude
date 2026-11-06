@@ -29,15 +29,15 @@ export default function SiteHeader({ name, slug, activePage, phone, kakaoChannel
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-bg border-b border-line">
-        <div className="max-w-[1440px] mx-auto px-5 md:px-20 h-[60px] md:h-[84px] flex items-center justify-between">
+      <header className="sticky top-0 z-50 border-b border-line backdrop-blur-md" style={{ background: 'color-mix(in srgb, var(--bg) 94%, transparent)' }}>
+        <div className="acad-wrap h-[66px] md:h-[82px] flex items-center justify-between gap-6">
           {/* 로고 */}
-          <a href={homeHref} className="font-serif text-xl md:text-2xl font-bold text-ink no-underline">
+          <a href={homeHref} className="font-serif text-[19px] md:text-[23px] font-bold text-ink no-underline whitespace-nowrap">
             {name}
           </a>
 
           {/* 데스크톱 내비 */}
-          <nav className="hidden md:flex items-center gap-8 text-[15px] font-medium text-body">
+          <nav className="hidden lg:flex items-center gap-[30px] text-[14px] font-semibold text-body">
             {NAV_ITEMS.map(({ key, label }) => (
               <a
                 key={key}
@@ -55,11 +55,11 @@ export default function SiteHeader({ name, slug, activePage, phone, kakaoChannel
           </nav>
 
           {/* 데스크톱 CTA */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-2.5">
             {phone && (
               <a
                 href={`tel:${phone.replace(/-/g, '')}`}
-                className="flex items-center gap-2 h-11 px-5 rounded-[10px] border border-input-line text-ink text-[15px] font-medium hover:bg-subtle transition-colors no-underline"
+                className="flex items-center gap-2 h-[46px] px-[19px] rounded-[11px] border border-input-line bg-surface text-ink text-[14px] font-bold hover:bg-subtle transition-colors no-underline whitespace-nowrap"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>
                 {phone}
@@ -67,7 +67,7 @@ export default function SiteHeader({ name, slug, activePage, phone, kakaoChannel
             )}
             <a
               href={`/${slug}/consult`}
-              className="flex items-center h-11 px-5 rounded-[10px] bg-accent text-on-accent text-[15px] font-bold hover:opacity-90 transition-opacity no-underline"
+              className="flex items-center h-[46px] px-[19px] rounded-[11px] bg-accent text-on-accent text-[14px] font-bold hover:-translate-y-0.5 transition-transform no-underline whitespace-nowrap"
             >
               무료 레벨테스트 신청
             </a>
@@ -76,7 +76,7 @@ export default function SiteHeader({ name, slug, activePage, phone, kakaoChannel
           {/* 모바일 햄버거 */}
           <button
             type="button"
-            className="md:hidden w-11 h-11 flex items-center justify-center text-ink"
+            className="lg:hidden w-11 h-11 flex items-center justify-center text-ink"
             onClick={() => setMenuOpen(true)}
             aria-label="메뉴 열기"
           >
@@ -89,7 +89,7 @@ export default function SiteHeader({ name, slug, activePage, phone, kakaoChannel
 
       {/* M-NAV 풀스크린 오버레이 */}
       {menuOpen && (
-        <div className="md:hidden fixed inset-0 z-[100] bg-bg flex flex-col" style={{ fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif" }}>
+        <div className="lg:hidden fixed inset-0 z-[100] bg-bg flex flex-col" style={{ fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif" }}>
           {/* 상단 바 */}
           <div className="h-[60px] px-5 pr-2 flex items-center justify-between border-b border-line flex-shrink-0">
             <span className="font-serif text-xl font-bold text-ink">{name}</span>

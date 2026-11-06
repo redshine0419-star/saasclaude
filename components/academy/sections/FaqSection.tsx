@@ -8,13 +8,7 @@ export interface FaqItem {
   answer: string;
 }
 
-export default function FaqSection({
-  items,
-  accentColor = '#1E5645',
-}: {
-  items: FaqItem[];
-  accentColor?: string;
-}) {
+export default function FaqSection({ items }: { items: FaqItem[] }) {
   const [openId, setOpenId] = useState<string | null>(null);
 
   if (items.length === 0) return null;
@@ -30,90 +24,32 @@ export default function FaqSection({
   };
 
   return (
-    <section
-      style={{
-        padding: '64px 20px',
-        background: '#FAFAF8',
-        fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif",
-      }}
-    >
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <div style={{ maxWidth: 720, margin: '0 auto' }}>
-        <h2
-          style={{
-            fontSize: 24,
-            fontWeight: 700,
-            marginBottom: 32,
-            color: '#1B2430',
-          }}
-        >
-          자주 묻는 질문
-        </h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {items.map((item) => {
-            const isOpen = openId === item.id;
-            return (
-              <div
-                key={item.id}
-                style={{
-                  background: '#FFFFFF',
-                  borderRadius: 12,
-                  border: `1px solid ${isOpen ? accentColor : '#E5E0D8'}`,
-                  overflow: 'hidden',
-                  transition: 'border-color 0.15s',
-                }}
-              >
-                <button
-                  onClick={() => setOpenId(isOpen ? null : item.id)}
-                  aria-expanded={isOpen}
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '18px 20px',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    gap: 12,
-                  }}
-                >
-                  <span style={{ fontSize: 15, fontWeight: 600, color: '#1B2430', flex: 1 }}>
-                    Q. {item.question}
-                  </span>
-                  <span
-                    style={{
-                      color: accentColor,
-                      fontSize: 18,
-                      fontWeight: 700,
-                      flexShrink: 0,
-                      transform: isOpen ? 'rotate(45deg)' : 'none',
-                      transition: 'transform 0.2s',
-                    }}
+    <section id="faq" className="py-14 md:py-[76px]">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <div className="acad-wrap">
+        <div className="max-w-[850px] mx-auto">
+          <h2 className="acad-h2 text-center mb-[30px]">자주 묻는 질문</h2>
+          <div className="flex flex-col gap-[9px]">
+            {items.map((item) => {
+              const isOpen = openId === item.id;
+              return (
+                <div key={item.id} className={`bg-surface rounded-[13px] border overflow-hidden ${isOpen ? 'border-accent' : 'border-line'}`}>
+                  <button
+                    type="button"
+                    onClick={() => setOpenId(isOpen ? null : item.id)}
+                    aria-expanded={isOpen}
+                    className="w-full flex justify-between items-center gap-3 px-[22px] py-[19px] bg-transparent border-0 text-left cursor-pointer font-bold text-[15px] text-ink"
                   >
-                    +
-                  </span>
-                </button>
-                {isOpen && (
-                  <div
-                    style={{
-                      padding: '0 20px 18px',
-                      fontSize: 14,
-                      lineHeight: 1.7,
-                      color: '#3A4250',
-                      borderTop: `1px solid ${accentColor}20`,
-                    }}
-                  >
-                    {item.answer}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                    <span className="flex-1">Q. {item.question}</span>
+                    <span aria-hidden="true" className={`text-accent text-[18px] flex-shrink-0 transition-transform ${isOpen ? 'rotate-45' : ''}`}>＋</span>
+                  </button>
+                  {isOpen && (
+                    <div className="px-[22px] pb-5 text-[14px] leading-[1.7] text-body whitespace-pre-line">{item.answer}</div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

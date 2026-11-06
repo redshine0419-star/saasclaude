@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { AiDraftPanel } from '@/components/admin/AiDraftPanel';
+import { PhotoPicker } from '@/components/admin/PhotoPicker';
 
 interface ClassItem {
   id: string;
@@ -15,6 +16,7 @@ interface ClassItem {
   waitlistCount: number;
   textbook: string | null;
   description: string | null;
+  photo: string | null;
 }
 
 interface LevelTestSlot {
@@ -105,6 +107,7 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
         capacity: fieldVal('capacity'),
         textbook: fieldVal('textbook'),
         description: fieldVal('description'),
+        photo: fieldVal('photo') ?? '',
       };
       const res = await fetch(`/api/${slug}/admin/classes/${selectedId}`, {
         method: 'PATCH',
@@ -479,6 +482,11 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
               placeholder="교재명"
               style={{ height: 44, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14, width: '100%', minWidth: 0, boxSizing: 'border-box' }}
             />
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#5A6270' }}>반 사진 <span style={{ fontWeight: 400 }}>(선택 · 홈페이지 반 카드에 보입니다)</span></span>
+            <PhotoPicker slug={slug} value={(fieldVal('photo') as string) ?? ''} onChange={(url) => setForm((p) => ({ ...p, photo: url }))} />
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

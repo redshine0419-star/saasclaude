@@ -334,6 +334,44 @@ async function seedAcademy({ slug, marker, kids }) {
   console.log(`[seed-sample] ${slug} 샘플 데이터 채움 완료`);
 }
 
+// ── demo-warm 화면 시안(2026-11) — 사진·메인 문구·섹션 순서 ─────────────────
+// 사진은 Unsplash 무료 이미지 주소. 학원 데이터가 아니라 데모 연출용이다.
+const U = (id, w = 1200) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=85`;
+const WARM_LOOK = {
+  marker: 'seed:look:demo-warm:v1',
+  heroBadge: '수학의 기본부터 단단하게',
+  heroTitle: '소수 정예로,\n원장이 직접 가르칩니다',
+  heroSubtitle: '수학 내신 대비부터 기초까지. 레벨테스트로 아이 수준을 먼저 확인하고, 맞는 반을 정해 드립니다.',
+  // 0: 첫 화면, 1: 수업 원칙 옆, 2: 후기 옆, 3: 오시는 길
+  heroPhotos: [U('photo-1434030216411-0b793f4b4173', 1400), U('photo-1509062522246-3755977927d7'), U('photo-1503676260728-1c00da094a0b', 900), U('photo-1562774053-701939374585')],
+  classPhotos: [U('photo-1497633762265-9d179a990aa6', 700), U('photo-1453738773917-9c3eff1db985', 700), U('photo-1509228468518-180dd4864904', 700), U('photo-1503676260728-1c00da094a0b', 700)],
+  postPhotos: [U('photo-1509062522246-3755977927d7', 1000), U('photo-1434030216411-0b793f4b4173', 900), U('photo-1497633762265-9d179a990aa6', 900)],
+  sections: ['hero', 'quick_info', 'principles', 'classes', 'timetable', 'fees', 'reviews', 'news', 'faq', 'consult_form', 'location'],
+};
+
+async function seedWarmLook() {
+  const tenant = await prisma.tenant.findUnique({ where: { slug: 'demo-warm' }, select: { id: true } });
+  if (!tenant) return;
+  if (await prisma.platformSetting.findUnique({ where: { key: WARM_LOOK.marker } })) return console.log('[seed-sample] demo-warm 화면 시안 이미 적용 — 건너뜀');
+  const T = tenant.id;
+  await prisma.tenant.update({
+    where: { id: T },
+    data: { heroBadge: WARM_LOOK.heroBadge, heroTitle: WARM_LOOK.heroTitle, heroSubtitle: WARM_LOOK.heroSubtitle, heroPhotos: WARM_LOOK.heroPhotos },
+  });
+  const classes = await prisma.classItem.findMany({ where: { tenantId: T }, orderBy: { sortOrder: 'asc' }, select: { id: true, photo: true } });
+  for (const [i, c] of classes.entries()) {
+    if (!c.photo && WARM_LOOK.classPhotos[i]) await prisma.classItem.update({ where: { id: c.id }, data: { photo: WARM_LOOK.classPhotos[i] } });
+  }
+  const posts = await prisma.post.findMany({ where: { tenantId: T, status: 'published' }, orderBy: { publishedAt: 'desc' }, take: 3, select: { id: true, images: true } });
+  for (const [i, p] of posts.entries()) {
+    if (p.images.length === 0) await prisma.post.update({ where: { id: p.id }, data: { images: [WARM_LOOK.postPhotos[i]] } });
+  }
+  await prisma.tenantSection.deleteMany({ where: { tenantId: T } });
+  await prisma.tenantSection.createMany({ data: WARM_LOOK.sections.map((k, i) => ({ tenantId: T, sectionKey: k, enabled: true, sortOrder: i })) });
+  await prisma.platformSetting.create({ data: { key: WARM_LOOK.marker, value: NOW.toISOString() } });
+  console.log('[seed-sample] demo-warm 화면 시안 적용');
+}
+
 async function main() {
   for (const t of TARGETS) {
     try {
@@ -341,6 +379,11 @@ async function main() {
     } catch (e) {
       console.error(`[seed-sample] ${t.slug} 실패 (빌드는 계속):`, e instanceof Error ? e.message : e);
     }
+  }
+  try {
+    await seedWarmLook();
+  } catch (e) {
+    console.error('[seed-sample] demo-warm 화면 시안 실패 (빌드는 계속):', e instanceof Error ? e.message : e);
   }
 }
 

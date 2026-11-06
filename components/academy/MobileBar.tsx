@@ -13,7 +13,7 @@ export default function MobileBar({ slug, phone, kakaoChannelUrl }: Props) {
       <div className="h-[96px] md:hidden" aria-hidden="true" />
 
       <div
-        className="md:hidden"
+        className="flex md:hidden"
         style={{
           position: 'fixed',
           left: 0,
@@ -23,7 +23,6 @@ export default function MobileBar({ slug, phone, kakaoChannelUrl }: Props) {
           padding: '12px 16px 28px',
           background: 'var(--surface)',
           borderTop: '1px solid var(--line)',
-          display: 'flex',
           gap: 8,
         }}
       >

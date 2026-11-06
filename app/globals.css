@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=Gowun+Batang:wght@400;700&family=Gothic+A1:wght@400;700;800&family=Jua&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@500;600;700&family=Gothic+A1:wght@400;700;800&family=Jua&display=swap");
 @import "tailwindcss";
 @import "../styles/tokens.css";
 
@@ -76,3 +76,16 @@ body {
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+/* 학원 홈페이지 섹션 안쪽 폭 — 테마 B·C는 기존처럼 좌우 20/80px, 테마 A는 가운데 1280px 상자 */
+.acad-wrap { padding-left: 20px; padding-right: 20px; }
+@media (min-width: 768px) { .acad-wrap { padding-left: 80px; padding-right: 80px; } }
+[data-theme="warm"] .acad-wrap { max-width: 1312px; margin-left: auto; margin-right: auto; padding-left: 16px; padding-right: 16px; }
+@media (min-width: 768px) { [data-theme="warm"] .acad-wrap { padding-left: 24px; padding-right: 24px; } }
+
+/* 섹션 머리말 (작은 주황 라벨 + 명조 제목) */
+.acad-eyebrow { margin: 0 0 12px; font-size: 14px; font-weight: 800; letter-spacing: 0.04em; color: var(--label); }
+.acad-h2 { margin: 0; font-family: var(--font-serif); font-weight: 700; font-size: 27px; line-height: 1.4; letter-spacing: -0.04em; color: var(--ink); text-wrap: balance; }
+@media (min-width: 768px) { .acad-h2 { font-size: 38px; } }
+.acad-more { font-size: 14px; font-weight: 700; color: var(--accent); white-space: nowrap; text-decoration: none; }
+.acad-more:hover { text-decoration: underline; }

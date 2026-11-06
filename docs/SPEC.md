@@ -101,7 +101,7 @@
 - **notify_recipients**: tenant_id, name, phone — 새 상담 알림 받을 번호
 - **director_profile**: tenant_id, photo, headline, philosophy, education, career, subjects_taught
 - **staff_profiles** (테마 B 강사진): tenant_id, name, role_label, photo, summary, sort_order
-- **classes**: tenant_id, name, grade_band, days[], start_time, end_time, capacity, seats_left, waitlist_count, textbook, description, sort_order
+- **classes**: tenant_id, name, grade_band, days[], start_time, end_time, capacity, seats_left, waitlist_count, textbook, description, photo(반 카드 사진, 2026-11), sort_order
 - **level_test_slots**: tenant_id, weekday, time, active, (또는 특정 날짜)
 - **fees**: tenant_id, class_id(nullable), label, sessions_per_week, monthly_hours, amount, note
 - **extra_costs**, **refund_policy_text**: tenant 단위 텍스트/행

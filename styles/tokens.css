@@ -62,6 +62,12 @@
   --button-lg: 56px;
   --container: 1200px;
 
+  /* 푸터 (테마 A는 어두운 띠) */
+  --footer-bg: var(--bg);
+  --footer-ink: var(--ink);
+  --footer-muted: var(--muted);
+  --section-shadow: 0 12px 40px rgba(27, 36, 48, 0.08);
+
   /* 폰트 패밀리 */
   --font-sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   --font-serif: "Gowun Batang", "Nanum Myeongjo", serif;
@@ -97,32 +103,37 @@
   --pastel-pink: #f3f5f8;
 }
 
-/* ── 테마 A 원장 직강형 ── */
+/* ── 테마 A 원장 직강형 ── (2026-11 시안: 종이색 바탕, 칠판 녹색, 주황 라벨, 명조 제목) */
 [data-theme="warm"] {
-  --bg: #f6f3ec;
+  --bg: #faf8f4;
   --surface: #ffffff;
-  --subtle: #eae5da;
+  --subtle: #f4f3ef;
   --ink: #1b2430;
-  --body: #3e4652;
-  --muted: #5a6270;
-  --line: #e2ddd2;
-  --input-line: #c9c2b4;
+  --body: #59616b;
+  --muted: #6f7780;
+  --line: #e9e4dc;
+  --input-line: #d8d3c8;
   --accent: #1e5645;
   --on-accent: #ffffff;
-  --accent-soft: #e4eee9;
+  --accent-soft: #e8f0eb;
   --accent-ink: #1e5645;
   --highlight: #f2c94c;
   --highlight-soft: #fbf1cf;
   --highlight-ink: #5a4a12;
-  --label: #1e5645;
+  --label: #b0643c;
   --warn-bg: #f3e3dc;
   --warn-ink: #8a3a1c;
-  --dark: #1b2430;
-  --dark-surface: #2c3747;
+  --dark: #1b2b3a;
+  --dark-surface: #263848;
   --on-dark: #ffffff;
-  --on-dark-muted: #c8cdd5;
-  --pastel-sky: #eae5da;
-  --pastel-pink: #eae5da;
+  --on-dark-muted: #c2cbd1;
+  --pastel-sky: #f4f3ef;
+  --pastel-pink: #f4f3ef;
+  --font-serif: "Noto Serif KR", "Gowun Batang", "Nanum Myeongjo", serif;
+  --footer-bg: #1b2b3a;
+  --footer-ink: #ffffff;
+  --footer-muted: #c2cbd1;
+  --section-shadow: 0 18px 48px rgba(31, 43, 37, 0.10);
 }
 
 /* ── 테마 B 성과 중심형 ── */

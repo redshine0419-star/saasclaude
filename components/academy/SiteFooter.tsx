@@ -6,11 +6,11 @@ type Props = { tenant: AcademyTenant; slug?: string };
 export default function SiteFooter({ tenant, slug }: Props) {
   return (
     <>
-      <footer className="px-5 md:px-20 py-10 md:py-14 border-t border-line bg-bg">
-        <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+      <footer className="py-10 md:py-[42px] border-t border-line" style={{ background: 'var(--footer-bg)', color: 'var(--footer-ink)' }}>
+        <div className="acad-wrap flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
           <div className="flex flex-col gap-3">
-            <div className="font-serif font-bold text-[18px] text-ink">{tenant.name}</div>
-            <div className="flex flex-col gap-1.5 text-[13px] text-muted">
+            <div className="font-serif font-bold text-[20px]">{tenant.name}</div>
+            <div className="flex flex-col gap-1.5 text-[13px]" style={{ color: 'var(--footer-muted)' }}>
               {tenant.address && <div>{tenant.address}</div>}
               {tenant.phone && <div>대표 전화: {tenant.phone}</div>}
               {tenant.hours && <div>운영 시간: {tenant.hours}</div>}
@@ -19,12 +19,12 @@ export default function SiteFooter({ tenant, slug }: Props) {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 text-[12px] text-muted">
-            <a href={`/${tenant.slug}/privacy`} className="text-ink font-semibold hover:underline">개인정보처리방침</a>
+          <div className="flex flex-col gap-2 text-[12px]" style={{ color: 'var(--footer-muted)' }}>
+            <a href={`/${tenant.slug}/privacy`} className="font-semibold hover:underline" style={{ color: 'var(--footer-ink)' }}>개인정보처리방침</a>
             <div>© {new Date().getFullYear()} {tenant.name}. All rights reserved.</div>
             <div>
               Powered by{' '}
-              <a href="/" className="text-accent hover:underline">첫등원</a>
+              <a href="/" className="underline" style={{ color: 'var(--footer-ink)' }}>첫등원</a>
             </div>
           </div>
         </div>

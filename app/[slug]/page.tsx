@@ -60,6 +60,11 @@ export default async function AcademyPage({
     }
   }
 
+  // 테마 A 섹션 사진: 메인 사진 2번째부터 → 교실·시설 사진 순서로 나눠 쓴다
+  const photoPool = [...data.tenant.heroPhotos.slice(1), ...data.facilities.map((f) => f.photo).filter((p): p is string => !!p)];
+  const sectionPhoto = (i: number) => (theme === 'warm' ? photoPool[i] ?? photoPool[0] ?? null : null);
+  const renderedKeys = displayOrder.filter((k) => k !== 'classes' || data.classes.length > 0);
+
   const copy = data.tenant.sectionCopy;
   const T = (k: string) => sectionTitle(copy, k);
 
@@ -117,16 +122,16 @@ export default async function AcademyPage({
 
       // ── Theme A sections ──
       case 'quick_info':
-        return <QuickInfoSection key="quick_info" tenant={data!.tenant} />;
+        return <QuickInfoSection key="quick_info" tenant={data!.tenant} classes={data!.classes} />;
       case 'director':
         return data!.director ? (
           <DirectorSection key="director" tenant={data!.tenant} director={data!.director} />
         ) : null;
       case 'classes':
-        return data!.classes.length > 0 ? <ClassesSection title={T('classes')} key="classes" classes={data!.classes} /> : null;
+        return data!.classes.length > 0 ? <ClassesSection title={T('classes')} key="classes" classes={data!.classes} slug={slug} /> : null;
       case 'reviews':
         return data!.reviews.filter((r) => r.kind === 'review').length > 0 ? (
-          <ReviewsSection title={T('reviews')} key="reviews" reviews={data!.reviews} />
+          <ReviewsSection title={T('reviews')} key="reviews" reviews={data!.reviews} slug={slug} photo={sectionPhoto(1)} />
         ) : null;
       case 'news':
         return data!.posts.length > 0 ? <NewsSection title={T('news')} key="news" posts={data!.posts} slug={slug} /> : null;
@@ -172,25 +177,21 @@ export default async function AcademyPage({
         return <SafetySection key="safety" reviews={data!.reviews} shuttle={data!.shuttle} title={T('safety')} items={sectionItems(copy, 'safety')} />;
 
       case 'location':
-        return <LocationSection key="location" tenant={data!.tenant} shuttle={data!.shuttle} slug={slug} />;
+        return <LocationSection key="location" tenant={data!.tenant} shuttle={data!.shuttle} slug={slug} photo={sectionPhoto(2)} />;
 
       case 'principles':
         return data!.principles.length > 0 ? (
-          <PrinciplesSection title={T('principles')} key="principles" principles={data!.principles} slug={slug} />
+          <PrinciplesSection title={T('principles')} key="principles" principles={data!.principles} slug={slug} photo={sectionPhoto(0)} />
         ) : null;
 
       case 'timetable':
         return data!.classes.length > 0 ? (
-          <TimetableSection title={T('timetable')} key="timetable" classes={data!.classes} slug={slug} />
+          <TimetableSection title={T('timetable')} key="timetable" classes={data!.classes} slug={slug} attached={renderedKeys[renderedKeys.indexOf('timetable') - 1] === 'classes'} />
         ) : null;
 
       case 'faq':
         return data!.faqItems.length > 0 ? (
-          <FaqSection
-            key="faq"
-            items={data!.faqItems}
-            accentColor={data!.tenant.accentColor ?? '#1E5645'}
-          />
+          <FaqSection key="faq" items={data!.faqItems} />
         ) : null;
 
       default:

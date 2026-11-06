@@ -18,10 +18,10 @@ export default function DirectorSection({ tenant, director }: Props) {
   ].filter((l) => l.value);
 
   return (
-    <section id="about" className="px-5 md:px-20 pt-16 md:pt-[120px]">
-      <div className="flex flex-col md:flex-row md:items-center md:gap-[72px]">
+    <section id="about" className="py-14 md:py-[76px] bg-surface">
+      <div className="acad-wrap grid grid-cols-1 md:grid-cols-[0.8fr_1.2fr] md:items-center gap-7 md:gap-[56px]">
         {/* 사진 */}
-        <div className="w-full md:w-[420px] md:flex-shrink-0 h-[280px] md:h-[500px] rounded-2xl bg-subtle overflow-hidden flex items-center justify-center text-muted">
+        <div className="w-full h-[280px] md:h-[460px] rounded-[20px] bg-subtle overflow-hidden flex items-center justify-center text-muted">
           {director.photo ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={director.photo} alt={`${tenant.name} 원장`} className="w-full h-full object-cover" />
@@ -34,17 +34,14 @@ export default function DirectorSection({ tenant, director }: Props) {
         </div>
 
         {/* 텍스트 */}
-        <div className="flex-1 flex flex-col gap-5 md:gap-6 mt-6 md:mt-0">
-          <div className="text-[15px] font-bold text-label">원장 소개</div>
-
-          {director.headline && (
-            <h2 className="m-0 font-serif text-[28px] md:text-[42px] leading-[1.35] font-bold text-ink whitespace-pre-line">
-              {director.headline}
-            </h2>
-          )}
+        <div className="flex flex-col gap-5 min-w-0">
+          <div>
+            <p className="acad-eyebrow">원장 소개</p>
+            {director.headline && <h2 className="acad-h2 whitespace-pre-line">{director.headline}</h2>}
+          </div>
 
           {director.philosophy && (
-            <p className="m-0 text-[16px] md:text-[18px] leading-[1.8] text-body max-w-[620px]">
+            <p className="m-0 text-[15px] md:text-[17px] leading-[1.8] text-body max-w-[620px]">
               {director.philosophy}
             </p>
           )}

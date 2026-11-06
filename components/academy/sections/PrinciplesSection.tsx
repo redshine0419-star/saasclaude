@@ -6,45 +6,38 @@ type Props = {
   title?: string;
   principles: AcademyPrinciple[];
   slug: string;
+  /** 옆에 둘 사진 (교실·시설 사진). 없으면 글만 */
+  photo?: string | null;
 };
 
-export default function PrinciplesSection({ principles, slug, title = SECTION_COPY_SPEC.principles.title }: Props) {
+export default function PrinciplesSection({ principles, slug, photo = null, title = SECTION_COPY_SPEC.principles.title }: Props) {
   if (principles.length === 0) return null;
 
   return (
-    <section className="px-5 md:px-20 py-16 md:py-20 bg-white">
-      <div className="max-w-[1200px] mx-auto">
-        <p className="text-[15px] font-bold text-accent mb-3">수업 원칙</p>
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
-          <h2 className="font-serif text-[28px] md:text-[38px] leading-snug m-0">
-            <TitleLines text={title} />
-          </h2>
-          <a
-            href={`/${slug}/about`}
-            className="text-[14px] text-body hover:text-ink transition-colors no-underline flex-shrink-0"
-          >
-            학원 소개 전체 보기 →
-          </a>
+    <section id="principles" className="py-14 md:py-[76px] bg-surface">
+      <div className={`acad-wrap grid grid-cols-1 gap-8 md:gap-11 items-center ${photo ? 'md:grid-cols-[0.8fr_1.2fr]' : ''}`}>
+        <div className="min-w-0">
+          <p className="acad-eyebrow">수업 원칙</p>
+          <h2 className="acad-h2"><TitleLines text={title} /></h2>
+          <a href={`/${slug}/about`} className="acad-more inline-block mt-4">학원 소개 전체 보기 →</a>
+
+          <div className={`grid grid-cols-1 gap-3.5 mt-[30px] ${photo ? 'sm:grid-cols-3' : 'md:grid-cols-3'}`}>
+            {principles.map((p, i) => (
+              <div key={p.id} className="px-4 py-[18px] bg-bg rounded-[14px] min-w-0">
+                <span className="text-[13px] font-extrabold text-label">{String(p.number ?? i + 1).padStart(2, '0')}</span>
+                <b className="block my-[7px] text-[15px] text-ink">{p.title}</b>
+                {p.description && <span className="block text-[13px] leading-relaxed text-body">{p.description}</span>}
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {principles.map((p) => (
-            <div
-              key={p.id}
-              className="p-7 md:p-8 bg-bg rounded-[16px] flex flex-col gap-4"
-            >
-              <div className="w-10 h-10 rounded-full bg-accent text-on-accent flex items-center justify-center font-bold text-[15px] flex-shrink-0">
-                {p.number}
-              </div>
-              <div>
-                <h3 className="text-[17px] font-bold m-0 mb-2">{p.title}</h3>
-                {p.description && (
-                  <p className="text-[14px] text-body leading-relaxed m-0">{p.description}</p>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+        {photo && (
+          <div className="h-[230px] md:h-[350px] rounded-[20px] overflow-hidden bg-subtle">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={photo} alt="수업이 진행되는 교실" className="w-full h-full object-cover" />
+          </div>
+        )}
       </div>
     </section>
   );
