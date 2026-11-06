@@ -87,12 +87,12 @@ export function ReportClient({ slug, month, monthLabel, history, keywords, aiInf
         }
       `}</style>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{ flex: '1 1 320px', minWidth: 0 }}>
           <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>{monthLabel} 리포트</h1>
           <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>한 달 상담·등록 흐름과 유입 경로를 봅니다. 매월 1일 알림 번호로 카카오톡 요약본이 발송됩니다.</div>
         </div>
-        <div data-print-hide style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div data-print-hide style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0, flexWrap: 'wrap' }}>
           {kakaoResult && (
             <span style={{ fontSize: 13, color: '#1E5645', fontWeight: 600 }}>{kakaoResult}</span>
           )}

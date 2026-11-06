@@ -175,8 +175,8 @@ export default async function AdminDashboardPage({
         }}
       >
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 320px', minWidth: 0 }}>
             <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>이번 달 현황</h1>
             <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>이번 달 상담·레벨테스트·등록 숫자와 오늘 연락할 상담을 한눈에 봅니다.</div>
           </div>

@@ -127,8 +127,8 @@ export function ResultStatsClient({ slug, stats: initialStats }: Props) {
     <div style={{ display: 'flex', gap: 20, flex: 1, minHeight: 0 }}>
       {/* List */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 320px', minWidth: 0 }}>
             <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700 }}>입시 실적 관리</h1>
             <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>합격·등급 같은 실적 숫자를 기간별로 정리합니다. 근거 출처가 있어야 홈페이지에 공개됩니다.</div>
           </div>

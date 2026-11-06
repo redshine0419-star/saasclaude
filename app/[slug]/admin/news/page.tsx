@@ -64,8 +64,8 @@ export default async function AdminNewsPage({
           fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif",
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 320px', minWidth: 0 }}>
             <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>소식</h1>
             <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>홈페이지 소식에 공지·모집·시험 대비·갤러리 글을 올리고, 필요하면 카카오톡으로도 알립니다.</div>
           </div>
