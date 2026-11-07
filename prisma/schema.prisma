@@ -113,6 +113,7 @@ model Tenant {
   testResponses        TestResponse[]
   students             Student[]
   studentRegistrations StudentRegistration[]
+  resources            Resource[]
   studentNotes         StudentNote[]
   studentScores        StudentScore[]
   attendances          Attendance[]
@@ -1213,4 +1214,26 @@ model Payment {
 
   @@index([tenantId, createdAt])
   @@map("payments")
+}
+
+/// 학원 자료실 — 학원(원장·직원)만 올리고 학부모는 본다. 첨부는 lib/storage.ts로 `{slug}/resources/` 아래 저장
+model Resource {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tenantId    String
+  title       String
+  body        String?
+  /// [{ url, name, size, type }]
+  files       Json     @default("[]")
+  /// public: 홈페이지 자료실에 공개 · link: 목록에 안 보이고 링크(shareToken)를 아는 사람만
+  visibility  String   @default("public")
+  shareToken  String   @unique
+  pinned      Boolean  @default(false)
+  authorEmail String
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, createdAt])
+  @@map("resources")
 }

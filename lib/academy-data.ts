@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 export type AcademyTenant = {
   slug: string;
   name: string;
+  /** 홈페이지 공개 자료가 있으면 꼬리말에 자료실 링크를 단다 */
+  hasResources?: boolean;
   theme: string;
   accentColor: string | null;
   subjects: string | null;
@@ -471,6 +473,7 @@ async function loadAcademyFromDb(slug: string): Promise<AcademyPageData | null> 
     const tenant = await prisma.tenant.findUnique({
       where: { slug, status: 'active', published: true },
       include: {
+        _count: { select: { resources: { where: { visibility: 'public' } } } },
         sections: { orderBy: { sortOrder: 'asc' } },
         directorProfile: true,
         teachingPrinciples: { orderBy: { sortOrder: 'asc' } },
@@ -500,6 +503,7 @@ async function loadAcademyFromDb(slug: string): Promise<AcademyPageData | null> 
 
     return {
       tenant: {
+        hasResources: tenant._count.resources > 0,
         slug: tenant.slug,
         name: tenant.name,
         theme: tenant.theme,

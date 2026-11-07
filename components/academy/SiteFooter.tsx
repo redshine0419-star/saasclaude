@@ -20,6 +20,7 @@ export default function SiteFooter({ tenant, slug }: Props) {
           </div>
 
           <div className="flex flex-col gap-2 text-[12px]" style={{ color: 'var(--footer-muted)' }}>
+            {tenant.hasResources && <a href={`/${tenant.slug}/resources`} className="font-semibold hover:underline" style={{ color: 'var(--footer-ink)' }}>자료실</a>}
             <a href={`/${tenant.slug}/privacy`} className="font-semibold hover:underline" style={{ color: 'var(--footer-ink)' }}>개인정보처리방침</a>
             <div>© {new Date().getFullYear()} {tenant.name}. All rights reserved.</div>
             <div>
