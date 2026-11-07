@@ -79,7 +79,7 @@ export default function MarketingHome() {
             </div>
             <h1 style={{ margin: 0, fontSize: 'clamp(38px, 5.2vw, 68px)', lineHeight: 1.2, fontWeight: 700, letterSpacing: '-1.5px' }}>
               홈페이지가 아니라<br />
-              <span style={{ boxShadow: 'inset 0 -0.32em 0 #F5B700' }}>첫 등원</span>을 만듭니다
+              <span style={{ boxShadow: 'inset 0 -0.32em 0 #F5B700' }}>시스템</span>을 만듭니다
             </h1>
             <p style={{ margin: 0, fontSize: 'clamp(17px, 1.5vw, 20px)', lineHeight: 1.75, color: '#3C4659', maxWidth: 540 }}>
               학부모가 찾고, 상담을 신청하고, 등록까지 이어지는 흐름. 홈페이지와 카카오톡 안내, 원장님 관리 화면을 하나로 묶어 드립니다.
