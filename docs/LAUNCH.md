@@ -76,6 +76,7 @@
 | `RESEND_API_KEY` | ○ | 운영자 알림 메일(무료 진단·셀프 개설). resend.com에서 발급. 없으면 메일 안 나감 |
 | `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` | ○ | 관리자 앱 푸시 알림 키 한 쌍. `npx web-push generate-vapid-keys`로 만든다. 없으면 앱 알림 없이 카톡 알림톡만 보낸다. **한 번 정하면 바꾸지 않는다**(바꾸면 모든 기기가 알림을 다시 켜야 함) |
 | `VAPID_SUBJECT` | 선택 | 푸시 서버에 알리는 연락처, 예: `mailto:redshine0419@gmail.com` (없으면 이 주소) |
+| `GA4_MEASUREMENT_ID` | ○ | 첫등원 GA4 웹 스트림의 측정 ID(`G-`로 시작). 서비스 사이트와 모든 학원 홈페이지에 함께 쓴다. 넣은 뒤 **다시 배포**해야 반영된다. 속성 ID(숫자)가 아니라 측정 ID를 넣는다. GA4 관리 › 데이터 스트림 › 웹 › 향상된 측정에서 "브라우저 기록 이벤트 기반 페이지 변경"은 끈다(페이지 조회는 코드가 직접 보낸다) |
 | `OPERATOR_NOTIFY_EMAIL` | ○ | 넣지 않으면 `lib/mail/operator.ts`의 `OPERATOR_EMAIL`로 보낸다. 다른 주소로 바꿀 때만(쉼표 구분). 도메인 인증 전에는 Resend 가입 메일만 가능 |
 | `MAIL_FROM` | ○ | 보내는 주소. growweb.me 도메인 인증 후 `첫등원 <noreply@growweb.me>` 등. 없으면 `onboarding@resend.dev` |
 

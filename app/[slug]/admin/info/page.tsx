@@ -110,7 +110,6 @@ export default async function AdminInfoPage({
             locationHeadline: tenant.locationHeadline,
             transitInfo: tenant.transitInfo,
             parkingInfo: tenant.parkingInfo,
-            ga4MeasurementId: tenant.ga4MeasurementId,
             naverSiteVerification: tenant.naverSiteVerification,
           }}
           naverPlaceMirror={(tenant.naverPlaceMirror as { phone?: string; hours?: string; address?: string } | null)

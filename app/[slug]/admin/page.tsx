@@ -223,7 +223,7 @@ export default async function AdminDashboardPage({
           >
             <div style={{ fontSize: 14, color: '#5A6270' }}>홈페이지 방문</div>
             <div style={{ fontSize: 32, fontWeight: 700 }}>—</div>
-            <div style={{ fontSize: 13, color: '#9AA3AF' }}>GA4 연동 전</div>
+            <div style={{ fontSize: 13, color: '#9AA3AF' }}>학원별 집계 준비 중</div>
           </div>
           <div
             style={{

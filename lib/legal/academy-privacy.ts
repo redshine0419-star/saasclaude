@@ -1,12 +1,13 @@
 import type { LegalSection } from './documents';
 import { OPERATOR, OVERSEAS_TRANSFERS } from './documents';
 
-export const ACADEMY_PRIVACY_VERSION = '2026-11-04';
+export const ACADEMY_PRIVACY_VERSION = '2026-11-08';
 
 /**
  * 학원 홈페이지 개인정보처리방침 — 학원이 처리자, 첫등원 운영자가 수탁자.
  * 상담 신청 화면의 보유 기간(1년)·퇴원 시 학생부 즉시 파기(SPEC 14장)와 맞춘다.
  * TODO(확인 필요): 학원별 보유 기간·보호책임자를 학원이 직접 정하게 할지
+ * TODO(확인 필요): 방문 통계(GA4)는 첫등원이 서비스 개선 목적으로 모든 학원 홈페이지를 한 측정 ID로 수집한다 — 위탁이 아닌 첫등원 자체 수집으로 보고 8-2에 고지. 법률 검토 때 확인
  */
 export function academyPrivacy(t: { name: string; phone: string | null; address: string | null; regNo: string | null }): LegalSection[] {
   const contact = [t.phone && `전화 ${t.phone}`, t.address].filter(Boolean).join(' · ') || '학원 연락처';
@@ -69,6 +70,15 @@ export function academyPrivacy(t: { name: string; phone: string | null; address:
     {
       title: '8. 안전성 확보 조치',
       body: ['관리 화면은 학원 원장·직원만 로그인해 볼 수 있고, 목록의 연락처는 가려서 보여 줍니다. 전송 구간은 암호화(HTTPS)합니다.'],
+    },
+    {
+      title: '8-2. 방문 통계(쿠키)',
+      body: [
+        `이 홈페이지를 운영하는 ${OPERATOR.name}("첫등원")은 홈페이지 개선을 위해 Google Analytics로 방문 통계를 수집합니다.`,
+        '· 수집 항목: 방문한 페이지, 방문 시각, 기기·브라우저 종류, 대략적인 지역, 쿠키 식별값 — 이름·연락처 등 상담 신청 내용은 보내지 않습니다',
+        '· 처리: Google LLC(미국)에 저장되며 Google Analytics 보관 설정 기간 동안 보관합니다',
+        '· 거부 방법: 브라우저 설정에서 쿠키 저장을 거부하면 수집되지 않으며, 거부해도 홈페이지와 상담 신청을 그대로 이용할 수 있습니다',
+      ],
     },
     {
       title: '9. 개인정보 보호책임자',

@@ -1,5 +1,6 @@
 'use client';
 
+import { trackEvent } from '@/lib/analytics';
 import { useState } from 'react';
 import { ConsentList } from '@/components/legal/ConsentList';
 import { consultConsents, requiredAgreed } from '@/lib/legal/consents';
@@ -48,13 +49,7 @@ export default function ConsultFormSection({ tenant, slots, eyebrow = '무료 �
       });
       if (res.ok) {
         setSubmitted(true);
-        // GA4 generate_lead conversion event
-        if (typeof window !== 'undefined' && typeof (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag === 'function') {
-          (window as unknown as { gtag: (...args: unknown[]) => void }).gtag('event', 'generate_lead', {
-            event_category: 'consult',
-            event_label: tenant.slug,
-          });
-        }
+        trackEvent('generate_lead', { lead_type: 'academy_consult', consult_type: '레벨테스트 예약' });
       }
     } finally {
       setLoading(false);

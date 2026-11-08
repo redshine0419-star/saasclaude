@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getAcademyPageData } from '@/lib/academy-data';
 import { prisma } from '@/lib/prisma';
-import GA4Script from '@/components/academy/GA4Script';
 import JsonLd from '@/components/academy/JsonLd';
 
 export async function generateMetadata({
@@ -78,9 +77,6 @@ export default async function AcademyLayout({
       // 관리자 설정의 강조색은 테마 강조색 토큰을 덮어쓴다
       style={/^#[0-9a-fA-F]{6}$/.test(data.tenant.accentColor ?? '') ? ({ '--accent': data.tenant.accentColor, '--accent-ink': data.tenant.accentColor } as React.CSSProperties) : undefined}
     >
-      {data.tenant.ga4MeasurementId && (
-        <GA4Script measurementId={data.tenant.ga4MeasurementId} />
-      )}
       <JsonLd tenant={data.tenant} />
       {children}
     </div>

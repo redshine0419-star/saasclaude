@@ -1,5 +1,6 @@
 'use client';
 
+import { trackEvent } from '@/lib/analytics';
 import { useState } from 'react';
 import Link from 'next/link';
 import { FdHeader } from '@/components/fd/FdHeader';
@@ -37,6 +38,7 @@ export default function ConsultPage() {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error ?? '오류가 발생했습니다.'); return; }
+      trackEvent('generate_lead', { lead_type: 'free_diagnosis', transport_type: 'beacon' });
       window.location.href = data.id ? `/consult/result/${data.id}` : '/consult/done';
     } catch {
       setError('네트워크 오류가 발생했습니다. 다시 시도해주세요.');

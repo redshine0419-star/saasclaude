@@ -1,5 +1,6 @@
 'use client';
 
+import { trackEvent } from '@/lib/analytics';
 import { useEffect, useState } from 'react';
 import { ConsentList } from '@/components/legal/ConsentList';
 import { START_CONSENTS, requiredAgreed } from '@/lib/legal/consents';
@@ -86,6 +87,7 @@ export function StartClient() {
         if (data.field === 'slug' || data.field === 'phone') setStep(1);
         return;
       }
+      trackEvent('sign_up', { method: 'self_start', transport_type: 'beacon' });
       router.push(`/${data.slug}/admin?welcome=1`);
     } finally {
       setSubmitting(false);

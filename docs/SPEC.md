@@ -184,7 +184,11 @@ source 판별 순서: UTM → referrer (naver.com 검색/플레이스, kakao, bl
 - 학원별: title/description, Open Graph, `EducationalOrganization`/`LocalBusiness` JSON-LD (이름, 주소, 전화, 운영 시간), sitemap.xml, robots.txt, 네이버 사이트 인증 메타 입력칸
 - 소식 상세는 이미지 속 글자에 의존하지 않도록 요약 필드를 본문 텍스트로 출력
 - A-08에 네이버 플레이스 정보 불일치 경고 (1차: 원장이 플레이스 값을 입력해 수동 비교. 자동 수집은 후순위)
-- GA4: 학원별 측정 ID, `generate_lead` 이벤트, 상담 신청 버튼 클릭 이벤트
+- GA4: **첫등원 측정 ID 하나**(환경변수 `GA4_MEASUREMENT_ID`)로 서비스 사이트와 모든 학원 홈페이지를 잰다. 학원별 측정 ID 입력은 2026-11 삭제(DB 칸 `ga4_measurement_id`는 쓰지 않음).
+  - 페이지 조회는 직접 보낸다: `content_group`(service / academy / demo), `academy_slug`(학원 홈페이지일 때), 주소의 쿼리는 빼고 보낸다
+  - 보내지 않는 곳: `/{slug}/admin`, `/platform`, `/auth`, `/account`, `/signup`, 비밀 링크(`/r/…`, `/{slug}/test/…`, `/{slug}/join/…`, `/consult/result/…`, `?k=`) — 이 페이지에선 GA를 끈다(`ga-disable-…`)
+  - 전환 이벤트: `generate_lead`(lead_type: academy_consult / free_diagnosis), `sign_up`(셀프 개설)
+  - 학원 개인정보처리방침 8-2에 방문 통계(쿠키) 고지
 - A-09 AI 검색: 수동 점검(질문·엔진별 언급 여부 입력)은 하지 않는다(2026-11 결정 — 운영 수작업이 늘고 결과가 매번 달라 원장이 할 수 있는 일이 없음). 대신 상담 신청 유입 경로(ai_chatgpt·ai_perplexity·ai_gemini)로 **AI 검색으로 들어온 상담 수**를 리포트에 자동 집계하고, 노출은 구조화 데이터·FAQ로 높인다. monthly_reports.aiCheck 칼럼은 남겨 두되 쓰지 않는다
 
 ## 10. 첫등원 서비스 사이트 (F-01~06)

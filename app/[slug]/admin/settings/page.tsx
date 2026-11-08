@@ -74,14 +74,12 @@ export default async function AdminSettingsPage({
         style={{ flex: 1, padding: '32px 40px', display: 'flex', flexDirection: 'column', gap: 16 }}
       >
         <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>설정</h1>
-        <div style={{ fontSize: 14, color: '#5A6270', marginTop: -8 }}>새 상담 알림 받을 번호, 직원 초대, 카카오·GA4 연결 상태 등 학원 설정을 관리합니다.</div>
+        <div style={{ fontSize: 14, color: '#5A6270', marginTop: -8 }}>새 상담 알림 받을 번호, 직원 초대, 카카오 연결 상태 등 학원 설정을 관리합니다.</div>
         <SettingsClient
           slug={slug}
           recipients={recipients.map((r) => ({ id: r.id, name: r.name, phone: r.phone }))}
           userEmail={session.user.email}
           kakaoConnected={!!process.env.KAKAO_API_KEY}
-          ga4Connected={!!tenant.ga4MeasurementId}
-          ga4MeasurementId={tenant.ga4MeasurementId ?? ''}
           naverVerified={!!tenant.naverSiteVerification}
           plan={tenant.planStatus}
           betaEndsAt={tenant.betaEndsAt?.toISOString() ?? null}

@@ -19,7 +19,6 @@ interface TenantInfo {
   locationHeadline: string | null;
   transitInfo: string | null;
   parkingInfo: string | null;
-  ga4MeasurementId: string | null;
   naverSiteVerification: string | null;
 }
 
@@ -426,11 +425,6 @@ export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: init
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={LABEL}>카카오 채널 URL</label>
               <input type="url" value={info.kakaoChannelUrl ?? ''} onChange={(e) => setI('kakaoChannelUrl', e.target.value)} placeholder="https://pf.kakao.com/_xxxxx" style={INPUT} />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={LABEL}>GA4 측정 ID</label>
-              <input type="text" value={info.ga4MeasurementId ?? ''} onChange={(e) => setI('ga4MeasurementId', e.target.value)} placeholder="G-XXXXXXXXXX" style={INPUT} />
-              <div style={{ fontSize: 12, color: '#9AA3AF' }}>Google Analytics 4 측정 ID. 학원 홈페이지 방문자 분석에 사용됩니다.</div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={LABEL}>네이버 서치어드바이저 인증 코드</label>
