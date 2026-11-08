@@ -2,11 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useMe, FdAccountDesktop, FdAccountMobile, FdAccountCompact } from './FdAccount';
 
 type Active = 'home' | 'service' | 'demo' | 'pricing' | 'consult' | 'apply';
 
 export function FdHeader({ active = 'home' }: { active?: Active }) {
   const [open, setOpen] = useState(false);
+  const me = useMe();
 
   const navLinks: { key: Active; href: string; label: string }[] = [
     { key: 'service', href: '/service', label: '서비스 소개' },
@@ -84,25 +86,12 @@ export function FdHeader({ active = 'home' }: { active?: Active }) {
         </nav>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-          <Link
-            href="/consult"
-            className="fd-cta"
-            style={{
-              flexShrink: 0,
-              height: 44,
-              padding: '0 18px',
-              borderRadius: 10,
-              background: '#14213D',
-              color: '#FFFFFF',
-              textDecoration: 'none',
-              fontSize: 15,
-              fontWeight: 600,
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            무료 진단 받기
-          </Link>
+          <div className="fd-acct-desktop" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <FdAccountDesktop me={me} />
+          </div>
+          <div className="fd-acct-compact" style={{ display: 'none' }}>
+            <FdAccountCompact me={me} />
+          </div>
           <button
             type="button"
             aria-label="메뉴 열기"
@@ -150,6 +139,8 @@ export function FdHeader({ active = 'home' }: { active?: Active }) {
               display: 'flex',
               flexDirection: 'column',
               gap: 4,
+              overflowY: 'auto',
+              boxSizing: 'border-box',
               fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif",
             }}
             onClick={(e) => e.stopPropagation()}
@@ -181,25 +172,7 @@ export function FdHeader({ active = 'home' }: { active?: Active }) {
                 {label}
               </Link>
             ))}
-            <Link
-              href="/consult"
-              style={{
-                marginTop: 20,
-                height: 52,
-                borderRadius: 12,
-                background: '#14213D',
-                color: '#FFFFFF',
-                textDecoration: 'none',
-                fontSize: 16,
-                fontWeight: 600,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onClick={() => setOpen(false)}
-            >
-              무료 진단 받기
-            </Link>
+            <FdAccountMobile me={me} onNavigate={() => setOpen(false)} />
           </div>
         </div>
       )}
@@ -208,7 +181,8 @@ export function FdHeader({ active = 'home' }: { active?: Active }) {
         @media (max-width: 760px) {
           .fd-nav { display: none !important; }
           .fd-hamburger { display: flex !important; }
-          .fd-cta { height: 40px !important; padding: 0 14px !important; font-size: 14px !important; }
+          .fd-acct-desktop { display: none !important; }
+          .fd-acct-compact { display: flex !important; }
         }
       `}</style>
     </>
