@@ -3,6 +3,7 @@ import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { runDiagnosis } from '@/lib/diagnosis/run';
 import { maskPhoneForMail, notifyOperator } from '@/lib/mail/operator';
+import { pushToOperators } from '@/lib/push';
 
 const SCORE_LABEL = { homepage: '홈페이지 현황', seo: 'SEO 노출도', conversion: '상담 전환 구조', mobile: '모바일 최적화' } as const;
 
@@ -69,6 +70,15 @@ export async function POST(req: NextRequest) {
       linkPath: '/platform/diagnosis',
       linkLabel: '플랫폼 관리자에서 보기',
     }),
+  );
+  // 운영자 앱 알림 (연락처는 넣지 않는다)
+  after(() =>
+    pushToOperators({
+      title: `무료 진단 신청 — ${academyName}`,
+      body: [`${area} · ${subject}`, currentUrl ? '홈페이지 있음' : '홈페이지 없음', body.agreeAd === true ? '광고성 수신 동의' : ''].filter(Boolean).join(' · '),
+      url: '/platform/diagnosis',
+      tag: 'op-diagnosis',
+    }).catch(() => 0),
   );
 
   return NextResponse.json({ ok: true, id: record.id });
