@@ -53,6 +53,36 @@ export async function pushToTenant(tenantId: string, payload: PushPayload, opts:
   return delivered;
 }
 
+/** 첫등원 운영자 기기 모두에게 보낸다 (새 학원 개설·회원가입 등). 보낸 기기 수를 돌려준다 */
+export async function pushToOperators(payload: PushPayload, opts: { email?: string } = {}): Promise<number> {
+  if (!pushConfigured()) return 0;
+  const devices = await prisma.operatorPushDevice.findMany({ where: opts.email ? { email: opts.email } : {} });
+  if (devices.length === 0) return 0;
+  const body = JSON.stringify({ ...payload, title: payload.title.slice(0, 80), body: payload.body.slice(0, 300) });
+  let delivered = 0;
+  await Promise.all(
+    devices.map(async (d) => {
+      try {
+        await webpush.sendNotification({ endpoint: d.endpoint, keys: { p256dh: d.p256dh, auth: d.auth } }, body, { TTL: 24 * 3600, urgency: 'normal' });
+        delivered++;
+        await prisma.operatorPushDevice.update({ where: { id: d.id }, data: { lastUsedAt: new Date() } }).catch(() => {});
+      } catch (e) {
+        const status = (e as { statusCode?: number }).statusCode;
+        if (status === 404 || status === 410) await prisma.operatorPushDevice.delete({ where: { id: d.id } }).catch(() => {});
+        else console.error('[push] 운영자 알림 실패', { status });
+      }
+    }),
+  );
+  return delivered;
+}
+
+/** 이메일 가리기 — 알림 내용용 (redshine0419@gmail.com → red***@gmail.com) */
+export function maskEmail(email: string): string {
+  const [id, domain] = email.split('@');
+  if (!domain) return '***';
+  return `${id.slice(0, 3)}***@${domain}`;
+}
+
 /**
  * 원장·직원 알림 — 푸시를 먼저 보내고, 학원 설정(pushReplacesKakao)이 켜져 있고 한 대라도 받았으면 알림톡을 건너뛴다.
  * 쓰는 쪽: `const p = await notifyStaff(...); if (!p.skipKakao) { 기존 알림톡 발송 }`

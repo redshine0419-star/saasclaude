@@ -6,6 +6,7 @@ import { slugError } from '@/lib/tenant';
 import { DEFAULT_SECTION_ORDER, isThemeKey } from '@/lib/sections';
 import { recordSiteVersion } from '@/lib/site-versions';
 import { maskPhoneForMail, notifyOperator } from '@/lib/mail/operator';
+import { pushToOperators } from '@/lib/push';
 import { hasSignupConsent } from '@/lib/legal/consent';
 
 const SELF_SERVE_LIMIT = 1;
@@ -125,6 +126,15 @@ export async function POST(req: NextRequest) {
       linkPath: `/platform/academies/${created.id}`,
       linkLabel: '학원 상세 보기',
     }),
+  );
+  // 운영자 앱 알림
+  after(() =>
+    pushToOperators({
+      title: `새 학원 개설 — ${name}`,
+      body: [`growweb.me/${created.slug}`, [subjects, targetGrades].filter(Boolean).join(' · '), address.split(/\s+/).slice(0, 2).join(' ')].filter(Boolean).join(' · '),
+      url: `/platform/academies/${created.id}`,
+      tag: 'op-new-academy',
+    }).catch(() => 0),
   );
 
   return NextResponse.json({ ok: true, slug: tenant.slug });

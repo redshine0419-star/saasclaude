@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { after, NextRequest, NextResponse } from 'next/server';
+import { maskEmail, pushToOperators } from '@/lib/push';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { ensureUser } from '@/lib/users';
@@ -18,6 +19,8 @@ export async function POST(req: NextRequest) {
   const promo = b.promo === true || (b.promo === undefined && b.marketing === true);
   const now = new Date();
   const user = await ensureUser(email, session.user?.name, session.user?.image);
+  // 처음 동의 = 회원가입 완료 (약관이 바뀌어 다시 동의하는 경우는 제외)
+  const isNewSignup = !user.termsAgreedAt;
   const wasMarketing = !!user.marketingAgreedAt && !user.marketingRevokedAt;
   const wasPromo = !!user.promoAgreedAt && !user.promoRevokedAt;
 
@@ -42,5 +45,10 @@ export async function POST(req: NextRequest) {
     }),
     prisma.userConsentLog.createMany({ data: logs.map((l) => ({ ...l, userId: user.id, version: CONSENT_VERSION })) }),
   ]);
+  if (isNewSignup) {
+    after(() =>
+      pushToOperators({ title: '새 회원가입', body: `${maskEmail(email)}${promo || marketing ? ' · 마케팅 수신 동의' : ''}`, url: '/platform', tag: 'op-signup' }).catch(() => 0),
+    );
+  }
   return NextResponse.json({ ok: true });
 }

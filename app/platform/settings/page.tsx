@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma';
 import { PlatformSide } from '@/components/platform/PlatformSide';
 import { SettingsClient } from './SettingsClient';
 import { MailTestCard } from './MailTestCard';
+import { OperatorPushCard } from './OperatorPushCard';
+import { pushPublicKey } from '@/lib/push';
 
 export default async function PlatformSettingsPage() {
   const session = await auth();
@@ -58,6 +60,10 @@ export default async function PlatformSettingsPage() {
         </div>
 
         <MailTestCard />
+        <OperatorPushCard
+          vapidKey={pushPublicKey()}
+          devices={(await prisma.operatorPushDevice.findMany({ orderBy: { createdAt: 'asc' } })).map((d) => ({ id: d.id, email: d.email, label: d.label, lastUsedAt: d.lastUsedAt?.toISOString() ?? null, createdAt: d.createdAt.toISOString() }))}
+        />
         <SettingsClient initialSettings={initialSettings} proxyLogs={proxyLogs} />
       </main>
     </div>

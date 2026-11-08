@@ -1257,3 +1257,17 @@ model PushDevice {
   @@index([tenantId])
   @@map("push_devices")
 }
+
+/// 첫등원 운영자(플랫폼 관리자)가 알림을 켠 기기 — 새 학원 개설·회원가입 등 운영 알림. 학원과 연결하지 않는다
+model OperatorPushDevice {
+  id         String    @id @default(cuid())
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  email      String
+  endpoint   String    @unique
+  p256dh     String
+  auth       String
+  label      String?
+
+  @@map("operator_push_devices")
+}
