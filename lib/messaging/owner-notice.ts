@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { notifyStaff } from '@/lib/push';
 import { sendMessage } from '@/lib/messaging/send';
 import { hashPhone } from '@/lib/messaging/hash';
 import { betaStatus, formatKstDate, type BetaNoticeKey } from '@/lib/beta';
@@ -37,10 +38,12 @@ export async function sendBetaNotice(
   key: BetaNoticeKey,
   now: Date,
 ) {
-  const recipients = await prisma.notifyRecipient.findMany({ where: { tenantId: tenant.id }, select: { phone: true } });
   const body = betaNoticeBody(key, tenant);
+  // 앱 알림을 켠 기기가 있으면 푸시로 (카톡 대신)
+  const push = await notifyStaff(tenant.id, { title: body.split('\n')[0].replace(/^\[첫등원\]\s*/, ''), body: '계속 이용하시려면 관리자 화면에서 "계속 이용 신청"을 눌러 주세요.', url: `/${tenant.slug}/admin`, tag: 'beta' });
+  const recipients = push.skipKakao ? [] : await prisma.notifyRecipient.findMany({ where: { tenantId: tenant.id }, select: { phone: true } });
 
-  let sent = 0;
+  let sent = push.pushed;
   for (const r of recipients) {
     const result = await sendMessage({
       tenantId: tenant.id,

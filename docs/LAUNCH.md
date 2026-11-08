@@ -74,6 +74,8 @@
 | `VERCEL_TOKEN`, `VERCEL_PROJECT_ID`, `VERCEL_TEAM_ID` | ○ | 학원 커스텀 도메인 셀프 연결. **0단계 이후 새로 발급한 토큰**, 프로젝트 권한만 |
 | `ANTHROPIC_API_KEY` | ○ | AI 초안(원장 소개·수업·소식). 없으면 기능 숨김 |
 | `RESEND_API_KEY` | ○ | 운영자 알림 메일(무료 진단·셀프 개설). resend.com에서 발급. 없으면 메일 안 나감 |
+| `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` | ○ | 관리자 앱 푸시 알림 키 한 쌍. `npx web-push generate-vapid-keys`로 만든다. 없으면 앱 알림 없이 카톡 알림톡만 보낸다. **한 번 정하면 바꾸지 않는다**(바꾸면 모든 기기가 알림을 다시 켜야 함) |
+| `VAPID_SUBJECT` | 선택 | 푸시 서버에 알리는 연락처, 예: `mailto:redshine0419@gmail.com` (없으면 이 주소) |
 | `OPERATOR_NOTIFY_EMAIL` | ○ | 넣지 않으면 `lib/mail/operator.ts`의 `OPERATOR_EMAIL`로 보낸다. 다른 주소로 바꿀 때만(쉼표 구분). 도메인 인증 전에는 Resend 가입 메일만 가능 |
 | `MAIL_FROM` | ○ | 보내는 주소. growweb.me 도메인 인증 후 `첫등원 <noreply@growweb.me>` 등. 없으면 `onboarding@resend.dev` |
 

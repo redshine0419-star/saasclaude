@@ -1,4 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
+import { AppNotifyCard } from './AppNotifyCard';
+import { pushPublicKey } from '@/lib/push';
 import { SiteControlCard } from './SiteControlCard';
 import { adminSession } from '@/lib/demo-viewer';
 import { prisma } from '@/lib/prisma';
@@ -22,6 +24,7 @@ export default async function AdminSettingsPage({
 
   const tenant = await prisma.tenant.findUnique({ where: { slug, status: 'active' } });
   if (!tenant) notFound();
+  const pushDevices = await prisma.pushDevice.findMany({ where: { tenantId: tenant.id }, orderBy: { createdAt: 'asc' } });
 
   const membership = await getAdminMembership(tenant.id, session.user.email!);
   if (!membership) redirect('/auth/signin');
@@ -88,6 +91,14 @@ export default async function AdminSettingsPage({
           isOwner={membership.role === 'owner'}
           members={allMembers.map((m) => ({ id: m.id, email: m.user.email ?? '', name: m.user.name, role: m.role }))}
           pendingInvites={pendingInvites.map((i) => ({ id: i.id, email: i.email, role: i.role, expiresAt: i.expiresAt.toISOString(), inviteUrl: `${process.env.NEXT_PUBLIC_BASE_URL ?? 'https://growweb.me'}/auth/accept-invite?token=${i.token}` }))}
+        />
+        <AppNotifyCard
+          slug={slug}
+          isOwner={membership.role === 'owner'}
+          myEmail={session.user.email}
+          vapidKey={pushPublicKey()}
+          devices={pushDevices.map((d) => ({ id: d.id, label: d.label, email: d.email, createdAt: d.createdAt.toISOString(), lastUsedAt: d.lastUsedAt?.toISOString() ?? null }))}
+          pushReplacesKakao={tenant.pushReplacesKakao}
         />
         <SiteControlCard
           slug={slug}

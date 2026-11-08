@@ -51,7 +51,7 @@ export function ReportClient({ slug, month, monthLabel, history, keywords, aiInf
       const res = await fetch(`/api/${slug}/admin/report/${month}`, { method: 'POST' });
       const data = await res.json();
       if (res.ok) {
-        setKakaoResult(data.sent === 0 ? '수신자가 없습니다.' : `${data.sent}명에게 발송 완료`);
+        setKakaoResult(data.sent === 0 ? '수신자가 없습니다.' : data.channel === 'push' ? `앱 알림 ${data.sent}대에 보냈습니다` : `${data.sent}명에게 발송 완료`);
       } else {
         setKakaoResult(data.error ?? '발송 실패');
       }
@@ -102,7 +102,7 @@ export function ReportClient({ slug, month, monthLabel, history, keywords, aiInf
             onClick={sendKakaoSummary}
             style={{ height: 44, padding: '0 18px', border: 'none', borderRadius: 8, background: '#1E5645', color: '#FFFFFF', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: kakaoSending ? 'wait' : 'pointer', opacity: kakaoSending ? 0.6 : 1 }}
           >
-            {kakaoSending ? '발송 중…' : '카카오 요약 발송'}
+            {kakaoSending ? '보내는 중…' : '요약 보내기'}
           </button>
           <button
             type="button"

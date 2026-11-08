@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { notifyStaff } from '@/lib/push';
 import { prisma } from '@/lib/prisma';
 import { sendMessage } from '@/lib/messaging/send';
 import { hashPhone } from '@/lib/messaging/hash';
@@ -29,8 +30,16 @@ export async function GET(req: Request) {
   });
 
   for (const tenant of tenants) {
-    if (tenant.notifyRecipients.length === 0) continue;
     if (tenant.classes.length === 0) continue;
+    // 앱 알림을 켠 기기가 있으면 푸시로 (카톡 대신)
+    const push = await notifyStaff(tenant.id, {
+      title: `이번 주 수업 확인 — ${tenant.name}`,
+      body: `반 ${tenant.classes.length}개의 잔여석이 맞는지 확인해 주세요.`,
+      url: `/${tenant.slug}/admin/classes`,
+      tag: 'weekly-class',
+    });
+    if (push.skipKakao) { sent += push.pushed; continue; }
+    if (tenant.notifyRecipients.length === 0) continue;
 
     // 잔여석 요약 텍스트
     const classSummary = tenant.classes

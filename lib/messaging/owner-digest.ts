@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { notifyStaff } from '@/lib/push';
 import { sendMessage } from '@/lib/messaging/send';
 import { hashPhone } from '@/lib/messaging/hash';
 import { fillTemplate, resolveTemplate } from '@/lib/messaging/templates';
@@ -49,6 +50,14 @@ export async function runOwnerDigest(now: Date): Promise<DigestOutcome[]> {
     if (!tenant) continue;
     // 기본은 켜짐. 원장이 A-03에서 끈 경우만 건너뛴다
     if (tenant.automationSettings[0]?.enabled === false) { outcomes.push({ slug: tenant.slug, skipped: 'disabled' }); continue; }
+    // 앱 알림을 켠 기기가 있으면 푸시로 (카톡 대신, 하루 한 번 크론이라 같은 날 중복 걱정 없음)
+    const push = await notifyStaff(tenant.id, {
+      title: `답하지 않은 상담 ${g._count._all}건 — ${tenant.name}`,
+      body: g._min.createdAt ? `가장 오래된 신청: ${oldestLabel(g._min.createdAt, now)}. 눌러서 상담 관리로 가기` : '눌러서 상담 관리로 가기',
+      url: `/${tenant.slug}/admin/leads`,
+      tag: 'owner-digest',
+    });
+    if (push.skipKakao) { outcomes.push({ slug: tenant.slug, count: g._count._all, recipients: 0, sent: push.pushed }); continue; }
     if (tenant.notifyRecipients.length === 0) { outcomes.push({ slug: tenant.slug, skipped: 'no_recipients' }); continue; }
 
     // 크론 재시도 등으로 같은 날 두 번 보내지 않는다

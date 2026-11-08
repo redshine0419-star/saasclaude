@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { notifyStaff } from '@/lib/push';
 import { prisma } from '@/lib/prisma';
 import { sendMessage } from '@/lib/messaging/send';
 import { hashPhone } from '@/lib/messaging/hash';
@@ -94,7 +95,16 @@ export async function GET(req: Request) {
       select: { name: true, slug: true, notifyRecipients: true },
     });
 
-    if (tenantFull && tenantFull.notifyRecipients.length > 0) {
+    // 앱 알림을 켠 기기가 있으면 푸시로 (카톡 대신)
+    const push = tenantFull
+      ? await notifyStaff(tenant.id, {
+          title: `${monthKey} 월간 리포트 — ${tenantFull.name}`,
+          body: `상담 ${totalLeads}건 · 등록 ${enrolledLeads}건 (${conversionRate}%). 눌러서 리포트 보기`,
+          url: `/${tenantFull.slug}/admin/report`,
+          tag: 'monthly-report',
+        })
+      : { skipKakao: false };
+    if (tenantFull && !push.skipKakao && tenantFull.notifyRecipients.length > 0) {
       const summaryBody =
         `[${tenantFull.name}] ${monthKey} 월간 리포트\n\n` +
         `상담 신청: ${totalLeads}건\n` +

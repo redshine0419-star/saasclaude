@@ -27,6 +27,7 @@ model Tenant {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
   inactiveAt          DateTime? // 운영 중지(status=inactive) 시각 — 베타 만료·운영자 처리. 자동 삭제하지 않는다
+  pushReplacesKakao   Boolean   @default(true) // 앱 알림을 켠 기기가 있으면 원장·직원 알림을 카톡 대신 앱 푸시로 보낸다
   published           Boolean   @default(true) // 홈페이지 공개 여부 — 원장이 켜고 끈다. 꺼도 관리자 화면은 그대로 쓴다
   unpublishedAt       DateTime? // 홈페이지를 비공개로 바꾼 시각
   deletionRequestedAt DateTime? // 원장의 학원 삭제 요청 — 운영자가 확인 후 수동 삭제 (lib/retention.ts purgeTenant)
@@ -114,6 +115,7 @@ model Tenant {
   students             Student[]
   studentRegistrations StudentRegistration[]
   resources            Resource[]
+  pushDevices          PushDevice[]
   studentNotes         StudentNote[]
   studentScores        StudentScore[]
   attendances          Attendance[]
@@ -1236,4 +1238,22 @@ model Resource {
 
   @@index([tenantId, createdAt])
   @@map("resources")
+}
+
+/// 원장·직원이 "이 기기에서 알림 받기"를 켠 기기 (웹 푸시 구독). lib/push/
+model PushDevice {
+  id         String    @id @default(cuid())
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  tenantId   String
+  email      String // 구독한 관리자 계정
+  endpoint   String    @unique
+  p256dh     String
+  auth       String
+  label      String? // 기기 이름(브라우저 정보에서 추정)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("push_devices")
 }

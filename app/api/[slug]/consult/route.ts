@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { notifyStaff } from '@/lib/push';
 import { prisma } from '@/lib/prisma';
 import { fillTemplate, resolveTemplate } from '@/lib/messaging/templates';
 import { sendMessage } from '@/lib/messaging/send';
@@ -192,8 +193,15 @@ export async function POST(
     });
   }
 
-  // ── owner_alert 발송 (notify_recipients에게) ──────────────────────────
-  const alertTemplate = await resolveTemplate(tenant.id, 'owner_alert');
+  // ── owner_alert: 앱 알림을 켠 기기가 있으면 푸시(무료), 아니면 notify_recipients에게 알림톡 ──
+  const masked = lead.parentName ? `${lead.parentName.slice(0, 1)}○○` : '학부모';
+  const push = await notifyStaff(tenant.id, {
+    title: `새 상담 신청 — ${tenant.name}`,
+    body: [`${masked} 학부모`, lead.studentGrade, lead.consultType === 'level_test' ? '레벨테스트 예약' : lead.consultType === 'visit' ? '방문 상담' : '전화 상담'].filter(Boolean).join(' · '),
+    url: `/${slug}/admin/leads`,
+    tag: 'new-lead',
+  });
+  const alertTemplate = push.skipKakao ? null : await resolveTemplate(tenant.id, 'owner_alert');
 
   if (alertTemplate) {
     for (const recipient of tenant.notifyRecipients) {

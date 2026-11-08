@@ -3,9 +3,25 @@ import { redirect } from 'next/navigation';
 import { adminSession, isDemoViewer } from '@/lib/demo-viewer';
 import { DemoReadOnly } from '@/components/admin/DemoReadOnly';
 import { HelpBot } from '@/components/admin/HelpBot';
+import { PwaRegister } from '@/components/admin/PwaRegister';
+import type { Metadata, Viewport } from 'next';
 import { prisma } from '@/lib/prisma';
 import '@/styles/admin.css';
 import { requireSignupConsent } from '@/lib/legal/consent';
+
+// 관리자 앱(PWA): 학원별 설치 정보와 아이폰 홈 화면 설정
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const t = await prisma.tenant.findUnique({ where: { slug }, select: { name: true } });
+  const name = t?.name ?? '첫등원';
+  return {
+    manifest: `/api/${slug}/manifest`,
+    appleWebApp: { capable: true, title: name.slice(0, 12), statusBarStyle: 'default' },
+    icons: { apple: '/api/app-icon?size=180' },
+  };
+}
+
+export const viewport: Viewport = { themeColor: '#1B2430' };
 
 export default async function AdminLayout({
   children,
@@ -43,6 +59,7 @@ export default async function AdminLayout({
           {children}
         </div>
         <HelpBot slug={slug} />
+        <PwaRegister />
       </>
     );
   }
@@ -98,6 +115,7 @@ export default async function AdminLayout({
         {children}
       </div>
       <HelpBot slug={slug} />
+      <PwaRegister />
     </>
   );
 }
