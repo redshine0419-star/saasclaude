@@ -27,7 +27,7 @@ export default async function LocationPage({
     <>
       <ThemeHeader
         theme={data.tenant.theme ?? 'warm'}
-        name={tenant.name}
+        name={tenant.name} hasResources={tenant.hasResources}
         slug={slug}
         activePage="location"
         phone={tenant.phone}

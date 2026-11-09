@@ -24,7 +24,7 @@ export default async function ConsultDonePage({
     <>
       <ThemeHeader
         theme={data.tenant.theme ?? 'warm'}
-        name={tenant.name}
+        name={tenant.name} hasResources={tenant.hasResources}
         slug={slug}
         activePage="consult"
         phone={tenant.phone}

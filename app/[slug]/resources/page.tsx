@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
-import { getAcademyPageData } from '@/lib/academy-data';
+import { getAcademyPageData, dbSlugOf } from '@/lib/academy-data';
 import ThemeHeader from '@/components/academy/ThemeHeader';
 import SiteFooter from '@/components/academy/SiteFooter';
 import { asFiles } from '@/lib/resources';
@@ -24,7 +24,7 @@ export default async function ResourcesPage({ params }: Props) {
   const { tenant } = data;
   // 홈페이지 공개 자료만 (링크 공유 자료는 목록에 나오지 않는다)
   const items = await prisma.resource.findMany({
-    where: { tenant: { slug, status: 'active', published: true }, visibility: 'public' },
+    where: { tenant: { slug: dbSlugOf(slug), status: 'active', published: true }, visibility: 'public' },
     orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }],
     take: 200,
     select: { id: true, title: true, files: true, pinned: true, createdAt: true },
@@ -32,7 +32,7 @@ export default async function ResourcesPage({ params }: Props) {
 
   return (
     <>
-      <ThemeHeader theme={tenant.theme ?? 'warm'} name={tenant.name} slug={slug} activePage="resources" phone={tenant.phone} kakaoChannelUrl={tenant.kakaoChannelUrl} address={tenant.address} hours={tenant.hours} accentColor={tenant.accentColor} />
+      <ThemeHeader theme={tenant.theme ?? 'warm'} name={tenant.name} hasResources={tenant.hasResources} slug={slug} activePage="resources" phone={tenant.phone} kakaoChannelUrl={tenant.kakaoChannelUrl} address={tenant.address} hours={tenant.hours} accentColor={tenant.accentColor} />
       <main className="bg-bg min-h-screen">
         <section className="acad-section">
           <div className="acad-wrap max-w-[960px]">

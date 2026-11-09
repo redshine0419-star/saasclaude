@@ -153,7 +153,7 @@ export default async function ReviewsPage({
     <>
       <ThemeHeader
         theme={data.tenant.theme ?? 'warm'}
-        name={tenant.name}
+        name={tenant.name} hasResources={tenant.hasResources}
         slug={slug}
         activePage="reviews"
         phone={tenant.phone}

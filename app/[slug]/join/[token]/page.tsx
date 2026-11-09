@@ -30,7 +30,7 @@ export default async function JoinPage({ params }: Props) {
     <>
       <ThemeHeader
         theme={tenant.theme ?? 'warm'}
-        name={tenant.name}
+        name={tenant.name} hasResources={tenant.hasResources}
         slug={slug}
         activePage="join"
         phone={tenant.phone}

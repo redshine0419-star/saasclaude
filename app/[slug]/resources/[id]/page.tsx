@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
-import { getAcademyPageData } from '@/lib/academy-data';
+import { getAcademyPageData, dbSlugOf } from '@/lib/academy-data';
 import ThemeHeader from '@/components/academy/ThemeHeader';
 import SiteFooter from '@/components/academy/SiteFooter';
 import { asFiles, fileExt, formatSize } from '@/lib/resources';
@@ -12,7 +12,7 @@ type Props = { params: Promise<{ slug: string; id: string }>; searchParams: Prom
 async function load(slug: string, id: string, k: string | undefined) {
   const data = await getAcademyPageData(slug);
   if (!data) return null;
-  const r = await prisma.resource.findFirst({ where: { id, tenant: { slug, status: 'active', published: true } } }).catch(() => null);
+  const r = await prisma.resource.findFirst({ where: { id, tenant: { slug: dbSlugOf(slug), status: 'active', published: true } } }).catch(() => null);
   // 링크 공유 자료는 공유 키가 맞아야 열린다
   if (!r || (r.visibility === 'link' && r.shareToken !== k)) return null;
   return { data, r };
@@ -44,7 +44,7 @@ export default async function ResourceDetailPage({ params, searchParams }: Props
 
   return (
     <>
-      <ThemeHeader theme={tenant.theme ?? 'warm'} name={tenant.name} slug={slug} activePage="resources" phone={tenant.phone} kakaoChannelUrl={tenant.kakaoChannelUrl} address={tenant.address} hours={tenant.hours} accentColor={tenant.accentColor} />
+      <ThemeHeader theme={tenant.theme ?? 'warm'} name={tenant.name} hasResources={tenant.hasResources} slug={slug} activePage="resources" phone={tenant.phone} kakaoChannelUrl={tenant.kakaoChannelUrl} address={tenant.address} hours={tenant.hours} accentColor={tenant.accentColor} />
       <main className="bg-bg min-h-screen">
         <section className="acad-section">
           <div className="acad-wrap max-w-[860px] flex flex-col gap-6">

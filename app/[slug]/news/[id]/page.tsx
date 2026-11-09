@@ -37,7 +37,7 @@ export default async function NewsDetailPage({
   return (
     <>
       <SiteHeader
-        name={tenant.name}
+        name={tenant.name} hasResources={tenant.hasResources}
         slug={slug}
         activePage="news"
         phone={tenant.phone}

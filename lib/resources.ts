@@ -49,7 +49,8 @@ export function parseResource(body: Record<string, unknown>, isStoredUrl: (u: st
     const url = typeof f?.url === 'string' ? f.url : '';
     const name = safeFileName(typeof f?.name === 'string' ? f.name : '');
     const ext = fileExt(name);
-    if (!url || !isStoredUrl(url)) return { ok: false, error: '첨부 파일 주소가 올바르지 않습니다. 다시 올려 주세요.' };
+    // /demo-files/ 는 데모 학원 샘플 파일(public 폴더) — 데모 자료를 관리자에서 고쳐도 저장되게
+    if (!url || !(isStoredUrl(url) || /^\/demo-files\/[a-z0-9-]+\.(pdf|png)$/.test(url))) return { ok: false, error: '첨부 파일 주소가 올바르지 않습니다. 다시 올려 주세요.' };
     if (!RESOURCE_FILE_TYPES[ext]) return { ok: false, error: `${name}: 올릴 수 없는 파일 형식입니다.` };
     const size = typeof f?.size === 'number' && f.size > 0 ? Math.min(f.size, MAX_FILE_SIZE) : 0;
     files.push({ url, name, size, type: RESOURCE_FILE_TYPES[ext] });

@@ -47,7 +47,7 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    // API, _next 정적 파일, 파비콘 제외
-    '/((?!api|_next/static|_next/image|favicon.ico|sw.js).*)',
+    // API, _next 정적 파일, 파비콘, 서비스 워커, 데모 자료실 샘플 파일 제외
+    '/((?!api|_next/static|_next/image|favicon.ico|sw.js|demo-files/).*)',
   ],
 };

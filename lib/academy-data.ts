@@ -450,6 +450,11 @@ import { readSectionCopy, type SectionCopy } from './section-copy';
 // 데모 주소 → DB의 데모 학원 (관리자에서 고친 샘플 데이터). 'demo'는 demo-warm의 별칭
 const DEMO_DB_SLUG: Record<string, string> = { demo: 'demo-warm', 'demo-warm': 'demo-warm', 'demo-result': 'demo-result', 'demo-bright': 'demo-bright' };
 
+/** DB에서 찾을 학원 주소 — 데모 별칭('demo')은 실제 데모 학원 주소로 바꾼다 */
+export function dbSlugOf(slug: string): string {
+  return DEMO_DB_SLUG[slug] ?? slug;
+}
+
 function staticDemo(slug: string): AcademyPageData {
   if (slug === 'demo-result') return DEMO_DATA_RESULT;
   if (slug === 'demo-bright') return DEMO_DATA_BRIGHT;

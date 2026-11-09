@@ -26,7 +26,7 @@ export default async function AboutPage({
     <>
       <ThemeHeader
         theme={data.tenant.theme ?? 'warm'}
-        name={tenant.name}
+        name={tenant.name} hasResources={tenant.hasResources}
         slug={slug}
         activePage="about"
         phone={tenant.phone}

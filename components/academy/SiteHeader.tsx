@@ -10,6 +10,7 @@ type Props = {
   kakaoChannelUrl: string | null;
   address: string | null;
   hours: string | null;
+  hasResources?: boolean;
 };
 
 const NAV_ITEMS = [
@@ -21,8 +22,15 @@ const NAV_ITEMS = [
   { key: 'location', label: '오시는 길' },
 ];
 
-export default function SiteHeader({ name, slug, activePage, phone, kakaoChannelUrl, address, hours }: Props) {
+/** 메뉴 항목 — 오시는 길은 늘 맨 끝, 자료실은 공개 자료가 있을 때만 그 앞에 */
+function navItems(hasResources?: boolean) {
+  const last = NAV_ITEMS[NAV_ITEMS.length - 1];
+  return hasResources ? [...NAV_ITEMS.slice(0, -1), { key: 'resources', label: '자료실' }, last] : NAV_ITEMS;
+}
+
+export default function SiteHeader({ name, slug, activePage, phone, kakaoChannelUrl, address, hours, hasResources }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const items = navItems(hasResources);
 
   const navHref = (key: string) => `/${slug}/${key}`;
   const homeHref = `/${slug}`;
@@ -38,7 +46,7 @@ export default function SiteHeader({ name, slug, activePage, phone, kakaoChannel
 
           {/* 데스크톱 내비 */}
           <nav className="hidden lg:flex items-center gap-[30px] text-[14px] font-semibold text-body">
-            {NAV_ITEMS.map(({ key, label }) => (
+            {items.map(({ key, label }) => (
               <a
                 key={key}
                 href={navHref(key)}
@@ -107,7 +115,7 @@ export default function SiteHeader({ name, slug, activePage, phone, kakaoChannel
 
           {/* 내비 아이템 */}
           <nav aria-label="주 메뉴" className="px-5 flex flex-col flex-shrink-0">
-            {NAV_ITEMS.map(({ key, label }) => (
+            {items.map(({ key, label }) => (
               <a
                 key={key}
                 href={navHref(key)}

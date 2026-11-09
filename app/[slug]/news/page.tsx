@@ -118,7 +118,7 @@ export default async function NewsPage({
     <>
       <ThemeHeader
         theme={data.tenant.theme ?? 'warm'}
-        name={tenant.name}
+        name={tenant.name} hasResources={tenant.hasResources}
         slug={slug}
         activePage="news"
         phone={tenant.phone}

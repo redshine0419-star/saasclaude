@@ -425,6 +425,55 @@ async function seedLook(look) {
   console.log(`[seed-sample] ${look.slug} 화면 시안 적용`);
 }
 
+// ── 데모 자료실 (홈페이지 공개 자료) — 파일은 public/demo-files ──────────
+const F = (file, name, size) => ({ url: `/demo-files/${file}`, name, size, type: file.endsWith('.png') ? 'image/png' : 'application/pdf' });
+const RESOURCES = [
+  {
+    slug: 'demo-warm',
+    marker: 'seed:resources:demo-warm:v1',
+    items: [
+      { title: '겨울방학 특강 안내문', pinned: true, daysAgo: 1, body: '겨울방학 특강 일정과 반 구성 안내입니다.\n신청서를 내려받아 작성한 뒤 사진으로 보내 주시거나, 홈페이지 상담 신청으로 남겨 주세요.', files: [F('warm-winter.pdf', '겨울방학_특강_안내문.pdf', 110933), F('warm-form.pdf', '겨울방학_특강_신청서.pdf', 116351)] },
+      { title: '11월 수업 시간표', daysAgo: 6, body: '11월 반별 수업 시간표입니다. 보강·클리닉은 금요일 17시에 진행합니다.', files: [F('warm-timetable.png', '11월_수업_시간표.png', 21651)] },
+      { title: '중2 2학기 기말 대비 핵심 유형 프린트', daysAgo: 12, body: '기말고사 전 꼭 풀어 볼 핵심 유형 6문항입니다. 풀이는 수업 시간에 함께 봅니다.', files: [F('warm-print.pdf', '중2_기말대비_핵심유형.pdf', 238568)] },
+    ],
+  },
+  {
+    slug: 'demo-result',
+    marker: 'seed:resources:demo-result:v1',
+    items: [
+      { title: '겨울 내신 대비 5주 일정', pinned: true, daysAgo: 2, body: '12월 22일부터 시작하는 겨울 내신 대비 일정입니다.', files: [F('result-schedule.png', '겨울_내신대비_일정.png', 25221)] },
+      { title: '겨울 학부모 설명회 자료', daysAgo: 5, body: '설명회에 오지 못하신 학부모님을 위해 자료를 올려 드립니다.', files: [F('result-briefing.pdf', '겨울_학부모설명회_자료.pdf', 131814)] },
+      { title: '모의고사 오답 분석 양식', daysAgo: 14, body: '모의고사가 끝나면 이 양식으로 오답을 정리해 오세요. 다음 수업 클리닉에서 함께 봅니다.', files: [F('result-wrongnote.pdf', '모의고사_오답분석_양식.pdf', 182502)] },
+    ],
+  },
+  {
+    slug: 'demo-bright',
+    marker: 'seed:resources:demo-bright:v1',
+    items: [
+      { title: '겨울 영어캠프 안내', pinned: true, daysAgo: 1, body: '1월 5일부터 3주 동안 열리는 겨울 영어캠프 안내입니다. 하루 일정과 준비물을 확인해 주세요.', files: [F('bright-camp.pdf', '겨울_영어캠프_안내.pdf', 110293)] },
+      { title: '셔틀 운행 시간표', daysAgo: 4, body: '12월부터 바뀐 셔틀 운행 시간입니다.', files: [F('bright-shuttle.png', '셔틀_운행_시간표.png', 24272)] },
+      { title: '12월 파닉스 활동지', daysAgo: 9, body: '집에서 아이와 함께 소리 내어 읽고 따라 써 보세요.', files: [F('bright-phonics.pdf', '12월_파닉스_활동지.pdf', 148502)] },
+    ],
+  },
+];
+
+async function seedResources({ slug, marker, items }) {
+  const tenant = await prisma.tenant.findUnique({ where: { slug }, select: { id: true } });
+  if (!tenant) return;
+  if (await prisma.platformSetting.findUnique({ where: { key: marker } })) return console.log(`[seed-sample] ${slug} 자료실 이미 채움 — 건너뜀`);
+  // 관리자에서 이미 자료를 올렸으면 건드리지 않는다
+  if ((await prisma.resource.count({ where: { tenantId: tenant.id } })) === 0) {
+    for (const r of items) {
+      const created = at(r.daysAgo, 17);
+      await prisma.resource.create({
+        data: { tenantId: tenant.id, title: r.title, body: r.body, files: r.files, visibility: 'public', pinned: !!r.pinned, shareToken: randomBytes(18).toString('base64url'), authorEmail: 'demo@growweb.me', createdAt: created },
+      });
+    }
+    console.log(`[seed-sample] ${slug} 자료실 ${items.length}건 채움`);
+  }
+  await prisma.platformSetting.create({ data: { key: marker, value: NOW.toISOString() } });
+}
+
 async function main() {
   for (const t of TARGETS) {
     try {
@@ -438,6 +487,13 @@ async function main() {
       await seedLook(look);
     } catch (e) {
       console.error(`[seed-sample] ${look.slug} 화면 시안 실패 (빌드는 계속):`, e instanceof Error ? e.message : e);
+    }
+  }
+  for (const r of RESOURCES) {
+    try {
+      await seedResources(r);
+    } catch (e) {
+      console.error(`[seed-sample] ${r.slug} 자료실 실패 (빌드는 계속):`, e instanceof Error ? e.message : e);
     }
   }
 }

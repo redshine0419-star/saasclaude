@@ -30,7 +30,7 @@ export default async function FeePage({
     <>
       <ThemeHeader
         theme={data.tenant.theme ?? 'warm'}
-        name={tenant.name}
+        name={tenant.name} hasResources={tenant.hasResources}
         slug={slug}
         activePage="fee"
         phone={tenant.phone}

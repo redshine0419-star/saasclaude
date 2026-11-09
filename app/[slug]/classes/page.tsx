@@ -31,7 +31,7 @@ export default async function ClassesPage({
     <>
       <ThemeHeader
         theme={data.tenant.theme ?? 'warm'}
-        name={tenant.name}
+        name={tenant.name} hasResources={tenant.hasResources}
         slug={slug}
         activePage="classes"
         phone={tenant.phone}

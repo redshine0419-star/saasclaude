@@ -216,7 +216,8 @@ export default async function AcademyPage({
   return (
     <>
       {isDemoSlug && (
-        <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 9999 }}>
+        // 머리말(메뉴 버튼·상담 버튼)을 가리지 않게 머리말 바로 아래에 띄운다
+        <div className="fixed right-4 top-[80px] md:top-[94px] z-[60]">
           <Link
             href={`/${slug}/admin`}
             style={{
@@ -237,7 +238,7 @@ export default async function AcademyPage({
       )}
       {theme === 'result' ? (
         <SiteHeaderResult
-          name={data.tenant.name}
+          name={data.tenant.name} hasResources={data.tenant.hasResources}
           slug={slug}
           phone={data.tenant.phone}
           kakaoChannelUrl={data.tenant.kakaoChannelUrl}
@@ -245,14 +246,14 @@ export default async function AcademyPage({
         />
       ) : theme === 'bright' ? (
         <SiteHeaderBright
-          name={data.tenant.name}
+          name={data.tenant.name} hasResources={data.tenant.hasResources}
           slug={slug}
           phone={data.tenant.phone}
           kakaoChannelUrl={data.tenant.kakaoChannelUrl}
         />
       ) : (
         <SiteHeader
-          name={data.tenant.name}
+          name={data.tenant.name} hasResources={data.tenant.hasResources}
           slug={slug}
           activePage="home"
           phone={data.tenant.phone}
