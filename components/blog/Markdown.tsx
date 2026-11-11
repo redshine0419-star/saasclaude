@@ -30,7 +30,19 @@ function BlockView({ b }: { b: Block }) {
     case 'h2': return <h2 id={b.id}>{inl(b.c)}</h2>;
     case 'h3': return <h3>{inl(b.c)}</h3>;
     case 'p': return <p>{inl(b.c)}</p>;
-    case 'ul': return <ul>{b.items.map((it, i) => <li key={i}>{inl(it)}</li>)}</ul>;
+    case 'ul': {
+      const isCheck = b.check.some((c) => c !== null);
+      return (
+        <ul className={isCheck ? 'blog-check' : undefined}>
+          {b.items.map((it, i) => (
+            <li key={i}>
+              {isCheck && <span className="blog-box" aria-hidden="true">{b.check[i] ? '✓' : ''}</span>}
+              {inl(it)}
+            </li>
+          ))}
+        </ul>
+      );
+    }
     case 'ol': return <ol start={b.start}>{b.items.map((it, i) => <li key={i}>{inl(it)}</li>)}</ol>;
     case 'quote': return <blockquote>{inl(b.c)}</blockquote>;
     case 'hr': return <hr />;

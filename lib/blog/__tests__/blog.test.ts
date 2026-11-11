@@ -24,6 +24,12 @@ describe('parseMarkdown', () => {
     expect(JSON.stringify(bad)).not.toMatch(/"t":"(img|link)"/);
     expect(parseMarkdown('![x](http://insecure/a.jpg)')).toEqual([]);
   });
+  it('체크리스트 줄', () => {
+    const [b] = parseMarkdown('- [ ] 권한 설정\n- [x] 비밀번호 관리');
+    expect(b).toMatchObject({ t: 'ul', check: [false, true] });
+    expect(JSON.stringify(b)).not.toContain('[ ]');
+    expect(plainText('- [ ] 권한 설정')).toBe('권한 설정');
+  });
   it('HTML은 글자 그대로 남는다', () => {
     const b = parseMarkdown('<script>alert(1)</script>');
     expect(b).toEqual([{ t: 'p', c: [{ t: 'text', v: '<script>alert(1)</script>' }] }]);

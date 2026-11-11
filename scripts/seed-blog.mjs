@@ -10,6 +10,8 @@ import { PrismaNeon } from '@prisma/adapter-neon';
 import { BLOG_DRAFTS } from './blog-drafts.mjs';
 
 const MARKER = 'seed:blog-drafts:v1';
+// v2: 5번 글(student-privacy-consent)을 운영자가 준 원고로 교체 — 아직 숨김이고 아무도 고치지 않은 초안일 때만
+const UPDATES = [{ marker: 'seed:blog-drafts:v2', slugs: ['student-privacy-consent'] }];
 
 if (!process.env.DATABASE_URL) {
   console.log('[seed-blog] DATABASE_URL 없음 — 건너뜀');
@@ -17,8 +19,27 @@ if (!process.env.DATABASE_URL) {
 }
 const prisma = new PrismaClient({ adapter: new PrismaNeon({ connectionString: process.env.DATABASE_URL }) });
 
+async function applyUpdates() {
+  for (const u of UPDATES) {
+    if (await prisma.platformSetting.findUnique({ where: { key: u.marker } })) continue;
+    for (const slug of u.slugs) {
+      const d = BLOG_DRAFTS.find((x) => x.slug === slug);
+      const cur = await prisma.blogPost.findUnique({ where: { slug }, select: { id: true, status: true, authorEmail: true, createdAt: true, updatedAt: true } });
+      if (!d || !cur) continue;
+      const untouched = cur.status === 'draft' && cur.authorEmail === 'seed@growweb.me' && cur.updatedAt.getTime() - cur.createdAt.getTime() < 60_000;
+      if (!untouched) { console.log(`[seed-blog] ${slug} 운영자가 고친 글 — 교체하지 않음`); continue; }
+      await prisma.blogPost.update({ where: { id: cur.id }, data: { title: d.title, summary: d.summary, body: d.body, category: d.category, createdAt: new Date(), updatedAt: new Date() } });
+      console.log(`[seed-blog] ${slug} 초안 교체`);
+    }
+    await prisma.platformSetting.create({ data: { key: u.marker, value: new Date().toISOString() } });
+  }
+}
+
 async function main() {
-  if (await prisma.platformSetting.findUnique({ where: { key: MARKER } })) return console.log('[seed-blog] 초안 이미 넣음 — 건너뜀');
+  if (await prisma.platformSetting.findUnique({ where: { key: MARKER } })) {
+    console.log('[seed-blog] 초안 이미 넣음 — 건너뜀');
+    return applyUpdates();
+  }
   let n = 0;
   for (const d of BLOG_DRAFTS) {
     if (await prisma.blogPost.findUnique({ where: { slug: d.slug }, select: { id: true } })) continue;
@@ -27,6 +48,8 @@ async function main() {
   }
   await prisma.platformSetting.create({ data: { key: MARKER, value: new Date().toISOString() } });
   console.log(`[seed-blog] 초안 ${n}편 넣음 (숨김)`);
+  // 처음 넣을 때는 이미 최신 원고이므로 교체 표시만 남긴다
+  for (const u of UPDATES) await prisma.platformSetting.upsert({ where: { key: u.marker }, update: {}, create: { key: u.marker, value: new Date().toISOString() } });
 }
 
 main()

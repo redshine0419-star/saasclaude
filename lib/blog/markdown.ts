@@ -15,7 +15,8 @@ export type Block =
   | { t: 'h2'; id: string; c: Inline[]; text: string }
   | { t: 'h3'; c: Inline[] }
   | { t: 'p'; c: Inline[] }
-  | { t: 'ul'; items: Inline[][] }
+  /** check: 체크리스트 줄(- [ ] / - [x])이면 true·false, 보통 목록이면 null */
+  | { t: 'ul'; items: Inline[][]; check: (boolean | null)[] }
   | { t: 'ol'; items: Inline[][]; start: number }
   | { t: 'quote'; c: Inline[] }
   | { t: 'hr' }
@@ -104,8 +105,15 @@ export function parseMarkdown(md: string): Block[] {
     }
     if (/^[-*]\s+/.test(tr)) {
       const items: Inline[][] = [];
-      while (i < lines.length && /^[-*]\s+/.test(lines[i].trim())) { items.push(parseInline(lines[i].trim().replace(/^[-*]\s+/, ''))); i++; }
-      blocks.push({ t: 'ul', items });
+      const check: (boolean | null)[] = [];
+      while (i < lines.length && /^[-*]\s+/.test(lines[i].trim())) {
+        const text = lines[i].trim().replace(/^[-*]\s+/, '');
+        const cm = text.match(/^\[( |x|X)\]\s+/);
+        check.push(cm ? cm[1] !== ' ' : null);
+        items.push(parseInline(cm ? text.slice(cm[0].length) : text));
+        i++;
+      }
+      blocks.push({ t: 'ul', items, check });
       continue;
     }
     if ((m = tr.match(/^(\d+)[.)]\s+/))) {
@@ -147,7 +155,7 @@ export function plainText(md: string): string {
     .replace(/\[\[[^\]]*\]\]/g, ' ')
     .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
     .replace(/^#{1,3}\s+/gm, '')
-    .replace(/^(?:[-*]\s+|>\s?)/gm, '')
+    .replace(/^(?:[-*]\s+(?:\[[ xX]\]\s+)?|>\s?)/gm, '')
     .replace(/^\d+[.)]\s+/gm, '')
     .replace(/\|/g, ' ')
     .replace(/-{3,}/g, ' ')
