@@ -9,7 +9,7 @@ export function ga4MeasurementId(): string | null {
   return id && /^G-[A-Z0-9]{4,20}$/.test(id) ? id : null;
 }
 
-export type PageKind = { group: 'service' | 'academy' | 'demo'; slug?: string };
+export type PageKind = { group: 'service' | 'blog' | 'academy' | 'demo'; slug?: string };
 
 /**
  * 분석에 보낼 페이지인지 판단한다. 보내지 않는 곳:
@@ -22,6 +22,7 @@ export function classifyPath(pathname: string, search = ''): PageKind | null {
   const first = seg[0];
   if (!first) return { group: 'service' };
   if (['platform', 'auth', 'account', 'signup', 'api', 'r', '_next'].includes(first)) return null;
+  if (first === 'blog') return { group: 'blog' };
   if (first === 'consult' && seg[1] === 'result') return null; // 진단 결과 — 주소의 번호로 열린다
   if (isReservedSlug(first) && !first.startsWith('demo-')) return { group: 'service' };
   if (['admin', 'test', 'join'].includes(seg[1] ?? '')) return null;

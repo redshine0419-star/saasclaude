@@ -1271,3 +1271,30 @@ model OperatorPushDevice {
 
   @@map("operator_push_devices")
 }
+
+/// 첫등원 블로그 (growweb.me/blog) — 운영자만 쓴다. 학원 데이터가 아니라 tenantId가 없다.
+model BlogPost {
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  /// 글 주소 /blog/{slug} — 영문 소문자·숫자·하이픈
+  slug        String    @unique
+  title       String
+  /// 목록·검색 결과·공유 미리보기에 쓰는 요약
+  summary     String?
+  /// 마크다운 본문
+  body        String    @default("")
+  /// tips(운영 노하우) | law(법규·행정) | marketing(홍보·마케팅) | news(첫등원 소식)
+  category    String    @default("tips")
+  coverImage  String?
+  /// 검색 결과에 보일 제목 (없으면 title)
+  seoTitle    String?
+  /// draft(숨김) | published(공개)
+  status      String    @default("draft")
+  publishedAt DateTime?
+  pinned      Boolean   @default(false)
+  authorEmail String
+
+  @@index([status, publishedAt])
+  @@map("blog_posts")
+}

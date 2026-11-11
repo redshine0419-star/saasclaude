@@ -1,10 +1,11 @@
 import type { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
+import { publishedWhere } from '@/lib/blog';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://growweb.me';
 
-  const [tenants, posts] = await Promise.all([
+  const [tenants, posts, blogPosts] = await Promise.all([
     prisma.tenant.findMany({
       where: { status: 'active' },
       select: { slug: true, updatedAt: true },
@@ -13,6 +14,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       where: { status: 'published', tenant: { status: 'active' } },
       include: { tenant: { select: { slug: true } } },
     }).catch(() => []),
+    prisma.blogPost.findMany({ where: publishedWhere(), select: { slug: true, updatedAt: true } }).catch(() => []),
   ]);
 
   const TENANT_SUBPAGES = ['about', 'classes', 'fee', 'reviews', 'news', 'location', 'consult'];
@@ -41,6 +43,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 1.0 },
+    { url: `${baseUrl}/blog`, lastModified: blogPosts.length ? blogPosts.reduce((m, b) => (b.updatedAt > m ? b.updatedAt : m), blogPosts[0].updatedAt) : new Date(), changeFrequency: 'weekly' as const, priority: 0.8 },
+    ...blogPosts.map((b) => ({ url: `${baseUrl}/blog/${b.slug}`, lastModified: b.updatedAt, changeFrequency: 'monthly' as const, priority: 0.7 })),
     ...tenantUrls,
     ...postUrls,
   ];

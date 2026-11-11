@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useMe, FdAccountDesktop, FdAccountMobile, FdAccountCompact } from './FdAccount';
 
-type Active = 'home' | 'service' | 'demo' | 'pricing' | 'consult' | 'apply';
+type Active = 'home' | 'service' | 'demo' | 'pricing' | 'blog' | 'consult' | 'apply';
 
 export function FdHeader({ active = 'home' }: { active?: Active }) {
   const [open, setOpen] = useState(false);
@@ -14,6 +14,7 @@ export function FdHeader({ active = 'home' }: { active?: Active }) {
     { key: 'service', href: '/service', label: '서비스 소개' },
     { key: 'demo', href: '/demo', label: '데모 보기' },
     { key: 'pricing', href: '/pricing', label: '요금' },
+    { key: 'blog', href: '/blog', label: '블로그' },
     { key: 'consult', href: '/consult', label: '상담' },
     { key: 'apply', href: '/start', label: '바로 만들기' },
   ];

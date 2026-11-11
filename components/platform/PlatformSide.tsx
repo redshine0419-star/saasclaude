@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { AdminMobileBar } from '@/components/admin/AdminMobileBar';
 
-type Active = 'academies' | 'hidden' | 'diagnosis' | 'settings';
+type Active = 'academies' | 'hidden' | 'diagnosis' | 'blog' | 'settings';
 
 const navItems = [
   {
@@ -38,6 +38,17 @@ const navItems = [
         <line x1="16" y1="13" x2="8" y2="13" />
         <line x1="16" y1="17" x2="8" y2="17" />
         <polyline points="10 9 9 9 8 9" />
+      </svg>
+    ),
+  },
+  {
+    key: 'blog' as Active,
+    href: '/platform/blog',
+    label: '블로그',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M12 20h9" />
+        <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z" />
       </svg>
     ),
   },

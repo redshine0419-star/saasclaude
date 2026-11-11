@@ -117,3 +117,40 @@ body {
 [data-theme="result"] .acad-fee-amount { color: var(--accent); }
 [data-theme="result"] .acad-fees th { background: #f0f3f9; font-size: 12px; color: #52617b; }
 }
+
+/* ── 첫등원 블로그 본문 (growweb.me/blog) ───────────────────── */
+@layer components {
+.blog-prose { color: #1F2A37; font-size: 17px; line-height: 1.85; word-break: keep-all; overflow-wrap: anywhere; }
+.blog-prose > * + * { margin-top: 1.1em; }
+.blog-prose h2 { font-size: 23px; line-height: 1.4; font-weight: 700; color: #14213D; margin-top: 2.2em; padding-top: 4px; scroll-margin-top: 92px; }
+.blog-prose h3 { font-size: 19px; line-height: 1.45; font-weight: 700; color: #14213D; margin-top: 1.8em; }
+.blog-prose p { margin: 0; }
+.blog-prose ul, .blog-prose ol { margin-bottom: 0; padding-left: 1.3em; }
+.blog-prose ul { list-style: disc; }
+.blog-prose ol { list-style: decimal; }
+.blog-prose li + li { margin-top: .35em; }
+.blog-prose li::marker { color: #C99400; }
+.blog-prose strong { font-weight: 700; color: #14213D; background: linear-gradient(transparent 62%, #FFE9A3 62%); }
+.blog-prose a { color: #1D4ED8; text-decoration: underline; text-underline-offset: 3px; }
+.blog-prose code { font-size: .88em; background: #F3F5F8; border: 1px solid #E3E7EE; border-radius: 6px; padding: 1px 6px; }
+.blog-prose blockquote { margin: 1.4em 0 0; padding: 16px 20px; border-left: 4px solid #F5B700; background: #FFF9E6; border-radius: 0 12px 12px 0; color: #3A4556; }
+.blog-prose hr { border: 0; border-top: 1px solid #E3E7EE; margin: 2em 0; }
+.blog-prose figure { margin: 1.6em 0 0; }
+.blog-prose figure img { display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid #E3E7EE; }
+.blog-prose figcaption { margin-top: 8px; font-size: 13px; color: #6B7482; text-align: center; }
+.blog-table { overflow-x: auto; border: 1px solid #E3E7EE; border-radius: 12px; }
+.blog-table table { width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.6; }
+.blog-table th, .blog-table td { padding: 11px 14px; text-align: left; border-bottom: 1px solid #EEF0F4; vertical-align: top; }
+.blog-table th { background: #F6F7F9; font-weight: 700; color: #14213D; white-space: nowrap; }
+.blog-table tr:last-child td { border-bottom: 0; }
+.blog-cta { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 1.8em; padding: 20px 22px; border-radius: 16px; background: #14213D; color: #FFFFFF; }
+.blog-cta div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.blog-cta b { font-size: 17px; line-height: 1.45; }
+.blog-cta span { font-size: 14px; color: #C9D1E0; line-height: 1.5; }
+.blog-cta a { flex-shrink: 0; height: 46px; padding: 0 18px; border-radius: 10px; background: #F5B700; color: #14213D !important; text-decoration: none !important; font-weight: 700; font-size: 15px; display: inline-flex; align-items: center; }
+@media (max-width: 640px) {
+  .blog-prose { font-size: 16px; }
+  .blog-prose h2 { font-size: 21px; }
+  .blog-cta a { width: 100%; justify-content: center; }
+}
+}

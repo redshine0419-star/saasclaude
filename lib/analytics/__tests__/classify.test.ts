@@ -5,6 +5,10 @@ describe('classifyPath', () => {
   it('서비스 사이트는 service', () => {
     for (const p of ['/', '/service', '/pricing', '/consult', '/start', '/demo', '/terms', '/privacy']) expect(classifyPath(p)).toEqual({ group: 'service' });
   });
+  it('블로그는 blog', () => {
+    expect(classifyPath('/blog')).toEqual({ group: 'blog' });
+    expect(classifyPath('/blog/tuition-change')).toEqual({ group: 'blog' });
+  });
   it('학원 홈페이지는 academy + slug, 데모는 demo', () => {
     expect(classifyPath('/hanul-math')).toEqual({ group: 'academy', slug: 'hanul-math' });
     expect(classifyPath('/hanul-math/consult')).toEqual({ group: 'academy', slug: 'hanul-math' });
