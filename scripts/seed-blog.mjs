@@ -15,6 +15,8 @@ const MARKER = 'seed:blog-drafts:v1';
 // v3: 5번 글(student-privacy-consent)을 운영자가 준 원고로 교체. (v2는 '저장한 적 없는 글'만 바꿔서, 고치지 않고 저장만 한 글이 빠졌다)
 const UPDATES = [
   { marker: 'seed:blog-drafts:v3', slug: 'student-privacy-consent', oldBodySha256: ['34753521ef1683d2a2e823ced07882c58dfa8843b50c80157d761b47cafdecd8'] },
+  // v4: 4번 글(academy-website-checklist)을 운영자가 준 원고로 교체
+  { marker: 'seed:blog-drafts:v4', slug: 'academy-website-checklist', oldBodySha256: ['1bb807dcf219ece2ad8e5ce8446afbe4ed6debca64a1c4d0c065a85daee76107'] },
 ];
 const sha = (t) => createHash('sha256').update(t.replace(/\r\n?/g, '\n').trim()).digest('hex');
 
