@@ -26,6 +26,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
   if (!body) return NextResponse.json({ error: '입력 오류' }, { status: 400 });
 
   const { title, body: postBody, status, category, images } = body;
+  // 갤러리(학생 사진)는 보호자 게시 동의 확인이 있어야 저장한다
+  if ((category ?? post.category) === 'gallery' && body.facePhotoConsent !== true) {
+    return NextResponse.json({ error: '갤러리 사진은 사진 속 학생의 보호자에게 홈페이지 게시 동의를 받은 경우에만 올릴 수 있습니다. 보호자 동의 확인에 체크해 주세요.' }, { status: 400 });
+  }
 
   const updated = await prisma.post.update({
     where: { id },

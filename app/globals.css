@@ -78,6 +78,9 @@ body {
 }
 
 @layer components {
+/* 학원 홈페이지 메뉴(#섹션)로 이동할 때 고정 머리말에 제목이 가리지 않게 */
+[data-theme] section[id] { scroll-margin-top: 72px; }
+@media (min-width: 768px) { [data-theme] section[id] { scroll-margin-top: 84px; } }
 /* ── 학원 홈페이지 섹션 틀 — 폭·여백·라벨·제목 모양은 테마 토큰(styles/tokens.css)이 정한다 ── */
 .acad-wrap { max-width: calc(var(--wrap-max) + 2 * var(--gutter)); margin-left: auto; margin-right: auto; padding-left: var(--gutter-m); padding-right: var(--gutter-m); }
 @media (min-width: 768px) { .acad-wrap { padding-left: var(--gutter); padding-right: var(--gutter); } }

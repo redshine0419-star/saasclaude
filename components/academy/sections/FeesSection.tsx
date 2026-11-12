@@ -1,6 +1,7 @@
 import type { AcademyFee, AcademyTenant } from '@/lib/academy-data';
 import { TitleLines } from '@/components/academy/TitleLines';
 import { SECTION_COPY_SPEC } from '@/lib/section-copy';
+import { RefundNotice } from '@/components/academy/RefundNotice';
 
 type Props = {
   title?: string;
@@ -8,13 +9,15 @@ type Props = {
   tenant: AcademyTenant;
   fees: AcademyFee[];
   extraCosts: { id: string; label: string; amount: number; note: string | null }[];
+  /** 학원이 쓴 반환 규정 — 없으면 법정 기준을 보여 준다 */
+  refundPolicyText?: string | null;
 };
 
 function formatAmount(n: number) {
   return n.toLocaleString('ko-KR') + '원';
 }
 
-export default function FeesSection({ fees, extraCosts, eyebrow = '교습비', title = SECTION_COPY_SPEC.fees.title }: Props) {
+export default function FeesSection({ fees, extraCosts, refundPolicyText = null, eyebrow = '교습비', title = SECTION_COPY_SPEC.fees.title }: Props) {
   if (fees.length === 0) return null;
 
   return (
@@ -29,7 +32,8 @@ export default function FeesSection({ fees, extraCosts, eyebrow = '교습비', t
           </p>
         </div>
 
-        {/* 표 */}
+        {/* 표 + 반환 기준 */}
+        <div className="flex flex-col gap-4 min-w-0">
         <div className="acad-card overflow-x-auto min-w-0">
           <table className="w-full border-collapse text-[14px]">
             <thead>
@@ -71,6 +75,8 @@ export default function FeesSection({ fees, extraCosts, eyebrow = '교습비', t
               ))}
             </tbody>
           </table>
+        </div>
+        <RefundNotice text={refundPolicyText} />
         </div>
       </div>
     </section>

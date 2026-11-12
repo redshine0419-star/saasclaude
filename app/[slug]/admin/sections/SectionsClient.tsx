@@ -153,7 +153,7 @@ export function SectionsClient({ slug, theme: initTheme, sections: initSections,
           <div style={{ fontSize: 15, fontWeight: 700 }}>섹션 순서 및 표시</div>
           <div style={{ fontSize: 13, color: '#5A6270' }}>
             켜진 섹션만 홈페이지에 나타납니다. 내용이 비어 있는 섹션은 켜 두어도 자동으로 숨겨집니다.
-            메인 히어로와 상담 신청 폼은 항상 표시됩니다.
+            메인 히어로, 교습비(법정 공개 사항), 상담 신청 폼은 항상 표시됩니다.
           </div>
           {sections.map((s, i) => {
             const locked = LOCKED_SECTIONS.has(s.key);

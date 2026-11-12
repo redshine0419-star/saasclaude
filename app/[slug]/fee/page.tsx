@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getAcademyPageData } from '@/lib/academy-data';
 import ThemeHeader from '@/components/academy/ThemeHeader';
+import { RefundNotice } from '@/components/academy/RefundNotice';
 import SiteFooter from '@/components/academy/SiteFooter';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -107,17 +108,7 @@ export default async function FeePage({
                 </div>
               </div>
             )}
-            <div className="p-8 bg-white rounded-[16px] flex flex-col gap-4">
-              <h2 className="text-[20px] font-bold m-0">환불 규정</h2>
-              {refundPolicyText ? (
-                <p className="text-[15px] text-body leading-relaxed m-0 whitespace-pre-line">{refundPolicyText}</p>
-              ) : (
-                <p className="text-[15px] text-body leading-relaxed m-0">
-                  학원법 제18조에 따른 환불 규정을 적용합니다.<br />
-                  자세한 사항은 원장에게 문의 주세요.
-                </p>
-              )}
-            </div>
+            <RefundNotice text={refundPolicyText} className="!p-8" />
           </div>
         </section>
 

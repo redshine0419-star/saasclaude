@@ -35,6 +35,10 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
 
   const cat = VALID_CATEGORIES.has(category) ? category : 'notice';
   const stat = VALID_STATUSES.has(status) ? status : 'published';
+  // 갤러리(학생 사진)는 보호자 게시 동의 확인이 있어야 저장한다 — 화면 안내가 아니라 서버에서 막는다
+  if (cat === 'gallery' && body.facePhotoConsent !== true) {
+    return NextResponse.json({ error: '갤러리 사진은 사진 속 학생의 보호자에게 홈페이지 게시 동의를 받은 경우에만 올릴 수 있습니다. 보호자 동의 확인에 체크해 주세요.' }, { status: 400 });
+  }
 
   const post = await prisma.post.create({
     data: {

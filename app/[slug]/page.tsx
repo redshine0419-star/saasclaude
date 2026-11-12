@@ -69,6 +69,7 @@ export default async function AcademyPage({
   for (const key of allowed) {
     if (LOCKED_SECTIONS.has(key) && !displayOrder.includes(key)) {
       if (key === 'hero') displayOrder.unshift(key);
+      else if (key === 'fees' && displayOrder.includes('consult_form')) displayOrder.splice(displayOrder.indexOf('consult_form'), 0, key);
       else displayOrder.push(key);
     }
   }
@@ -122,6 +123,7 @@ export default async function AcademyPage({
             tenant={data!.tenant}
             fees={data!.fees}
             extraCosts={data!.extraCosts}
+            refundPolicyText={data!.refundPolicyText}
           />
         );
 

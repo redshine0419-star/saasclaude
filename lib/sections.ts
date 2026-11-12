@@ -5,7 +5,7 @@ export const THEME_KEYS: ThemeKey[] = ['warm', 'result', 'bright'];
 export const DEFAULT_SECTION_ORDER: Record<ThemeKey, string[]> = {
   warm: ['hero', 'quick_info', 'director', 'principles', 'classes', 'timetable', 'fees', 'reviews', 'news', 'faq', 'consult_form', 'location'],
   result: ['hero', 'results_stats', 'exam_system', 'curriculum', 'score_cases', 'teachers', 'fees', 'faq', 'consult_form', 'location'],
-  bright: ['hero', 'day_flow', 'classes', 'gallery', 'safety', 'reviews', 'faq', 'consult_form', 'location'],
+  bright: ['hero', 'day_flow', 'classes', 'gallery', 'safety', 'fees', 'reviews', 'faq', 'consult_form', 'location'],
 };
 
 /** 섹션 머리 작은 라벨 — 테마마다 말투가 다르다 (A 한글, B·C 영문) */
@@ -20,7 +20,7 @@ const EYEBROW: Record<ThemeKey, Record<string, string>> = {
   },
   bright: {
     day_flow: 'A HAPPY DAY', classes: 'OUR CLASSES', gallery: 'CLASS GALLERY', safety: 'SAFE & CARE', reviews: "PARENTS' VOICE",
-    faq: 'FAQ', consult_form: 'FREE TRIAL CLASS', location: 'COME VISIT',
+    fees: 'TUITION', faq: 'FAQ', consult_form: 'FREE TRIAL CLASS', location: 'COME VISIT',
   },
 };
 export function sectionEyebrow(theme: ThemeKey, key: string): string | undefined {
@@ -28,7 +28,8 @@ export function sectionEyebrow(theme: ThemeKey, key: string): string | undefined
 }
 
 // 원장이 끌 수 없는 섹션. hero는 항상 맨 위에 고정된다.
-export const LOCKED_SECTIONS = new Set(['hero', 'consult_form']);
+// fees: 학원 홈페이지는 학습자 모집 광고라 교습비·반환 기준을 공개해야 한다(학원법 제15조 제3항) — 끌 수 없다
+export const LOCKED_SECTIONS = new Set(['hero', 'fees', 'consult_form']);
 
 export const SECTION_LABELS: Record<string, string> = {
   hero: '메인 히어로',
