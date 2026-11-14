@@ -203,6 +203,7 @@ export function BlogEditor({ post }: { post: EditorPost | null }) {
               <button type="button" style={TOOL} onClick={() => insert('[', '](https://)', '링크 글자')}>링크</button>
               <button type="button" style={TOOL} onClick={() => insert('| 항목 | 내용 |\n| --- | --- |\n| ', ' | |', '가', true)}>표</button>
               <button type="button" style={TOOL} disabled={busy} onClick={() => pickImage((url, name) => insert(`![${name}](${url})`, '', '', true))}>사진</button>
+              <button type="button" style={TOOL} title="### Q. 로 시작하는 소제목은 검색엔진에 '자주 묻는 질문'으로 알려집니다" onClick={() => insert('### Q. ', '\n\n답을 씁니다.', '질문', true)}>FAQ 질문</button>
               <button type="button" style={{ ...TOOL, background: '#FFF4D6' }} onClick={() => insert('[[진단]]', '', '', true)}>무료 진단 버튼</button>
             </div>
             <textarea
@@ -213,7 +214,7 @@ export function BlogEditor({ post }: { post: EditorPost | null }) {
               placeholder={'## 소제목\n\n본문을 씁니다. **굵게**, [링크](https://growweb.me)\n\n- 목록\n\n> 팁 상자\n\n[[진단]] ← 무료 진단 버튼 자리'}
               style={{ ...INPUT, height: 'auto', minHeight: 420, padding: 12, resize: 'vertical', lineHeight: 1.7, fontFamily: "ui-monospace, 'D2Coding', monospace", fontSize: 14 }}
             />
-            <div style={{ fontSize: 12, color: '#8A93A0' }}>글 끝에는 무료 진단 버튼이 자동으로 붙습니다. 글 중간에 한 번 더 넣고 싶으면 &ldquo;무료 진단 버튼&rdquo;을 누르세요.</div>
+            <div style={{ fontSize: 12, color: '#8A93A0' }}>글 끝에는 무료 진단 버튼이 자동으로 붙습니다. 글 중간에 한 번 더 넣고 싶으면 &ldquo;무료 진단 버튼&rdquo;을 누르세요. &ldquo;### Q. 질문&rdquo; 형식의 소제목과 그 아래 답은 검색엔진에 자주 묻는 질문(FAQ)으로 자동 표시됩니다.</div>
           </div>
 
           <div style={CARD}>

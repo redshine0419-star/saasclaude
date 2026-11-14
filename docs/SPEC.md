@@ -220,7 +220,7 @@ source 판별 순서: UTM → referrer (naver.com 검색/플레이스, kakao, bl
 - 운영: `/platform/blog` 글 목록·쓰기(마크다운 + 미리보기, 사진 올리기, 대표 사진, 검색용 제목, 공개 날짜·예약 공개, 고정). 숨김(draft)/공개(published)
 - 본문은 작은 마크다운(`lib/blog/markdown.ts`) — HTML을 넣지 않고 React로 그린다. 링크는 http(s)·사이트 경로·tel·mailto만, 사진은 https·사이트 경로만. `[[진단]]` 줄은 무료 진단 버튼. 글 끝에도 무료 진단 버튼이 붙는다
 - 초안의 `【확인 필요】` 표시가 제목·요약·본문에 남아 있으면 **서버가 공개를 막는다**
-- 검색: 글마다 canonical·OG(대표 사진)·BlogPosting/BreadcrumbList JSON-LD, 사이트맵에 블로그 글, RSS `/blog/rss.xml`(네이버 서치어드바이저 RSS 제출). GA4 content_group `blog`
+- 검색: 글마다 canonical·OG(대표 사진)·BlogPosting/BreadcrumbList JSON-LD, 본문에 `### Q. 질문` 소제목이 있으면 그 아래 답까지 FAQPage JSON-LD(`extractFaq`), 사이트맵에 블로그 글, RSS `/blog/rss.xml`(네이버 서치어드바이저 RSS 제출). GA4 content_group `blog`
 - 첫 글 초안 5편은 빌드 때 한 번 숨김으로 들어간다(`scripts/seed-blog.mjs`, 내용 `scripts/blog-drafts.mjs`)
 
 ## 9-2. 관리자 앱(PWA)·앱 알림 (2026-11)

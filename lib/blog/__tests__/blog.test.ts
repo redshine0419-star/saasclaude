@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseMarkdown, parseInline, safeHref, plainText, tableOfContents, readingMinutes } from '../markdown';
+import { parseMarkdown, parseInline, safeHref, plainText, tableOfContents, readingMinutes, extractFaq } from '../markdown';
 import { parseBlogInput, excerpt } from '../index';
 
 describe('parseMarkdown', () => {
@@ -29,6 +29,14 @@ describe('parseMarkdown', () => {
     expect(b).toMatchObject({ t: 'ul', check: [false, true] });
     expect(JSON.stringify(b)).not.toContain('[ ]');
     expect(plainText('- [ ] 권한 설정')).toBe('권한 설정');
+  });
+  it('FAQ 뽑기', () => {
+    const md = ['## 자주 묻는 질문(FAQ)', '', '### Q. 언제 연락하나요?', '', '가능한 한 **당일** 연락합니다.', '', '문자로 먼저 안내합니다.', '', '### Q. 결과는 어떻게?', '', '- 영역별 성취도', '- 보완할 점', '', '---', '', '### 참고자료', '', '본문'].join('\n');
+    expect(extractFaq(parseMarkdown(md))).toEqual([
+      { q: '언제 연락하나요?', a: '가능한 한 당일 연락합니다. 문자로 먼저 안내합니다.' },
+      { q: '결과는 어떻게?', a: '영역별 성취도 / 보완할 점' },
+    ]);
+    expect(extractFaq(parseMarkdown('## 소제목\n\n본문'))).toEqual([]);
   });
   it('HTML은 글자 그대로 남는다', () => {
     const b = parseMarkdown('<script>alert(1)</script>');

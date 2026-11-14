@@ -173,3 +173,42 @@ export function readingMinutes(md: string): number {
 export function tableOfContents(blocks: Block[]): { id: string; text: string }[] {
   return blocks.flatMap((b) => (b.t === 'h2' ? [{ id: b.id, text: b.text }] : []));
 }
+
+function inlineText(c: Inline[]): string {
+  return c.map((x) => (x.t === 'text' || x.t === 'code' ? x.v : x.t === 'br' ? ' ' : inlineText(x.c))).join('');
+}
+
+function blockText(b: Block): string {
+  switch (b.t) {
+    case 'p': case 'quote': case 'h3': return inlineText(b.c);
+    case 'h2': return b.text;
+    case 'ul': case 'ol': return b.items.map((it) => inlineText(it)).join(' / ');
+    case 'table': return b.rows.map((r) => r.map(inlineText).join(': ')).join(' / ');
+    default: return '';
+  }
+}
+
+/**
+ * 자주 묻는 질문 — "Q."로 시작하는 소제목(### Q. …)을 질문으로, 그다음 소제목·구분선 전까지를 답으로 본다.
+ * 검색엔진용 FAQPage 구조화 데이터에 쓴다.
+ */
+export function extractFaq(blocks: Block[]): { q: string; a: string }[] {
+  const out: { q: string; a: string }[] = [];
+  for (let i = 0; i < blocks.length; i++) {
+    const b = blocks[i];
+    if (b.t !== 'h3' && b.t !== 'h2') continue;
+    const head = b.t === 'h2' ? b.text : inlineText(b.c);
+    const m = head.match(/^\s*Q\s*[.:)．]?\s+(.+)$/i);
+    if (!m) continue;
+    const parts: string[] = [];
+    for (let j = i + 1; j < blocks.length; j++) {
+      const n = blocks[j];
+      if (n.t === 'h2' || n.t === 'h3' || n.t === 'hr' || n.t === 'cta') break;
+      const t = blockText(n).replace(/^\s*A\s*[.:)．]\s*/i, '').trim();
+      if (t) parts.push(t);
+    }
+    const a = parts.join(' ').replace(/\s+/g, ' ').trim();
+    if (a) out.push({ q: m[1].trim(), a });
+  }
+  return out;
+}
