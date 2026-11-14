@@ -60,8 +60,10 @@ export default function MarketingHome() {
     '온라인 레벨테스트 (문제은행·자동 채점·서술형 첨삭·결과지)',
     '카카오톡 자동 안내 발송 (7가지 시나리오)',
     '상담 단계별 관리 + 미등록 사유 기록',
-    '원장님 관리 화면 제공',
-    '월간 방문·신청·등록·미등록 사유 리포트',
+    '원장님 관리 화면 + 휴대폰 앱 알림',
+    '학생부·출결·성적, 학부모 리포트 링크 공유',
+    '수업 자료·안내문 자료실',
+    '월간 신청·등록·미등록 사유·유입 검색어 리포트',
     'AI 검색(ChatGPT 등)으로 들어온 상담 자동 집계',
   ];
 
@@ -153,7 +155,7 @@ export default function MarketingHome() {
           <div style={{ padding: 'clamp(28px, 3vw, 44px)', borderRadius: 20, background: '#F3F5F8', display: 'flex', flexDirection: 'column', gap: 18 }}>
             <div style={{ fontSize: 22, fontWeight: 700 }}>원장님이 하실 일</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 16, lineHeight: 1.6 }}>
-              <div>· 처음 한 번, 학원 정보와 사진 전달</div>
+              <div>· 처음 한 번, 학원 정보 입력하고 테마 고르기</div>
               <div>· 상담 알림이 오면 전화하기</div>
               <div>· 생각날 때 폰으로 소식 올리기</div>
             </div>
@@ -228,8 +230,8 @@ export default function MarketingHome() {
       <section style={{ padding: 'clamp(56px, 7vw, 104px) clamp(20px, 4vw, 56px)', background: '#F3F5F8' }}>
         <div style={{ maxWidth: 640, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, textAlign: 'center' }}>
           <span style={{ padding: '6px 14px', borderRadius: 6, background: '#FFF3CC', color: '#5C4300', fontSize: 14, fontWeight: 700 }}>베타 기간 3개월 무료</span>
-          <h2 style={{ margin: 0, fontSize: 'clamp(30px, 4vw, 48px)', fontWeight: 700, lineHeight: 1.3, letterSpacing: '-1px' }}>지금 신청하면<br />제작팀이 직접 연락드립니다</h2>
-          <p style={{ margin: 0, fontSize: 17, lineHeight: 1.75, color: '#4A5568' }}>대기 순서대로 제작을 시작합니다. 신청 후 개강까지 평균 2주 소요됩니다.</p>
+          <h2 style={{ margin: 0, fontSize: 'clamp(30px, 4vw, 48px)', fontWeight: 700, lineHeight: 1.3, letterSpacing: '-1px' }}>지금 만들면<br />몇 분 안에 홈페이지가 열립니다</h2>
+          <p style={{ margin: 0, fontSize: 17, lineHeight: 1.75, color: '#4A5568' }}>학원 정보를 입력하고 테마를 고르면 바로 공개됩니다. 원장 소개·수업·교습비는 관리 화면에서 이어서 채우면 되고, 오픈일부터 3개월 무료입니다.</p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' }}>
             <Link href="/start" style={{ height: 56, padding: '0 32px', borderRadius: 12, background: '#14213D', color: '#FFFFFF', textDecoration: 'none', fontSize: 17, fontWeight: 700, display: 'flex', alignItems: 'center' }}>무료로 바로 만들기</Link>
             <Link href="/consult" style={{ height: 56, padding: '0 28px', borderRadius: 12, border: '1px solid #14213D', color: '#14213D', textDecoration: 'none', fontSize: 17, fontWeight: 600, display: 'flex', alignItems: 'center' }}>무료 진단 먼저</Link>
