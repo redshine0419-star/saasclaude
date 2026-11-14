@@ -36,6 +36,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   pages: {
     signIn: '/auth/signin',
+    // 로그인 확인 쿠키가 없거나 만료된 경우 등 — 기본 "Server error" 화면 대신 다시 로그인 안내
+    error: '/auth/error',
   },
 });
 

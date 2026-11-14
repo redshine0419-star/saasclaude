@@ -20,6 +20,12 @@ export async function middleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
   const host = (req.headers.get('host') ?? '').toLowerCase().replace(/:\d+$/, '');
 
+  // www.growweb.me → growweb.me. 로그인 확인 쿠키는 주소별로 따로라, www에서 로그인을 시작하면
+  // Google이 growweb.me로 돌려보낼 때 쿠키가 없어 로그인이 실패한다(InvalidCheck)
+  if (host === 'www.growweb.me') {
+    return NextResponse.redirect(new URL(`${pathname}${search}`, PLATFORM_ORIGIN), 308);
+  }
+
   // 학원 커스텀 도메인
   if (host && !isPlatformHost(host) && pathname !== '/robots.txt' && pathname !== '/sitemap.xml') {
     const slug = await resolveSlugByHost(host);
