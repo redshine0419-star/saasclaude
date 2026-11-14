@@ -5,6 +5,7 @@ import { PlatformSide } from '@/components/platform/PlatformSide';
 import { SettingsClient } from './SettingsClient';
 import { MailTestCard } from './MailTestCard';
 import { OperatorPushCard } from './OperatorPushCard';
+import { Ga4StatusCard } from './Ga4StatusCard';
 import { pushPublicKey } from '@/lib/push';
 
 export default async function PlatformSettingsPage() {
@@ -59,6 +60,7 @@ export default async function PlatformSettingsPage() {
           </div>
         </div>
 
+        <Ga4StatusCard />
         <MailTestCard />
         <OperatorPushCard
           vapidKey={pushPublicKey()}

@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { classifyPath, ga4MeasurementId } from '../index';
+import { classifyPath, ga4MeasurementId, ga4Status } from '../index';
 
 describe('classifyPath', () => {
   it('서비스 사이트는 service', () => {
@@ -32,5 +32,16 @@ describe('ga4MeasurementId', () => {
       process.env.GA4_MEASUREMENT_ID = bad;
       expect(ga4MeasurementId()).toBeNull();
     }
+  });
+  it('상태 점검', () => {
+    process.env.GA4_MEASUREMENT_ID = '';
+    expect(ga4Status().state).toBe('missing');
+    process.env.GA4_MEASUREMENT_ID = '538101783';
+    expect(ga4Status()).toMatchObject({ state: 'invalid' });
+    expect(ga4Status().hint).toContain('속성 ID');
+    process.env.GA4_MEASUREMENT_ID = '"g-ab12cd34"';
+    expect(ga4Status()).toMatchObject({ state: 'ok', id: 'G-AB12CD34' });
+    process.env.GA4_MEASUREMENT_ID = ' G-AB12CD34 ';
+    expect(ga4Status()).toMatchObject({ state: 'ok', id: 'G-AB12CD34' });
   });
 });
