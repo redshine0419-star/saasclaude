@@ -4,6 +4,3 @@
  */
 export const BRAND_NAME = '더클';
 export const BRAND_TAGLINE = '동네 학원·교습소 전용 홈페이지와 상담 관리';
-/** 이전 이름 — 약관·처리방침의 변경 안내에만 쓴다 */
-export const BRAND_PREVIOUS_NAME = '첫등원';
-export const BRAND_RENAMED_AT = '2026-11-14';
