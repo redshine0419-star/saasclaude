@@ -39,7 +39,7 @@ growweb.me/blog               → 첫등원 블로그, 운영자만 작성 (F-08
 - **Vercel** — 배포 (growweb.me 도메인)
 - **카카오 알림톡·브랜드 메시지**: 반드시 `lib/messaging/` 어댑터 뒤에 숨겨서 교체 가능하게
 - **예약 발송**: Vercel Cron
-- **분석**: GA4 — 첫등원 측정 ID 하나로 서비스 사이트·모든 학원 홈페이지를 잰다 (환경변수 `GA4_MEASUREMENT_ID`, `lib/analytics`). 학원별 측정 ID는 쓰지 않는다. 전환 이벤트 `generate_lead`·`sign_up`. 관리자·비밀 링크 페이지는 보내지 않는다
+- **분석**: GA4 — 첫등원 측정 ID 하나(`G-LNFYKK06L6`, 코드 기본값 · 환경변수 `GA4_MEASUREMENT_ID`가 있으면 그 값)로 서비스 사이트·블로그·모든 학원 홈페이지를 잰다 (`lib/analytics`). 미리보기 배포·localhost는 보내지 않는다. 학원별 측정 ID는 쓰지 않는다. 전환 이벤트 `generate_lead`·`sign_up`. 관리자·비밀 링크 페이지는 보내지 않는다
 
 ## 절대 원칙
 

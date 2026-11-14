@@ -24,7 +24,30 @@ describe('classifyPath', () => {
 
 describe('ga4MeasurementId', () => {
   const orig = process.env.GA4_MEASUREMENT_ID;
-  afterEach(() => { process.env.GA4_MEASUREMENT_ID = orig; });
+  const origEnv = process.env.VERCEL_ENV;
+  const origNode = process.env.NODE_ENV;
+  const setNode = (v: string | undefined) => { (process.env as Record<string, string | undefined>).NODE_ENV = v; };
+  afterEach(() => { process.env.GA4_MEASUREMENT_ID = orig; process.env.VERCEL_ENV = origEnv; setNode(origNode); });
+  it('운영 배포에서는 환경변수가 없거나 틀려도 코드 기본값', () => {
+    setNode('production');
+    process.env.VERCEL_ENV = 'production';
+    process.env.GA4_MEASUREMENT_ID = '';
+    expect(ga4MeasurementId()).toBe('G-LNFYKK06L6');
+    process.env.GA4_MEASUREMENT_ID = '538101783';
+    expect(ga4MeasurementId()).toBe('G-LNFYKK06L6');
+    expect(ga4Status()).toMatchObject({ state: 'ok', id: 'G-LNFYKK06L6' });
+    process.env.GA4_MEASUREMENT_ID = 'G-OTHER123';
+    expect(ga4MeasurementId()).toBe('G-OTHER123');
+    process.env.VERCEL_ENV = 'preview';
+    process.env.GA4_MEASUREMENT_ID = '';
+    expect(ga4MeasurementId()).toBeNull();
+    process.env.VERCEL_ENV = 'production';
+    setNode('test');
+    expect(ga4MeasurementId()).toBeNull();
+    setNode('production');
+    delete process.env.VERCEL_ENV;
+    expect(ga4MeasurementId()).toBe('G-LNFYKK06L6');
+  });
   it('G- 형식만 받는다', () => {
     process.env.GA4_MEASUREMENT_ID = 'G-ABC123XYZ';
     expect(ga4MeasurementId()).toBe('G-ABC123XYZ');

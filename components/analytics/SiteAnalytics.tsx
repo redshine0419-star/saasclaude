@@ -15,6 +15,8 @@ export function SiteAnalytics({ id }: { id: string }) {
 
   useEffect(() => {
     const w = window as unknown as W;
+    // 내 PC에서 띄운 화면은 통계에 넣지 않는다
+    if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname)) return;
     const kind = classifyPath(pathname, window.location.search);
     w[`ga-disable-${id}`] = !kind;
     if (!kind) return;
