@@ -13,7 +13,7 @@ export async function GET(_req: Request, { params }: { params: Params }) {
     {
       name: `${t.name} 관리`,
       short_name: short,
-      description: `${t.name} 상담·학생부·알림 관리 (첫등원)`,
+      description: `${t.name} 상담·학생부·알림 관리 (더클)`,
       id: `/${slug}/admin`,
       start_url: `/${slug}/admin`,
       scope: `/${slug}/admin`,

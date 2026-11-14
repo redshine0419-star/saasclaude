@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
 
   after(() =>
     notifyOperator({
-      subject: `[첫등원] 무료 진단 신청 — ${academyName}`,
+      subject: `[더클] 무료 진단 신청 — ${academyName}`,
       heading: '무료 진단 신청이 들어왔습니다',
       rows: [
         ['학원명', academyName],

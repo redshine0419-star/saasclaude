@@ -98,7 +98,7 @@ export function PlatformSide({ active }: { active: Active }) {
   const current = navItems.find((n) => n.key === active)?.label ?? '';
   return (
     <>
-      <AdminMobileBar tenantName="첫등원 플랫폼 관리자" current={current}>
+      <AdminMobileBar tenantName="더클 플랫폼 관리자" current={current}>
         <NavLinks active={active} />
         <Link href="/" style={{ padding: '12px', fontSize: 13, color: '#8A93A8', textDecoration: 'none' }}>← 서비스 사이트</Link>
       </AdminMobileBar>
@@ -119,7 +119,7 @@ export function PlatformSide({ active }: { active: Active }) {
               <circle cx="11" cy="11" r="9" fill="#F5B700" />
               <circle cx="11" cy="11" r="3.5" fill="#1B2430" />
             </svg>
-            <span style={{ fontSize: 17, fontWeight: 700 }}>첫등원</span>
+            <span style={{ fontSize: 17, fontWeight: 700 }}>더클</span>
           </Link>
           <div style={{ fontSize: 12, color: '#8A93A8', marginTop: 4, marginLeft: 28 }}>플랫폼 관리자</div>
         </div>

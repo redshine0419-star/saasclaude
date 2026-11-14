@@ -56,7 +56,7 @@ export default async function PlatformSettingsPage() {
         <div style={{ marginBottom: 28 }}>
           <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>플랫폼 설정</h1>
           <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>
-            첫등원 서비스 전체 운영 기준값을 관리합니다.
+            더클 서비스 전체 운영 기준값을 관리합니다.
           </div>
         </div>
 

@@ -14,7 +14,7 @@ type Props = {
 
 /**
  * 동의 묶음 — 전체 동의 + 항목별 (필수)/(선택) 체크와 "보기"로 펼치는 전문(표·문단·약관).
- * 학원 홈페이지(테마 토큰)와 첫등원 화면 모두에서 쓰도록 색은 CSS 변수 + 기본값으로 정한다.
+ * 학원 홈페이지(테마 토큰)와 더클 화면 모두에서 쓰도록 색은 CSS 변수 + 기본값으로 정한다.
  */
 export function ConsentList({ items, values, onChange, allLabel = '아래 내용에 모두 동의합니다. (선택 항목 포함)', idPrefix = 'c' }: Props) {
   const [open, setOpen] = useState<string | null>(null);

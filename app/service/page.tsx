@@ -3,8 +3,8 @@ import { FdHeader } from '@/components/fd/FdHeader';
 import { FdFooter } from '@/components/fd/FdFooter';
 
 export const metadata = {
-  title: '서비스 소개 — 첫등원',
-  description: '첫등원의 홈페이지·상담 관리·카카오톡 자동화 기능을 소개합니다.',
+  title: '서비스 소개 — 더클',
+  description: '더클의 홈페이지·상담 관리·카카오톡 자동화 기능을 소개합니다.',
 };
 
 export default function ServicePage() {
@@ -71,7 +71,7 @@ export default function ServicePage() {
             <div style={{ fontSize: 14, fontWeight: 700, color: '#8A6400', marginBottom: 12 }}>서비스 소개</div>
             <h1 style={{ margin: 0, fontSize: 'clamp(32px, 4vw, 52px)', fontWeight: 700, letterSpacing: '-1px', lineHeight: 1.25 }}>학원 원장님이 수업에<br />집중할 수 있도록</h1>
             <p style={{ margin: '20px 0 0', fontSize: 17, lineHeight: 1.75, color: '#4A5568' }}>
-              홈페이지 관리, 상담 연락, 카카오톡 발송, 리포트 확인. 원장님이 직접 하던 일을 첫등원이 대신합니다.
+              홈페이지 관리, 상담 연락, 카카오톡 발송, 리포트 확인. 원장님이 직접 하던 일을 더클이 대신합니다.
             </p>
           </div>
 

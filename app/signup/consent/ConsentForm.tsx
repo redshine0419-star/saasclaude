@@ -32,7 +32,7 @@ export function ConsentForm({ email, next, renewal, marketingInitial, promoIniti
     <main data-theme="fd" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, background: '#F3F5F8', fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif", color: '#14213D' }}>
       <div style={{ width: '100%', maxWidth: 520, background: '#FFFFFF', borderRadius: 16, padding: 28, display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#8A6400' }}>첫등원 {renewal ? '약관 변경 안내' : '회원가입'}</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#8A6400' }}>더클 {renewal ? '약관 변경 안내' : '회원가입'}</div>
           <h1 style={{ margin: '6px 0 0', fontSize: 22 }}>{renewal ? '바뀐 약관에 다시 동의해 주세요' : '약관에 동의해 주세요'}</h1>
           <div style={{ fontSize: 13, color: '#4A5568', marginTop: 6 }}>{email}</div>
         </div>

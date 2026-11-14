@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
   const created = tenant;
   after(() =>
     notifyOperator({
-      subject: `[첫등원] 셀프 개설 — ${name}`,
+      subject: `[더클] 셀프 개설 — ${name}`,
       heading: '새 학원이 직접 홈페이지를 만들었습니다',
       rows: [
         ['학원명', name],

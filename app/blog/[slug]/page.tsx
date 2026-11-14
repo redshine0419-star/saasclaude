@@ -19,8 +19,8 @@ const abs = (u: string) => (u.startsWith('/') ? `${BLOG_BASE_URL}${u}` : u);
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPublishedPost(slug);
-  if (!post) return { title: '글을 찾을 수 없습니다 — 첫등원 블로그' };
-  const title = `${post.seoTitle || post.title} — 첫등원 블로그`;
+  if (!post) return { title: '글을 찾을 수 없습니다 — 더클 블로그' };
+  const title = `${post.seoTitle || post.title} — 더클 블로그`;
   const description = excerpt(post.summary, post.body, 150);
   const url = `${BLOG_BASE_URL}/blog/${post.slug}`;
   return {
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description,
     alternates: { canonical: url },
     openGraph: {
-      type: 'article', url, title: post.seoTitle || post.title, description, siteName: '첫등원', locale: 'ko_KR',
+      type: 'article', url, title: post.seoTitle || post.title, description, siteName: '더클', locale: 'ko_KR',
       publishedTime: post.publishedAt?.toISOString(), modifiedTime: post.updatedAt.toISOString(),
       ...(post.coverImage && { images: [{ url: abs(post.coverImage), width: 1200, height: 630 }] }),
     },
@@ -57,14 +57,14 @@ export default async function BlogPostPage({ params }: Props) {
     inLanguage: 'ko-KR',
     articleSection: categoryLabel(post.category),
     ...(post.coverImage && { image: abs(post.coverImage) }),
-    author: { '@type': 'Organization', name: '첫등원', url: BLOG_BASE_URL },
-    publisher: { '@type': 'Organization', name: '첫등원', url: BLOG_BASE_URL },
+    author: { '@type': 'Organization', name: '더클', url: BLOG_BASE_URL },
+    publisher: { '@type': 'Organization', name: '더클', url: BLOG_BASE_URL },
   };
   const crumbs = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: '첫등원', item: BLOG_BASE_URL },
+      { '@type': 'ListItem', position: 1, name: '더클', item: BLOG_BASE_URL },
       { '@type': 'ListItem', position: 2, name: '블로그', item: `${BLOG_BASE_URL}/blog` },
       { '@type': 'ListItem', position: 3, name: post.title, item: url },
     ],
@@ -99,7 +99,7 @@ export default async function BlogPostPage({ params }: Props) {
             <span aria-hidden="true">·</span>
             <span>읽는 시간 약 {readingMinutes(post.body)}분</span>
             <span aria-hidden="true">·</span>
-            <span>첫등원</span>
+            <span>더클</span>
           </div>
           {post.coverImage && (
             // eslint-disable-next-line @next/next/no-img-element

@@ -8,7 +8,7 @@ import { StartClient } from './StartClient';
 import { requireSignupConsent } from '@/lib/legal/consent';
 
 export const metadata = {
-  title: '학원 홈페이지 만들기 — 첫등원',
+  title: '학원 홈페이지 만들기 — 더클',
   description: '학원 정보를 입력하고 테마를 고르면 바로 홈페이지가 열립니다.',
 };
 

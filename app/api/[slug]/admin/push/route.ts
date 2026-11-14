@@ -11,7 +11,7 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   const { slug } = await params;
   const a = await studentAccess(slug);
   if (a instanceof NextResponse) return a;
-  if (!pushConfigured()) return NextResponse.json({ error: '앱 알림이 아직 준비되지 않았습니다. 첫등원 운영팀에 문의해 주세요.' }, { status: 503 });
+  if (!pushConfigured()) return NextResponse.json({ error: '앱 알림이 아직 준비되지 않았습니다. 더클 운영팀에 문의해 주세요.' }, { status: 503 });
   const body = (await req.json().catch(() => null)) as { subscription?: Sub } | null;
   const s = body?.subscription;
   const endpoint = typeof s?.endpoint === 'string' ? s.endpoint : '';

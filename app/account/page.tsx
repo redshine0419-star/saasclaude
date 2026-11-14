@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { formatKstDateTime } from '@/lib/format-date';
 import { AccountClient } from './AccountClient';
 
-export const metadata = { title: '내 계정 — 첫등원', robots: { index: false } };
+export const metadata = { title: '내 계정 — 더클', robots: { index: false } };
 
 const TYPE_LABEL: Record<string, string> = { age: '만 14세 이상 확인', terms: '이용약관', privacy: '개인정보 수집·이용', marketing: '광고성 정보 수신', promo: '홍보 목적 개인정보 수집·이용' };
 

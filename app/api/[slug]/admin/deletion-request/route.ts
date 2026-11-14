@@ -31,7 +31,7 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   });
   after(() =>
     notifyOperator({
-      subject: `[첫등원] 학원 삭제 요청 — ${tenant.name}`,
+      subject: `[더클] 학원 삭제 요청 — ${tenant.name}`,
       heading: '원장님이 학원 삭제를 요청했습니다',
       rows: [['학원', `${tenant.name} (${slug})`], ['요청한 사람', a.email], ['사유', reason ?? '적지 않음']],
       linkPath: '/platform/hidden',

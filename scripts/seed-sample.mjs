@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * 샘플 학원에 "실제로 운영 중인 학원"처럼 보이는 데이터를 한 번 채운다 (빌드 때 실행).
- * 대상: test2(직접 만든 테스트 학원), demo-warm·demo-result·demo-bright(첫등원 데모).
+ * 대상: test2(직접 만든 테스트 학원), demo-warm·demo-result·demo-bright(더클 데모).
  *
  * - 대상 학원만 건드린다. 없으면 건너뛴다.
  * - 학원마다 platform_settings 표시가 있으면 다시 실행하지 않는다.
@@ -432,9 +432,9 @@ const RESOURCES = [
     slug: 'demo-warm',
     marker: 'seed:resources:demo-warm:v1',
     items: [
-      { title: '겨울방학 특강 안내문', pinned: true, daysAgo: 1, body: '겨울방학 특강 일정과 반 구성 안내입니다.\n신청서를 내려받아 작성한 뒤 사진으로 보내 주시거나, 홈페이지 상담 신청으로 남겨 주세요.', files: [F('warm-winter.pdf', '겨울방학_특강_안내문.pdf', 110933), F('warm-form.pdf', '겨울방학_특강_신청서.pdf', 116351)] },
+      { title: '겨울방학 특강 안내문', pinned: true, daysAgo: 1, body: '겨울방학 특강 일정과 반 구성 안내입니다.\n신청서를 내려받아 작성한 뒤 사진으로 보내 주시거나, 홈페이지 상담 신청으로 남겨 주세요.', files: [F('warm-winter.pdf', '겨울방학_특강_안내문.pdf', 110601), F('warm-form.pdf', '겨울방학_특강_신청서.pdf', 116016)] },
       { title: '11월 수업 시간표', daysAgo: 6, body: '11월 반별 수업 시간표입니다. 보강·클리닉은 금요일 17시에 진행합니다.', files: [F('warm-timetable.png', '11월_수업_시간표.png', 21651)] },
-      { title: '중2 2학기 기말 대비 핵심 유형 프린트', daysAgo: 12, body: '기말고사 전 꼭 풀어 볼 핵심 유형 6문항입니다. 풀이는 수업 시간에 함께 봅니다.', files: [F('warm-print.pdf', '중2_기말대비_핵심유형.pdf', 238568)] },
+      { title: '중2 2학기 기말 대비 핵심 유형 프린트', daysAgo: 12, body: '기말고사 전 꼭 풀어 볼 핵심 유형 6문항입니다. 풀이는 수업 시간에 함께 봅니다.', files: [F('warm-print.pdf', '중2_기말대비_핵심유형.pdf', 238234)] },
     ],
   },
   {
@@ -442,17 +442,17 @@ const RESOURCES = [
     marker: 'seed:resources:demo-result:v1',
     items: [
       { title: '겨울 내신 대비 5주 일정', pinned: true, daysAgo: 2, body: '12월 22일부터 시작하는 겨울 내신 대비 일정입니다.', files: [F('result-schedule.png', '겨울_내신대비_일정.png', 25221)] },
-      { title: '겨울 학부모 설명회 자료', daysAgo: 5, body: '설명회에 오지 못하신 학부모님을 위해 자료를 올려 드립니다.', files: [F('result-briefing.pdf', '겨울_학부모설명회_자료.pdf', 131814)] },
-      { title: '모의고사 오답 분석 양식', daysAgo: 14, body: '모의고사가 끝나면 이 양식으로 오답을 정리해 오세요. 다음 수업 클리닉에서 함께 봅니다.', files: [F('result-wrongnote.pdf', '모의고사_오답분석_양식.pdf', 182502)] },
+      { title: '겨울 학부모 설명회 자료', daysAgo: 5, body: '설명회에 오지 못하신 학부모님을 위해 자료를 올려 드립니다.', files: [F('result-briefing.pdf', '겨울_학부모설명회_자료.pdf', 131481)] },
+      { title: '모의고사 오답 분석 양식', daysAgo: 14, body: '모의고사가 끝나면 이 양식으로 오답을 정리해 오세요. 다음 수업 클리닉에서 함께 봅니다.', files: [F('result-wrongnote.pdf', '모의고사_오답분석_양식.pdf', 182170)] },
     ],
   },
   {
     slug: 'demo-bright',
     marker: 'seed:resources:demo-bright:v1',
     items: [
-      { title: '겨울 영어캠프 안내', pinned: true, daysAgo: 1, body: '1월 5일부터 3주 동안 열리는 겨울 영어캠프 안내입니다. 하루 일정과 준비물을 확인해 주세요.', files: [F('bright-camp.pdf', '겨울_영어캠프_안내.pdf', 110293)] },
+      { title: '겨울 영어캠프 안내', pinned: true, daysAgo: 1, body: '1월 5일부터 3주 동안 열리는 겨울 영어캠프 안내입니다. 하루 일정과 준비물을 확인해 주세요.', files: [F('bright-camp.pdf', '겨울_영어캠프_안내.pdf', 109959)] },
       { title: '셔틀 운행 시간표', daysAgo: 4, body: '12월부터 바뀐 셔틀 운행 시간입니다.', files: [F('bright-shuttle.png', '셔틀_운행_시간표.png', 24272)] },
-      { title: '12월 파닉스 활동지', daysAgo: 9, body: '집에서 아이와 함께 소리 내어 읽고 따라 써 보세요.', files: [F('bright-phonics.pdf', '12월_파닉스_활동지.pdf', 148502)] },
+      { title: '12월 파닉스 활동지', daysAgo: 9, body: '집에서 아이와 함께 소리 내어 읽고 따라 써 보세요.', files: [F('bright-phonics.pdf', '12월_파닉스_활동지.pdf', 148169)] },
     ],
   },
 ];

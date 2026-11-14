@@ -1,4 +1,4 @@
-# 첫등원 — Claude Code 작업 규칙
+# 더클 — Claude Code 작업 규칙
 
 이 파일은 매 세션 시작 시 읽는다. 상세 기능은 `docs/SPEC.md`, 작업 순서는 `docs/TASKS.md`, 디자인 참고 방법은 `docs/DESIGN.md`, 오픈 절차는 `docs/LAUNCH.md`.
 
@@ -12,18 +12,18 @@
 
 1. **학원 홈페이지** (학부모용) — `growweb.me/{slug}`, 3가지 테마 중 하나로 보인다.
 2. **학원 관리자** (원장용) — `growweb.me/{slug}/admin`, 상담 관리, 카카오톡 자동 발송, 콘텐츠 관리, 월간 리포트.
-3. **첫등원 서비스 사이트** (원장 대상 마케팅) — `growweb.me/`, 서비스 소개, 무료 진단, 신청.
-4. **플랫폼 관리자** (첫등원 운영자용) — `growweb.me/platform`, 학원 목록, 테마·섹션 설정, 무료 진단 처리. (제작 대행 신청은 2026-11 삭제)
+3. **더클 서비스 사이트** (원장 대상 마케팅) — `growweb.me/`, 서비스 소개, 무료 진단, 신청.
+4. **플랫폼 관리자** (더클 운영자용) — `growweb.me/platform`, 학원 목록, 테마·섹션 설정, 무료 진단 처리. (제작 대행 신청은 2026-11 삭제)
 
 ## URL 구조
 
 ```
-growweb.me/                   → 첫등원 마케팅 사이트 (F-01~F-05, F-07)
+growweb.me/                   → 더클 마케팅 사이트 (F-01~F-05, F-07)
 growweb.me/{slug}             → 학원 홈페이지 (S-01~S-10)
 growweb.me/{slug}/admin       → 학원 관리자 (A-00~A-10)
 growweb.me/platform           → 플랫폼 관리자 (P-01~P-05)
 growweb.me/start              → 셀프 개설 (F-07, SPEC 12장)
-growweb.me/blog               → 첫등원 블로그, 운영자만 작성 (F-08, SPEC 10-2)
+growweb.me/blog               → 더클 블로그, 운영자만 작성 (F-08, SPEC 10-2)
 ```
 
 예약 slug (학원이 사용 불가): `lib/reserved-slugs.ts` 참고 (`platform`, `admin`, `service`, `pricing`, `apply`, `demo`, `consult`, `api`, `_next`, `static`, `auth`, `start`, `privacy`, `terms`, `blog`, 그리고 `demo-*`)
@@ -39,7 +39,7 @@ growweb.me/blog               → 첫등원 블로그, 운영자만 작성 (F-08
 - **Vercel** — 배포 (growweb.me 도메인)
 - **카카오 알림톡·브랜드 메시지**: 반드시 `lib/messaging/` 어댑터 뒤에 숨겨서 교체 가능하게
 - **예약 발송**: Vercel Cron
-- **분석**: GA4 — 첫등원 측정 ID 하나(`G-LNFYKK06L6`, 코드 기본값 · 환경변수 `GA4_MEASUREMENT_ID`가 있으면 그 값)로 서비스 사이트·블로그·모든 학원 홈페이지를 잰다 (`lib/analytics`). 미리보기 배포·localhost는 보내지 않는다. 학원별 측정 ID는 쓰지 않는다. 전환 이벤트 `generate_lead`·`sign_up`. 관리자·비밀 링크 페이지는 보내지 않는다
+- **분석**: GA4 — 더클 측정 ID 하나(`G-LNFYKK06L6`, 코드 기본값 · 환경변수 `GA4_MEASUREMENT_ID`가 있으면 그 값)로 서비스 사이트·블로그·모든 학원 홈페이지를 잰다 (`lib/analytics`). 미리보기 배포·localhost는 보내지 않는다. 학원별 측정 ID는 쓰지 않는다. 전환 이벤트 `generate_lead`·`sign_up`. 관리자·비밀 링크 페이지는 보내지 않는다
 
 ## 절대 원칙
 
@@ -92,4 +92,4 @@ CSS 변수는 `styles/tokens.css`, Tailwind 연결은 `tailwind.config.ts`.
 - 테마 C 밝은 친근형: 흰 바탕 + 파스텔 카드, 청록 강조, 노랑 둥근 버튼, 둥근 제목 (Gowun Dodum + IBM Plex Sans KR) — 2026-11 시안
 - 섹션 틀(폭·여백·라벨·제목·카드 둥글기)은 테마 토큰으로 정한다: `.acad-wrap` `.acad-section` `.acad-eyebrow` `.acad-h2` (app/globals.css), 섹션 라벨 문구는 `lib/sections.ts` `sectionEyebrow`
 - 관리자: 테마와 무관하게 공통 (남색 사이드바, 녹색 주요 버튼)
-- 첫등원 서비스 사이트: 남색 + 스쿨버스 노랑, IBM Plex Sans KR
+- 더클 서비스 사이트: 남색 + 스쿨버스 노랑, IBM Plex Sans KR

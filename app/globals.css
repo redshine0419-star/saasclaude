@@ -121,7 +121,7 @@ body {
 [data-theme="result"] .acad-fees th { background: #f0f3f9; font-size: 12px; color: #52617b; }
 }
 
-/* ── 첫등원 블로그 본문 (growweb.me/blog) ───────────────────── */
+/* ── 더클 블로그 본문 (growweb.me/blog) ───────────────────── */
 @layer components {
 .blog-prose { color: #1F2A37; font-size: 17px; line-height: 1.85; word-break: keep-all; overflow-wrap: anywhere; }
 .blog-prose > * + * { margin-top: 1.1em; }

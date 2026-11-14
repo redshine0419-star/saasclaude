@@ -5,8 +5,8 @@ import { prisma } from '@/lib/prisma';
 import { PLAN_TIERS, formatWon, tierPrice } from '@/lib/plan-tier';
 
 export const metadata = {
-  title: '요금 — 첫등원',
-  description: '첫등원 베타 기간 3개월 무료. 이후 월 구독 요금을 확인하세요.',
+  title: '요금 — 더클',
+  description: '더클 베타 기간 3개월 무료. 이후 월 구독 요금을 확인하세요.',
 };
 
 // 금액은 플랫폼 관리자 설정에서 바뀌므로 요청마다 읽는다

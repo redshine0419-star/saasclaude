@@ -3,7 +3,7 @@ import { FdHeader } from '@/components/fd/FdHeader';
 import { FdFooter } from '@/components/fd/FdFooter';
 
 export const metadata = {
-  title: '데모 보기 — 첫등원',
+  title: '데모 보기 — 더클',
   description: '3가지 테마의 학원 홈페이지 데모를 직접 확인해보세요.',
 };
 

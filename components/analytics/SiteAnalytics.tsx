@@ -7,7 +7,7 @@ import { classifyPath } from '@/lib/analytics';
 type W = Window & { dataLayer?: unknown[]; gtag?: (...a: unknown[]) => void } & Record<string, unknown>;
 
 /**
- * 첫등원 통합 GA4. 분석 대상 페이지에 처음 들어올 때만 스크립트를 불러오고,
+ * 더클 통합 GA4. 분석 대상 페이지에 처음 들어올 때만 스크립트를 불러오고,
  * 페이지 조회는 직접 보낸다(주소의 쿼리는 빼고). 관리자·비밀 링크 페이지에서는 GA를 끈다.
  */
 export function SiteAnalytics({ id }: { id: string }) {

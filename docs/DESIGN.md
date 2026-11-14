@@ -14,12 +14,12 @@
 - `00-sitemap.png` — 메뉴 구조도
 - `S-01` ~ `S-10` — 학원 홈페이지 (테마 A 기준, 데스크톱 1440px)
 - `M-01` ~ `M-10`, `M-NAV` — 학원 홈페이지 모바일 전체 (390px, 2배 해상도)
-- `P-01` ~ `P-05` — 플랫폼 관리자 (첫등원 운영자용)
+- `P-01` ~ `P-05` — 플랫폼 관리자 (더클 운영자용)
 - `A-00` ~ `A-10`, `A-M` — 학원 관리자
 - `T-A`, `T-B`, `T-C` (+ `-mobile`) — 테마 3종 홈 비교
 
 `design/screenshots/marketing/`
-- `F-01` ~ `F-06a` — 첫등원 서비스 사이트. 각 화면마다 `-desktop`(1440px)과 `-mobile`(390px) 두 장. 이 사이트는 반응형이라 모바일 캡처가 곧 모바일 시안이다.
+- `F-01` ~ `F-06a` — 더클 서비스 사이트. 각 화면마다 `-desktop`(1440px)과 `-mobile`(390px) 두 장. 이 사이트는 반응형이라 모바일 캡처가 곧 모바일 시안이다.
 
 모바일 이미지는 2배 해상도(780px 폭)로 저장했다. 학원 템플릿 모바일 시안은 테마 A 기준이며, 테마 B·C 모바일은 첫 화면(`T-B-result-mobile`, `T-C-bright-mobile`)만 있다 — 나머지 페이지는 같은 구조에 테마 토큰만 바꿔 적용한다.
 
@@ -48,7 +48,7 @@ cd design && python3 -m http.server 8000
 
 ## 4. 디자인 토큰 → 코드
 
-- `design/design-system/tokens.json`의 `color.themes`가 4개다: `fd`(첫등원 서비스), `warm`(테마 A), `result`(테마 B), `bright`(테마 C).
+- `design/design-system/tokens.json`의 `color.themes`가 4개다: `fd`(더클 서비스), `warm`(테마 A), `result`(테마 B), `bright`(테마 C).
 - 같은 이름의 토큰(`bg`, `surface`, `ink`, `body`, `muted`, `accent`, `accent-soft`, `highlight` …)이 테마마다 다른 값을 가진다. CSS 변수로 만들어 `[data-theme="warm"]` 같은 선택자 아래 값을 바꾸고, Tailwind는 `var(--accent)` 같은 변수를 참조하게 설정한다.
 - `admin-*`, `status-*`, `brand-*` 토큰은 테마와 무관한 고정값이다.
 - 글꼴: `sans` IBM Plex Sans KR, `serif` Gowun Batang(테마 A 제목), `grotesk` Gothic A1(테마 B 제목·숫자), `round` Jua(테마 C 제목). 모두 Google Fonts 또는 `@fontsource/*` npm 패키지로 불러온다.

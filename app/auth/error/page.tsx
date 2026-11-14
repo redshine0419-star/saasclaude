@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-export const metadata = { title: '로그인을 다시 해 주세요 — 첫등원', robots: { index: false } };
+export const metadata = { title: '로그인을 다시 해 주세요 — 더클', robots: { index: false } };
 
 // NextAuth 오류 코드 → 안내 문구. Configuration에는 로그인 확인 쿠키 만료·다른 주소에서 시작(InvalidCheck)도 포함된다
 const MESSAGES: Record<string, { title: string; body: string }> = {
@@ -21,7 +21,7 @@ export default async function AuthErrorPage({ searchParams }: { searchParams: Pr
         <div style={{ fontSize: 20, fontWeight: 700 }}>{m.title}</div>
         <p style={{ margin: 0, fontSize: 15, lineHeight: 1.7, color: '#4A5568', wordBreak: 'keep-all' }}>{m.body}</p>
         <a href="/auth/signin?callbackUrl=%2F" style={{ marginTop: 6, height: 50, borderRadius: 12, background: '#14213D', color: '#FFFFFF', textDecoration: 'none', fontWeight: 700, fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>다시 로그인</a>
-        <Link href="/" style={{ fontSize: 14, color: '#6B7482', textDecoration: 'none' }}>첫등원 홈으로</Link>
+        <Link href="/" style={{ fontSize: 14, color: '#6B7482', textDecoration: 'none' }}>더클 홈으로</Link>
         {error && <div style={{ fontSize: 12, color: '#9AA3AF' }}>오류 코드: {error}</div>}
       </div>
     </main>

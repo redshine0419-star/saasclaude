@@ -25,7 +25,7 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
     return NextResponse.json({ url, name, size: file.size, type });
   } catch (e) {
     if (e instanceof StorageUnavailableError) {
-      return NextResponse.json({ error: '파일 저장소가 아직 연결되지 않아 파일을 올릴 수 없습니다. 첫등원 운영팀에 문의해 주세요.' }, { status: 503 });
+      return NextResponse.json({ error: '파일 저장소가 아직 연결되지 않아 파일을 올릴 수 없습니다. 더클 운영팀에 문의해 주세요.' }, { status: 503 });
     }
     return NextResponse.json({ error: '파일을 올리지 못했습니다.' }, { status: 500 });
   }

@@ -1,11 +1,11 @@
-/* 첫등원 관리자 앱 서비스 워커 — 푸시 알림 표시와 알림을 눌렀을 때 화면 열기만 한다 (오프라인 캐시 없음) */
+/* 더클 관리자 앱 서비스 워커 — 푸시 알림 표시와 알림을 눌렀을 때 화면 열기만 한다 (오프라인 캐시 없음) */
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
 
 self.addEventListener('push', (event) => {
   let data = {};
-  try { data = event.data ? event.data.json() : {}; } catch (e) { data = { title: '첫등원', body: event.data ? event.data.text() : '' }; }
-  const title = data.title || '첫등원';
+  try { data = event.data ? event.data.json() : {}; } catch (e) { data = { title: '더클', body: event.data ? event.data.text() : '' }; }
+  const title = data.title || '더클';
   event.waitUntil(
     self.registration.showNotification(title, {
       body: data.body || '',

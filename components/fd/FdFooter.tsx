@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { OPERATOR } from '@/lib/legal/documents';
+import { BRAND_NAME } from '@/lib/brand';
 
 export function FdFooter() {
   return (
@@ -31,7 +32,7 @@ export function FdFooter() {
               <circle cx="11" cy="11" r="9" fill="#F5B700" />
               <circle cx="11" cy="11" r="3.5" fill="#0E1730" />
             </svg>
-            <span style={{ fontSize: 20, fontWeight: 700, color: '#FFFFFF' }}>첫등원</span>
+            <span style={{ fontSize: 20, fontWeight: 700, color: '#FFFFFF' }}>{BRAND_NAME}</span>
           </div>
           <div>동네 학원·교습소 전용 홈페이지와 상담 관리</div>
           {/* 전자상거래법 사업자 정보 표시 */}
@@ -44,7 +45,7 @@ export function FdFooter() {
             </div>
           </div>
           <div style={{ marginTop: 8, color: '#8A93A8', fontSize: 13 }}>
-            © {new Date().getFullYear()} 첫등원. All rights reserved.
+            © {new Date().getFullYear()} {BRAND_NAME}. All rights reserved.
           </div>
         </div>
         <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>

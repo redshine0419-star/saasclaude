@@ -6,7 +6,7 @@ function esc(s: string): string {
 
 export function renderInviteMail({ academyName, inviteUrl, expiresAt }: { academyName: string; inviteUrl: string; expiresAt: Date }) {
   const until = new Date(expiresAt.getTime() + 9 * 3600 * 1000).toISOString().slice(0, 10).replace(/-/g, '.');
-  const subject = `[첫등원] ${academyName} 관리자 초대`;
+  const subject = `[더클] ${academyName} 관리자 초대`;
   const text = [
     `${academyName}에서 학원 관리자(직원)로 초대했습니다.`,
     '',

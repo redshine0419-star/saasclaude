@@ -6,10 +6,10 @@ import { requireSignupConsent } from '@/lib/legal/consent';
 import { PwaRegister } from '@/components/admin/PwaRegister';
 import type { Metadata, Viewport } from 'next';
 
-// 운영자 앱(PWA) — 휴대폰 홈 화면에 "첫등원 운영"으로 설치
+// 운영자 앱(PWA) — 휴대폰 홈 화면에 "더클 운영"으로 설치
 export const metadata: Metadata = {
   manifest: '/api/platform/manifest',
-  appleWebApp: { capable: true, title: '첫등원 운영', statusBarStyle: 'default' },
+  appleWebApp: { capable: true, title: '더클 운영', statusBarStyle: 'default' },
   icons: { apple: '/api/app-icon?size=180' },
 };
 export const viewport: Viewport = { themeColor: '#1B2430' };

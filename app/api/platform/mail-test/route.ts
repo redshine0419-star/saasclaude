@@ -19,13 +19,13 @@ export async function POST() {
     apiKey: !!process.env.RESEND_API_KEY,
     recipients: to.length,
     to: to.join(', '),
-    from: process.env.MAIL_FROM || '첫등원 <onboarding@resend.dev> (기본값)',
+    from: process.env.MAIL_FROM || '더클 <onboarding@resend.dev> (기본값)',
   };
   if (!checks.apiKey) return NextResponse.json({ ok: false, checks, reason: 'RESEND_API_KEY가 설정되지 않았습니다.' });
 
   const { html, text } = renderOperatorMail(
     {
-      subject: '[첫등원] 알림 메일 테스트',
+      subject: '[더클] 알림 메일 테스트',
       heading: '알림 메일이 정상적으로 설정되었습니다',
       rows: [['보낸 사람', email], ['보낸 시각', new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })]],
       linkPath: '/platform/settings',
@@ -33,6 +33,6 @@ export async function POST() {
     },
     process.env.NEXT_PUBLIC_BASE_URL ?? 'https://growweb.me',
   );
-  const result = await sendMail({ to, subject: '[첫등원] 알림 메일 테스트', html, text });
+  const result = await sendMail({ to, subject: '[더클] 알림 메일 테스트', html, text });
   return NextResponse.json({ ok: result.sent, checks, reason: result.reason });
 }

@@ -33,7 +33,7 @@ export async function chargeSubscription(subscriptionId: string, now: Date = new
     return { status: 'skipped', amount: 0, reason: 'free_tier' };
   }
 
-  const result = await getBillingAdapter().charge({ billingKey: sub.billingKey, orderId, amount, orderName: `첫등원 ${tier.label} (${sub.tenant.name})` });
+  const result = await getBillingAdapter().charge({ billingKey: sub.billingKey, orderId, amount, orderName: `더클 ${tier.label} (${sub.tenant.name})` });
   if (result.ok) {
     await prisma.$transaction([
       prisma.payment.create({ data: { tenantId: sub.tenantId, subscriptionId: sub.id, orderId, tierKey: tier.key, activeStudents, amount, status: 'paid', periodStart, periodEnd } }),

@@ -421,7 +421,7 @@ export function SettingsClient({
       <div style={{ gridColumn: '1 / -1', padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div>
           <div style={{ fontSize: 16, fontWeight: 700 }}>대행 접속 기록</div>
-          <div style={{ fontSize: 13, color: '#5A6270', marginTop: 4 }}>첫등원 운영자가 이 학원 관리자에 접속한 기록입니다.</div>
+          <div style={{ fontSize: 13, color: '#5A6270', marginTop: 4 }}>더클 운영자가 이 학원 관리자에 접속한 기록입니다.</div>
         </div>
         {proxyLogs.length === 0 ? (
           <div style={{ fontSize: 14, color: '#9AA3AF' }}>대행 접속 기록이 없습니다.</div>
@@ -516,7 +516,7 @@ export function SettingsClient({
           </div>
           {inviteError && <div style={{ fontSize: 13, color: '#8A3A1C' }}>{inviteError}</div>}
           {inviteDone && <div style={{ fontSize: 13, color: '#1E5645', lineHeight: 1.6 }}>{inviteDone}</div>}
-          <div style={{ fontSize: 12, color: '#9AA3AF', lineHeight: 1.6 }}>직원은 초대받은 이메일의 Google 계정으로 로그인해야 합니다. 이미 첫등원에 로그인한 적이 있는 계정은 바로 추가됩니다.</div>
+          <div style={{ fontSize: 12, color: '#9AA3AF', lineHeight: 1.6 }}>직원은 초대받은 이메일의 Google 계정으로 로그인해야 합니다. 이미 더클에 로그인한 적이 있는 계정은 바로 추가됩니다.</div>
         </div>
       )}
 

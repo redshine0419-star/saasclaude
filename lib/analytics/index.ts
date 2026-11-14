@@ -1,8 +1,8 @@
 import { isReservedSlug } from '@/lib/reserved-slugs';
 
 /**
- * 첫등원 통합 GA4 — 서비스 사이트와 모든 학원 홈페이지를 측정 ID 하나로 잰다 (학원별 측정 ID는 쓰지 않는다).
- * 측정 ID는 코드 기본값(첫등원 GA4 웹 스트림)을 쓰고, 환경변수 GA4_MEASUREMENT_ID에 올바른 값이 있으면 그 값을 쓴다.
+ * 더클 통합 GA4 — 서비스 사이트와 모든 학원 홈페이지를 측정 ID 하나로 잰다 (학원별 측정 ID는 쓰지 않는다).
+ * 측정 ID는 코드 기본값(더클 GA4 웹 스트림)을 쓰고, 환경변수 GA4_MEASUREMENT_ID에 올바른 값이 있으면 그 값을 쓴다.
  * 기본값은 운영 빌드에서만 쓴다(Vercel 미리보기 배포 제외) — 개발·미리보기 방문이 통계에 섞이지 않게. 내 PC(localhost)는 화면에서 건너뛴다.
  */
 export const DEFAULT_GA4_MEASUREMENT_ID = 'G-LNFYKK06L6';
@@ -30,7 +30,7 @@ export function ga4Status(): { state: 'ok' | 'missing' | 'invalid'; id?: string;
       ? `환경변수에 숫자(${raw.slice(0, 3)}…)만 들어가 있어(속성 ID) 무시합니다. `
       : '환경변수 값이 G-로 시작하는 측정 ID 형식이 아니라 무시합니다. '
     : '';
-  if (isProductionDeploy()) return { state: 'ok', id: DEFAULT_GA4_MEASUREMENT_ID, hint: `${bad}코드에 넣어 둔 첫등원 측정 ID를 씁니다. 서비스 사이트·블로그·학원 홈페이지에 GA4가 붙습니다.` };
+  if (isProductionDeploy()) return { state: 'ok', id: DEFAULT_GA4_MEASUREMENT_ID, hint: `${bad}코드에 넣어 둔 더클 측정 ID를 씁니다. 서비스 사이트·블로그·학원 홈페이지에 GA4가 붙습니다.` };
   return { state: raw ? 'invalid' : 'missing', hint: `${bad}운영 배포가 아니라(개발·미리보기) GA4를 붙이지 않습니다.` };
 }
 

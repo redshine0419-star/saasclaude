@@ -3,7 +3,7 @@ import { FdHeader } from '@/components/fd/FdHeader';
 import { FdFooter } from '@/components/fd/FdFooter';
 
 export const metadata = {
-  title: '첫등원 — 동네 학원·교습소 홈페이지와 상담 관리',
+  title: '더클 — 동네 학원·교습소 홈페이지와 상담 관리',
   description: '학부모가 찾고, 상담 신청하고, 카카오톡으로 안내받고, 등원까지. 동네 학원을 위한 홈페이지와 상담 관리 솔루션.',
 };
 
@@ -134,7 +134,7 @@ export default function MarketingHome() {
       <section style={{ padding: 'clamp(56px, 7vw, 104px) clamp(20px, 4vw, 56px)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 40 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#8A6400' }}>첫등원이 만드는 흐름</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#8A6400' }}>더클이 만드는 흐름</div>
             <h2 style={{ margin: 0, fontSize: 'clamp(28px, 3.2vw, 42px)', lineHeight: 1.35, letterSpacing: '-0.8px' }}>찾고, 신청하고, 안내받고, 등원합니다</h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: 16 }}>
@@ -161,7 +161,7 @@ export default function MarketingHome() {
             </div>
           </div>
           <div style={{ padding: 'clamp(28px, 3vw, 44px)', borderRadius: 20, background: '#14213D', color: '#FFFFFF', display: 'flex', flexDirection: 'column', gap: 18 }}>
-            <div style={{ fontSize: 22, fontWeight: 700 }}>첫등원이 하는 일</div>
+            <div style={{ fontSize: 22, fontWeight: 700 }}>더클이 하는 일</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, fontSize: 16, lineHeight: 1.6, color: '#E4E8EF' }}>
               {fdDoes.map((item) => (
                 <div key={item}>· {item}</div>

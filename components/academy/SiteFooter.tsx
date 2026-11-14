@@ -25,7 +25,7 @@ export default function SiteFooter({ tenant, slug }: Props) {
             <div>© {new Date().getFullYear()} {tenant.name}. All rights reserved.</div>
             <div>
               Powered by{' '}
-              <a href="/" className="underline" style={{ color: 'var(--footer-ink)' }}>첫등원</a>
+              <a href="/" className="underline" style={{ color: 'var(--footer-ink)' }}>더클</a>
             </div>
           </div>
         </div>

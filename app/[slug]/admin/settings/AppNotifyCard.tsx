@@ -149,7 +149,7 @@ export function AppNotifyCard({ slug, isOwner, myEmail, vapidKey, devices, pushR
       <div style={{ padding: 14, borderRadius: 10, background: '#FAF9F6', display: 'flex', flexDirection: 'column', gap: 10, fontSize: 14, lineHeight: 1.6 }}>
         <b>2. 이 기기에서 알림 받기</b>
         {!vapidKey ? (
-          <span style={{ color: '#7A4B00' }}>앱 알림이 아직 준비되지 않았습니다. 첫등원 운영팀이 설정하면 켤 수 있습니다.</span>
+          <span style={{ color: '#7A4B00' }}>앱 알림이 아직 준비되지 않았습니다. 더클 운영팀이 설정하면 켤 수 있습니다.</span>
         ) : support === 'ios-install' ? (
           <span style={{ color: '#7A4B00' }}>아이폰은 홈 화면에 추가한 앱에서만 알림을 받을 수 있습니다. 1번대로 설치한 뒤, 홈 화면의 앱으로 열어 여기서 알림을 켜 주세요.</span>
         ) : support === 'no' ? (

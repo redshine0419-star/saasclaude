@@ -47,7 +47,7 @@ export function AccountClient({ email, name, joinedAt, consentAt, marketing: ini
       <div style={{ maxWidth: 640, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h1 style={{ margin: 0, fontSize: 24 }}>내 계정</h1>
-          <Link href="/" style={{ fontSize: 14, color: '#4A5568' }}>첫등원 홈</Link>
+          <Link href="/" style={{ fontSize: 14, color: '#4A5568' }}>더클 홈</Link>
         </div>
 
         <section style={card}>
@@ -68,8 +68,8 @@ export function AccountClient({ email, name, joinedAt, consentAt, marketing: ini
           <h2 style={{ margin: 0, fontSize: 16 }}>선택 동의</h2>
           <div style={{ fontSize: 14, color: '#4A5568', lineHeight: 1.7 }}>동의하지 않아도 서비스 이용에는 제한이 없고, 언제든 바꿀 수 있습니다.</div>
           {([
-            ['promo', '홍보 목적 개인정보 수집·이용', '이름·이메일·휴대폰 번호를 첫등원 소식·혜택 안내에 씁니다.', promo],
-            ['ad', '광고성 정보 수신', '첫등원 새 기능·이벤트·혜택 안내를 이메일·문자·카카오톡으로 받습니다.', marketing],
+            ['promo', '홍보 목적 개인정보 수집·이용', '이름·이메일·휴대폰 번호를 더클 소식·혜택 안내에 씁니다.', promo],
+            ['ad', '광고성 정보 수신', '더클 새 기능·이벤트·혜택 안내를 이메일·문자·카카오톡으로 받습니다.', marketing],
           ] as const).map(([type, title, desc, on]) => (
             <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', paddingTop: 10, borderTop: '1px solid #EEF0F3' }}>
               <div style={{ flex: '1 1 240px', minWidth: 0 }}>

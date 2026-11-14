@@ -25,9 +25,9 @@ const PRIVACY_HEAD: [string, string, string] = ['수집 항목', '이용 목적'
 const REFUSE_REQUIRED = '동의를 거부할 수 있습니다. 다만 필수 항목이라 거부하면 서비스를 이용할 수 없습니다.';
 const REFUSE_OPTIONAL = '동의를 거부할 수 있으며, 동의하지 않아도 서비스 이용에 제한이 없습니다. 언제든 철회할 수 있습니다.';
 
-/** 첫등원 회원가입 */
+/** 더클 회원가입 */
 export const SIGNUP_CONSENTS: ConsentItem[] = [
-  { key: 'age', required: true, label: '만 14세 이상입니다.', text: ['첫등원은 만 14세 미만 아동의 회원가입을 받지 않습니다.'] },
+  { key: 'age', required: true, label: '만 14세 이상입니다.', text: ['더클은 만 14세 미만 아동의 회원가입을 받지 않습니다.'] },
   { key: 'terms', required: true, label: '서비스 이용약관', sections: TERMS },
   {
     key: 'privacy',
@@ -40,7 +40,7 @@ export const SIGNUP_CONSENTS: ConsentItem[] = [
     key: 'promo',
     required: false,
     label: '홍보 목적 개인정보 수집·이용',
-    table: { head: PRIVACY_HEAD, rows: [['이름, 이메일, 휴대폰 번호(입력한 경우)', '첫등원 새 기능·이벤트·혜택 등 소식 제공', '동의 철회 또는 회원 탈퇴 시까지']] },
+    table: { head: PRIVACY_HEAD, rows: [['이름, 이메일, 휴대폰 번호(입력한 경우)', '더클 새 기능·이벤트·혜택 등 소식 제공', '동의 철회 또는 회원 탈퇴 시까지']] },
     text: [REFUSE_OPTIONAL],
   },
   {
@@ -48,13 +48,13 @@ export const SIGNUP_CONSENTS: ConsentItem[] = [
     required: false,
     label: '광고성 정보 수신',
     text: [
-      '첫등원은 동의한 개인정보를 이용해 이메일·문자·카카오톡으로 새 기능·이벤트·혜택 안내를 보낼 수 있습니다. 광고성 정보에는 "(광고)" 표시를 하고, 밤 9시~아침 8시에는 따로 동의하지 않으면 보내지 않습니다.',
+      '더클은 동의한 개인정보를 이용해 이메일·문자·카카오톡으로 새 기능·이벤트·혜택 안내를 보낼 수 있습니다. 광고성 정보에는 "(광고)" 표시를 하고, 밤 9시~아침 8시에는 따로 동의하지 않으면 보내지 않습니다.',
       '동의를 거부할 수 있으며, 거부하면 이벤트·혜택 안내를 받기 어렵습니다. 언제든 "내 계정"에서 철회할 수 있습니다.',
     ],
   },
 ];
 
-/** 첫등원 무료 진단 신청 */
+/** 더클 무료 진단 신청 */
 export const DIAGNOSIS_CONSENTS: ConsentItem[] = [
   {
     key: 'privacy',
@@ -67,11 +67,11 @@ export const DIAGNOSIS_CONSENTS: ConsentItem[] = [
     key: 'ad',
     required: false,
     label: '광고성 정보 수신',
-    text: ['진단 결과 외에 첫등원 소식·혜택 안내를 문자·카카오톡으로 받습니다. "(광고)"를 표시하고 수신 거부 방법을 함께 안내합니다.', REFUSE_OPTIONAL],
+    text: ['진단 결과 외에 더클 소식·혜택 안내를 문자·카카오톡으로 받습니다. "(광고)"를 표시하고 수신 거부 방법을 함께 안내합니다.', REFUSE_OPTIONAL],
   },
 ];
 
-/** 첫등원 셀프 개설 — 약관·개인정보는 회원가입 때 받았다 */
+/** 더클 셀프 개설 — 약관·개인정보는 회원가입 때 받았다 */
 export const START_CONSENTS: ConsentItem[] = [
   {
     key: 'beta',
@@ -79,7 +79,7 @@ export const START_CONSENTS: ConsentItem[] = [
     label: '베타 이용 조건 확인',
     text: ['홈페이지 오픈일부터 3개월 동안 무료입니다. 베타 기간에는 자동 결제가 없고, 끝나기 전에 계속 이용 여부를 안내합니다.', '학원 정보(학원명, 학원등록번호, 대표 전화, 주소 등)는 학원 홈페이지에 공개됩니다.'],
   },
-  { key: 'case', required: false, label: '익명 성공 사례 활용', text: ['학원 이름과 개인정보를 빼고, 홈페이지 성과(방문·상담 수 등)를 첫등원 홍보 사례로 쓸 수 있습니다. 언제든 철회할 수 있습니다.'] },
+  { key: 'case', required: false, label: '익명 성공 사례 활용', text: ['학원 이름과 개인정보를 빼고, 홈페이지 성과(방문·상담 수 등)를 더클 홍보 사례로 쓸 수 있습니다. 언제든 철회할 수 있습니다.'] },
 ];
 
 /** 카드 정기결제 등록 — 결제대행사가 정해지면 이름을 채운다 */

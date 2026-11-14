@@ -46,7 +46,7 @@ export function SiteControlCard({ slug, tenantName, isOwner, published, unpublis
       <div>
         <div id="site-control-title" style={{ fontSize: 16, fontWeight: 700 }}>홈페이지 공개 · 학원 삭제</div>
         <div style={{ fontSize: 13, color: '#5A6270', marginTop: 4, lineHeight: 1.6 }}>
-          비공개로 두면 학부모 화면만 닫히고 관리자 화면과 데이터는 그대로 남습니다. 학원 삭제는 요청 후 첫등원 운영자가 확인하고 처리합니다.
+          비공개로 두면 학부모 화면만 닫히고 관리자 화면과 데이터는 그대로 남습니다. 학원 삭제는 요청 후 더클 운영자가 확인하고 처리합니다.
         </div>
       </div>
 

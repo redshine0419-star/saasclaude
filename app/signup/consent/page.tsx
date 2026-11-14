@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { hasSignupConsent, safeNext } from '@/lib/legal/consent';
 import { ConsentForm } from './ConsentForm';
 
-export const metadata = { title: '약관 동의 — 첫등원', robots: { index: false } };
+export const metadata = { title: '약관 동의 — 더클', robots: { index: false } };
 
 type Props = { searchParams: Promise<{ next?: string }> };
 

@@ -81,7 +81,7 @@ export default async function AdminDashboardPage({
         <div style={{ maxWidth: 640, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
           <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>{tenant.name}</h1>
           {betaBanner ?? (
-            <div style={{ padding: 20, borderRadius: 12, background: '#FFFFFF' }}>홈페이지가 비공개 상태입니다. 첫등원에 문의해 주세요.</div>
+            <div style={{ padding: 20, borderRadius: 12, background: '#FFFFFF' }}>홈페이지가 비공개 상태입니다. 더클에 문의해 주세요.</div>
           )}
           <div style={{ padding: 20, borderRadius: 12, background: '#FFFFFF', lineHeight: 1.7 }}>
             자료는 <a href={`/api/${slug}/admin/export`} style={{ color: '#1E5645', fontWeight: 700 }}>데이터 내보내기</a>로 받을 수 있습니다. 데이터는 학원 삭제 요청이 처리되기 전까지 지워지지 않습니다.

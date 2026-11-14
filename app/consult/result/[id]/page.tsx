@@ -5,7 +5,7 @@ import { FdHeader } from '@/components/fd/FdHeader';
 import { FdFooter } from '@/components/fd/FdFooter';
 import type { DiagItemKey, DiagItemResult } from '@/lib/diagnosis/analyze';
 
-export const metadata = { title: '무료 진단 결과 — 첫등원', robots: { index: false, follow: false } };
+export const metadata = { title: '무료 진단 결과 — 더클', robots: { index: false, follow: false } };
 
 const ITEMS: { key: DiagItemKey; label: string; desc: string }[] = [
   { key: 'conversion', label: '상담 전환 구조', desc: '학부모가 바로 연락·신청할 수 있는가' },
@@ -85,7 +85,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
         </div>
 
         <section style={{ padding: 24, borderRadius: 16, background: '#14213D', color: '#FFFFFF', display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div style={{ fontSize: 20, fontWeight: 700 }}>첫등원 홈페이지는 위 항목을 기본으로 갖추고 시작합니다</div>
+          <div style={{ fontSize: 20, fontWeight: 700 }}>더클 홈페이지는 위 항목을 기본으로 갖추고 시작합니다</div>
           <div style={{ fontSize: 15, lineHeight: 1.7, color: '#D6DBE6' }}>
             상담 신청 폼·전화 버튼·카톡 상담, 모바일 화면, 검색용 구조화 데이터, 교습비·등록번호 표기까지. 학원 정보만 입력하면 바로 열립니다. 오픈일부터 3개월 무료.
           </div>

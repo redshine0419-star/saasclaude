@@ -14,7 +14,7 @@ export async function sendBillingFailNotice(tenant: { id: string; name: string; 
   const recipients = push.skipKakao ? [] : await prisma.notifyRecipient.findMany({ where: { tenantId: tenant.id }, select: { phone: true } });
   const url = `${process.env.NEXT_PUBLIC_BASE_URL ?? 'https://growweb.me'}/${tenant.slug}/admin/billing`;
   const body = [
-    `[첫등원] ${tenant.name} 이용료 ${amount.toLocaleString('ko-KR')}원 결제에 실패했습니다.`,
+    `[더클] ${tenant.name} 이용료 ${amount.toLocaleString('ko-KR')}원 결제에 실패했습니다.`,
     willRetry ? '내일 다시 결제를 시도합니다. 카드 상태를 확인하시거나 다른 카드로 바꿔 주세요.' : '자동 재시도를 마쳤습니다. 관리자 화면에서 카드를 다시 등록해 주세요.',
     '',
     url,

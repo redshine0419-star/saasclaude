@@ -26,7 +26,7 @@ describe('sendMail', () => {
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe('https://api.resend.com/emails');
     expect(init.headers.Authorization).toBe('Bearer re_test');
-    expect(JSON.parse(init.body)).toMatchObject({ from: '첫등원 <onboarding@resend.dev>', to: ['op@example.com'], subject: '제목' });
+    expect(JSON.parse(init.body)).toMatchObject({ from: '더클 <onboarding@resend.dev>', to: ['op@example.com'], subject: '제목' });
   });
 
   it('실패 시 Resend 오류 문구를 돌려준다', async () => {

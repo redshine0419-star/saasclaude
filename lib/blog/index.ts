@@ -1,12 +1,12 @@
 import { plainText } from './markdown';
 
-/** 첫등원 블로그 (growweb.me/blog) — 운영자만 쓴다 */
+/** 더클 블로그 (growweb.me/blog) — 운영자만 쓴다 */
 
 export const BLOG_CATEGORIES = [
   { key: 'tips', label: '운영 노하우' },
   { key: 'law', label: '법규·행정' },
   { key: 'marketing', label: '홍보·마케팅' },
-  { key: 'news', label: '첫등원 소식' },
+  { key: 'news', label: '더클 소식' },
 ] as const;
 export type BlogCategory = (typeof BLOG_CATEGORIES)[number]['key'];
 

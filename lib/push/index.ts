@@ -53,7 +53,7 @@ export async function pushToTenant(tenantId: string, payload: PushPayload, opts:
   return delivered;
 }
 
-/** 첫등원 운영자 기기 모두에게 보낸다 (새 학원 개설·회원가입 등). 보낸 기기 수를 돌려준다 */
+/** 더클 운영자 기기 모두에게 보낸다 (새 학원 개설·회원가입 등). 보낸 기기 수를 돌려준다 */
 export async function pushToOperators(payload: PushPayload, opts: { email?: string } = {}): Promise<number> {
   if (!pushConfigured()) return 0;
   const devices = await prisma.operatorPushDevice.findMany({ where: opts.email ? { email: opts.email } : {} });

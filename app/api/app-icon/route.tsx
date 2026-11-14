@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-// 관리자 앱 아이콘 — 남색 바탕에 스쿨버스 노랑 원 (첫등원 표시)
+// 관리자 앱 아이콘 — 남색 바탕에 스쿨버스 노랑 원 (더클 표시)
 export async function GET(req: Request) {
   const u = new URL(req.url);
   const size = Math.min(512, Math.max(48, Number(u.searchParams.get('size')) || 192));

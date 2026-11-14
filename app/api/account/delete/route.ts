@@ -13,7 +13,7 @@ export async function POST() {
   for (const m of user.memberships) {
     const owners = await prisma.membership.count({ where: { tenantId: m.tenantId, role: 'owner' } });
     if (owners <= 1) {
-      return NextResponse.json({ error: `${m.tenant.name}의 유일한 원장이라 바로 탈퇴할 수 없습니다. 학원 데이터를 내보낸 뒤 첫등원 운영자에게 학원 해지 또는 원장 변경을 요청해 주세요.` }, { status: 409 });
+      return NextResponse.json({ error: `${m.tenant.name}의 유일한 원장이라 바로 탈퇴할 수 없습니다. 학원 데이터를 내보낸 뒤 더클 운영자에게 학원 해지 또는 원장 변경을 요청해 주세요.` }, { status: 409 });
     }
   }
   // 멤버십·동의 이력은 함께 삭제(Cascade). 결제 기록 등 법정 보관 정보는 학원에 남는다

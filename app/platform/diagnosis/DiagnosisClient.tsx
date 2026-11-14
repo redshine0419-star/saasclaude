@@ -80,12 +80,12 @@ function buildKakaoMessage(r: DiagRequest, scores: DiagScores, note: string): st
     },
   ).join('\n');
   return (
-    `[첫등원] ${r.academyName} 무료 진단 결과입니다.\n\n` +
+    `[더클] ${r.academyName} 무료 진단 결과입니다.\n\n` +
     `과목: ${r.subject} / 지역: ${r.area}\n` +
     `종합 평가: ${overall}\n\n` +
     `${lines}\n\n` +
     (note ? `${note}\n\n` : '') +
-    `첫등원으로 학원 홈페이지를 직접 만들어 보세요. 5분이면 열립니다.\n` +
+    `더클로 학원 홈페이지를 직접 만들어 보세요. 5분이면 열립니다.\n` +
     `바로 만들기: https://growweb.me/start`
   );
 }

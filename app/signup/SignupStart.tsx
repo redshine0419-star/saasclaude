@@ -8,7 +8,7 @@ export function SignupStart({ next }: { next: string }) {
     <main data-theme="fd" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, background: '#F3F5F8', fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif", color: '#14213D' }}>
       <div style={{ width: '100%', maxWidth: 420, background: '#FFFFFF', borderRadius: 16, padding: 32, display: 'flex', flexDirection: 'column', gap: 18 }}>
         <div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#8A6400' }}>첫등원</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#8A6400' }}>더클</div>
           <h1 style={{ margin: '6px 0 0', fontSize: 24 }}>회원가입</h1>
           <p style={{ margin: '8px 0 0', fontSize: 14, color: '#4A5568', lineHeight: 1.7 }}>
             Google 계정으로 가입합니다. 로그인한 뒤 이용약관과 개인정보 수집·이용 동의를 받습니다.

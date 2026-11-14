@@ -1,8 +1,10 @@
 /**
- * 첫등원 이용약관·개인정보처리방침·회원가입 동의 문구 (SPEC 10장).
+ * 더클 이용약관·개인정보처리방침·회원가입 동의 문구 (SPEC 10장).
  * 대괄호 [ ]는 운영자가 채울 값이다. 법률 검토 전 초안 — TODO(확인 필요): 전문가 검토 후 확정.
  * 문서를 바꾸면 버전을 올린다. 버전이 바뀌면 회원에게 다시 동의를 받는다(lib/legal/consent.ts).
  */
+
+import { BRAND_NAME, BRAND_PREVIOUS_NAME, BRAND_RENAMED_AT } from '@/lib/brand';
 
 export const TERMS_VERSION = '2026-11-04';
 export const PRIVACY_VERSION = '2026-11-04';
@@ -23,7 +25,7 @@ export const OPERATOR = {
 export type LegalSection = { title: string; body: string[] };
 
 export const TERMS: LegalSection[] = [
-  { title: '제1조 (목적)', body: [`이 약관은 ${OPERATOR.name}(이하 "운영자")가 제공하는 학원 홈페이지·관리 서비스 "첫등원"(이하 "서비스")의 이용 조건과 절차, 운영자와 회원의 권리·의무를 정합니다.`] },
+  { title: '제1조 (목적)', body: [`이 약관은 ${OPERATOR.name}(이하 "운영자")가 제공하는 학원 홈페이지·관리 서비스 "더클"(이하 "서비스")의 이용 조건과 절차, 운영자와 회원의 권리·의무를 정합니다.`] },
   {
     title: '제2조 (정의)',
     body: [
@@ -97,7 +99,14 @@ export const TERMS: LegalSection[] = [
     title: '제12조 (분쟁 해결)',
     body: ['이 약관과 서비스 이용에 관한 분쟁은 대한민국 법을 따르며, 소송이 필요한 경우 민사소송법에 따른 관할 법원으로 합니다.'],
   },
-  { title: '부칙', body: [`이 약관은 ${TERMS_VERSION}부터 시행합니다.`] },
+  {
+    title: '부칙',
+    body: [
+      `이 약관은 ${TERMS_VERSION}부터 시행합니다.`,
+      // TODO(확인 필요): 서비스명만 바뀌어 내용 변경이 없으므로 재동의 없이 공지로 처리(버전 유지) — 법률 검토 때 확인
+      `${BRAND_RENAMED_AT}부터 서비스 이름이 "${BRAND_PREVIOUS_NAME}"에서 "${BRAND_NAME}"로 바뀌었습니다. 약관 내용은 바뀌지 않았습니다.`,
+    ],
+  },
 ];
 
 /** 국외 이전 내역 — 개인정보처리방침 6번에 그대로 표시된다. 업체를 바꾸면 여기도 고친다. */
@@ -274,5 +283,11 @@ export const PRIVACY: LegalSection[] = [
       '· 경찰청 (ecrm.police.go.kr / 국번 없이 182)',
     ],
   },
-  { title: '14. 개인정보처리방침의 변경', body: [`이 방침은 ${PRIVACY_VERSION}부터 적용합니다. 내용이 바뀌면 시행 7일 전(중요한 변경은 30일 전)부터 서비스 화면에 알립니다.`] },
+  {
+    title: '14. 개인정보처리방침의 변경',
+    body: [
+      `이 방침은 ${PRIVACY_VERSION}부터 적용합니다. 내용이 바뀌면 시행 7일 전(중요한 변경은 30일 전)부터 서비스 화면에 알립니다.`,
+      `${BRAND_RENAMED_AT}부터 서비스 이름이 "${BRAND_PREVIOUS_NAME}"에서 "${BRAND_NAME}"로 바뀌었습니다. 처리하는 개인정보와 처리 방식은 바뀌지 않았습니다.`,
+    ],
+  },
 ];

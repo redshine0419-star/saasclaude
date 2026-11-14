@@ -13,7 +13,7 @@ import { requireSignupConsent } from '@/lib/legal/consent';
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const t = await prisma.tenant.findUnique({ where: { slug }, select: { name: true } });
-  const name = t?.name ?? '첫등원';
+  const name = t?.name ?? '더클';
   return {
     manifest: `/api/${slug}/manifest`,
     appleWebApp: { capable: true, title: name.slice(0, 12), statusBarStyle: 'default' },
@@ -107,7 +107,7 @@ export default async function AdminLayout({
           fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif",
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         }}>
-          <span>첫등원 운영자 대행 접속 중 — {slug}</span>
+          <span>더클 운영자 대행 접속 중 — {slug}</span>
           <Link href="/platform/academies" style={{ color: '#FFF3CC', textDecoration: 'none', fontSize: 12 }}>← 플랫폼으로 돌아가기</Link>
         </div>
       )}

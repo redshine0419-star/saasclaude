@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useMe, FdAccountDesktop, FdAccountMobile, FdAccountCompact } from './FdAccount';
+import { BRAND_NAME } from '@/lib/brand';
 
 type Active = 'home' | 'service' | 'demo' | 'pricing' | 'blog' | 'consult' | 'apply';
 
@@ -55,7 +56,7 @@ export function FdHeader({ active = 'home' }: { active?: Active }) {
             <circle cx="11" cy="11" r="9" fill="#F5B700" />
             <circle cx="11" cy="11" r="3.5" fill="#14213D" />
           </svg>
-          <span style={{ fontSize: 23, fontWeight: 700, letterSpacing: '-0.5px' }}>첫등원</span>
+          <span style={{ fontSize: 23, fontWeight: 700, letterSpacing: '-0.5px' }}>{BRAND_NAME}</span>
         </Link>
 
         <nav

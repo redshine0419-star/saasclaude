@@ -3,7 +3,7 @@ import { auth } from '@/auth';
 import { hasSignupConsent, safeNext } from '@/lib/legal/consent';
 import { SignupStart } from './SignupStart';
 
-export const metadata = { title: '회원가입 — 첫등원' };
+export const metadata = { title: '회원가입 — 더클' };
 
 type Props = { searchParams: Promise<{ next?: string }> };
 

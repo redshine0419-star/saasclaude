@@ -14,10 +14,10 @@ export function betaNoticeBody(key: BetaNoticeKey, t: { name: string; slug: stri
   const off = formatKstDate(s.unpublishAt);
   const admin = `${baseUrl()}/${t.slug}/admin`;
   const head: Record<BetaNoticeKey, string> = {
-    d14: `[첫등원] ${t.name} 홈페이지 무료 기간이 ${end}에 끝납니다 (14일 남음).`,
-    d3: `[첫등원] ${t.name} 홈페이지 무료 기간이 ${end}에 끝납니다 (3일 남음).`,
-    d0: `[첫등원] ${t.name} 홈페이지 무료 기간이 오늘 끝났습니다.`,
-    unpublish7: `[첫등원] ${t.name} 홈페이지가 ${off}에 비공개로 전환됩니다 (7일 남음).`,
+    d14: `[더클] ${t.name} 홈페이지 무료 기간이 ${end}에 끝납니다 (14일 남음).`,
+    d3: `[더클] ${t.name} 홈페이지 무료 기간이 ${end}에 끝납니다 (3일 남음).`,
+    d0: `[더클] ${t.name} 홈페이지 무료 기간이 오늘 끝났습니다.`,
+    unpublish7: `[더클] ${t.name} 홈페이지가 ${off}에 비공개로 전환됩니다 (7일 남음).`,
   };
   return [
     head[key],
@@ -40,7 +40,7 @@ export async function sendBetaNotice(
 ) {
   const body = betaNoticeBody(key, tenant);
   // 앱 알림을 켠 기기가 있으면 푸시로 (카톡 대신)
-  const push = await notifyStaff(tenant.id, { title: body.split('\n')[0].replace(/^\[첫등원\]\s*/, ''), body: '계속 이용하시려면 관리자 화면에서 "계속 이용 신청"을 눌러 주세요.', url: `/${tenant.slug}/admin`, tag: 'beta' });
+  const push = await notifyStaff(tenant.id, { title: body.split('\n')[0].replace(/^\[더클\]\s*/, ''), body: '계속 이용하시려면 관리자 화면에서 "계속 이용 신청"을 눌러 주세요.', url: `/${tenant.slug}/admin`, tag: 'beta' });
   const recipients = push.skipKakao ? [] : await prisma.notifyRecipient.findMany({ where: { tenantId: tenant.id }, select: { phone: true } });
 
   let sent = push.pushed;

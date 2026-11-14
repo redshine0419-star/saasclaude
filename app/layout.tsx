@@ -2,9 +2,10 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { SiteAnalytics } from '@/components/analytics/SiteAnalytics';
 import { ga4MeasurementId } from '@/lib/analytics';
+import { BRAND_NAME } from '@/lib/brand';
 
 export const metadata: Metadata = {
-  title: '첫등원',
+  title: BRAND_NAME,
   description: '동네 학원·교습소를 위한 홈페이지 & 상담 관리 솔루션',
 };
 

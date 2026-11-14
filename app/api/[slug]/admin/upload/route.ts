@@ -36,7 +36,7 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
     return NextResponse.json({ url });
   } catch (e) {
     if (e instanceof StorageUnavailableError) {
-      return NextResponse.json({ error: '파일 저장소가 아직 연결되지 않아 사진을 올릴 수 없습니다. 첫등원 운영팀에 문의해 주세요.' }, { status: 503 });
+      return NextResponse.json({ error: '파일 저장소가 아직 연결되지 않아 사진을 올릴 수 없습니다. 더클 운영팀에 문의해 주세요.' }, { status: 503 });
     }
     console.error('[admin/upload] store failed', e instanceof Error ? e.message : e);
     return NextResponse.json({ error: '파일을 올리지 못했습니다. 잠시 후 다시 시도해 주세요.' }, { status: 502 });
