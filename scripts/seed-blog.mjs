@@ -17,6 +17,8 @@ const UPDATES = [
   { marker: 'seed:blog-drafts:v3', slug: 'student-privacy-consent', oldBodySha256: ['34753521ef1683d2a2e823ced07882c58dfa8843b50c80157d761b47cafdecd8'] },
   // v4: 4번 글(academy-website-checklist)을 운영자가 준 원고로 교체
   { marker: 'seed:blog-drafts:v4', slug: 'academy-website-checklist', oldBodySha256: ['1bb807dcf219ece2ad8e5ce8446afbe4ed6debca64a1c4d0c065a85daee76107'] },
+  // v5: 3번 글(consult-to-enrollment-5-tips)을 운영자가 준 원고로 교체 — 이 글은 처음부터 공개할 수 있는 초안이라, 본문이 처음 원고 그대로면 공개 중이어도 바꾼다
+  { marker: 'seed:blog-drafts:v5', slug: 'consult-to-enrollment-5-tips', oldBodySha256: ['2fca926e6d3bc3b205223cc4fff4e484e444c689b01951e6293ced3f18ae7d73'], evenIfPublished: true },
 ];
 const sha = (t) => createHash('sha256').update(t.replace(/\r\n?/g, '\n').trim()).digest('hex');
 
@@ -34,7 +36,7 @@ async function applyUpdates() {
     if (d && cur) {
       const curSha = sha(cur.body);
       if (curSha === sha(d.body)) console.log(`[seed-blog] ${u.slug} 이미 새 원고`);
-      else if (cur.status === 'draft' && u.oldBodySha256.includes(curSha)) {
+      else if ((cur.status === 'draft' || u.evenIfPublished) && u.oldBodySha256.includes(curSha)) {
         await prisma.blogPost.update({ where: { id: cur.id }, data: { title: d.title, summary: d.summary, body: d.body, category: d.category } });
         console.log(`[seed-blog] ${u.slug} 새 원고로 교체`);
       } else console.log(`[seed-blog] ${u.slug} 운영자가 고쳤거나 공개한 글 — 교체하지 않음`);
