@@ -53,17 +53,25 @@ export default function MarketingHome() {
     },
   ];
 
+  // 첫 화면 카드 — 핵심 6가지
+  const heroDoes = [
+    { icon: '🏫', title: '학원 홈페이지', desc: '3가지 테마, 휴대폰에서 바로 수정' },
+    { icon: '📋', title: '상담 신청 받기', desc: '1분 신청서 + 레벨테스트 예약' },
+    { icon: '📨', title: '학부모 자동 안내', desc: '접수 안내, 테스트 전날 알림을 자동으로' },
+    { icon: '🔔', title: '원장님 알림', desc: '새 상담·미응대 상담을 휴대폰으로' },
+    { icon: '✏️', title: '온라인 레벨테스트', desc: '자동 채점, 단원별 결과지' },
+    { icon: '📊', title: '상담→등록 관리', desc: '단계별 관리, 미등록 사유, 월간 리포트' },
+  ];
+
+  // 아래 비교 블록 — 첫 화면 카드에 없는 기능
   const fdDoes = [
-    '학원 홈페이지 구축 및 유지',
-    'FAQ 섹션 (AI·검색 노출 최적화)',
-    '상담 신청 폼·레벨테스트 일정·대기 신청',
-    '온라인 레벨테스트 (문제은행·자동 채점·서술형 첨삭·결과지)',
-    '카카오톡 자동 안내 발송 (7가지 시나리오)',
-    '상담 단계별 관리 + 미등록 사유 기록',
-    '원장님 관리 화면 + 휴대폰 앱 알림',
+    '자주 묻는 질문(FAQ) 섹션 — AI·검색 노출 최적화',
+    '정원이 찬 반은 대기 신청으로 자동 전환',
     '학생부·출결·성적, 학부모 리포트 링크 공유',
+    '학부모 등록 링크로 학생 정보 받기',
     '수업 자료·안내문 자료실',
-    '월간 신청·등록·미등록 사유·유입 검색어 리포트',
+    '실장님 등 직원 초대',
+    '설치형 관리자 앱',
     'AI 검색(ChatGPT 등)으로 들어온 상담 자동 집계',
   ];
 
@@ -92,23 +100,26 @@ export default function MarketingHome() {
             </div>
           </div>
 
-          {/* Mock UI cards */}
-          <div style={{ padding: 'clamp(24px, 3vw, 40px)', borderRadius: 24, background: '#F3F5F8', display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div style={{ padding: 20, borderRadius: 16, background: '#FFFFFF', display: 'flex', flexDirection: 'column', gap: 12, marginRight: '18%' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#5A6478' }}>학부모가 보는 화면</div>
-              <div style={{ fontSize: 19, fontWeight: 700, lineHeight: 1.4 }}>한 반 8명, 원장 직강</div>
-              <div style={{ height: 44, borderRadius: 10, background: '#14213D', color: '#FFFFFF', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>무료 레벨테스트 신청</div>
+          {/* 더클이 하는 일 — 첫 화면에서 핵심만 */}
+          <div style={{ padding: 'clamp(22px, 3vw, 36px)', borderRadius: 24, background: '#F3F5F8', display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
+              <div style={{ fontSize: 20, fontWeight: 700 }}>더클이 하는 일</div>
+              <div style={{ fontSize: 13, color: '#5A6478', fontWeight: 600 }}>신청부터 등록까지</div>
             </div>
-            <div style={{ padding: '18px 20px', borderRadius: 16, background: '#FFF3CC', display: 'flex', flexDirection: 'column', gap: 6, marginLeft: '14%', marginRight: '4%' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#5C4300' }}>학부모 카카오톡으로 자동 발송</div>
-              <div style={{ fontSize: 15, lineHeight: 1.6 }}>상담 신청이 접수되었습니다. 원장이 내일까지 직접 연락드리겠습니다.</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {heroDoes.map((d) => (
+                <div key={d.title} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '13px 16px', borderRadius: 14, background: '#FFFFFF' }}>
+                  <span aria-hidden="true" style={{ fontSize: 22, width: 28, textAlign: 'center', flexShrink: 0 }}>{d.icon}</span>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.4 }}>{d.title}</div>
+                    <div style={{ fontSize: 14, color: '#4A5568', lineHeight: 1.5, wordBreak: 'keep-all' }}>{d.desc}</div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div style={{ padding: '18px 20px', borderRadius: 16, background: '#14213D', color: '#FFFFFF', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginLeft: '28%' }}>
-              <div>
-                <div style={{ fontSize: 12, color: '#B8C0CF', fontWeight: 600 }}>원장님 휴대폰 알림</div>
-                <div style={{ fontSize: 15, fontWeight: 700, marginTop: 4 }}>새 상담 · 중2 · 네이버 검색</div>
-              </div>
-              <div style={{ width: 10, height: 10, borderRadius: 5, background: '#F5B700', flexShrink: 0 }} />
+            <div style={{ marginTop: 2, padding: '14px 16px', borderRadius: 14, background: '#14213D', color: '#FFFFFF', fontSize: 15, fontWeight: 600, lineHeight: 1.5, display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: 5, background: '#F5B700', flexShrink: 0 }} />
+              원장님은 알림이 오면 전화만 하세요.
             </div>
           </div>
         </div>
@@ -161,7 +172,7 @@ export default function MarketingHome() {
             </div>
           </div>
           <div style={{ padding: 'clamp(28px, 3vw, 44px)', borderRadius: 20, background: '#14213D', color: '#FFFFFF', display: 'flex', flexDirection: 'column', gap: 18 }}>
-            <div style={{ fontSize: 22, fontWeight: 700 }}>더클이 하는 일</div>
+            <div style={{ fontSize: 22, fontWeight: 700 }}>이것도 더클이 합니다</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, fontSize: 16, lineHeight: 1.6, color: '#E4E8EF' }}>
               {fdDoes.map((item) => (
                 <div key={item}>· {item}</div>
