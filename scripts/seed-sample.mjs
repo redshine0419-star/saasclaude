@@ -336,6 +336,7 @@ async function seedAcademy({ slug, marker, kids }) {
 
 // ── 데모 화면 시안(2026-11) — 사진·메인 문구·섹션 순서 ─────────────────────
 // 사진은 Unsplash 무료 이미지 주소. 학원 데이터가 아니라 데모 연출용이다.
+// 새 학원 기본 사진(lib/sample-photos.ts)과 같은 사진이다 — 바꿀 때 함께 바꾼다.
 // 메인 사진 배열: 0번은 첫 화면, 1번부터는 섹션 옆 사진(마지막 장은 오시는 길)로 쓰인다.
 const U = (id, w = 1200) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=85`;
 const LOOKS = [

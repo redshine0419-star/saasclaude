@@ -1,3 +1,4 @@
+import { SAMPLE_HERO_PHOTOS } from '@/lib/sample-photos';
 import { rateLimit } from '@/lib/security/rate-limit';
 import { after, NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
@@ -77,6 +78,8 @@ export async function POST(req: NextRequest) {
         name,
         slug,
         theme,
+        // 데모와 같은 기본 사진으로 시작 — 관리자 › 홈페이지 구성에서 바꾼다
+        heroPhotos: SAMPLE_HERO_PHOTOS[theme],
         regNo,
         subjects,
         targetGrades: targetGrades || null,

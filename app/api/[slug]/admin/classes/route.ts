@@ -1,3 +1,4 @@
+import { SAMPLE_CLASS_PHOTOS } from '@/lib/sample-photos';
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
@@ -23,9 +24,12 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   if (capacity !== null && seatsLeft !== null && seatsLeft > capacity) {
     return NextResponse.json({ error: '잔여석은 정원을 초과할 수 없습니다.' }, { status: 400 });
   }
+  // 반 사진은 기본 사진을 순서대로 하나씩 (관리자에서 바꾸거나 뺄 수 있다)
+  const classCount = await prisma.classItem.count({ where: { tenantId: tenant.id } });
   const cls = await prisma.classItem.create({
     data: {
       tenantId: tenant.id,
+      photo: SAMPLE_CLASS_PHOTOS[classCount % SAMPLE_CLASS_PHOTOS.length],
       name: body?.name ?? '새 반',
       days: body?.days ?? [],
       startTime: body?.startTime ?? null,

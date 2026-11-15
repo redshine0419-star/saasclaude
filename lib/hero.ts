@@ -3,7 +3,7 @@
  * 기본 문구에는 학원마다 다른 사실(인원·특강 모집 등)을 넣지 않는다 — 대괄호 원칙(CLAUDE.md 4).
  * 브라우저에서도 쓰므로 DB 모듈을 import하지 않는다.
  */
-export const HERO_LIMITS = { badge: 20, title: 40, subtitle: 120, photos: 3 } as const;
+export const HERO_LIMITS = { badge: 20, title: 40, subtitle: 120, photos: 5 } as const;
 
 export type HeroTheme = 'warm' | 'result' | 'bright';
 

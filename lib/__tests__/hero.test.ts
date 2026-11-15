@@ -12,7 +12,8 @@ describe('parseHero', () => {
   it('길이·줄 수·사진 수·바깥 주소를 거절한다', () => {
     expect(parseHero({ heroTitle: 'a'.repeat(41) }, stored).ok).toBe(false);
     expect(parseHero({ heroTitle: '1\n2\n3' }, stored).ok).toBe(false);
-    expect(parseHero({ heroPhotos: [P(1), P(2), P(3), P(4)] }, stored).ok).toBe(false);
+    expect(parseHero({ heroPhotos: [P(1), P(2), P(3), P(4), P(5), P(6)] }, stored).ok).toBe(false);
+    expect(parseHero({ heroPhotos: [P(1), P(2), P(3), P(4), P(5)] }, stored).ok).toBe(true);
     expect(parseHero({ heroPhotos: ['https://evil.example.com/a.jpg'] }, stored).ok).toBe(false);
     expect(parseHero({ heroPhotos: 'x' }, stored).ok).toBe(false);
   });

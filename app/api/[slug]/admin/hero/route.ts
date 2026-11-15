@@ -1,3 +1,4 @@
+import { isSamplePhoto } from '@/lib/sample-photos';
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
@@ -19,7 +20,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
 
   const body = await req.json().catch(() => null);
   if (!body || typeof body !== 'object') return NextResponse.json({ error: '잘못된 요청입니다.' }, { status: 400 });
-  const parsed = parseHero(body, isStoredUrl);
+  const parsed = parseHero(body, (u) => isStoredUrl(u) || isSamplePhoto(u));
   if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
 
   await prisma.tenant.update({ where: { id: tenant.id }, data: parsed.data });

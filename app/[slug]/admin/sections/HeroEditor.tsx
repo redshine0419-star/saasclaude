@@ -17,9 +17,9 @@ const LABEL: React.CSSProperties = { display: 'flex', justifyContent: 'space-bet
 const PHOTO_HINT: Record<HeroTheme, string> = {
   warm: '첫 번째 사진이 PC 화면 메인 사진으로 보입니다. (휴대폰에서는 원장 사진이 먼저 보입니다)',
   result: '성과 표를 공개하지 않을 때 첫 번째 사진이 메인에 보입니다.',
-  bright: '세 장 모두 메인 사진 칸에 순서대로 보입니다. 1번이 가장 큰 칸입니다.',
+  bright: '1~3번 사진이 메인 사진 칸에 순서대로 보입니다. 1번이 가장 큰 칸입니다.',
 };
-const SLOT_LABEL = ['1 (큰 칸)', '2', '3'];
+const SLOT_LABEL = ['1 (큰 칸)', '2', '3', '4', '5'];
 
 export function HeroEditor({ slug, theme, subjects, canEdit, initial }: Props) {
   const router = useRouter();
@@ -107,9 +107,9 @@ export function HeroEditor({ slug, theme, subjects, canEdit, initial }: Props) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <span style={LABEL}>대표 사진 (최대 {HERO_LIMITS.photos}장)</span>
-        <div style={{ fontSize: 12, color: '#9AA3AF', lineHeight: 1.6 }}>{PHOTO_HINT[theme]} 얼굴이 나온 사진은 보호자 동의를 받은 경우에만 올려 주세요.</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 10 }}>
-          {[0, 1, 2].map((i) => {
+        <div style={{ fontSize: 12, color: '#9AA3AF', lineHeight: 1.6 }}>{PHOTO_HINT[theme]} 2번째 사진부터는 섹션 옆 사진과 오시는 길 사진으로도 쓰입니다. 처음 들어 있는 사진은 샘플이니 우리 학원 사진으로 바꿔 주세요. 얼굴이 나온 사진은 보호자 동의를 받은 경우에만 올려 주세요.</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: 10 }}>
+          {Array.from({ length: HERO_LIMITS.photos }, (_, i) => i).map((i) => {
             const src = photos[i];
             const canAdd = i <= photos.length;
             return (
