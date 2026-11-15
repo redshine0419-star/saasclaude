@@ -21,6 +21,8 @@ const UPDATES = [
   { marker: 'seed:blog-drafts:v5', slug: 'consult-to-enrollment-5-tips', oldBodySha256: ['2fca926e6d3bc3b205223cc4fff4e484e444c689b01951e6293ced3f18ae7d73'], evenIfPublished: true },
   // v6: 1번 글(tuition-change-guide)을 운영자가 준 원고로 교체
   { marker: 'seed:blog-drafts:v6', slug: 'tuition-change-guide', oldBodySha256: ['1faeef5b8c83614a7727e353f8ac794766d4f9ddc0b9861034674ed6d7ebbfba'], evenIfPublished: true },
+  // v7: 2번 글(academy-ad-message-rules)을 운영자가 준 원고로 교체
+  { marker: 'seed:blog-drafts:v7', slug: 'academy-ad-message-rules', oldBodySha256: ['2f8a27baa5feaa4ab4bb1b7cfa00ecace4119930aa3a16107fde88c24b0c346b'], evenIfPublished: true },
 ];
 const sha = (t) => createHash('sha256').update(t.replace(/\r\n?/g, '\n').trim()).digest('hex');
 
