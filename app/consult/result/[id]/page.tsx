@@ -87,7 +87,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
         <section style={{ padding: 24, borderRadius: 16, background: '#14213D', color: '#FFFFFF', display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ fontSize: 20, fontWeight: 700 }}>더클 홈페이지는 위 항목을 기본으로 갖추고 시작합니다</div>
           <div style={{ fontSize: 15, lineHeight: 1.7, color: '#D6DBE6' }}>
-            상담 신청 폼·전화 버튼·카톡 상담, 모바일 화면, 검색용 구조화 데이터, 교습비·등록번호 표기까지. 학원 정보만 입력하면 바로 열립니다. 오픈일부터 3개월 무료.
+            상담 신청 폼·전화 버튼·메신저 상담, 모바일 화면, 검색용 구조화 데이터, 교습비·등록번호 표기까지. 학원 정보만 입력하면 바로 열립니다. 오픈일부터 3개월 무료.
           </div>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <Link href="/start" style={{ height: 52, padding: '0 24px', borderRadius: 12, background: '#FFC93C', color: '#14213D', textDecoration: 'none', fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center' }}>무료로 바로 만들기</Link>

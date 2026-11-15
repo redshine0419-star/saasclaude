@@ -4,7 +4,7 @@ import { FdFooter } from '@/components/fd/FdFooter';
 
 export const metadata = {
   title: '서비스 소개 — 더클',
-  description: '더클의 홈페이지·상담 관리·카카오톡 자동화 기능을 소개합니다.',
+  description: '더클의 홈페이지·상담 관리·학부모 자동 안내 기능을 소개합니다.',
 };
 
 export default function ServicePage() {
@@ -26,7 +26,7 @@ export default function ServicePage() {
     },
     {
       icon: '💬',
-      title: '카카오톡 자동 안내',
+      title: '학부모 자동 안내',
       body: '접수 확인, 테스트 전날 알림, 매일 아침 미응대 상담 알림, 상담 후속 안내까지 7가지 시나리오가 자동으로 발송됩니다. 광고성 동의·야간 차단 규칙을 서버에서 강제합니다.',
     },
     {
@@ -37,7 +37,7 @@ export default function ServicePage() {
     {
       icon: '📰',
       title: '콘텐츠 관리',
-      body: '소식·공지를 폰에서 바로 올립니다. 카카오톡으로 동시 발송도 됩니다. 후기와 성적 사례는 동의를 확인한 것만 홈페이지에 공개됩니다.',
+      body: '소식·공지를 폰에서 바로 올립니다. 학부모에게 메시지로 함께 보낼 수도 있습니다. 후기와 성적 사례는 동의를 확인한 것만 홈페이지에 공개됩니다.',
     },
     {
       icon: '📈',
@@ -52,7 +52,7 @@ export default function ServicePage() {
     {
       icon: '📱',
       title: '관리자 앱 · 앱 알림',
-      body: '관리 화면을 휴대폰 홈 화면에 앱처럼 설치합니다. 새 상담·미응대 알림을 앱 알림으로 받으면 카카오톡 알림톡 비용이 들지 않습니다. 실장님 등 직원도 초대해 함께 씁니다.',
+      body: '관리 화면을 휴대폰 홈 화면에 앱처럼 설치합니다. 새 상담·미응대 알림을 앱 알림으로 받으면 메시지 발송 비용이 들지 않습니다. 실장님 등 직원도 초대해 함께 씁니다.',
     },
     {
       icon: '📂',
@@ -71,7 +71,7 @@ export default function ServicePage() {
             <div style={{ fontSize: 14, fontWeight: 700, color: '#8A6400', marginBottom: 12 }}>서비스 소개</div>
             <h1 style={{ margin: 0, fontSize: 'clamp(32px, 4vw, 52px)', fontWeight: 700, letterSpacing: '-1px', lineHeight: 1.25 }}>학원 원장님이 수업에<br />집중할 수 있도록</h1>
             <p style={{ margin: '20px 0 0', fontSize: 17, lineHeight: 1.75, color: '#4A5568' }}>
-              홈페이지 관리, 상담 연락, 카카오톡 발송, 리포트 확인. 원장님이 직접 하던 일을 더클이 대신합니다.
+              홈페이지 관리, 상담 연락, 학부모 안내 발송, 리포트 확인. 원장님이 직접 하던 일을 더클이 대신합니다.
             </p>
           </div>
 

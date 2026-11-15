@@ -13,7 +13,7 @@ const PLATFORM_HOSTS: [RegExp, string][] = [
   [/(^|\.)blog\.naver\.com$/, '네이버 블로그'],
   [/(^|\.)(map|place|m\.place)\.naver\.com$|(^|\.)naver\.me$/, '네이버 플레이스'],
   [/(^|\.)instagram\.com$/, '인스타그램'],
-  [/(^|\.)pf\.kakao\.com$/, '카카오톡 채널'],
+  [/(^|\.)pf\.kakao\.com$/, '메신저 채널'],
   [/(^|\.)band\.us$/, '네이버 밴드'],
   [/(^|\.)cafe\.naver\.com$/, '네이버 카페'],
 ];
@@ -81,7 +81,7 @@ export function analyzePage(page: PageInput): DiagnosisResult {
   const seo: Check[] = [
     { label: '페이지 제목', pass: title.length >= 2, tip: '페이지 제목(title)이 비어 있습니다.' },
     { label: '검색 설명문', pass: meta('description'), tip: '검색 결과에 나오는 설명문(description)이 없습니다.' },
-    { label: '공유 미리보기', pass: meta('og:title'), tip: '카톡 공유 시 미리보기(og 태그)가 없습니다.' },
+    { label: '공유 미리보기', pass: meta('og:title'), tip: '메신저·SNS로 공유할 때 보이는 미리보기(og 태그)가 없습니다.' },
     { label: '구조화 데이터', pass: /application\/ld\+json/.test(lower) && /(educationalorganization|localbusiness|organization)/.test(lower), tip: '검색엔진·AI가 읽는 학원 정보(구조화 데이터)가 없습니다.' },
     { label: '네이버 사이트 등록', pass: meta('naver-site-verification'), tip: '네이버 서치어드바이저에 등록되어 있지 않습니다.' },
   ];
@@ -89,7 +89,7 @@ export function analyzePage(page: PageInput): DiagnosisResult {
   const conversion: Check[] = [
     { label: '전화 바로 걸기', pass: /href=["']tel:/i.test(html), tip: '휴대폰에서 눌러서 바로 거는 전화 버튼이 없습니다.' },
     { label: '상담 신청 폼', pass: /<form[\s>]/i.test(html) || /(상담|레벨\s?테스트|체험)\s?(신청|예약)/.test(text), tip: '온라인 상담 신청 폼이 없습니다.' },
-    { label: '카카오톡 상담', pass: /pf\.kakao\.com|open\.kakao\.com/i.test(html), tip: '카카오톡 채널 상담 링크가 없습니다.' },
+    { label: '메신저 상담', pass: /pf\.kakao\.com|open\.kakao\.com/i.test(html), tip: '메신저 채널 상담 링크가 없습니다.' },
   ];
 
   const mobile: Check[] = [

@@ -178,7 +178,7 @@ export default function DemoPage() {
                   ))}
                 </tr>
                 <tr style={{ background: '#FFFFFF' }}>
-                  <td style={{ padding: '14px 20px', fontSize: 13, fontWeight: 600, color: '#4A5568', borderBottom: '1px solid #EEF0F3' }}>카카오톡 자동화</td>
+                  <td style={{ padding: '14px 20px', fontSize: 13, fontWeight: 600, color: '#4A5568', borderBottom: '1px solid #EEF0F3' }}>학부모 자동 안내</td>
                   {demos.map((d) => (
                     <td key={d.slug} style={{ padding: '14px 20px', fontSize: 14, color: '#1E5645', fontWeight: 600, borderBottom: '1px solid #EEF0F3' }}>
                       ✓ 공통 제공
