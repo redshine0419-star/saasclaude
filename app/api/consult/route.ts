@@ -1,3 +1,4 @@
+import { rateLimit } from '@/lib/security/rate-limit';
 import { after, NextRequest, NextResponse } from 'next/server';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
@@ -14,6 +15,9 @@ function text(v: unknown, max: number) {
 }
 
 export async function POST(req: NextRequest) {
+  // 무료 진단은 외부 주소를 가져오므로 더 엄격하게: 10분에 5건, 하루 20건
+  const limited = (await rateLimit(req, 'diagnosis', { limit: 5, windowSec: 600 })) ?? (await rateLimit(req, 'diagnosis-day', { limit: 20, windowSec: 86400 }));
+  if (limited) return limited;
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: '입력 오류' }, { status: 400 });
 

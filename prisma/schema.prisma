@@ -116,6 +116,7 @@ model Tenant {
   studentRegistrations StudentRegistration[]
   resources            Resource[]
   adminNotifications   AdminNotification[]
+  accessLogs           AccessLog[]
   smsTasks             SmsTask[]
   pushDevices          PushDevice[]
   studentNotes         StudentNote[]
@@ -1359,4 +1360,34 @@ model SmsTask {
   @@unique([leadId, kind, refKey])
   @@index([tenantId, status, dueAt])
   @@map("sms_tasks")
+}
+
+/// 요청 횟수 제한 — 상담 신청·무료 진단·시험 답안 등 공개 API. key에는 IP 원문 대신 해시를 쓴다
+model RateLimit {
+  key       String   @id
+  count     Int      @default(0)
+  expiresAt DateTime
+
+  @@index([expiresAt])
+  @@map("rate_limits")
+}
+
+/// 개인정보 접속 기록 — 원장·직원이 학생·상담 정보를 열람·수정·내보낸 기록 (1년 보관)
+model AccessLog {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  tenantId   String
+  actorEmail String
+  /// view_student | update_student | delete_student | view_leads | update_lead | export_leads | export_consents | export_data | view_report_link ...
+  action     String
+  /// student | lead | leads | consents | data
+  targetType String
+  targetId   String?
+  /// 요청 IP의 해시 (원문 저장 안 함)
+  ipHash     String?
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, createdAt])
+  @@map("access_logs")
 }

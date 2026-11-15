@@ -1,3 +1,4 @@
+import { logAccess } from '@/lib/security/access-log';
 import { notFound, redirect } from 'next/navigation';
 import { adminSession } from '@/lib/demo-viewer';
 import { prisma } from '@/lib/prisma';
@@ -23,6 +24,8 @@ export default async function AdminLeadsPage({
 
   const membership = await getAdminMembership(tenant.id, session.user.email!);
   if (!membership) redirect('/auth/signin');
+  // 상담 화면은 학부모 연락처 원문을 포함한다 — 열람 기록 (운영자 대행 접속은 별도 기록)
+  await logAccess(tenant.id, session.user.email!, 'view_leads', { type: 'leads', id: focusId ?? null });
 
   const leads = await prisma.lead.findMany({
     where: { tenantId: tenant.id },

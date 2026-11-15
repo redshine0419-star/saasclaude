@@ -1,3 +1,4 @@
+import { rateLimit } from '@/lib/security/rate-limit';
 import { after, NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
@@ -20,6 +21,8 @@ function text(v: unknown, max: number): string {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await rateLimit(req, 'start', { limit: 10, windowSec: 3600 });
+  if (limited) return limited;
   const session = await auth();
   const email = session?.user?.email;
   if (!email) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });

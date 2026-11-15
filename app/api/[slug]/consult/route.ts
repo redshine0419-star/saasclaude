@@ -1,3 +1,4 @@
+import { rateLimit } from '@/lib/security/rate-limit';
 import { NextRequest, NextResponse } from 'next/server';
 import { notifyOwner } from '@/lib/notify/owner';
 import { createSmsTask } from '@/lib/sms/tasks';
@@ -37,6 +38,9 @@ export async function POST(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
+  // 스팸·자동 신청 막기: 같은 곳에서 10분에 5건, 하루 30건까지
+  const limited = (await rateLimit(req, `consult:${slug}`, { limit: 5, windowSec: 600 })) ?? (await rateLimit(req, 'consult-day', { limit: 30, windowSec: 86400 }));
+  if (limited) return limited;
 
   const body = await req.json().catch(() => null);
   if (!body?.name || !body?.tel) {

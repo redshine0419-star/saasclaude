@@ -1,3 +1,4 @@
+import { logAccess } from '@/lib/security/access-log';
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
@@ -17,6 +18,7 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
 
   const membership = await getAdminMembership(tenant.id, session.user.email!);
   if (!membership) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  await logAccess(tenant.id, session.user.email!, 'export_leads', { type: 'leads' }, req);
 
   const url = new URL(req.url);
   const statusFilter = url.searchParams.get('status');

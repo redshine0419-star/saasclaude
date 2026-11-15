@@ -185,6 +185,13 @@ source 판별 순서: UTM → referrer (naver.com 검색/플레이스, kakao, bl
 - 사진: 갤러리 글은 보호자 게시 동의 확인(`facePhotoConsent`)이 없으면 서버가 저장을 막는다 (소식 POST·PATCH)
 - 관리자 목록 연락처 마스킹 (010-****-1234)
 
+## 8-1. 보안 (2026-11)
+
+- 보안 헤더(next.config): HSTS, nosniff, X-Frame-Options SAMEORIGIN + CSP frame-ancestors 'self', Referrer-Policy, Permissions-Policy — 다른 사이트에 학원 홈페이지를 iframe으로 넣을 수 없다
+- 요청 횟수 제한(`lib/security/rate-limit.ts`, `rate_limits` 표, IP는 해시로만): 학원 상담 신청 10분 5건·하루 30건, 무료 진단 10분 5건·하루 20건, 학부모 등록 10분 10건, 셀프 개설 1시간 10건, 시험 응시는 링크 기준(답안 10분 600건, 시작·제출 30건, 사진 60건)
+- 개인정보 접속 기록(`access_logs`, `lib/security/access-log.ts`): 학생 상세 열람·수정·퇴원, 상담 목록 열람·수정, 보낼 문자 열람, 상담·동의 CSV·전체 내보내기 — 내용·연락처는 남기지 않는다. 설정 › '개인정보 접속 기록'(원장만). 보관 1년 `TODO(확인 필요)`: 법정 보관 기간
+- 운영자 대행 접속 기록은 기존대로(proxy logs)
+
 ## 9. 검색·분석
 
 - 학원별: title/description, Open Graph, `EducationalOrganization`/`LocalBusiness` JSON-LD (이름, 주소, 전화, 운영 시간), sitemap.xml, robots.txt, 네이버 사이트 인증 메타 입력칸

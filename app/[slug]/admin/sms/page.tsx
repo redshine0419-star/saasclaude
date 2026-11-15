@@ -1,3 +1,4 @@
+import { logAccess } from '@/lib/security/access-log';
 import { prisma } from '@/lib/prisma';
 import { AdminSide } from '@/components/admin/AdminSide';
 import { studentPageAuth } from '@/lib/students/page-auth';
@@ -14,7 +15,8 @@ type Props = { params: Promise<{ slug: string }> };
 /** 보낼 문자 — 시스템이 준비하고 원장이 휴대폰 문자 앱으로 직접 보낸다 (카톡 자동 발송 대신) */
 export default async function SmsPage({ params }: Props) {
   const { slug } = await params;
-  const { tenant, isOwner } = await studentPageAuth(slug);
+  const { tenant, isOwner, email } = await studentPageAuth(slug);
+  await logAccess(tenant.id, email, 'view_sms', { type: 'sms', id: null });
   const now = new Date();
 
   // 이미 의미가 없어진 할 일은 자동으로 건너뛴다: 결정이 끝난 상담의 후속 안내, 지난 테스트의 전날 안내

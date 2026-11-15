@@ -1,3 +1,4 @@
+import { logAccess } from '@/lib/security/access-log';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { AdminSide } from '@/components/admin/AdminSide';
@@ -12,6 +13,7 @@ type Props = { params: Promise<{ slug: string; id: string }> };
 export default async function StudentPage({ params }: Props) {
   const { slug, id } = await params;
   const { tenant, email, isOwner } = await studentPageAuth(slug);
+  await logAccess(tenant.id, email, 'view_student', { type: 'student', id: id });
 
   const since = daysAgo(120);
   const [student, classes] = await Promise.all([

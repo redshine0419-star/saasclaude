@@ -1,3 +1,4 @@
+import { rateLimit } from '@/lib/security/rate-limit';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { findAttemptByToken, isPastDeadline } from '@/lib/level-test/attempt';
@@ -21,6 +22,8 @@ async function openAttempt(slug: string, token: string) {
 // 서술형 풀이 사진 올리기 (휴대폰에서 줄여 JPEG로 보낸다)
 export async function POST(req: NextRequest, { params }: { params: Params }) {
   const { slug, token } = await params;
+  const limited = await rateLimit(req, 'test-photo', { limit: 60, windowSec: 600, key: token.slice(0, 64) });
+  if (limited) return limited;
   const o = await openAttempt(slug, token);
   if ('error' in o) return o.error;
   const { attempt } = o;

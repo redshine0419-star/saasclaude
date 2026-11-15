@@ -1,3 +1,4 @@
+import { logAccess } from '@/lib/security/access-log';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { studentAccess } from '@/lib/students/access';
@@ -25,17 +26,19 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
   }
 
   await prisma.student.updateMany({ where: { id, tenantId: a.tenantId }, data });
+  await logAccess(a.tenantId, a.email, 'update_student', { type: 'student', id }, req);
   return NextResponse.json({ ok: true });
 }
 
 // DELETE — 퇴원 처리: 학생부를 즉시 파기한다(메모·성적·출결 CASCADE). 보관하지 않는다(SPEC 14장). 원장만
 // 입학 전 상담 기록(Lead)은 상담 관리 소관이라 남는다 — 연결만 끊긴다
-export async function DELETE(_req: NextRequest, { params }: { params: Params }) {
+export async function DELETE(req: NextRequest, { params }: { params: Params }) {
   const { slug, id } = await params;
   const a = await studentAccess(slug, { ownerOnly: true });
   if (a instanceof NextResponse) return a;
   const r = await prisma.student.deleteMany({ where: { id, tenantId: a.tenantId } });
   if (r.count === 0) return NextResponse.json({ error: '학생을 찾을 수 없습니다.' }, { status: 404 });
+  await logAccess(a.tenantId, a.email, 'delete_student', { type: 'student', id }, req);
   // 파기 기록 — 이름·연락처는 남기지 않는다
   console.log('[students] withdrawn and purged', { tenantId: a.tenantId, studentId: id, by: a.isOwner ? 'owner' : 'staff' });
   return NextResponse.json({ ok: true });

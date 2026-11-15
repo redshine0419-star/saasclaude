@@ -1,5 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import { AppNotifyCard } from './AppNotifyCard';
+import { AccessLogCard } from './AccessLogCard';
 import { kakaoEnabled } from '@/lib/messaging/kakao-enabled';
 import { pushPublicKey } from '@/lib/push';
 import { SiteControlCard } from './SiteControlCard';
@@ -100,6 +101,7 @@ export default async function AdminSettingsPage({
           pushReplacesKakao={tenant.pushReplacesKakao}
           kakaoOn={kakaoEnabled()}
         />
+        {membership.role === 'owner' && <AccessLogCard tenantId={tenant.id} slug={slug} />}
         <SiteControlCard
           slug={slug}
           tenantName={tenant.name}

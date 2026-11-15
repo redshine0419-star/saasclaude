@@ -1,3 +1,4 @@
+import { logAccess } from '@/lib/security/access-log';
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
@@ -92,5 +93,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
     });
   }
 
+  // 문자 앱 열기 기록만 하는 요청은 수정이 아니라 빼고 남긴다
+  if (Object.keys(body ?? {}).some((k) => k !== 'smsOpened')) await logAccess(tenant.id, session.user.email!, 'update_lead', { type: 'lead', id }, req);
   return NextResponse.json({ ok: true });
 }

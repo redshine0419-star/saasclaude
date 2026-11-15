@@ -1,11 +1,14 @@
+import { rateLimit } from '@/lib/security/rate-limit';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { findAttemptByToken } from '@/lib/level-test/attempt';
 
 type Params = Promise<{ slug: string; token: string }>;
 
-export async function POST(_req: Request, { params }: { params: Params }) {
+export async function POST(req: Request, { params }: { params: Params }) {
   const { slug, token } = await params;
+  const limited = await rateLimit(req, 'test-start', { limit: 30, windowSec: 600, key: token.slice(0, 64) });
+  if (limited) return limited;
   const attempt = await findAttemptByToken(slug, token);
   if (!attempt) return NextResponse.json({ error: '시험을 찾을 수 없습니다.' }, { status: 404 });
   if (attempt.status === 'submitted') return NextResponse.json({ error: '이미 제출한 시험입니다.' }, { status: 409 });

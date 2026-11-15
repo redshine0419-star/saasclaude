@@ -1,3 +1,4 @@
+import { rateLimit } from '@/lib/security/rate-limit';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { notifyOwner } from '@/lib/notify/owner';
@@ -8,6 +9,8 @@ type Params = Promise<{ slug: string }>;
 // POST /api/[slug]/join — 학부모가 등록 링크로 학생 정보를 제출 (로그인 없음, 등록 대기로 저장)
 export async function POST(req: NextRequest, { params }: { params: Params }) {
   const { slug } = await params;
+  const limited = await rateLimit(req, `join:${slug}`, { limit: 10, windowSec: 600 });
+  if (limited) return limited;
   const body = await req.json().catch(() => null);
   if (!body || typeof body !== 'object') return NextResponse.json({ error: '잘못된 요청입니다.' }, { status: 400 });
 

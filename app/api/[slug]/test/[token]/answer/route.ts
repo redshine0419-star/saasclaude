@@ -1,3 +1,4 @@
+import { rateLimit } from '@/lib/security/rate-limit';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { findAttemptByToken, isPastDeadline } from '@/lib/level-test/attempt';
@@ -7,6 +8,8 @@ type Params = Promise<{ slug: string; token: string }>;
 // 답을 고를 때마다 자동 저장 — 새로고침·연결 끊김에도 답이 남는다
 export async function PUT(req: NextRequest, { params }: { params: Params }) {
   const { slug, token } = await params;
+  const limited = await rateLimit(req, 'test-answer', { limit: 600, windowSec: 600, key: token.slice(0, 64) });
+  if (limited) return limited;
   const attempt = await findAttemptByToken(slug, token);
   if (!attempt) return NextResponse.json({ error: '시험을 찾을 수 없습니다.' }, { status: 404 });
   if (attempt.status !== 'in_progress') return NextResponse.json({ error: '진행 중인 시험이 아닙니다.' }, { status: 409 });

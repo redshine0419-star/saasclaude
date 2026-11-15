@@ -88,8 +88,15 @@ export async function purgeTenant(tenantId: string): Promise<{ slug: string; pay
 }
 
 /** 매일 한 번 (Vercel Cron) — 학원은 자동으로 지우지 않는다 */
+/** 개인정보 접속 기록 보관 일수 */
+export const ACCESS_LOG_DAYS = 365;
+
 export async function runRetention(now: Date = new Date()) {
   const invites = await prisma.memberInvite.deleteMany({ where: { expiresAt: { lt: now } } });
   const archives = await prisma.paymentArchive.deleteMany({ where: { deleteAfter: { lt: now } } });
-  return { expiredInvites: invites.count, expiredPaymentArchives: archives.count };
+  // 요청 횟수 기록(만료분), 개인정보 접속 기록(1년 지난 것)
+  const limits = await prisma.rateLimit.deleteMany({ where: { expiresAt: { lt: now } } });
+  // TODO(확인 필요): 접속기록 보관 기간 — 개인정보 안전성 확보조치 기준(처리 규모에 따라 1년 또는 2년). 우선 1년
+  const accessLogs = await prisma.accessLog.deleteMany({ where: { createdAt: { lt: new Date(now.getTime() - ACCESS_LOG_DAYS * 24 * 3600 * 1000) } } });
+  return { expiredInvites: invites.count, expiredPaymentArchives: archives.count, expiredRateLimits: limits.count, expiredAccessLogs: accessLogs.count };
 }

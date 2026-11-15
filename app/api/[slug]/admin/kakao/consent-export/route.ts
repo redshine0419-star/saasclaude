@@ -1,3 +1,4 @@
+import { logAccess } from '@/lib/security/access-log';
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
@@ -6,7 +7,7 @@ import { hashPhone } from '@/lib/messaging/hash';
 
 type Params = Promise<{ slug: string }>;
 
-export async function GET(_req: NextRequest, { params }: { params: Params }) {
+export async function GET(req: NextRequest, { params }: { params: Params }) {
   const { slug } = await params;
 
   const session = await auth();
@@ -17,6 +18,7 @@ export async function GET(_req: NextRequest, { params }: { params: Params }) {
 
   const membership = await getAdminMembership(tenant.id, session.user.email!);
   if (!membership) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  await logAccess(tenant.id, session.user.email!, 'export_consents', { type: 'consents' }, req);
 
   const consents = await prisma.consent.findMany({
     where: { tenantId: tenant.id },
