@@ -1,3 +1,4 @@
+import { kakaoEnabled } from '@/lib/messaging/kakao-enabled';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { adminSession } from '@/lib/demo-viewer';
@@ -71,7 +72,7 @@ export default async function AdminNewsEditPage({
             {isEdit ? '소식 편집' : '새 글 쓰기'}
           </h1>
 
-          <NewsEditClient slug={slug} post={post} aiDraftEnabled={aiDraftAvailable()} />
+          <NewsEditClient slug={slug} post={post} aiDraftEnabled={aiDraftAvailable()} kakaoOn={kakaoEnabled()} />
         </div>
       </main>
     </div>

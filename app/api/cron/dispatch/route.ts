@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { fillTemplate, resolveTemplate } from '@/lib/messaging/templates';
 import { sendMessage } from '@/lib/messaging/send';
 import { hashPhone } from '@/lib/messaging/hash';
+import { kakaoEnabled } from '@/lib/messaging/kakao-enabled';
 
 // Vercel Cron: */5 * * * * — 5분마다 실행
 // 1) 야간 차단으로 deferred된 Messages 재시도
@@ -16,6 +17,9 @@ export async function GET(req: Request) {
   if (process.env.CRON_SECRET && auth !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  // 카톡 발송을 쓰지 않는 동안에는 할 일이 없다
+  if (!kakaoEnabled()) return NextResponse.json({ ok: true, skipped: 'kakao_off' });
 
   const now = new Date();
   let dispatched = 0;

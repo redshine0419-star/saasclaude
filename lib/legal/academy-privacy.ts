@@ -1,5 +1,6 @@
 import type { LegalSection } from './documents';
 import { OPERATOR, OVERSEAS_TRANSFERS } from './documents';
+import { kakaoEnabled } from '@/lib/messaging/kakao-enabled';
 
 export const ACADEMY_PRIVACY_VERSION = '2026-11-08';
 
@@ -34,7 +35,8 @@ export function academyPrivacy(t: { name: string; phone: string | null; address:
       title: '3. 처리 위탁',
       body: [
         `· ${OPERATOR.name}("더클") — 학원 홈페이지·상담 관리·학생부 시스템 운영 (재위탁: 호스팅 Vercel, 데이터베이스 Neon)`,
-        '· (주)알리고 — 카카오 알림톡·문자 발송',
+        // 카톡 발송을 켠 경우에만 발송 대행 위탁 (지금은 원장이 휴대폰 문자로 직접 보낸다)
+        ...(kakaoEnabled() ? ['· (주)알리고 — 카카오 알림톡·문자 발송'] : []),
         '위탁받은 회사는 학원의 지시에 따라서만 개인정보를 처리하며, 위탁 업무 외의 목적으로 쓰지 않습니다.',
       ],
     },

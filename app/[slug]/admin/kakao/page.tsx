@@ -5,6 +5,7 @@ import { PLATFORM_TEMPLATES } from '@/lib/messaging/templates';
 import { getAdminMembership } from '@/lib/admin-auth';
 import { AdminSide } from '@/components/admin/AdminSide';
 import { KakaoAutomationClient } from './KakaoAutomationClient';
+import { kakaoEnabled } from '@/lib/messaging/kakao-enabled';
 
 export default async function AdminKakaoPage({
   params,
@@ -12,6 +13,8 @@ export default async function AdminKakaoPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  // 카톡 발송을 쓰지 않는 동안에는 학부모 안내를 '보낼 문자'에서 한다
+  if (!kakaoEnabled()) redirect(`/${slug}/admin/sms`);
 
   const session = await adminSession(slug);
   if (!session?.user?.email) redirect('/auth/signin');

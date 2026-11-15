@@ -8,7 +8,8 @@ describe('searchHelp', () => {
   it.each([
     ['직원 초대는 어떻게 하나요', 'settings'],
     ['실장님 초대', 'settings'],
-    ['밤에 카톡 안 가요', 'kakao'],
+    ['보낼 문자 건너뛰기', 'sms'],
+    ['알림함 보관 기간', 'notifications'],
     ['퇴원하면 어떻게 돼요', 'students'],
     ['학부모 등록 링크', 'students'],
     ['요금이 얼마예요', 'billing'],
@@ -40,7 +41,8 @@ describe('topicForPath', () => {
   it('주소로 메뉴를 찾는다', () => {
     expect(topicForPath('/a/admin', 'a', HELP_TOPICS)?.key).toBe('dashboard');
     expect(topicForPath('/a/admin/kakao/log', 'a', HELP_TOPICS)?.key).toBe('kakaolog');
-    expect(topicForPath('/a/admin/kakao', 'a', HELP_TOPICS)?.key).toBe('kakao');
+    expect(topicForPath('/a/admin/sms', 'a', HELP_TOPICS)?.key).toBe('sms');
+    expect(topicForPath('/a/admin/notifications', 'a', HELP_TOPICS)?.key).toBe('notifications');
     expect(topicForPath('/a/admin/students/abc', 'a', HELP_TOPICS)?.key).toBe('students');
     expect(topicForPath('/a/other', 'a', HELP_TOPICS)).toBeUndefined();
   });

@@ -1,3 +1,4 @@
+import { kakaoEnabled } from '@/lib/messaging/kakao-enabled';
 import { notFound, redirect } from 'next/navigation';
 import { adminSession } from '@/lib/demo-viewer';
 import { prisma } from '@/lib/prisma';
@@ -38,6 +39,7 @@ export default async function AdminMobilePage({ params }: Props) {
       slug={slug}
       tenantName={tenant.name}
       marketingCount={marketingCount}
+      kakaoOn={kakaoEnabled()}
       newLeadsCount={newLeadsCount}
     />
   );

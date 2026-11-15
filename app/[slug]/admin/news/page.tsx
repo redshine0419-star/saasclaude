@@ -1,3 +1,4 @@
+import { kakaoEnabled } from '@/lib/messaging/kakao-enabled';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { adminSession } from '@/lib/demo-viewer';
@@ -27,6 +28,7 @@ export default async function AdminNewsPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  const kakaoOn = kakaoEnabled();
   const { slug } = await params;
 
   const session = await adminSession(slug);
@@ -67,7 +69,7 @@ export default async function AdminNewsPage({
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           <div style={{ flex: '1 1 320px', minWidth: 0 }}>
             <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>소식</h1>
-            <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>홈페이지 소식에 공지·모집·시험 대비·갤러리 글을 올리고, 필요하면 카카오톡으로도 알립니다.</div>
+            <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>홈페이지 소식에 공지·모집·시험 대비·갤러리 글을 올립니다.</div>
           </div>
           <Link
             href={`/${slug}/admin/news/edit`}
@@ -100,7 +102,7 @@ export default async function AdminNewsPage({
                   <th style={{ padding: '14px 16px', fontWeight: 600 }}>구분</th>
                   <th style={{ padding: '14px 16px', fontWeight: 600 }}>제목</th>
                   <th style={{ padding: '14px 16px', fontWeight: 600 }}>게시일</th>
-                  <th style={{ padding: '14px 16px', fontWeight: 600 }}>카톡 발송</th>
+                  {kakaoOn && <th style={{ padding: '14px 16px', fontWeight: 600 }}>카톡 발송</th>}
                   <th style={{ padding: '14px 16px', fontWeight: 600 }}>상태</th>
                   <th style={{ padding: '14px 16px', fontWeight: 600 }}></th>
                 </tr>
@@ -117,6 +119,7 @@ export default async function AdminNewsPage({
                       <td style={{ padding: 16 }}>
                         {post.publishedAt ? formatKST(post.publishedAt) : '–'}
                       </td>
+                      {kakaoOn && (
                       <td style={{ padding: 16 }}>
                         {post.sendKakao ? (
                           post.kakaoScheduledAt ? (
@@ -130,6 +133,7 @@ export default async function AdminNewsPage({
                           '–'
                         )}
                       </td>
+                      )}
                       <td style={{ padding: 16 }}>
                         <span
                           style={{

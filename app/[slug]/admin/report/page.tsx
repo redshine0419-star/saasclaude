@@ -80,12 +80,12 @@ export default async function AdminReportPage({ params }: Props) {
   // Message sent count for current month
   const monthStart = new Date(`${month}-01`);
   const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 1);
-  const messageSentCount = await prisma.message.count({
-    where: {
-      tenantId: tenant.id,
-      createdAt: { gte: monthStart, lt: monthEnd },
-    },
-  });
+  // 학부모에게 보낸 안내 문자 수 (보낼 문자에서 '보냄'으로 처리한 것) + 예전 카톡 발송 기록
+  const [smsSent, kakaoSent] = await Promise.all([
+    prisma.smsTask.count({ where: { tenantId: tenant.id, status: 'sent', doneAt: { gte: monthStart, lt: monthEnd } } }),
+    prisma.message.count({ where: { tenantId: tenant.id, createdAt: { gte: monthStart, lt: monthEnd } } }),
+  ]);
+  const messageSentCount = smsSent + kakaoSent;
 
   // MonthlyReport for current month
   const report = await prisma.monthlyReport.findUnique({

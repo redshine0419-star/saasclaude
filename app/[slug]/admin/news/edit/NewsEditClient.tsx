@@ -22,7 +22,7 @@ const CATEGORY_OPTIONS = [
   { value: 'gallery', label: '갤러리' },
 ];
 
-export function NewsEditClient({ slug, post, aiDraftEnabled = false }: { slug: string; post?: Post; aiDraftEnabled?: boolean }) {
+export function NewsEditClient({ slug, post, aiDraftEnabled = false, kakaoOn = false }: { slug: string; post?: Post; aiDraftEnabled?: boolean; kakaoOn?: boolean }) {
   const router = useRouter();
   const isEdit = !!post;
 
@@ -252,6 +252,7 @@ export function NewsEditClient({ slug, post, aiDraftEnabled = false }: { slug: s
       )}
 
       {/* Kakao toggle */}
+      {kakaoOn && (
       <div
         style={{
           padding: '18px 20px',
@@ -292,6 +293,7 @@ export function NewsEditClient({ slug, post, aiDraftEnabled = false }: { slug: s
           </div>
         )}
       </div>
+      )}
 
       {/* Error */}
       {error && (

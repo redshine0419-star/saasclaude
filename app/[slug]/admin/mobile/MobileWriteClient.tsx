@@ -8,6 +8,8 @@ interface Props {
   tenantName: string;
   marketingCount: number;
   newLeadsCount: number;
+  /** 카톡 발송을 켠 경우에만 카톡 동시 발송을 보인다 */
+  kakaoOn?: boolean;
 }
 
 const CATEGORIES = [
@@ -16,7 +18,7 @@ const CATEGORIES = [
   { key: 'exam', label: '시험 대비' },
 ];
 
-export function MobileWriteClient({ slug, tenantName, marketingCount, newLeadsCount }: Props) {
+export function MobileWriteClient({ slug, tenantName, marketingCount, newLeadsCount, kakaoOn = false }: Props) {
   const [category, setCategory] = useState('notice');
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
@@ -63,7 +65,7 @@ export function MobileWriteClient({ slug, tenantName, marketingCount, newLeadsCo
     { href: `/${slug}/admin`, label: '홈' },
     { href: `/${slug}/admin/leads`, label: `상담 ${newLeadsCount > 0 ? newLeadsCount : ''}`.trim() },
     { href: `/${slug}/admin/mobile`, label: '글쓰기', active: true },
-    { href: `/${slug}/admin/kakao`, label: '카톡' },
+    kakaoOn ? { href: `/${slug}/admin/kakao`, label: '카톡' } : { href: `/${slug}/admin/sms`, label: '문자' },
   ];
 
   if (done) {
@@ -149,7 +151,8 @@ export function MobileWriteClient({ slug, tenantName, marketingCount, newLeadsCo
             style={{ height: 140, padding: '12px 14px', border: '1px solid #D5D0C6', borderRadius: 10, fontFamily: 'inherit', fontSize: 15, background: '#FFFFFF', resize: 'vertical' }} />
         </label>
 
-        {/* Kakao toggle */}
+        {/* Kakao toggle — 카톡 발송을 켠 경우에만 */}
+        {kakaoOn && (
         <div style={{ padding: 16, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -170,6 +173,7 @@ export function MobileWriteClient({ slug, tenantName, marketingCount, newLeadsCo
             <div style={{ fontSize: 13, color: '#3E4652' }}>야간(21시~익일 08시) 발송은 자동으로 다음날 오전 8시로 조정됩니다.</div>
           )}
         </div>
+        )}
 
         {error && <p style={{ margin: 0, color: '#8A3A1C', fontSize: 14 }}>{error}</p>}
       </div>

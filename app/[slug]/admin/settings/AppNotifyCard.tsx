@@ -11,6 +11,8 @@ type Props = {
   vapidKey: string | null;
   devices: PushDeviceRow[];
   pushReplacesKakao: boolean;
+  /** 카톡 발송을 켠 경우에만 '카톡 대신 앱 알림' 설정을 보인다 */
+  kakaoOn?: boolean;
 };
 
 type BIPEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> };
@@ -26,7 +28,7 @@ function keyToBytes(base64: string): Uint8Array {
   return Uint8Array.from(raw, (c) => c.charCodeAt(0));
 }
 
-export function AppNotifyCard({ slug, isOwner, myEmail, vapidKey, devices, pushReplacesKakao }: Props) {
+export function AppNotifyCard({ slug, isOwner, myEmail, vapidKey, devices, pushReplacesKakao, kakaoOn = false }: Props) {
   const router = useRouter();
   const [support, setSupport] = useState<'checking' | 'ok' | 'ios-install' | 'no'>('checking');
   const [standalone, setStandalone] = useState(false);
@@ -127,7 +129,7 @@ export function AppNotifyCard({ slug, isOwner, myEmail, vapidKey, devices, pushR
       <div>
         <div id="app-notify-title" style={{ fontSize: 16, fontWeight: 700 }}>앱 설치 · 앱 알림</div>
         <div style={{ fontSize: 13, color: '#5A6270', marginTop: 4, lineHeight: 1.6 }}>
-          관리자 화면을 휴대폰 홈 화면에 앱처럼 설치하고, 새 상담·아침 미응대 알림 등을 <b>무료 앱 알림</b>으로 받습니다. 학부모에게 가는 카카오톡은 그대로입니다.
+          관리자 화면을 휴대폰 홈 화면에 앱처럼 설치하고, 새 상담·아침 미응대·보낼 문자 알림을 <b>무료 앱 알림</b>으로 받습니다. 같은 알림은 관리자의 🔔 알림함에도 쌓입니다.
         </div>
       </div>
 
@@ -169,7 +171,8 @@ export function AppNotifyCard({ slug, isOwner, myEmail, vapidKey, devices, pushR
         ) : null}
       </div>
 
-      {/* 카톡 대신 */}
+      {/* 카톡 대신 — 카톡 발송을 켠 경우에만 */}
+      {kakaoOn && (
       <label style={{ display: 'flex', flexWrap: 'nowrap', gap: 10, alignItems: 'flex-start', fontSize: 14, lineHeight: 1.6, cursor: isOwner ? 'pointer' : 'default' }}>
         <input type="checkbox" checked={replace} disabled={!isOwner} onChange={(e) => toggleReplace(e.target.checked)} style={{ width: 18, height: 18, marginTop: 2, flexShrink: 0 }} />
         <span>
@@ -179,12 +182,13 @@ export function AppNotifyCard({ slug, isOwner, myEmail, vapidKey, devices, pushR
           </span>
         </span>
       </label>
+      )}
 
       {/* 기기 목록 */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: '#5A6270' }}>알림 받는 기기 {devices.length}대</div>
         {devices.length === 0 ? (
-          <div style={{ fontSize: 13, color: '#9AA3AF' }}>아직 없습니다. 지금은 새 상담 알림이 카톡으로 갑니다.</div>
+          <div style={{ fontSize: 13, color: '#9AA3AF' }}>아직 없습니다. 지금은 알림이 알림함(과 원장님 이메일)으로만 갑니다.</div>
         ) : (
           devices.map((d) => (
             <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', padding: '8px 10px', borderRadius: 8, border: '1px solid #EEEAE2', fontSize: 13 }}>

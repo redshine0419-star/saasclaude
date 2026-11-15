@@ -1,3 +1,4 @@
+import { kakaoEnabled } from '@/lib/messaging/kakao-enabled';
 import { notFound, redirect } from 'next/navigation';
 import { adminSession } from '@/lib/demo-viewer';
 import { prisma } from '@/lib/prisma';
@@ -33,6 +34,7 @@ export default async function KakaoLogPage({
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ month?: string }>;
 }) {
+  const kakaoOn = kakaoEnabled();
   const { slug } = await params;
   const { month } = await searchParams;
 
@@ -134,8 +136,12 @@ export default async function KakaoLogPage({
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           <div style={{ flex: '1 1 320px', minWidth: 0 }}>
-            <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>발송 내역·수신 동의</h1>
-            <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>보낸 카카오톡·문자 결과와 학부모의 광고 수신 동의 현황을 달별로 봅니다.</div>
+            <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>{kakaoOn ? '발송 내역·수신 동의' : '광고 수신 동의'}</h1>
+            <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>
+              {kakaoOn
+                ? '보낸 카카오톡·문자 결과와 학부모의 광고 수신 동의 현황을 달별로 봅니다.'
+                : '학부모의 광고 수신·야간 수신 동의 현황과 동의 이력을 봅니다. 특강·모집 같은 광고 문자는 동의한 학부모에게만 보내 주세요. 아래 발송 기록은 예전 카카오톡 발송분입니다.'}
+            </div>
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             {monthOptions.slice(0, 6).map((o) => (

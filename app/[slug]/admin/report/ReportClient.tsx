@@ -120,7 +120,7 @@ export function ReportClient({ slug, month, monthLabel, history, keywords, aiInf
           { label: '이달 상담 신청', value: current.leads, unit: '건' },
           { label: '이달 등록', value: current.enrolled, unit: '명' },
           { label: '전환율', value: conversionRate !== null ? `${conversionRate}%` : '—', unit: '' },
-          { label: '카카오 발송', value: messageSentCount, unit: '건' },
+          { label: '학부모 안내 문자', value: messageSentCount, unit: '건' },
         ].map(({ label, value, unit }) => (
           <div key={label} style={{ padding: '18px 20px', background: '#FFFFFF', borderRadius: 12 }}>
             <div style={{ fontSize: 13, color: '#5A6270', marginBottom: 6 }}>{label}</div>

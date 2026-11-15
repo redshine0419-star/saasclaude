@@ -11,7 +11,7 @@
 동네 학원·교습소용 **멀티테넌트 SaaS**. 하나의 코드베이스로 여러 학원의 홈페이지와 관리자를 운영한다.
 
 1. **학원 홈페이지** (학부모용) — `growweb.me/{slug}`, 3가지 테마 중 하나로 보인다.
-2. **학원 관리자** (원장용) — `growweb.me/{slug}/admin`, 상담 관리, 카카오톡 자동 발송, 콘텐츠 관리, 월간 리포트.
+2. **학원 관리자** (원장용) — `growweb.me/{slug}/admin`, 상담 관리, 알림함·앱 알림, 학부모 보낼 문자, 콘텐츠 관리, 월간 리포트.
 3. **더클 서비스 사이트** (원장 대상 마케팅) — `growweb.me/`, 서비스 소개, 무료 진단, 신청.
 4. **플랫폼 관리자** (더클 운영자용) — `growweb.me/platform`, 학원 목록, 테마·섹션 설정, 무료 진단 처리. (제작 대행 신청은 2026-11 삭제)
 
@@ -37,7 +37,7 @@ growweb.me/blog               → 더클 블로그, 운영자만 작성 (F-08, S
 - **NextAuth v5 beta** — Google OAuth, JWT 세션, 4가지 역할 (platform_admin / owner / staff / anon)
 - **Vercel Blob** — 이미지·파일 스토리지
 - **Vercel** — 배포 (growweb.me 도메인)
-- **카카오 알림톡·브랜드 메시지**: 반드시 `lib/messaging/` 어댑터 뒤에 숨겨서 교체 가능하게
+- **알림 (2026-11~)**: 카카오 발송은 쓰지 않는다(`KAKAO_SENDING=on`일 때만, 코드는 `lib/messaging/`에 숨겨 둠). 원장·직원 알림 = 알림함 + 앱 알림 + 중요 건 이메일(`lib/notify/owner.ts` `notifyOwner`). 학부모 안내 = '보낼 문자' 할 일(`lib/sms/`) → 원장이 휴대폰 문자 앱으로 직접 발송
 - **예약 발송**: Vercel Cron
 - **분석**: GA4 — 더클 측정 ID 하나(`G-LNFYKK06L6`, 코드 기본값 · 환경변수 `GA4_MEASUREMENT_ID`가 있으면 그 값)로 서비스 사이트·블로그·모든 학원 홈페이지를 잰다 (`lib/analytics`). 미리보기 배포·localhost는 보내지 않는다. 학원별 측정 ID는 쓰지 않는다. 전환 이벤트 `generate_lead`·`sign_up`. 관리자·비밀 링크 페이지는 보내지 않는다
 

@@ -212,7 +212,8 @@ export function SettingsClient({
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 16 }}>
-      {/* Notify recipients */}
+      {/* Notify recipients — 카톡 알림톡 받을 번호 (카톡 발송을 켠 경우에만) */}
+      {kakaoConnected && (
       <div
         style={{
           padding: 24,
@@ -283,6 +284,7 @@ export function SettingsClient({
           </button>
         )}
       </div>
+      )}
 
       {/* Connection status */}
       <div
@@ -297,7 +299,7 @@ export function SettingsClient({
       >
         <div style={{ fontSize: 16, fontWeight: 700 }}>연결 상태</div>
         {[
-          { label: '카카오톡 채널', connected: kakaoConnected, connectedText: '연결됨 · 알림톡 사용 가능' },
+          ...(kakaoConnected ? [{ label: '카카오톡 채널', connected: kakaoConnected, connectedText: '연결됨 · 알림톡 사용 가능' }] : []),
           { label: '네이버 서치어드바이저', connected: naverVerified, connectedText: '인증 코드 등록됨' },
         ].map((item) => (
           <div
@@ -347,7 +349,7 @@ export function SettingsClient({
         <div style={{ fontSize: 16, fontWeight: 700 }}>이용 중인 플랜</div>
         <div style={{ fontSize: 22, fontWeight: 700 }}>{plan === 'beta' ? '베타 무료' : plan}</div>
         <div style={{ fontSize: 14, lineHeight: 1.8, color: '#3E4652' }}>
-          베타 기간 3개월 무료 · 카톡 발송 포함 · 월간 리포트
+          베타 기간 3개월 무료 · 앱 알림 · 월간 리포트
           {betaEndsAt && (
             <>
               <br />

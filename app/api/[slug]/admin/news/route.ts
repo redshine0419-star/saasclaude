@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getAdminMembership } from '@/lib/admin-auth';
 import { sendMessage } from '@/lib/messaging/send';
 import { hashPhone } from '@/lib/messaging/hash';
+import { kakaoEnabled } from '@/lib/messaging/kakao-enabled';
 
 type Params = Promise<{ slug: string }>;
 
@@ -28,7 +29,9 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: '입력 오류' }, { status: 400 });
 
-  const { title, body: postBody, category = 'notice', status = 'published', sendKakao = false, scheduledAt, images } = body;
+  const { title, body: postBody, category = 'notice', status = 'published', scheduledAt, images } = body;
+  // 카톡 동시 발송은 카톡 발송을 켠 경우에만
+  const sendKakao = kakaoEnabled() && body.sendKakao === true;
   if (!title?.trim() || !postBody?.trim()) {
     return NextResponse.json({ error: '제목과 내용은 필수입니다.' }, { status: 400 });
   }

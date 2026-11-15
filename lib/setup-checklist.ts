@@ -23,7 +23,7 @@ export async function getSetupChecklist(tenant: {
     prisma.fee.count({ where: { tenantId } }),
     prisma.refundPolicyText.findUnique({ where: { tenantId }, select: { body: true } }),
     prisma.levelTestSlot.count({ where: { tenantId, active: true } }),
-    prisma.notifyRecipient.count({ where: { tenantId } }),
+    prisma.pushDevice.count({ where: { tenantId } }),
     tenant.theme === 'result' ? prisma.staffProfile.count({ where: { tenantId } }) : Promise.resolve(0),
     tenant.theme === 'result' ? prisma.resultStat.count({ where: { tenantId, published: true } }) : Promise.resolve(0),
     tenant.theme === 'bright' ? prisma.post.count({ where: { tenantId, status: 'published' } }) : Promise.resolve(0),
@@ -31,7 +31,7 @@ export async function getSetupChecklist(tenant: {
 
   const base = `/${tenant.slug}/admin`;
   const items: ChecklistItem[] = [
-    { key: 'notify', label: '새 상담 알림 받을 번호', why: '상담이 들어오면 바로 카톡으로 알려드립니다', href: `${base}/settings`, done: recipients > 0 },
+    { key: 'notify', label: '휴대폰 앱 알림 켜기', why: '상담이 들어오면 바로 휴대폰으로 알려드립니다', href: `${base}/settings`, done: recipients > 0 },
     { key: 'slots', label: '레벨테스트·상담 가능 시간', why: '학부모가 신청할 때 시간을 고릅니다', href: `${base}/classes`, done: slots > 0 },
     { key: 'director', label: '원장 소개', why: '학부모가 가장 먼저 보는 신뢰 요소입니다', href: `${base}/info`, done: !!director?.headline?.trim() },
     { key: 'classes', label: '수업·반 안내', why: '어떤 반이 있는지 보여줍니다', href: `${base}/classes`, done: classes > 0 },

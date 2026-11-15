@@ -4,6 +4,7 @@ import { KakaoAdapter } from './adapters/kakao';
 import type { SendRequest, MessagingAdapter } from './types';
 import { prisma } from '@/lib/prisma';
 import { isTestPhone } from './test-phone';
+import { kakaoEnabled } from './kakao-enabled';
 
 function getAdapter(): MessagingAdapter {
   if (process.env.KAKAO_API_KEY) {
@@ -20,6 +21,9 @@ function getAdapter(): MessagingAdapter {
  * 3) 실패/야간 지연은 호출자에게 반환
  */
 export async function sendMessage(req: SendRequest) {
+  // 카톡 발송을 쓰지 않는 동안에는 아무것도 보내지 않는다 (원장 알림·학부모 문자는 다른 경로)
+  if (!kakaoEnabled()) return { dispatched: false, reason: 'kakao_off' } as const;
+
   const result = applyRules(req);
 
   if (!result.ok) {

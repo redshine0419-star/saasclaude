@@ -4,7 +4,7 @@ import { FdFooter } from '@/components/fd/FdFooter';
 
 export const metadata = {
   title: '더클 — 동네 학원·교습소 홈페이지와 상담 관리',
-  description: '학부모가 찾고, 상담 신청하고, 자동으로 안내받고, 등원까지. 동네 학원을 위한 홈페이지와 상담 관리 솔루션.',
+  description: '학부모가 찾고, 상담 신청하고, 안내받고, 등원까지. 동네 학원을 위한 홈페이지와 상담 관리 솔루션.',
 };
 
 export default function MarketingHome() {
@@ -42,7 +42,7 @@ export default function MarketingHome() {
     {
       n: '3',
       title: '안내받고',
-      body: '접수 확인, 테스트 전날 알림, 매일 아침 미응대 상담 알림, 미등록 후속 안내가 자동으로 발송됩니다.',
+      body: '새 상담·미응대 상담은 원장님 휴대폰 앱 알림으로, 학부모에게 보낼 접수 확인·테스트 전날 안내·상담 후 안내 문자는 미리 준비됩니다. 원장님은 눌러서 보내기만 하면 됩니다.',
       dark: false,
     },
     {
@@ -91,7 +91,7 @@ export default function MarketingHome() {
               <span style={{ boxShadow: 'inset 0 -0.32em 0 #F5B700' }}>시스템</span>을 만듭니다
             </h1>
             <p style={{ margin: 0, fontSize: 'clamp(17px, 1.5vw, 20px)', lineHeight: 1.75, color: '#3C4659', maxWidth: 540 }}>
-              학부모가 찾고, 상담을 신청하고, 등록까지 이어지는 흐름. 홈페이지와 학부모 자동 안내, 원장님 관리 화면을 하나로 묶어 드립니다.
+              학부모가 찾고, 상담을 신청하고, 등록까지 이어지는 흐름. 홈페이지와 상담 관리, 학부모 안내, 원장님 알림을 하나로 묶어 드립니다.
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
               <Link href="/consult" style={{ height: 56, padding: '0 26px', borderRadius: 12, background: '#14213D', color: '#FFFFFF', textDecoration: 'none', fontSize: 17, fontWeight: 700, display: 'flex', alignItems: 'center' }}>우리 학원 무료 진단</Link>

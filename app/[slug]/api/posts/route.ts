@@ -1,3 +1,4 @@
+import { kakaoEnabled } from '@/lib/messaging/kakao-enabled';
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
@@ -63,6 +64,8 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   const hour = now.getHours();
   // Night block: 21:00~08:00 → schedule for next day 08:00
   let kakaoScheduledAt: Date | null = null;
+  // 카톡 동시 발송은 카톡 발송을 켠 경우에만
+  if (!kakaoEnabled()) sendKakao = false;
   if (sendKakao) {
     if (hour >= 21 || hour < 8) {
       const next = new Date(now);

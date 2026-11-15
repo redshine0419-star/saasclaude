@@ -1,5 +1,7 @@
 'use client';
 
+import { smsHref } from '@/lib/messaging/sms-link';
+
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { formatKstDate } from '@/lib/format-date';
@@ -345,7 +347,7 @@ export function DiagnosisClient({ requests }: { requests: DiagRequest[] }) {
 
           {/* Kakao preview */}
           <div>
-            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>카톡 메시지 미리보기</div>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>보낼 문자 미리보기</div>
             <div style={{ padding: 14, borderRadius: 10, background: '#FAF9F6', border: '1px solid #E2DDD2', fontSize: 12, lineHeight: 1.8, whiteSpace: 'pre-wrap', color: '#1B2430', maxHeight: 200, overflowY: 'auto' }}>
               {buildKakaoMessage(selected, scores, resultNote)}
             </div>
@@ -353,12 +355,12 @@ export function DiagnosisClient({ requests }: { requests: DiagRequest[] }) {
 
           {sendResult === 'sent' && (
             <div style={{ padding: '10px 14px', borderRadius: 8, background: '#D8E8E0', color: '#1E5645', fontSize: 13, fontWeight: 600 }}>
-              발송 완료
+              처리 완료로 표시했습니다
             </div>
           )}
           {sendResult === 'error' && (
             <div style={{ padding: '10px 14px', borderRadius: 8, background: '#FDE8E8', color: '#B91C1C', fontSize: 13 }}>
-              발송 실패 — 어댑터 설정을 확인하세요.
+              처리 표시에 실패했습니다. 다시 시도해 주세요.
             </div>
           )}
 
@@ -369,24 +371,26 @@ export function DiagnosisClient({ requests }: { requests: DiagRequest[] }) {
           )}
 
           <div style={{ display: 'flex', gap: 10 }}>
-            <button
-              onClick={sendKakao}
-              disabled={sending || sendResult === 'sent'}
+            <a
+              href={smsHref(selected.phone, buildKakaoMessage(selected, scores, resultNote))}
+              onClick={() => { sendKakao(); }}
               style={{
                 flex: 1,
                 height: 44,
                 borderRadius: 8,
-                background: '#FEE500',
-                color: '#191919',
-                border: 'none',
+                background: '#1E5645',
+                color: '#FFFFFF',
                 fontSize: 14,
                 fontWeight: 700,
-                cursor: (sending || sendResult === 'sent') ? 'not-allowed' : 'pointer',
-                opacity: (sending || sendResult === 'sent') ? 0.6 : 1,
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: sending ? 0.6 : 1,
               }}
             >
-              {sending ? '발송 중…' : sendResult === 'sent' ? '발송됨' : '카톡 발송'}
-            </button>
+              {sendResult === 'sent' ? '문자 다시 보내기' : '문자 보내기'}
+            </a>
             <button
               onClick={save}
               disabled={saving}

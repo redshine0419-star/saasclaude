@@ -1,3 +1,4 @@
+import { kakaoEnabled } from '@/lib/messaging/kakao-enabled';
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
@@ -29,6 +30,12 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
     `${resultNote || '담당자가 곧 상세 결과를 안내해 드립니다.'}\n\n` +
     `더클로 학원 홈페이지를 직접 만들어 보세요. 5분이면 열립니다.\n` +
     `바로 만들기: ${process.env.NEXT_PUBLIC_BASE_URL ?? 'https://growweb.me'}/start`;
+
+  // 카톡 발송을 쓰지 않는 동안에는 운영자가 휴대폰 문자로 직접 보낸다 — 여기서는 처리 완료만 기록
+  if (!kakaoEnabled()) {
+    await prisma.diagnosticRequest.update({ where: { id }, data: { status: 'done', resultNote: resultNote || undefined } });
+    return NextResponse.json({ ok: true, manual: true });
+  }
 
   const recipientHash = hashPhone(request.phone);
 

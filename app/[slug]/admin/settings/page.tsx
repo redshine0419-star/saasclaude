@@ -1,5 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import { AppNotifyCard } from './AppNotifyCard';
+import { kakaoEnabled } from '@/lib/messaging/kakao-enabled';
 import { pushPublicKey } from '@/lib/push';
 import { SiteControlCard } from './SiteControlCard';
 import { adminSession } from '@/lib/demo-viewer';
@@ -74,12 +75,12 @@ export default async function AdminSettingsPage({
         style={{ flex: 1, padding: '32px 40px', display: 'flex', flexDirection: 'column', gap: 16 }}
       >
         <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>설정</h1>
-        <div style={{ fontSize: 14, color: '#5A6270', marginTop: -8 }}>새 상담 알림 받을 번호, 직원 초대, 카카오 연결 상태 등 학원 설정을 관리합니다.</div>
+        <div style={{ fontSize: 14, color: '#5A6270', marginTop: -8 }}>앱 알림, 직원 초대, 홈페이지 공개, 연결 상태 등 학원 설정을 관리합니다.</div>
         <SettingsClient
           slug={slug}
           recipients={recipients.map((r) => ({ id: r.id, name: r.name, phone: r.phone }))}
           userEmail={session.user.email}
-          kakaoConnected={!!process.env.KAKAO_API_KEY}
+          kakaoConnected={kakaoEnabled() && !!process.env.KAKAO_API_KEY}
           naverVerified={!!tenant.naverSiteVerification}
           plan={tenant.planStatus}
           betaEndsAt={tenant.betaEndsAt?.toISOString() ?? null}
@@ -97,6 +98,7 @@ export default async function AdminSettingsPage({
           vapidKey={pushPublicKey()}
           devices={pushDevices.map((d) => ({ id: d.id, label: d.label, email: d.email, createdAt: d.createdAt.toISOString(), lastUsedAt: d.lastUsedAt?.toISOString() ?? null }))}
           pushReplacesKakao={tenant.pushReplacesKakao}
+          kakaoOn={kakaoEnabled()}
         />
         <SiteControlCard
           slug={slug}

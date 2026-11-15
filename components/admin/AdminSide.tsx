@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { AdminMobileBar } from './AdminMobileBar';
 import { AdminInboxNav, AdminBell } from './AdminInboxNav';
+import { kakaoEnabled } from '@/lib/messaging/kakao-enabled';
 
 type ActiveKey =
   | 'dashboard'
@@ -120,6 +121,7 @@ const ACTIVE_LABEL: Record<ActiveKey, string> = {
 
 export function AdminSide({ slug, tenantName, active }: AdminSideProps) {
   const base = `/${slug}/admin`;
+  const kakaoOn = kakaoEnabled();
 
   const nav = (
     <>
@@ -131,9 +133,13 @@ export function AdminSide({ slug, tenantName, active }: AdminSideProps) {
       <NavItem href={`${base}/students`} label="학생부" active={active === 'students'} />
       <NavItem href={`${base}/attendance`} label="출결" active={active === 'attendance'} />
 
-      <SectionLabel>카톡</SectionLabel>
-      <NavItem href={`${base}/kakao`} label="자동 발송" active={active === 'kakao'} />
-      <NavItem href={`${base}/kakao/log`} label="발송 내역·수신 동의" active={active === 'kakaolog'} />
+      {kakaoOn && (
+        <>
+          <SectionLabel>카톡</SectionLabel>
+          <NavItem href={`${base}/kakao`} label="자동 발송" active={active === 'kakao'} />
+          <NavItem href={`${base}/kakao/log`} label="발송 내역·수신 동의" active={active === 'kakaolog'} />
+        </>
+      )}
 
       <SectionLabel>레벨테스트</SectionLabel>
       <NavItem href={`${base}/tests`} label="시험지·결과" active={active === 'tests'} />
@@ -153,6 +159,7 @@ export function AdminSide({ slug, tenantName, active }: AdminSideProps) {
 
       <SectionLabel>운영</SectionLabel>
       <NavItem href={`${base}/report`} label="월간 리포트" active={active === 'report'} />
+      {!kakaoOn && <NavItem href={`${base}/kakao/log`} label="광고 수신 동의" active={active === 'kakaolog'} />}
       <NavItem href={`${base}/billing`} label="결제" active={active === 'billing'} />
       <NavItem href={`${base}/settings`} label="설정" active={active === 'settings'} />
       <NavItem href={`/${slug}`} label="내 홈페이지 보기 ↗" active={false} />
