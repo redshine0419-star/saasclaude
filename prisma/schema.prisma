@@ -929,6 +929,8 @@ model TestAttempt {
   tenantId     String
   testId       String
   leadId       String? // 상담 건에 연결 — 응시 화면에서 학생 개인정보를 따로 받지 않는다
+  /// 재원생에게 보낸 시험 — 제출·채점 결과가 학생부 성적(학원 테스트)으로 들어간다
+  studentId    String?
   token        String        @unique // 응시·결과 링크용 추측 불가 토큰
   status       AttemptStatus @default(issued)
   startedAt    DateTime?
@@ -942,10 +944,13 @@ model TestAttempt {
   tenant    Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   test      Test           @relation(fields: [testId], references: [id], onDelete: Restrict)
   lead      Lead?          @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  student   Student?       @relation(fields: [studentId], references: [id], onDelete: SetNull)
   responses TestResponse[]
+  smsTasks  SmsTask[]
 
   @@index([tenantId, testId])
   @@index([leadId])
+  @@index([studentId])
   @@index([tenantId, needsGrading])
   @@map("test_attempts")
 }
@@ -1009,6 +1014,8 @@ model Student {
   lead        Lead?           @relation(fields: [leadId], references: [id], onDelete: SetNull)
   notes       StudentNote[]
   scores      StudentScore[]
+  attempts    TestAttempt[]
+  smsTasks    SmsTask[]
   attendances Attendance[]
   reports     StudentReport[]
 
@@ -1085,6 +1092,8 @@ model StudentScore {
   percentile Float? // 백분위
   memo       String?
   createdBy  String?
+  /// 온라인 시험에서 자동으로 들어온 성적 — 같은 응시는 한 줄만
+  attemptId  String?   @unique
 
   tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
@@ -1327,8 +1336,12 @@ model SmsTask {
   id        String    @id @default(cuid())
   createdAt DateTime  @default(now())
   tenantId  String
-  leadId    String
-  /// receipt(접수 확인) | reminder(레벨테스트 전날 안내) | followup(상담 후 안내)
+  /// 상담 학부모에게 보내는 문자
+  leadId    String?
+  /// 재원생에게 보내는 문자 (시험 링크)
+  studentId String?
+  attemptId String?
+  /// receipt(접수 확인) | reminder(레벨테스트 전날 안내) | followup(상담 후 안내) | test_link(학생 시험 링크)
   kind      String
   /// 같은 상담·종류의 중복 방지 키 (reminder는 테스트 일시)
   refKey    String    @default("")
@@ -1338,8 +1351,10 @@ model SmsTask {
   doneAt    DateTime?
   doneBy    String?
 
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  tenant  Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  lead    Lead?        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  student Student?     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  attempt TestAttempt? @relation(fields: [attemptId], references: [id], onDelete: Cascade)
 
   @@unique([leadId, kind, refKey])
   @@index([tenantId, status, dueAt])

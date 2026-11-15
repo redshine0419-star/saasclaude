@@ -23,7 +23,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
       : { status: action === 'sent' ? 'sent' : 'skipped', doneAt: new Date(), doneBy: a.email },
   });
   // 상담 진행 기록 — 문자 앱을 연 사실만 (번호·본문은 남기지 않는다)
-  if (action === 'sent') {
+  if (action === 'sent' && task.leadId) {
     await prisma.leadEvent.create({
       data: { leadId: task.leadId, type: 'message_sent', payload: { channel: 'sms_manual', template: task.kind }, actorId: a.email },
     }).catch(() => undefined);

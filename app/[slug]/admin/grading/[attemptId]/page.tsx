@@ -29,6 +29,7 @@ export default async function GradeAttemptPage({ params }: Props) {
       test: { include: { items: { orderBy: { sortOrder: 'asc' }, include: { question: true } } } },
       responses: true,
       lead: { select: { parentName: true, studentGrade: true } },
+      student: { select: { name: true, grade: true } },
     },
   });
   if (!attempt) notFound();
@@ -64,7 +65,7 @@ export default async function GradeAttemptPage({ params }: Props) {
         <div>
           <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>{attempt.test.title}</h1>
           <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>
-            {attempt.lead ? `${maskName(attempt.lead.parentName)} 학부모 · ${attempt.lead.studentGrade ?? '학년 미기재'} · ` : ''}
+            {attempt.student ? `${attempt.student.name} 학생${attempt.student.grade ? ` · ${attempt.student.grade}` : ''} · ` : attempt.lead ? `${maskName(attempt.lead.parentName)} 학부모 · ${attempt.lead.studentGrade ?? '학년 미기재'} · ` : ''}
             {attempt.submittedAt ? `${formatKstDateTime(attempt.submittedAt)} 제출` : ''}
           </div>
         </div>

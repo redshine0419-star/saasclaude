@@ -36,7 +36,7 @@ export async function TestResults({ tenantId, testId, slug }: { tenantId: string
     prisma.testAttempt.findMany({
       where: { tenantId, testId },
       orderBy: { createdAt: 'desc' },
-      include: { responses: true, lead: { select: { parentName: true, studentGrade: true } } },
+      include: { responses: true, lead: { select: { parentName: true, studentGrade: true } }, student: { select: { name: true, grade: true } } },
     }),
   ]);
   if (!test) return null;
@@ -114,7 +114,7 @@ export async function TestResults({ tenantId, testId, slug }: { tenantId: string
           <tbody>
             {attempts.map((a) => (
               <tr key={a.id}>
-                <td style={td}>{a.lead ? `${maskName(a.lead.parentName)} · ${a.lead.studentGrade ?? '학년 미기재'}` : '–'}</td>
+                <td style={td}>{a.student ? `${a.student.name} 학생${a.student.grade ? ` · ${a.student.grade}` : ''}` : a.lead ? `${maskName(a.lead.parentName)} · ${a.lead.studentGrade ?? '학년 미기재'}` : '–'}</td>
                 <td style={td}>{a.status === 'submitted' ? (a.needsGrading ? <a href={`/${slug}/admin/grading/${a.id}`} style={{ color: '#7A4B00', fontWeight: 600 }}>채점 대기 →</a> : '제출 완료') : a.status === 'in_progress' ? '응시 중' : '응시 전'}</td>
                 <td style={td}>{a.submittedAt ? formatKstDateTime(a.submittedAt) : '–'}</td>
                 <td style={td}>{a.maxScore && !a.needsGrading ? `${a.score}/${a.maxScore} (${Math.round(((a.score ?? 0) / a.maxScore) * 100)}%)` : a.needsGrading ? `자동 채점 ${a.score}점` : '–'}</td>

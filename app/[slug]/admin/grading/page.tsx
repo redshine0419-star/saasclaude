@@ -27,6 +27,7 @@ export default async function GradingInboxPage({ params, searchParams }: Props) 
   const include = {
     test: { select: { title: true, items: { select: { question: { select: { type: true } } } } } },
     lead: { select: { parentName: true, studentGrade: true } },
+    student: { select: { name: true, grade: true } },
     responses: { select: { points: true, question: { select: { type: true } } } },
   } as const;
   const [pending, recent] = await Promise.all([
@@ -48,7 +49,7 @@ export default async function GradingInboxPage({ params, searchParams }: Props) 
     return (
       <tr key={a.id} style={{ borderTop: '1px solid #EEEAE2' }}>
         <td style={{ padding: '12px 16px', fontWeight: 600 }}>{a.test.title}</td>
-        <td style={{ padding: '12px 16px' }}>{a.lead ? `${maskName(a.lead.parentName)} · ${a.lead.studentGrade ?? '학년 미기재'}` : '–'}</td>
+        <td style={{ padding: '12px 16px' }}>{a.student ? `${a.student.name} 학생${a.student.grade ? ` · ${a.student.grade}` : ''}` : a.lead ? `${maskName(a.lead.parentName)} · ${a.lead.studentGrade ?? '학년 미기재'}` : '–'}</td>
         <td style={{ padding: '12px 16px' }}>{a.submittedAt ? formatKstDateTime(a.submittedAt) : '–'}</td>
         <td style={{ padding: '12px 16px' }}>{done ? `${a.score}/${a.maxScore}점` : `서술형 ${graded}/${essays} 채점`}</td>
         <td style={{ padding: '12px 16px' }}>

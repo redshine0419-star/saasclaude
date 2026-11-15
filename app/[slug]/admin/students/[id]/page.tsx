@@ -4,6 +4,7 @@ import { AdminSide } from '@/components/admin/AdminSide';
 import { studentPageAuth } from '@/lib/students/page-auth';
 import { dateOnlyString, daysAgo, kstToday } from '@/lib/format-date';
 import { StudentProfile } from './StudentProfile';
+import { StudentTestsPanel, type StudentAttemptRow } from './StudentTestsPanel';
 import { reportStatus } from '@/lib/students/report';
 
 type Props = { params: Promise<{ slug: string; id: string }> };
@@ -98,11 +99,23 @@ export default async function StudentPage({ params }: Props) {
     lastViewedAt: r.lastViewedAt?.toISOString() ?? null,
   }));
 
+  // 온라인 시험 (재원생에게 보낸 시험)
+  const [tests, attempts] = await Promise.all([
+    prisma.test.findMany({ where: { tenantId: tenant.id, archived: false, items: { some: {} } }, orderBy: { updatedAt: 'desc' }, select: { id: true, title: true } }),
+    prisma.testAttempt.findMany({ where: { tenantId: tenant.id, studentId: id }, orderBy: { createdAt: 'desc' }, take: 20, select: { id: true, token: true, status: true, score: true, maxScore: true, needsGrading: true, createdAt: true, test: { select: { title: true } } } }),
+  ]);
+  const attemptRows: StudentAttemptRow[] = attempts.map((a) => ({
+    id: a.id, title: a.test.title, url: `${base}/${slug}/test/${a.token}`, createdAt: a.createdAt.toISOString(),
+    state: a.status === 'submitted' ? (a.needsGrading ? '서술형 채점 대기' : `${a.score}/${a.maxScore}점`) : a.status === 'in_progress' ? '푸는 중' : '안 열어 봄',
+    submitted: a.status === 'submitted', needsGrading: a.needsGrading,
+  }));
+
   return (
     <div style={{ display: 'flex', flex: 1, minHeight: '100vh', background: '#F4F2EE', color: '#1B2430', fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif" }}>
       <AdminSide slug={slug} tenantName={tenant.name} active="students" />
       <main style={{ flex: 1, minWidth: 0, padding: '32px 40px', maxWidth: 1180 }}>
         <StudentProfile slug={slug} student={data} classes={classes} me={email} isOwner={isOwner} today={kstToday()} reports={reports} />
+        {student.status === 'active' && <StudentTestsPanel slug={slug} studentId={id} studentName={student.name} tests={tests} attempts={attemptRows} />}
       </main>
     </div>
   );

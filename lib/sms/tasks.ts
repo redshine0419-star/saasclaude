@@ -5,10 +5,10 @@ import { prisma } from '@/lib/prisma';
  * receipt: 상담 접수 확인 (신청 즉시) · reminder: 레벨테스트 전날 안내 · followup: 상담 후 2~3일 안내(정보성)
  */
 import type { SmsKind } from './constants';
-export { SMS_KIND_LABEL, isSmsKind, type SmsKind } from './constants';
+export { SMS_KIND_LABEL, isSmsKind, isTemplatedSmsKind, type SmsKind, type TemplatedSmsKind } from './constants';
 
 /** 같은 상담·종류·키로는 한 번만 만든다. 새로 만들었으면 true */
-export async function createSmsTask(tenantId: string, leadId: string, kind: SmsKind, dueAt: Date, refKey = ''): Promise<boolean> {
+export async function createSmsTask(tenantId: string, leadId: string, kind: Exclude<SmsKind, 'test_link'>, dueAt: Date, refKey = ''): Promise<boolean> {
   try {
     await prisma.smsTask.create({ data: { tenantId, leadId, kind, refKey, dueAt } });
     return true;

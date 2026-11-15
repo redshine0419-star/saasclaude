@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import type { SmsKind } from './constants';
+import type { TemplatedSmsKind as SmsKind } from './constants';
 export { SMS_VARS } from './constants';
 
 /**

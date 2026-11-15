@@ -1,6 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { prisma } from '@/lib/prisma';
 import { finalScore, gradeAttempt } from './grading';
+import { syncStudentScore } from './student';
 
 /** 응시·결과 링크용 토큰 (192비트, URL 안전) */
 export function newAttemptToken(): string {
@@ -75,6 +76,9 @@ export async function submitAttempt(attemptId: string, now = new Date()) {
     ),
   );
 
+  // 재원생 시험이면 학생부 성적으로 (서술형이 남아 있으면 채점 후 다시 고쳐 쓴다)
+  await syncStudentScore(attempt.id).catch((e) => console.error('[test] 학생부 성적 기록 실패', e instanceof Error ? e.message : e));
+
   if (attempt.lead) {
     const pct = result.maxScore ? Math.round((result.score / result.maxScore) * 100) : 0;
     await prisma.leadEvent.create({
@@ -128,5 +132,6 @@ export async function recomputeAttemptScore(attemptId: string, opts: { markCompl
       data: { leadId: attempt.lead.id, type: 'note', payload: { note: `레벨테스트 서술형 채점 완료: 최종 ${fs.score}/${fs.maxScore}점 (${pct}%)` }, actorId: opts.actor },
     });
   }
+  await syncStudentScore(attempt.id).catch((e) => console.error('[test] 학생부 성적 기록 실패', e instanceof Error ? e.message : e));
   return { ok: true as const, score: fs.score, maxScore: fs.maxScore };
 }
