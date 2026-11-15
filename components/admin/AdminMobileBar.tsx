@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 /** 768px 이하에서만 보이는 상단 바 + 슬라이드 메뉴. 메뉴 내용은 데스크톱 사이드바와 같은 것을 children으로 받는다. */
-export function AdminMobileBar({ tenantName, current, children }: { tenantName: string; current: string; children: React.ReactNode }) {
+export function AdminMobileBar({ tenantName, current, children, right }: { tenantName: string; current: string; children: React.ReactNode; right?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -39,6 +39,7 @@ export function AdminMobileBar({ tenantName, current, children }: { tenantName: 
           <span className="adm-mobilebar-current">{current}</span>
           <span className="adm-mobilebar-tenant">{tenantName}</span>
         </div>
+        {right}
       </div>
       {open && (
         <div className="adm-drawer-backdrop" onClick={() => setOpen(false)}>

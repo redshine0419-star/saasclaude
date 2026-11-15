@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { notifyStaff } from '@/lib/push';
+import { notifyOwner } from '@/lib/notify/owner';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { getAdminMembership } from '@/lib/admin-auth';
-import { sendMessage } from '@/lib/messaging/send';
-import { hashPhone } from '@/lib/messaging/hash';
 
 type Params = Promise<{ slug: string; month: string }>;
 
@@ -50,7 +48,7 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
 
   const tenant = await prisma.tenant.findUnique({
     where: { slug, status: 'active' },
-    select: { id: true, name: true, slug: true, notifyRecipients: true },
+    select: { id: true, name: true, slug: true },
   });
   if (!tenant) return NextResponse.json({ error: '학원을 찾을 수 없습니다.' }, { status: 404 });
 
@@ -70,43 +68,14 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
 
   const conversionRate = totalLeads > 0 ? Math.round((enrolledLeads / totalLeads) * 100) : 0;
 
-  // 앱 알림을 켠 기기가 있으면 푸시로 (카톡 대신)
-  const push = await notifyStaff(tenant.id, {
+  // 알림함 + 앱 알림 + 원장 이메일 (카톡 대신)
+  const r = await notifyOwner(tenant.id, {
+    kind: 'report',
     title: `${month} 월간 리포트 — ${tenant.name}`,
-    body: `상담 ${totalLeads}건 · 등록 ${enrolledLeads}건 (${conversionRate}%). 눌러서 리포트 보기`,
+    body: `상담 ${totalLeads}건 · 등록 ${enrolledLeads}건 (${conversionRate}%) · 광고 수신 동의 ${marketingConsents}명. 눌러서 리포트 보기`,
     url: `/${tenant.slug}/admin/report`,
     tag: 'monthly-report',
+    email: true,
   });
-  if (push.skipKakao) return NextResponse.json({ ok: true, sent: push.pushed, channel: 'push' });
-
-  if (tenant.notifyRecipients.length === 0) {
-    return NextResponse.json({ ok: true, sent: 0, reason: '수신자 없음' });
-  }
-
-  const summaryBody =
-    `[${tenant.name}] ${month} 월간 리포트\n\n` +
-    `상담 신청: ${totalLeads}건\n` +
-    `등록 전환: ${enrolledLeads}건 (${conversionRate}%)\n` +
-    `카톡 발송: ${messagesSent}건\n` +
-    `마케팅 동의: ${marketingConsents}명\n\n` +
-    `상세 리포트: ${process.env.NEXT_PUBLIC_BASE_URL ?? 'https://growweb.me'}/${tenant.slug}/admin/report`;
-
-  const now = new Date();
-  let sent = 0;
-  for (const recipient of tenant.notifyRecipients as { id: string; phone: string }[]) {
-    await sendMessage({
-      tenantId: tenant.id,
-      recipientId: recipient.id,
-      recipientHash: hashPhone(recipient.phone),
-      phone: recipient.phone,
-      kind: 'owner_alert',
-      body: summaryBody,
-      isAdvertisement: false,
-      consent: { marketing: true, night: false },
-      requestedAt: now,
-    }).catch(() => {});
-    sent++;
-  }
-
-  return NextResponse.json({ ok: true, sent });
+  return NextResponse.json({ ok: true, sent: r.pushed, emailed: r.emailed, messagesSent });
 }

@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server';
-import { notifyStaff } from '@/lib/push';
 import { prisma } from '@/lib/prisma';
-import { sendMessage } from '@/lib/messaging/send';
-import { hashPhone } from '@/lib/messaging/hash';
+import { notifyOwner } from '@/lib/notify/owner';
 
 // Vercel Cron: 0 0 * * 1 — 매주 월요일 00:00 UTC (KST 09:00)
-// 레벨테스트 슬롯이 있는 모든 활성 테넌트에게 "이번 주 수업 확인" 알림 발송
+// 반이 있는 모든 활성 학원에 "이번 주 수업 확인" 알림 (알림함 + 앱 알림)
 
 export async function GET(req: Request) {
   const auth = req.headers.get('authorization');
@@ -17,62 +15,28 @@ export async function GET(req: Request) {
   let sent = 0;
   let failed = 0;
 
-  // 활성 테넌트 + notify_recipients + classes (잔여석 포함)
   const tenants = await prisma.tenant.findMany({
     where: { status: 'active' },
-    include: {
-      notifyRecipients: true,
-      classes: {
-        orderBy: { sortOrder: 'asc' },
-        select: { name: true, gradeBand: true, seatsLeft: true, capacity: true },
-      },
-    },
+    select: { id: true, slug: true, name: true, classes: { orderBy: { sortOrder: 'asc' }, select: { name: true, seatsLeft: true } } },
   });
 
   for (const tenant of tenants) {
     if (tenant.classes.length === 0) continue;
-    // 앱 알림을 켠 기기가 있으면 푸시로 (카톡 대신)
-    const push = await notifyStaff(tenant.id, {
-      title: `이번 주 수업 확인 — ${tenant.name}`,
-      body: `반 ${tenant.classes.length}개의 잔여석이 맞는지 확인해 주세요.`,
-      url: `/${tenant.slug}/admin/classes`,
-      tag: 'weekly-class',
-    });
-    if (push.skipKakao) { sent += push.pushed; continue; }
-    if (tenant.notifyRecipients.length === 0) continue;
-
-    // 잔여석 요약 텍스트
-    const classSummary = tenant.classes
-      .map((c) => {
-        const seats = c.seatsLeft !== null ? `잔여 ${c.seatsLeft}석` : '';
-        return `- ${c.name}(${c.gradeBand ?? ''}) ${seats}`.trim();
-      })
-      .join('\n');
-
-    const body =
-      `[${tenant.name}] 이번 주 수업 현황을 확인해 주세요.\n\n` +
-      `${classSummary}\n\n` +
-      `잔여석이 변경된 경우 관리자에서 업데이트해 주세요.\n` +
-      `관리자: https://growweb.me/${tenant.slug}/admin/classes`;
-
-    for (const recipient of tenant.notifyRecipients) {
-      const recipientHash = hashPhone(recipient.phone);
-      try {
-        await sendMessage({
-          tenantId: tenant.id,
-          recipientId: recipient.id,
-          recipientHash,
-          phone: recipient.phone,
-          kind: 'owner_alert',
-          body,
-          isAdvertisement: false,
-          consent: { marketing: true, night: true },
-          requestedAt: now,
-        });
-        sent++;
-      } catch {
-        failed++;
-      }
+    const summary = tenant.classes
+      .slice(0, 6)
+      .map((c) => `${c.name}${c.seatsLeft !== null ? ` 잔여 ${c.seatsLeft}석` : ''}`)
+      .join(' · ');
+    try {
+      const r = await notifyOwner(tenant.id, {
+        kind: 'class_check',
+        title: `이번 주 수업 확인 — ${tenant.name}`,
+        body: `반 ${tenant.classes.length}개의 잔여석이 맞는지 확인해 주세요.\n${summary}${tenant.classes.length > 6 ? ' …' : ''}`,
+        url: `/${tenant.slug}/admin/classes`,
+        tag: 'weekly-class',
+      });
+      sent += r.pushed;
+    } catch {
+      failed++;
     }
   }
 

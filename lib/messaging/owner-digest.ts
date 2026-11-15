@@ -1,8 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { notifyStaff } from '@/lib/push';
-import { sendMessage } from '@/lib/messaging/send';
-import { hashPhone } from '@/lib/messaging/hash';
-import { fillTemplate, resolveTemplate } from '@/lib/messaging/templates';
+import { notifyOwner } from '@/lib/notify/owner';
 
 const DAY = 24 * 60 * 60 * 1000;
 // 이보다 오래된 미응대 신청은 사실상 방치된 건으로 보고 독촉 대상에서 뺀다
@@ -35,7 +32,6 @@ export async function runOwnerDigest(now: Date): Promise<DigestOutcome[]> {
   });
   if (groups.length === 0) return [];
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://growweb.me';
   const outcomes: DigestOutcome[] = [];
 
   for (const g of groups) {
@@ -43,69 +39,26 @@ export async function runOwnerDigest(now: Date): Promise<DigestOutcome[]> {
       where: { id: g.tenantId },
       select: {
         id: true, slug: true, name: true,
-        notifyRecipients: { select: { phone: true } },
         automationSettings: { where: { scenario: 'owner_reminder' }, select: { enabled: true } },
       },
     });
     if (!tenant) continue;
     // 기본은 켜짐. 원장이 A-03에서 끈 경우만 건너뛴다
     if (tenant.automationSettings[0]?.enabled === false) { outcomes.push({ slug: tenant.slug, skipped: 'disabled' }); continue; }
-    // 앱 알림을 켠 기기가 있으면 푸시로 (카톡 대신, 하루 한 번 크론이라 같은 날 중복 걱정 없음)
-    const push = await notifyStaff(tenant.id, {
+    // 크론 재시도 등으로 같은 날 두 번 알리지 않는다
+    const already = await prisma.adminNotification.count({
+      where: { tenantId: tenant.id, kind: 'unanswered', createdAt: { gte: new Date(now.getTime() - 20 * 60 * 60 * 1000) } },
+    });
+    if (already > 0) { outcomes.push({ slug: tenant.slug, skipped: 'already_sent' }); continue; }
+    // 카톡 대신 알림함 + 앱 알림
+    const r = await notifyOwner(tenant.id, {
+      kind: 'unanswered',
       title: `답하지 않은 상담 ${g._count._all}건 — ${tenant.name}`,
-      body: g._min.createdAt ? `가장 오래된 신청: ${oldestLabel(g._min.createdAt, now)}. 눌러서 상담 관리로 가기` : '눌러서 상담 관리로 가기',
+      body: g._min.createdAt ? `가장 오래된 신청: ${oldestLabel(g._min.createdAt, now)}. 빨리 연락할수록 등록으로 이어질 가능성이 높습니다.` : '빨리 연락할수록 등록으로 이어질 가능성이 높습니다.',
       url: `/${tenant.slug}/admin/leads`,
       tag: 'owner-digest',
     });
-    if (push.skipKakao) { outcomes.push({ slug: tenant.slug, count: g._count._all, recipients: 0, sent: push.pushed }); continue; }
-    if (tenant.notifyRecipients.length === 0) { outcomes.push({ slug: tenant.slug, skipped: 'no_recipients' }); continue; }
-
-    // 크론 재시도 등으로 같은 날 두 번 보내지 않는다
-    const already = await prisma.message.count({
-      where: { tenantId: tenant.id, scenario: 'owner_reminder', createdAt: { gte: new Date(now.getTime() - 20 * 60 * 60 * 1000) } },
-    });
-    if (already > 0) { outcomes.push({ slug: tenant.slug, skipped: 'already_sent' }); continue; }
-
-    const template = await resolveTemplate(tenant.id, 'owner_reminder');
-    if (!template) { outcomes.push({ slug: tenant.slug, skipped: 'no_template' }); continue; }
-
-    const body = fillTemplate(template.body, {
-      학원명: tenant.name,
-      미응대건수: String(g._count._all),
-      가장오래된신청: g._min.createdAt ? oldestLabel(g._min.createdAt, now) : '',
-      관리자링크: `${baseUrl}/${tenant.slug}/admin/leads`,
-    });
-
-    let sent = 0;
-    for (const r of tenant.notifyRecipients) {
-      const recipientHash = hashPhone(r.phone);
-      const result = await sendMessage({
-        tenantId: tenant.id,
-        recipientId: '',
-        recipientHash,
-        phone: r.phone,
-        kind: 'owner_reminder',
-        body,
-        isAdvertisement: false,
-        consent: { marketing: false, night: false },
-        requestedAt: now,
-      });
-      const ok = result.dispatched && 'status' in result && result.status === 'sent';
-      if (ok) sent++;
-      await prisma.message.create({
-        data: {
-          tenantId: tenant.id,
-          scenario: 'owner_reminder',
-          kind: 'info',
-          recipientHash,
-          status: ok ? 'sent' : result.dispatched && result.scheduledAt > now ? 'deferred' : 'failed',
-          scheduledAt: result.dispatched ? result.scheduledAt : null,
-          sentAt: ok ? now : null,
-          error: !result.dispatched ? result.reason : 'status' in result && result.status === 'failed' ? result.error : null,
-        },
-      });
-    }
-    outcomes.push({ slug: tenant.slug, count: g._count._all, recipients: tenant.notifyRecipients.length, sent });
+    outcomes.push({ slug: tenant.slug, count: g._count._all, recipients: 0, sent: r.pushed });
   }
   return outcomes;
 }

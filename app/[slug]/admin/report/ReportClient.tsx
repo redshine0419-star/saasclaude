@@ -51,7 +51,7 @@ export function ReportClient({ slug, month, monthLabel, history, keywords, aiInf
       const res = await fetch(`/api/${slug}/admin/report/${month}`, { method: 'POST' });
       const data = await res.json();
       if (res.ok) {
-        setKakaoResult(data.sent === 0 ? '수신자가 없습니다.' : data.channel === 'push' ? `앱 알림 ${data.sent}대에 보냈습니다` : `${data.sent}명에게 발송 완료`);
+        setKakaoResult([data.sent > 0 ? `앱 알림 ${data.sent}대` : null, data.emailed > 0 ? `이메일 ${data.emailed}명` : null].filter(Boolean).join(' · ') + (data.sent > 0 || data.emailed > 0 ? '에 보냈습니다. 알림함에도 남았습니다.' : '알림함에 남겼습니다. 앱 알림을 켜면 휴대폰으로도 받습니다.'));
       } else {
         setKakaoResult(data.error ?? '발송 실패');
       }
@@ -90,7 +90,7 @@ export function ReportClient({ slug, month, monthLabel, history, keywords, aiInf
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <div style={{ flex: '1 1 320px', minWidth: 0 }}>
           <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>{monthLabel} 리포트</h1>
-          <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>한 달 상담·등록 흐름과 유입 경로를 봅니다. 매월 1일 알림 번호로 카카오톡 요약본이 발송됩니다.</div>
+          <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>한 달 상담·등록 흐름과 유입 경로를 봅니다. 매월 1일 요약이 알림함과 앱 알림으로 옵니다.</div>
         </div>
         <div data-print-hide style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0, flexWrap: 'wrap' }}>
           {kakaoResult && (

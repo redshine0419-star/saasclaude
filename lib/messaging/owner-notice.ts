@@ -1,7 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { notifyStaff } from '@/lib/push';
-import { sendMessage } from '@/lib/messaging/send';
-import { hashPhone } from '@/lib/messaging/hash';
+import { notifyOwner } from '@/lib/notify/owner';
 import { betaStatus, formatKstDate, type BetaNoticeKey } from '@/lib/beta';
 
 function baseUrl() {
@@ -30,7 +28,7 @@ export function betaNoticeBody(key: BetaNoticeKey, t: { name: string; slug: stri
 }
 
 /**
- * 원장(새 상담 알림 받는 번호)에게 베타 안내를 보내고 tenants.lifecycleNotices에 기록한다.
+ * 원장에게 베타 안내(알림함·앱 알림·이메일)를 보내고 tenants.lifecycleNotices에 기록한다.
  * 받을 번호가 없어도 기록은 남긴다 — 대시보드 배너가 같은 내용을 보여준다.
  */
 export async function sendBetaNotice(
@@ -39,25 +37,16 @@ export async function sendBetaNotice(
   now: Date,
 ) {
   const body = betaNoticeBody(key, tenant);
-  // 앱 알림을 켠 기기가 있으면 푸시로 (카톡 대신)
-  const push = await notifyStaff(tenant.id, { title: body.split('\n')[0].replace(/^\[더클\]\s*/, ''), body: '계속 이용하시려면 관리자 화면에서 "계속 이용 신청"을 눌러 주세요.', url: `/${tenant.slug}/admin`, tag: 'beta' });
-  const recipients = push.skipKakao ? [] : await prisma.notifyRecipient.findMany({ where: { tenantId: tenant.id }, select: { phone: true } });
-
-  let sent = push.pushed;
-  for (const r of recipients) {
-    const result = await sendMessage({
-      tenantId: tenant.id,
-      recipientId: '',
-      recipientHash: hashPhone(r.phone),
-      phone: r.phone,
-      kind: 'beta_notice',
-      body,
-      isAdvertisement: false,
-      consent: { marketing: false, night: false },
-      requestedAt: now,
-    });
-    if (result.dispatched && 'status' in result && result.status === 'sent') sent++;
-  }
+  // 카톡 대신 알림함 + 앱 알림 + 원장 이메일
+  const r = await notifyOwner(tenant.id, {
+    kind: 'beta',
+    title: body.split('\n')[0].replace(/^\[더클\]\s*/, ''),
+    body: body.split('\n').slice(2, 4).join('\n'),
+    url: `/${tenant.slug}/admin`,
+    tag: 'beta',
+    email: true,
+  });
+  const sent = r.pushed + r.emailed;
 
   const prev = (tenant.lifecycleNotices ?? {}) as Record<string, string>;
   await prisma.tenant.update({
@@ -65,5 +54,5 @@ export async function sendBetaNotice(
     data: { lifecycleNotices: { ...prev, [key]: now.toISOString() } },
   });
 
-  return { recipients: recipients.length, sent };
+  return { recipients: r.emailed, sent };
 }

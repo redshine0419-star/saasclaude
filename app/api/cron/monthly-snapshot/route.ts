@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
-import { notifyStaff } from '@/lib/push';
+import { notifyOwner } from '@/lib/notify/owner';
 import { prisma } from '@/lib/prisma';
-import { sendMessage } from '@/lib/messaging/send';
-import { hashPhone } from '@/lib/messaging/hash';
 
 // Vercel Cron: 0 1 1 * * — 매월 1일 01:00 UTC (KST 10:00)
 // 전월 통계 스냅샷을 모든 활성 테넌트의 monthly_reports에 저장
@@ -24,7 +22,7 @@ export async function GET(req: Request) {
 
   const tenants = await prisma.tenant.findMany({
     where: { status: 'active' },
-    select: { id: true },
+    select: { id: true, slug: true, name: true },
   });
 
   let generated = 0;
@@ -89,44 +87,14 @@ export async function GET(req: Request) {
       create: { tenantId: tenant.id, month: monthKey, snapshot },
     });
 
-    // ── 월간 요약 카톡 발송 (notify_recipients에게) ────────────────
-    const tenantFull = await prisma.tenant.findUnique({
-      where: { id: tenant.id },
-      select: { name: true, slug: true, notifyRecipients: true },
-    });
-
-    // 앱 알림을 켠 기기가 있으면 푸시로 (카톡 대신)
-    const push = tenantFull
-      ? await notifyStaff(tenant.id, {
-          title: `${monthKey} 월간 리포트 — ${tenantFull.name}`,
-          body: `상담 ${totalLeads}건 · 등록 ${enrolledLeads}건 (${conversionRate}%). 눌러서 리포트 보기`,
-          url: `/${tenantFull.slug}/admin/report`,
-          tag: 'monthly-report',
-        })
-      : { skipKakao: false };
-    if (tenantFull && !push.skipKakao && tenantFull.notifyRecipients.length > 0) {
-      const summaryBody =
-        `[${tenantFull.name}] ${monthKey} 월간 리포트\n\n` +
-        `상담 신청: ${totalLeads}건\n` +
-        `등록 전환: ${enrolledLeads}건 (${conversionRate}%)\n` +
-        `카톡 발송: ${messagesSent}건\n` +
-        `마케팅 동의: ${marketingConsents}명\n\n` +
-        `상세 리포트: ${process.env.NEXT_PUBLIC_BASE_URL ?? 'https://growweb.me'}/${tenantFull.slug}/admin/report`;
-
-      for (const recipient of tenantFull.notifyRecipients) {
-        await sendMessage({
-          tenantId: tenant.id,
-          recipientId: recipient.id,
-          recipientHash: hashPhone(recipient.phone),
-          phone: recipient.phone,
-          kind: 'owner_alert',
-          body: summaryBody,
-          isAdvertisement: false,
-          consent: { marketing: true, night: false },
-          requestedAt: now,
-        }).catch(() => {});
-      }
-    }
+    // ── 월간 요약: 알림함 + 앱 알림 (카톡 대신) ────────────────
+    await notifyOwner(tenant.id, {
+      kind: 'report',
+      title: `${monthKey} 월간 리포트 — ${tenant.name}`,
+      body: `상담 ${totalLeads}건 · 등록 ${enrolledLeads}건 (${conversionRate}%). 눌러서 리포트 보기`,
+      url: `/${tenant.slug}/admin/report`,
+      tag: 'monthly-report',
+    }).catch(() => {});
 
     generated++;
   }

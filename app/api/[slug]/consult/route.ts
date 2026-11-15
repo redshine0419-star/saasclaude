@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { notifyStaff } from '@/lib/push';
+import { notifyOwner } from '@/lib/notify/owner';
+import { createSmsTask } from '@/lib/sms/tasks';
 import { prisma } from '@/lib/prisma';
-import { fillTemplate, resolveTemplate } from '@/lib/messaging/templates';
-import { sendMessage } from '@/lib/messaging/send';
-import { hashPhone } from '@/lib/messaging/hash';
 
 // SPEC line 137: UTM → referrer 분류 → direct
 function classifyReferer(referer: string | null): string {
@@ -64,7 +62,6 @@ export async function POST(
   // ── 테넌트 조회 ──────────────────────────────────────────────────────
   const tenant = await prisma.tenant.findUnique({
     where: { slug, status: 'active', published: true },
-    include: { notifyRecipients: true },
   });
   if (!tenant) {
     return NextResponse.json({ error: '학원을 찾을 수 없습니다.' }, { status: 404 });
@@ -88,7 +85,6 @@ export async function POST(
     });
     return NextResponse.json({ ok: true, leadId: existingLead.id });
   }
-  const recipientHash = hashPhone(phone);
   const consultType = CONSULT_TYPE_MAP[body.consultType as string] ?? 'level_test';
 
   // UTM 파라미터 — 클라이언트가 JSON으로 전달 (SPEC line 99)
@@ -161,111 +157,19 @@ export async function POST(
     },
   });
 
-  // ── receipt 발송 (학부모에게) ─────────────────────────────────────────
-  const vars = {
-    학부모명: lead.parentName,
-    학원명: tenant.name,
-    학생학년: lead.studentGrade,
-    상담유형: lead.consultType,
-  };
-  const receiptTemplate = await resolveTemplate(tenant.id, 'receipt');
+  // ── 학부모 접수 확인: 자동 발송 대신 "보낼 문자"에 올린다 (원장이 휴대폰 문자로 보낸다) ──
+  await createSmsTask(tenant.id, lead.id, 'receipt', now).catch((e) => console.error('[consult] 보낼 문자 만들기 실패', e instanceof Error ? e.message : e));
 
-  if (receiptTemplate) {
-    const receiptBody = fillTemplate(receiptTemplate.body, vars);
-    await dispatchMessage({
-      tenantId: tenant.id,
-      leadId: lead.id,
-      recipientHash,
-      phone,
-      scenario: 'receipt',
-      kind: 'info',
-      body: receiptBody,
-      marketingConsent: body.agreeMarketing ?? false,
-      nightConsent: body.agreeNight ?? false,
-    });
-  } else {
-    await prisma.leadEvent.create({
-      data: {
-        leadId: lead.id,
-        type: 'receipt_skipped',
-        payload: { reason: 'no_template' },
-      },
-    });
-  }
-
-  // ── owner_alert: 앱 알림을 켠 기기가 있으면 푸시(무료), 아니면 notify_recipients에게 알림톡 ──
+  // ── 원장·직원 알림: 알림함 + 앱 알림 + 원장 이메일 (카톡 대신) ──
   const masked = lead.parentName ? `${lead.parentName.slice(0, 1)}○○` : '학부모';
-  const push = await notifyStaff(tenant.id, {
+  await notifyOwner(tenant.id, {
+    kind: 'new_lead',
     title: `새 상담 신청 — ${tenant.name}`,
-    body: [`${masked} 학부모`, lead.studentGrade, lead.consultType === 'level_test' ? '레벨테스트 예약' : lead.consultType === 'visit' ? '방문 상담' : '전화 상담'].filter(Boolean).join(' · '),
-    url: `/${slug}/admin/leads`,
+    body: [`${masked} 학부모`, lead.studentGrade, lead.consultType === 'level_test' ? '레벨테스트 예약' : lead.consultType === 'visit' ? '방문 상담' : lead.consultType === 'waitlist' ? '수업 대기 신청' : '전화 상담'].filter(Boolean).join(' · ') + '\n접수 확인 문자를 보내 주세요.',
+    url: `/${slug}/admin/sms`,
     tag: 'new-lead',
-  });
-  const alertTemplate = push.skipKakao ? null : await resolveTemplate(tenant.id, 'owner_alert');
-
-  if (alertTemplate) {
-    for (const recipient of tenant.notifyRecipients) {
-      const recipientHashOwner = hashPhone(recipient.phone);
-      await dispatchMessage({
-        tenantId: tenant.id,
-        leadId: lead.id,
-        recipientHash: recipientHashOwner,
-        phone: recipient.phone,
-        scenario: 'owner_alert',
-        kind: 'info',
-        body: fillTemplate(alertTemplate.body, vars),
-        marketingConsent: true,  // 원장 알림은 동의 체크 불필요 (정보성)
-        nightConsent: true,
-      });
-    }
-  }
+    email: true,
+  }).catch((e) => console.error('[consult] 원장 알림 실패', e instanceof Error ? e.message : e));
 
   return NextResponse.json({ ok: true, leadId: lead.id });
-}
-
-// ── 내부 헬퍼: 규칙 적용 후 messages 테이블 기록 ─────────────────────────────
-
-async function dispatchMessage(opts: {
-  tenantId: string;
-  leadId: string;
-  recipientHash: string;
-  phone: string;
-  scenario: 'receipt' | 'owner_alert' | 'reminder' | 'followup' | 'campaign' | 'reconfirm';
-  kind: 'info' | 'ad';
-  body: string;
-  marketingConsent: boolean;
-  nightConsent: boolean;
-}) {
-  const now = new Date();
-  const result = await sendMessage({
-    tenantId: opts.tenantId,
-    recipientId: opts.leadId,
-    recipientHash: opts.recipientHash,
-    phone: opts.phone,
-    kind: opts.scenario,
-    body: opts.body,
-    isAdvertisement: opts.kind === 'ad',
-    consent: { marketing: opts.marketingConsent, night: opts.nightConsent },
-    requestedAt: now,
-  });
-
-  // messages 테이블에 기록
-  const channel = result.dispatched ? (result as { channel?: string }).channel ?? 'alimtalk' : 'alimtalk';
-  await prisma.message.create({
-    data: {
-      tenantId: opts.tenantId,
-      leadId: opts.leadId,
-      scenario: opts.scenario,
-      kind: opts.kind === 'ad' ? 'ad' : 'info',
-      channel: channel as 'alimtalk' | 'sms_fallback',
-      recipientHash: opts.recipientHash,
-      status: !result.dispatched
-        ? 'failed'
-        : result.scheduledAt > now
-        ? 'deferred'
-        : 'sent',
-      sentAt: result.dispatched && result.scheduledAt <= now ? now : null,
-      error: !result.dispatched ? result.reason : null,
-    },
-  });
 }

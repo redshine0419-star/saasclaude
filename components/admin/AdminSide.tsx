@@ -1,8 +1,11 @@
 import Link from 'next/link';
 import { AdminMobileBar } from './AdminMobileBar';
+import { AdminInboxNav, AdminBell } from './AdminInboxNav';
 
 type ActiveKey =
   | 'dashboard'
+  | 'notifications'
+  | 'sms'
   | 'leads'
   | 'kakao'
   | 'kakaolog'
@@ -92,6 +95,8 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 const ACTIVE_LABEL: Record<ActiveKey, string> = {
   dashboard: '대시보드',
+  notifications: '알림함',
+  sms: '보낼 문자',
   leads: '상담 관리',
   kakao: '카톡 자동 발송',
   kakaolog: '발송 내역·수신 동의',
@@ -119,6 +124,7 @@ export function AdminSide({ slug, tenantName, active }: AdminSideProps) {
   const nav = (
     <>
       <NavItem href={`${base}`} label="대시보드" active={active === 'dashboard'} />
+      <AdminInboxNav slug={slug} active={active} />
       <NavItem href={`${base}/leads`} label="상담 관리" active={active === 'leads'} />
 
       <SectionLabel>원생</SectionLabel>
@@ -155,7 +161,7 @@ export function AdminSide({ slug, tenantName, active }: AdminSideProps) {
 
   return (
     <>
-      <AdminMobileBar tenantName={tenantName} current={ACTIVE_LABEL[active]}>
+      <AdminMobileBar tenantName={tenantName} current={ACTIVE_LABEL[active]} right={<AdminBell slug={slug} />}>
         {nav}
       </AdminMobileBar>
       <aside

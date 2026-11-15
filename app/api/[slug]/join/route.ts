@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { notifyOwner } from '@/lib/notify/owner';
 import { MAX_PENDING, REGISTRATION_CONSENT_VERSION, isRegToken, parseRegistration, registrationCutoff } from '@/lib/students/registration';
 
 type Params = Promise<{ slug: string }>;
@@ -33,7 +34,17 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   });
   const data = { ...parsed.data, consentAt: new Date(), consentVersion: REGISTRATION_CONSENT_VERSION };
   if (dup) await prisma.studentRegistration.update({ where: { id: dup.id }, data });
-  else await prisma.studentRegistration.create({ data: { ...data, tenantId: tenant.id } });
+  else {
+    await prisma.studentRegistration.create({ data: { ...data, tenantId: tenant.id } });
+    // 원장에게 알림함·앱 알림 (학생·학부모 이름·번호는 넣지 않는다)
+    await notifyOwner(tenant.id, {
+      kind: 'registration',
+      title: '학부모 등록 신청이 들어왔습니다',
+      body: '학생부 › 등록 대기에서 확인하고 승인해 주세요.',
+      url: `/${slug}/admin/students`,
+      tag: 'registration',
+    }).catch(() => undefined);
+  }
 
   return NextResponse.json({ ok: true });
 }
