@@ -117,10 +117,6 @@ export default function MarketingHome() {
                 </div>
               ))}
             </div>
-            <div style={{ marginTop: 2, padding: '14px 16px', borderRadius: 14, background: '#14213D', color: '#FFFFFF', fontSize: 15, fontWeight: 600, lineHeight: 1.5, display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: 5, background: '#F5B700', flexShrink: 0 }} />
-              원장님은 알림이 오면 전화만 하세요.
-            </div>
           </div>
         </div>
       </section>
