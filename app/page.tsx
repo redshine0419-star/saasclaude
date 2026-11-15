@@ -53,14 +53,13 @@ export default function MarketingHome() {
     },
   ];
 
-  // 첫 화면 카드 — 핵심 6가지
+  // 첫 화면 카드 — 더클이 하는 일 5가지
   const heroDoes = [
-    { icon: '🏫', title: '학원 홈페이지', desc: '3가지 테마, 휴대폰에서 바로 수정' },
-    { icon: '📋', title: '상담 신청 받기', desc: '1분 신청서 + 레벨테스트 예약' },
-    { icon: '📨', title: '학부모 자동 안내', desc: '접수 안내, 테스트 전날 알림을 자동으로' },
-    { icon: '🔔', title: '원장님 알림', desc: '새 상담·미응대 상담을 휴대폰으로' },
-    { icon: '✏️', title: '온라인 레벨테스트', desc: '자동 채점, 단원별 결과지' },
-    { icon: '📊', title: '상담→등록 관리', desc: '단계별 관리, 미등록 사유, 월간 리포트' },
+    { icon: '🏫', title: '학원 홈페이지 제작 및 관리 시스템', desc: '3가지 테마로 바로 공개, 휴대폰에서 직접 수정' },
+    { icon: '📋', title: '상담 신청 및 관리 시스템', desc: '상담 신청·레벨테스트 예약, 새 상담 알림, 등록까지 단계별 관리' },
+    { icon: '🎒', title: '학생 및 출석 관리 시스템', desc: '학생부·출결·성적, 학부모 리포트 공유' },
+    { icon: '✏️', title: '문제 및 답변관리, 첨삭 관리', desc: '문제은행·시험지, 자동 채점, 서술형 첨삭과 결과지' },
+    { icon: '📈', title: '학원 성과 및 홍보 관리', desc: '월간 리포트, 유입 검색어, 소식·후기·성적 사례' },
   ];
 
   // 아래 비교 블록 — 첫 화면 카드에 없는 기능
@@ -104,7 +103,7 @@ export default function MarketingHome() {
           <div style={{ padding: 'clamp(22px, 3vw, 36px)', borderRadius: 24, background: '#F3F5F8', display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
               <div style={{ fontSize: 20, fontWeight: 700 }}>더클이 하는 일</div>
-              <div style={{ fontSize: 13, color: '#5A6478', fontWeight: 600 }}>신청부터 등록까지</div>
+              <div style={{ fontSize: 13, color: '#5A6478', fontWeight: 600 }}>학원 운영을 한곳에서</div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {heroDoes.map((d) => (
