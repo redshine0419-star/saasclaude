@@ -32,6 +32,26 @@ if (!process.env.DATABASE_URL) {
 }
 const prisma = new PrismaClient({ adapter: new PrismaNeon({ connectionString: process.env.DATABASE_URL }) });
 
+// 나중에 추가한 초안 — 표시가 없으면 아직 없는 글 주소만 숨김으로 넣는다
+const ADDITIONS = [
+  { marker: 'seed:blog-drafts:add-2026-11-16', slugs: ['naver-place-guide', 'level-test-result-guide', 'tuition-refund-rules', 'parent-sms-examples', 'homepage-blog-instagram', 'monthly-parent-report'] },
+];
+
+async function applyAdditions() {
+  for (const a of ADDITIONS) {
+    if (await prisma.platformSetting.findUnique({ where: { key: a.marker } })) continue;
+    let n = 0;
+    for (const slug of a.slugs) {
+      const d = BLOG_DRAFTS.find((x) => x.slug === slug);
+      if (!d || (await prisma.blogPost.findUnique({ where: { slug }, select: { id: true } }))) continue;
+      await prisma.blogPost.create({ data: { ...d, status: 'draft', authorEmail: 'seed@growweb.me' } });
+      n++;
+    }
+    await prisma.platformSetting.create({ data: { key: a.marker, value: new Date().toISOString() } });
+    console.log(`[seed-blog] 초안 ${n}편 추가 (숨김)`);
+  }
+}
+
 async function applyUpdates() {
   for (const u of UPDATES) {
     if (await prisma.platformSetting.findUnique({ where: { key: u.marker } })) continue;
@@ -53,7 +73,8 @@ async function applyUpdates() {
 async function main() {
   if (await prisma.platformSetting.findUnique({ where: { key: MARKER } })) {
     console.log('[seed-blog] 초안 이미 넣음 — 건너뜀');
-    return applyUpdates();
+    await applyUpdates();
+    return applyAdditions();
   }
   let n = 0;
   for (const d of BLOG_DRAFTS) {
@@ -64,7 +85,7 @@ async function main() {
   await prisma.platformSetting.create({ data: { key: MARKER, value: new Date().toISOString() } });
   console.log(`[seed-blog] 초안 ${n}편 넣음 (숨김)`);
   // 처음 넣을 때는 이미 최신 원고이므로 교체 표시만 남긴다
-  for (const u of UPDATES) await prisma.platformSetting.upsert({ where: { key: u.marker }, update: {}, create: { key: u.marker, value: new Date().toISOString() } });
+  for (const u of [...UPDATES, ...ADDITIONS]) await prisma.platformSetting.upsert({ where: { key: u.marker }, update: {}, create: { key: u.marker, value: new Date().toISOString() } });
 }
 
 main()
