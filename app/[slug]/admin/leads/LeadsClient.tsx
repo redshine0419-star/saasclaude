@@ -41,6 +41,8 @@ interface Props {
   leads: Lead[];
   totalByStatus: Record<string, number>;
   tests: TestOption[];
+  /** 알림·보낼 문자에서 넘어왔을 때 바로 열 상담 */
+  focusId?: string | null;
 }
 
 const STATUS_OPTIONS = [
@@ -111,15 +113,16 @@ function formatDate(iso: string) {
   return `${mm}.${dd} ${hh}:${min}`;
 }
 
-export function LeadsClient({ slug, academyName, leads: initialLeads, totalByStatus, tests }: Props) {
+export function LeadsClient({ slug, academyName, leads: initialLeads, totalByStatus, tests, focusId = null }: Props) {
   const [leads, setLeads] = useState(initialLeads);
   const [filter, setFilter] = useState<string>('all');
   const [search, setSearch] = useState('');
+  const focused = focusId && initialLeads.some((l) => l.id === focusId) ? focusId : null;
   const [selectedId, setSelectedId] = useState<string | null>(
-    initialLeads[0]?.id ?? null,
+    focused ?? initialLeads[0]?.id ?? null,
   );
   // 모바일에서는 목록을 누를 때만 상세를 전체 화면으로 연다 (데스크톱은 항상 옆에 표시)
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(!!focused);
   const [saving, setSaving] = useState(false);
   const [memoValue, setMemoValue] = useState<Record<string, string>>({});
   const [statusValue, setStatusValue] = useState<Record<string, string>>({});

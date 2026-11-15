@@ -7,10 +7,13 @@ import { LeadsClient } from './LeadsClient';
 
 export default async function AdminLeadsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ id?: string }>;
 }) {
   const { slug } = await params;
+  const { id: focusId } = await searchParams;
 
   const session = await adminSession(slug);
   if (!session?.user?.email) redirect('/auth/signin');
@@ -116,7 +119,7 @@ export default async function AdminLeadsPage({
           overflow: 'hidden',
         }}
       >
-        <LeadsClient slug={slug} academyName={tenant.name} leads={serialized} totalByStatus={totalByStatus} tests={tests} />
+        <LeadsClient slug={slug} academyName={tenant.name} leads={serialized} totalByStatus={totalByStatus} tests={tests} focusId={focusId ?? null} />
       </main>
     </div>
   );

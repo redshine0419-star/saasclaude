@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { fillTemplate, resolveTemplate } from '@/lib/messaging/templates';
-import { sendMessage } from '@/lib/messaging/send';
-import { hashPhone } from '@/lib/messaging/hash';
+import { createSmsTask } from '@/lib/sms/tasks';
+import { notifyOwner } from '@/lib/notify/owner';
 
 // Vercel Cron: 0 9 * * * — 매일 18:00 KST (09:00 UTC)
-// test_booked 상태 leads 중 내일 테스트 예정자에게 reminder 발송
+// 학부모에게 보낼 문자를 '보낼 문자'에 올리고 원장에게 알린다 (자동 발송하지 않는다 — 원장이 휴대폰 문자로 보낸다)
+//  - 레벨테스트 전날 안내: 내일(KST) 테스트가 확정된 상담
+//  - 상담 후 안내: 연락·테스트 뒤 2일 넘게 결정이 없는 최근 30일 상담 (정보성 — 광고 문구 금지)
+
+const DAY = 24 * 3600 * 1000;
+const KST = 9 * 3600 * 1000;
 
 export async function GET(req: Request) {
   const auth = req.headers.get('authorization');
@@ -14,115 +18,50 @@ export async function GET(req: Request) {
   }
 
   const now = new Date();
+  // 내일 KST 하루의 UTC 범위
+  const k = new Date(now.getTime() + KST);
+  const tomorrowStart = new Date(Date.UTC(k.getUTCFullYear(), k.getUTCMonth(), k.getUTCDate() + 1) - KST);
+  const tomorrowEnd = new Date(tomorrowStart.getTime() + DAY);
 
-  // "내일" KST 날짜 계산
-  // KST = UTC + 9h. 현재가 09:00 UTC = 18:00 KST이므로, 내일 KST 날짜를 구한다.
-  const kstNow = new Date(now.getTime() + 9 * 3600 * 1000);
-  const tomorrowKST = new Date(kstNow);
-  tomorrowKST.setUTCDate(tomorrowKST.getUTCDate() + 1);
-  const tomorrowWeekday = tomorrowKST.getUTCDay(); // 0=Sun~6=Sat
+  const created = new Map<string, number>(); // tenantId → 새로 만든 수
+  const bump = (t: string) => created.set(t, (created.get(t) ?? 0) + 1);
 
-  // 내일 KST 날짜의 UTC 범위 (00:00 ~ 23:59 KST = 전날 15:00 ~ 당일 14:59 UTC)
-  const tomorrowKSTMidnight = Date.UTC(
-    tomorrowKST.getUTCFullYear(),
-    tomorrowKST.getUTCMonth(),
-    tomorrowKST.getUTCDate(),
-  );
-  const tomorrowStart = new Date(tomorrowKSTMidnight - 9 * 3600 * 1000); // 15:00 UTC today
-  const tomorrowEnd = new Date(tomorrowKSTMidnight - 9 * 3600 * 1000 + 24 * 3600 * 1000); // 15:00 UTC tomorrow
-
-  let dispatched = 0;
-  let skipped = 0;
-
-  // test_booked 상태의 모든 leads (slot 정보 포함)
-  const leads = await prisma.lead.findMany({
-    where: { status: 'test_booked', preferredSlotId: { not: null } },
-    include: {
-      preferredSlot: true,
-      consents: { where: { revokedAt: null, grantedAt: { not: null } } },
-      messages: { where: { scenario: 'reminder', status: { in: ['sent', 'pending', 'deferred'] } } },
-    },
-    take: 100,
+  const reminders = await prisma.lead.findMany({
+    where: { status: 'test_booked', testAt: { gte: tomorrowStart, lt: tomorrowEnd } },
+    select: { id: true, tenantId: true, testAt: true },
+    take: 500,
   });
-
-  for (const lead of leads) {
-    if (!lead.phone || !lead.preferredSlot) continue;
-
-    // 이미 reminder 발송된 경우 건너뜀
-    if (lead.messages.length > 0) { skipped++; continue; }
-
-    const slot = lead.preferredSlot;
-    let isTestTomorrow = false;
-
-    if (slot.date) {
-      // 특정 날짜 슬롯: 내일 KST 날짜와 일치하는지
-      isTestTomorrow = slot.date >= tomorrowStart && slot.date < tomorrowEnd;
-    } else if (slot.weekday !== null && slot.weekday !== undefined) {
-      // 요일 반복 슬롯: 내일 요일과 일치하는지
-      isTestTomorrow = slot.weekday === tomorrowWeekday;
-    }
-
-    if (!isTestTomorrow) continue;
-
-    // 해당 테넌트의 reminder 템플릿 조회
-    const [template, tenant] = await Promise.all([
-      resolveTemplate(lead.tenantId, 'reminder'),
-      prisma.tenant.findUnique({ where: { id: lead.tenantId }, select: { name: true } }),
-    ]);
-    if (!template) { skipped++; continue; }
-
-    const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
-    const slotLabel = slot.date
-      ? `${new Date(slot.date.getTime() + 9 * 3600000).toISOString().slice(0, 10)} ${slot.time ?? ''}`
-      : slot.weekday !== null && slot.weekday !== undefined
-        ? `${WEEKDAY_LABELS[slot.weekday]}요일 ${slot.time ?? ''}`
-        : slot.time ?? '';
-
-    const reminderBody = fillTemplate(template.body, {
-      학부모명: lead.parentName,
-      학원명: tenant?.name,
-      테스트일시: slotLabel.trim(),
-    });
-
-    const consentSet = new Set(lead.consents.map((c) => c.type));
-    const recipientHash = hashPhone(lead.phone);
-
-    const result = await sendMessage({
-      tenantId: lead.tenantId,
-      recipientId: lead.id,
-      recipientHash,
-      phone: lead.phone,
-      kind: 'reminder',
-      body: reminderBody,
-      isAdvertisement: false, // reminder는 정보성
-      consent: { marketing: consentSet.has('marketing'), night: consentSet.has('night') },
-      requestedAt: now,
-    });
-
-    const status = result.dispatched
-      ? 'status' in result && result.status === 'sent' ? 'sent' : 'deferred'
-      : 'failed';
-
-    await prisma.message.create({
-      data: {
-        tenantId: lead.tenantId,
-        leadId: lead.id,
-        scenario: 'reminder',
-        kind: 'info',
-        recipientHash,
-        status,
-        sentAt: status === 'sent' ? now : undefined,
-        error: !result.dispatched ? result.reason : undefined,
-      },
-    });
-
-    if (status === 'sent') dispatched++;
+  for (const l of reminders) {
+    if (l.testAt && (await createSmsTask(l.tenantId, l.id, 'reminder', now, l.testAt.toISOString()))) bump(l.tenantId);
   }
 
-  return NextResponse.json({
-    ok: true,
-    dispatched,
-    skipped,
-    at: now.toISOString(),
+  const followups = await prisma.lead.findMany({
+    where: {
+      status: { in: ['contacted', 'test_done'] },
+      statusChangedAt: { lte: new Date(now.getTime() - 2 * DAY) },
+      createdAt: { gte: new Date(now.getTime() - 30 * DAY) },
+    },
+    select: { id: true, tenantId: true },
+    take: 500,
   });
+  for (const l of followups) {
+    if (await createSmsTask(l.tenantId, l.id, 'followup', now)) bump(l.tenantId);
+  }
+
+  // 학원마다 한 번 알림 (데모 학원 제외)
+  let notified = 0;
+  for (const [tenantId, n] of created) {
+    const t = await prisma.tenant.findUnique({ where: { id: tenantId }, select: { slug: true, name: true } });
+    if (!t || t.slug.startsWith('demo')) continue;
+    await notifyOwner(tenantId, {
+      kind: 'sms_due',
+      title: `학부모에게 보낼 문자 ${n}건 — ${t.name}`,
+      body: '레벨테스트 전날 안내·상담 후 안내 문자가 준비되었습니다. 눌러서 휴대폰 문자로 보내 주세요.',
+      url: `/${t.slug}/admin/sms`,
+      tag: 'sms-due',
+    }).catch(() => undefined);
+    notified++;
+  }
+
+  return NextResponse.json({ ok: true, reminders: reminders.length, followups: followups.length, created: [...created.values()].reduce((a, b) => a + b, 0), notified, at: now.toISOString() });
 }

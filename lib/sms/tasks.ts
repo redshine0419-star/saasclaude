@@ -4,9 +4,8 @@ import { prisma } from '@/lib/prisma';
  * 학부모에게 보낼 문자 할 일 — 카카오톡 자동 발송 대신, 원장이 휴대폰 문자 앱으로 직접 보낸다.
  * receipt: 상담 접수 확인 (신청 즉시) · reminder: 레벨테스트 전날 안내 · followup: 상담 후 2~3일 안내(정보성)
  */
-export type SmsKind = 'receipt' | 'reminder' | 'followup';
-export const SMS_KIND_LABEL: Record<SmsKind, string> = { receipt: '접수 확인', reminder: '레벨테스트 전날 안내', followup: '상담 후 안내' };
-export const isSmsKind = (k: unknown): k is SmsKind => k === 'receipt' || k === 'reminder' || k === 'followup';
+import type { SmsKind } from './constants';
+export { SMS_KIND_LABEL, isSmsKind, type SmsKind } from './constants';
 
 /** 같은 상담·종류·키로는 한 번만 만든다. 새로 만들었으면 true */
 export async function createSmsTask(tenantId: string, leadId: string, kind: SmsKind, dueAt: Date, refKey = ''): Promise<boolean> {
