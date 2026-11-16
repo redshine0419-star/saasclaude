@@ -25,7 +25,7 @@ function Row({ c }: { c: Claim }) {
   const [reason, setReason] = useState('');
   const [err, setErr] = useState('');
   const [st, bg, fg] = STATUS[c.status] ?? [c.status, '#EEE', '#333'];
-  const title = isEventKind(c.kind) ? EVENTS[c.kind].title : c.kind;
+  const title = c.kind === 'manual' ? '운영자 추가' : isEventKind(c.kind) ? EVENTS[c.kind].title : c.kind;
 
   async function act(body: object) {
     setBusy(true);

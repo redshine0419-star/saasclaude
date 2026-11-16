@@ -1,5 +1,6 @@
 'use client';
 
+import { FreePeriodCard, type FreePeriodInfo } from './FreePeriodCard';
 import { useState } from 'react';
 import Link from 'next/link';
 import { formatKstDate, formatKstDateTime } from '@/lib/format-date';
@@ -65,6 +66,7 @@ interface Props {
   kakaoChannelUrl: string;
   status: string;
   betaEndsAt: string | null;
+  freePeriod: FreePeriodInfo;
   sections: SectionState[];
   allSections: SectionDef[];
   overlaps: OverlapAcademy[];
@@ -361,6 +363,8 @@ export function AcademyEditClient(props: Props) {
                 )}
               </div>
             </div>
+
+            <FreePeriodCard info={props.freePeriod} />
 
             <div style={{ padding: 20, borderRadius: 14, background: '#FFFFFF' }}>
               <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 14 }}>학원 정보</div>

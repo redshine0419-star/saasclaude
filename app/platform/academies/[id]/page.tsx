@@ -36,7 +36,7 @@ export default async function AcademyEditPage({ params }: Props) {
   if (!tenant) notFound();
 
   // 같은 지역·과목 경고: 동일 subjects + address(시/구 기준) 다른 활성 학원
-  const [overlaps, contactLogs] = await Promise.all([
+  const [overlaps, contactLogs, sub, grants] = await Promise.all([
     tenant.subjects && tenant.address
       ? prisma.tenant.findMany({
           where: {
@@ -54,6 +54,8 @@ export default async function AcademyEditPage({ params }: Props) {
       orderBy: { createdAt: 'desc' },
       take: 30,
     }),
+    prisma.subscription.findUnique({ where: { tenantId: tenant.id }, select: { status: true, nextBillingAt: true } }),
+    prisma.eventClaim.findMany({ where: { tenantId: tenant.id, status: 'approved' }, orderBy: { reviewedAt: 'desc' }, take: 20 }),
   ]);
 
   const sections = tenant.sections.map((s) => ({ key: s.sectionKey, enabled: s.enabled, sortOrder: s.sortOrder }));
@@ -77,6 +79,13 @@ export default async function AcademyEditPage({ params }: Props) {
         sections={sections}
         allSections={ALL_SECTIONS}
         overlaps={overlaps}
+        freePeriod={{
+          tenantId: tenant.id,
+          planStatus: tenant.planStatus,
+          betaEndsAt: tenant.betaEndsAt?.toISOString() ?? null,
+          nextBillingAt: sub && sub.status !== 'canceled' ? sub.nextBillingAt.toISOString() : null,
+          history: grants.map((g) => ({ id: g.id, kind: g.kind, months: g.months, content: g.content, reviewedAt: g.reviewedAt?.toISOString() ?? null, reviewedBy: g.reviewedBy, freeUntil: g.freeUntil?.toISOString() ?? null, appliedTo: g.appliedTo })),
+        }}
         contactLogs={contactLogs.map((l) => ({
           id: l.id,
           createdAt: l.createdAt.toISOString(),

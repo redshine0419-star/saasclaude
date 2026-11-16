@@ -2,7 +2,32 @@ import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { notifyOwner } from '@/lib/notify/owner';
 import { formatKstDate } from '@/lib/format-date';
-import { EVENTS, isEventKind, planExtension, resetBetaNotices } from './index';
+import { EVENTS, isEventKind, planExtension, resetBetaNotices, type ExtensionPlan } from './index';
+
+type TenantForExtension = { id: string; lifecycleNotices: unknown };
+type SubForExtension = { id: string; status: string; nextBillingAt: Date } | null;
+
+const TENANT_SELECT = { id: true, slug: true, planStatus: true, betaEndsAt: true, lifecycleNotices: true, subscription: { select: { id: true, status: true, nextBillingAt: true } } } as const;
+
+/** 계획대로 무료 종료일 또는 다음 결제일을 늦춘다 (한 트랜잭션) */
+async function applyExtension(t: TenantForExtension, sub: SubForExtension, plan: ExtensionPlan) {
+  const ops: Prisma.PrismaPromise<unknown>[] = [];
+  if (plan.target === 'subscription') {
+    ops.push(prisma.subscription.update({ where: { id: sub!.id }, data: { nextBillingAt: plan.until } }));
+  } else {
+    ops.push(
+      prisma.tenant.update({
+        where: { id: t.id },
+        data: { planStatus: 'beta', betaEndsAt: plan.until, lifecycleNotices: resetBetaNotices(t.lifecycleNotices) as Prisma.InputJsonValue },
+      }),
+    );
+    // 무료 기간 중에 카드를 미리 등록했다면 첫 결제일도 새 종료일로 늦춘다
+    if (sub && sub.status !== 'canceled' && sub.nextBillingAt < plan.until) {
+      ops.push(prisma.subscription.update({ where: { id: sub.id }, data: { nextBillingAt: plan.until } }));
+    }
+  }
+  await prisma.$transaction(ops);
+}
 
 /**
  * 운영자 승인 — 무료 종료일(또는 다음 결제일)을 늦추고 원장에게 알린다.
@@ -11,7 +36,7 @@ import { EVENTS, isEventKind, planExtension, resetBetaNotices } from './index';
 export async function approveClaim(claimId: string, reviewer: string, now = new Date()) {
   const claim = await prisma.eventClaim.findUnique({
     where: { id: claimId },
-    include: { tenant: { select: { id: true, slug: true, planStatus: true, betaEndsAt: true, lifecycleNotices: true, subscription: { select: { id: true, status: true, nextBillingAt: true } } } } },
+    include: { tenant: { select: TENANT_SELECT } },
   });
   if (!claim) return { ok: false as const, error: '신청을 찾을 수 없습니다.' };
   if (claim.status !== 'pending') return { ok: false as const, error: '이미 처리한 신청입니다.' };
@@ -31,23 +56,8 @@ export async function approveClaim(claimId: string, reviewer: string, now = new 
   if (claimed.count === 0) return { ok: false as const, error: '이미 처리한 신청입니다.' };
 
   // 2) 기간 늘리기
-  const ops: Prisma.PrismaPromise<unknown>[] = [];
-  if (plan.target === 'subscription') {
-    ops.push(prisma.subscription.update({ where: { id: sub!.id }, data: { nextBillingAt: plan.until } }));
-  } else {
-    ops.push(
-      prisma.tenant.update({
-        where: { id: t.id },
-        data: { planStatus: 'beta', betaEndsAt: plan.until, lifecycleNotices: resetBetaNotices(t.lifecycleNotices) as Prisma.InputJsonValue },
-      }),
-    );
-    // 무료 기간 중에 카드를 미리 등록했다면 첫 결제일도 새 종료일로 늦춘다
-    if (sub && sub.status !== 'canceled' && sub.nextBillingAt < plan.until) {
-      ops.push(prisma.subscription.update({ where: { id: sub.id }, data: { nextBillingAt: plan.until } }));
-    }
-  }
   try {
-    await prisma.$transaction(ops);
+    await applyExtension(t, sub, plan);
   } catch (e) {
     // 기간을 못 늘렸으면 신청을 확인 중으로 되돌린다
     await prisma.eventClaim.update({ where: { id: claim.id }, data: { status: 'pending', reviewedAt: null, reviewedBy: null, appliedTo: null, freeUntil: null } }).catch(() => undefined);
@@ -85,4 +95,51 @@ export async function rejectClaim(claimId: string, reviewer: string, reason: str
     email: true,
   }).catch(() => undefined);
   return { ok: true as const };
+}
+
+export const GRANT_MAX_MONTHS = 12;
+
+/**
+ * 운영자가 신청 없이 학원에 무료 기간을 직접 더한다 (예: 오프라인 행사, 장애 보상).
+ * 이벤트 기록(event_claims, kind=manual)에 사유와 함께 남긴다 — 학원 이벤트(개선 제안·블로그) 횟수에는 세지 않는다.
+ */
+export async function grantFreeMonths(
+  tenantId: string,
+  months: number,
+  reason: string,
+  operator: string,
+  opts: { notify: boolean },
+  now = new Date(),
+) {
+  if (!Number.isInteger(months) || months < 1 || months > GRANT_MAX_MONTHS) return { ok: false as const, error: `1~${GRANT_MAX_MONTHS}개월 사이로 넣어 주세요.` };
+  const why = reason.trim().slice(0, 300);
+  if (!why) return { ok: false as const, error: '사유를 적어 주세요.' };
+  const t = await prisma.tenant.findUnique({ where: { id: tenantId }, select: TENANT_SELECT });
+  if (!t) return { ok: false as const, error: '학원을 찾을 수 없습니다.' };
+
+  const plan = planExtension(t, t.subscription, months, now);
+  const rec = await prisma.eventClaim.create({
+    data: { tenantId: t.id, kind: 'manual', status: 'approved', months, content: why, submittedBy: operator, reviewedAt: now, reviewedBy: operator, appliedTo: plan.target, freeUntil: plan.until },
+    select: { id: true },
+  });
+  try {
+    await applyExtension(t, t.subscription, plan);
+  } catch (e) {
+    await prisma.eventClaim.delete({ where: { id: rec.id } }).catch(() => undefined);
+    throw e;
+  }
+
+  if (opts.notify) {
+    await notifyOwner(t.id, {
+      kind: 'event',
+      title: `무료 이용 기간 ${months}개월 추가`,
+      body: plan.target === 'subscription'
+        ? `더클 운영자가 ${months}개월 혜택을 드려 다음 결제일이 ${formatKstDate(plan.until)}로 늦춰졌습니다.`
+        : `더클 운영자가 무료 이용 기간을 ${formatKstDate(plan.until)}까지 늘려 드렸습니다.`,
+      url: `/${t.slug}/admin/billing`,
+      tag: 'event',
+      email: true,
+    }).catch(() => undefined);
+  }
+  return { ok: true as const, target: plan.target, until: plan.until };
 }
