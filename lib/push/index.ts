@@ -22,7 +22,7 @@ export function pushConfigured(): boolean {
   const pub = process.env.VAPID_PUBLIC_KEY;
   const priv = process.env.VAPID_PRIVATE_KEY;
   if (!pub || !priv) return (configured = false);
-  webpush.setVapidDetails(process.env.VAPID_SUBJECT || 'mailto:redshine0419@gmail.com', pub, priv);
+  webpush.setVapidDetails(process.env.VAPID_SUBJECT || 'mailto:theclhelp@gmail.com', pub, priv);
   return (configured = true);
 }
 
@@ -76,7 +76,7 @@ export async function pushToOperators(payload: PushPayload, opts: { email?: stri
   return delivered;
 }
 
-/** 이메일 가리기 — 알림 내용용 (redshine0419@gmail.com → red***@gmail.com) */
+/** 이메일 가리기 — 알림 내용용 (theclhelp@gmail.com → th***@gmail.com) */
 export function maskEmail(email: string): string {
   const [id, domain] = email.split('@');
   if (!domain) return '***';

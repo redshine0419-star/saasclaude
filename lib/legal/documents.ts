@@ -17,7 +17,7 @@ export const OPERATOR = {
   bizNo: '405-58-00910',
   address: '경기도 수원시 장안구 파장로 33-1, 1층 101호(파장동)',
   privacyOfficer: '이규영 (대표)',
-  privacyEmail: 'redshine0419@gmail.com',
+  privacyEmail: 'theclhelp@gmail.com',
   // TODO(확인 필요): 통신판매업 신고번호 — 신고 후 채우면 서비스 사이트 하단에 표시된다
   mailOrderNo: '',
 };

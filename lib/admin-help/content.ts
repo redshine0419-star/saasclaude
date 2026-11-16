@@ -5,7 +5,7 @@ import type { HelpTopic } from './search';
  * 버튼 이름은 화면 문구 그대로 따옴표로 적는다 — 화면 문구가 바뀌면 여기도 함께 고친다.
  */
 
-export const HELP_CONTACT_EMAIL = 'redshine0419@gmail.com';
+export const HELP_CONTACT_EMAIL = 'theclhelp@gmail.com';
 
 export const HELP_TOPICS: HelpTopic[] = [
   {

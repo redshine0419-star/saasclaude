@@ -9,7 +9,7 @@ export function parseRecipients(raw: string | undefined): string[] {
 }
 
 /** 운영자 알림을 받는 주소. OPERATOR_NOTIFY_EMAIL을 넣으면 그 값으로 바뀐다(선택) */
-export const OPERATOR_EMAIL = 'redshine0419@gmail.com';
+export const OPERATOR_EMAIL = 'theclhelp@gmail.com';
 
 export function operatorRecipients(): string[] {
   const fromEnv = parseRecipients(process.env.OPERATOR_NOTIFY_EMAIL);
