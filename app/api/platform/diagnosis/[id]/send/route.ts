@@ -1,12 +1,20 @@
-import { kakaoEnabled } from '@/lib/messaging/kakao-enabled';
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import { sendMessage } from '@/lib/messaging/send';
-import { hashPhone } from '@/lib/messaging/hash';
+import { sendMail } from '@/lib/mail/send';
+import { renderDiagnosisMail, type DiagnosisScores } from '@/lib/diagnosis/result-mail';
 
 type Params = Promise<{ id: string }>;
 
+function isScores(v: unknown): v is DiagnosisScores {
+  const o = v as Record<string, { score?: unknown }> | null;
+  return !!o && ['homepage', 'seo', 'conversion', 'mobile'].every((k) => typeof o[k]?.score === 'number');
+}
+
+/**
+ * POST /api/platform/diagnosis/[id]/send — 운영자가 진단 결과를 다시 보낸다.
+ * 이메일로 받은 신청(2026-11-16~)은 메일로 보내고, 예전 휴대폰 신청은 운영자가 문자 앱으로 직접 보낸 뒤 처리 완료만 기록한다.
+ */
 export async function POST(req: NextRequest, { params }: { params: Params }) {
   const { id } = await params;
 
@@ -22,46 +30,18 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   if (!request) return NextResponse.json({ error: '신청을 찾을 수 없습니다.' }, { status: 404 });
 
   const body = await req.json().catch(() => ({}));
-  const resultNote: string = body.resultNote ?? request.resultNote ?? '';
+  const resultNote: string = typeof body.resultNote === 'string' ? body.resultNote.slice(0, 2000) : request.resultNote ?? '';
+  const scores = isScores(body.scores) ? body.scores : isScores(request.scores) ? request.scores : null;
 
-  const messageBody =
-    `[더클] ${request.academyName} 무료 진단 결과입니다.\n\n` +
-    `과목: ${request.subject} / 지역: ${request.area}\n\n` +
-    `${resultNote || '담당자가 곧 상세 결과를 안내해 드립니다.'}\n\n` +
-    `더클로 학원 홈페이지를 직접 만들어 보세요. 5분이면 열립니다.\n` +
-    `바로 만들기: ${process.env.NEXT_PUBLIC_BASE_URL ?? 'https://growweb.me'}/start`;
-
-  // 카톡 발송을 쓰지 않는 동안에는 운영자가 휴대폰 문자로 직접 보낸다 — 여기서는 처리 완료만 기록
-  if (!kakaoEnabled()) {
-    await prisma.diagnosticRequest.update({ where: { id }, data: { status: 'done', resultNote: resultNote || undefined } });
-    return NextResponse.json({ ok: true, manual: true });
+  if (request.email) {
+    // 운영자 메모(resultNote)는 내부용이라 메일에는 넣지 않는다 — 항목별 메모만 들어간다
+    const m = renderDiagnosisMail(request, scores, '');
+    const r = await sendMail({ to: [request.email], ...m });
+    if (!r.sent) {
+      return NextResponse.json({ error: r.reason === 'mock' ? '메일 발송이 설정되지 않았습니다 (RESEND_API_KEY).' : `메일을 보내지 못했습니다 (${r.reason ?? '오류'})` }, { status: 502 });
+    }
   }
 
-  const recipientHash = hashPhone(request.phone);
-
-  // Use a system tenant id for platform-level messages — null tenant is not possible,
-  // so we pass a sentinel value. Adapters only need phone + body + hash.
-  const result = await sendMessage({
-    tenantId: 'platform',
-    recipientId: request.id,
-    recipientHash,
-    phone: request.phone,
-    kind: 'receipt',
-    body: messageBody,
-    isAdvertisement: false,
-    consent: { marketing: false, night: false },
-    requestedAt: new Date(),
-  });
-
-  if (!result.dispatched) {
-    return NextResponse.json({ error: result.reason }, { status: 502 });
-  }
-
-  // Mark as done after sending
-  await prisma.diagnosticRequest.update({
-    where: { id },
-    data: { status: 'done', resultNote: resultNote || undefined },
-  });
-
-  return NextResponse.json({ ok: true });
+  await prisma.diagnosticRequest.update({ where: { id }, data: { status: 'done', resultNote: resultNote || undefined } });
+  return NextResponse.json({ ok: true, via: request.email ? 'email' : 'manual' });
 }

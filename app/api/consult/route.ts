@@ -3,7 +3,9 @@ import { after, NextRequest, NextResponse } from 'next/server';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { runDiagnosis } from '@/lib/diagnosis/run';
-import { maskPhoneForMail, notifyOperator } from '@/lib/mail/operator';
+import { notifyOperator } from '@/lib/mail/operator';
+import { sendMail } from '@/lib/mail/send';
+import { maskEmailAddr, normalizeEmail, renderDiagnosisMail } from '@/lib/diagnosis/result-mail';
 import { pushToOperators } from '@/lib/push';
 
 const SCORE_LABEL = { homepage: '홈페이지 현황', seo: 'SEO 노출도', conversion: '상담 전환 구조', mobile: '모바일 최적화' } as const;
@@ -24,11 +26,14 @@ export async function POST(req: NextRequest) {
   const academyName = text(body.academyName, 60);
   const area = text(body.area, 60);
   const subject = text(body.subject, 40);
-  const phone = text(body.phone, 20);
+  const email = normalizeEmail(body.email);
   const currentUrl = text(body.currentUrl, 500) || null;
 
-  if (!academyName || !area || !subject || !phone) {
+  if (!academyName || !area || !subject) {
     return NextResponse.json({ error: '필수 항목을 모두 입력해주세요.' }, { status: 400 });
+  }
+  if (!email) {
+    return NextResponse.json({ error: '결과를 받을 이메일 주소를 정확히 입력해주세요.' }, { status: 400 });
   }
   // 필수: 개인정보 수집·이용 (예전 화면은 agreed만 보낸다)
   if (body.agreePrivacy !== true && body.agreed !== true) {
@@ -37,7 +42,7 @@ export async function POST(req: NextRequest) {
   const now = new Date();
 
   const record = await prisma.diagnosticRequest.create({
-    data: { academyName, area, subject, phone, currentUrl, privacyAgreedAt: now, adAgreedAt: body.agreeAd === true ? now : null },
+    data: { academyName, area, subject, email, currentUrl, privacyAgreedAt: now, adAgreedAt: body.agreeAd === true ? now : null },
   });
 
   // 자동 진단: 결과를 바로 보여주고, 운영자는 P-03에서 필요할 때만 보완한다.
@@ -65,7 +70,7 @@ export async function POST(req: NextRequest) {
       rows: [
         ['학원명', academyName],
         ['지역 · 과목', `${area} · ${subject}`],
-        ['연락처', maskPhoneForMail(phone)],
+        ['이메일', maskEmailAddr(email)],
         ['현재 홈페이지', currentUrl ?? '없음'],
         ...(Object.keys(SCORE_LABEL) as (keyof typeof SCORE_LABEL)[]).map(
           (k): [string, string] => [SCORE_LABEL[k], `${result.items[k].score}/3 · ${result.items[k].note}`],
@@ -75,6 +80,11 @@ export async function POST(req: NextRequest) {
       linkLabel: '플랫폼 관리자에서 보기',
     }),
   );
+  // 신청자에게 결과 메일 (실패해도 결과 화면은 그대로 보인다)
+  after(() => {
+    const m = renderDiagnosisMail({ id: record.id, academyName, area, subject }, scores, '');
+    return sendMail({ to: [email], ...m }).then(() => undefined).catch(() => undefined);
+  });
   // 운영자 앱 알림 (연락처는 넣지 않는다)
   after(() =>
     pushToOperators({

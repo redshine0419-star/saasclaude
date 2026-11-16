@@ -11,6 +11,7 @@ export default async function PlatformDiagnosisPage() {
     area: r.area,
     subject: r.subject,
     phone: r.phone,
+    email: r.email,
     currentUrl: r.currentUrl,
     status: r.status,
     resultNote: r.resultNote,

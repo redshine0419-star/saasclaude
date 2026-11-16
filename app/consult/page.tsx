@@ -8,12 +8,14 @@ import { FdFooter } from '@/components/fd/FdFooter';
 import { ConsentList } from '@/components/legal/ConsentList';
 import { DIAGNOSIS_CONSENTS, requiredAgreed } from '@/lib/legal/consents';
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function ConsultPage() {
   const [form, setForm] = useState({
     academyName: '',
     area: '',
     subject: '',
-    phone: '',
+    email: '',
     currentUrl: '',
   });
   const [consents, setConsents] = useState<Record<string, boolean>>({ privacy: false, ad: false });
@@ -23,7 +25,7 @@ export default function ConsultPage() {
 
   const set = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
 
-  const canSubmit = form.academyName && form.area && form.subject && form.phone && agreed;
+  const canSubmit = form.academyName && form.area && form.subject && EMAIL_RE.test(form.email.trim()) && agreed;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -59,7 +61,7 @@ export default function ConsultPage() {
             <div style={{ fontSize: 13, fontWeight: 700, color: '#8A6400', marginBottom: 8 }}>무료 진단</div>
             <h1 style={{ margin: 0, fontSize: 'clamp(28px, 3.5vw, 42px)', fontWeight: 700, letterSpacing: '-1px', lineHeight: 1.3 }}>우리 학원에 맞는 방향을<br />무료로 확인하세요</h1>
             <p style={{ margin: '16px 0 0', fontSize: 16, lineHeight: 1.75, color: '#4A5568' }}>
-              지금 쓰는 홈페이지·블로그 주소를 넣으면 모바일·검색·상담 신청 구조를 바로 점검해 드립니다. 주소가 없어도 괜찮습니다.
+              지금 쓰는 홈페이지·블로그 주소를 넣으면 모바일·검색·상담 신청 구조를 바로 점검해 드립니다. 결과는 화면에 바로 보여 드리고 이메일로도 보내 드립니다. 주소가 없어도 괜찮습니다.
             </p>
           </div>
 
@@ -98,11 +100,11 @@ export default function ConsultPage() {
                 </select>
               </label>
               <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <span style={{ fontSize: 14, fontWeight: 600 }}>연락처 <span style={{ color: '#8A3A1C' }}>*</span></span>
+                <span style={{ fontSize: 14, fontWeight: 600 }}>이메일 <span style={{ color: '#8A3A1C' }}>*</span></span>
                 <input
-                  type="tel" required value={form.phone}
-                  onChange={(e) => set('phone', e.target.value)}
-                  placeholder="010-0000-0000"
+                  type="email" required value={form.email} autoComplete="email" inputMode="email" autoCapitalize="none"
+                  onChange={(e) => set('email', e.target.value)}
+                  placeholder="결과를 받을 이메일"
                   style={{ height: 48, padding: '0 14px', borderRadius: 10, border: '1px solid #CDD3DD', fontSize: 15, outline: 'none', fontFamily: 'inherit', background: '#FFFFFF' }}
                 />
               </label>

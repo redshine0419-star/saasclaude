@@ -5,13 +5,15 @@ import { smsHref } from '@/lib/messaging/sms-link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { formatKstDate } from '@/lib/format-date';
+import { diagnosisText, maskEmailAddr } from '@/lib/diagnosis/result-mail';
 
 type DiagRequest = {
   id: string;
   academyName: string;
   area: string;
   subject: string;
-  phone: string;
+  phone: string | null;
+  email: string | null;
   currentUrl: string | null;
   status: string;
   resultNote: string | null;
@@ -65,32 +67,12 @@ function maskPhone(phone: string) {
   return phone.replace(/(\d{3})-?\d{4}-?(\d{4})/, '$1-****-$2');
 }
 
-function scoreLabel(s: DiagScores) {
-  const avg = (s.homepage.score + s.seo.score + s.conversion.score + s.mobile.score) / 4;
-  if (avg >= 2.5) return '양호';
-  if (avg >= 1.5) return '보통';
-  return '미흡';
+/** 목록: 이메일(새 신청) 또는 휴대폰(예전 신청)을 가려서 */
+function maskedContact(r: DiagRequest) {
+  if (r.email) return maskEmailAddr(r.email);
+  return r.phone ? maskPhone(r.phone) : '—';
 }
 
-function buildKakaoMessage(r: DiagRequest, scores: DiagScores, note: string): string {
-  const overall = scoreLabel(scores);
-  const lines = DIAG_ITEMS.map(
-    (item) => {
-      const opt = SCORE_OPTIONS.find((o) => o.value === scores[item.key].score);
-      const itemNote = scores[item.key].note ? ` — ${scores[item.key].note}` : '';
-      return `• ${item.label}: ${opt?.label ?? ''}${itemNote}`;
-    },
-  ).join('\n');
-  return (
-    `[더클] ${r.academyName} 무료 진단 결과입니다.\n\n` +
-    `과목: ${r.subject} / 지역: ${r.area}\n` +
-    `종합 평가: ${overall}\n\n` +
-    `${lines}\n\n` +
-    (note ? `${note}\n\n` : '') +
-    `더클로 학원 홈페이지를 직접 만들어 보세요. 5분이면 열립니다.\n` +
-    `바로 만들기: https://growweb.me/start`
-  );
-}
 
 export function DiagnosisClient({ requests }: { requests: DiagRequest[] }) {
   const router = useRouter();
@@ -101,6 +83,7 @@ export function DiagnosisClient({ requests }: { requests: DiagRequest[] }) {
   const [saving, setSaving] = useState(false);
   const [sending, setSending] = useState(false);
   const [sendResult, setSendResult] = useState<'sent' | 'error' | null>(null);
+  const [sendError, setSendError] = useState('');
   const [error, setError] = useState('');
 
   function openPanel(r: DiagRequest) {
@@ -142,17 +125,25 @@ export function DiagnosisClient({ requests }: { requests: DiagRequest[] }) {
     }
   }
 
-  async function sendKakao() {
+  async function sendResultMail() {
     if (!selected) return;
     setSending(true);
     setSendResult(null);
+    setSendError('');
     try {
       const res = await fetch(`/api/platform/diagnosis/${selected.id}/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ resultNote, scores }),
       });
-      setSendResult(res.ok ? 'sent' : 'error');
+      if (res.ok) {
+        setSendResult('sent');
+        router.refresh();
+      } else {
+        const d = await res.json().catch(() => ({}));
+        setSendError(d.error ?? '');
+        setSendResult('error');
+      }
     } catch {
       setSendResult('error');
     } finally {
@@ -182,7 +173,7 @@ export function DiagnosisClient({ requests }: { requests: DiagRequest[] }) {
               <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>학원명</th>
               <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>지역</th>
               <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>과목</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>연락처</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>이메일·연락처</th>
               <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>현재 URL</th>
               <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>상태</th>
               <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#5A6270' }}>신청일</th>
@@ -206,7 +197,7 @@ export function DiagnosisClient({ requests }: { requests: DiagRequest[] }) {
                   <td style={{ padding: '14px 20px', fontWeight: 600 }}>{r.academyName}</td>
                   <td style={{ padding: '14px 16px', color: '#5A6270' }}>{r.area}</td>
                   <td style={{ padding: '14px 16px', color: '#5A6270' }}>{r.subject}</td>
-                  <td style={{ padding: '14px 16px', color: '#5A6270' }}>{maskPhone(r.phone)}</td>
+                  <td style={{ padding: '14px 16px', color: '#5A6270' }}>{maskedContact(r)}</td>
                   <td style={{ padding: '14px 16px', color: '#5A6270', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {r.currentUrl ? (
                       <a href={r.currentUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#1D3FA8', fontSize: 12 }}>
@@ -271,7 +262,8 @@ export function DiagnosisClient({ requests }: { requests: DiagRequest[] }) {
 
           <div style={{ fontSize: 13, color: '#5A6270', lineHeight: 1.7 }}>
             <div>{selected.subject} · {selected.area}</div>
-            <div>연락처: {selected.phone}</div>
+            {selected.email && <div>이메일: {selected.email}</div>}
+            {selected.phone && <div>연락처: {selected.phone} <span style={{ color: '#9AA3AF' }}>(예전 신청)</span></div>}
             {selected.currentUrl && (
               <div>
                 URL:{' '}
@@ -345,22 +337,22 @@ export function DiagnosisClient({ requests }: { requests: DiagRequest[] }) {
             />
           </div>
 
-          {/* Kakao preview */}
+          {/* 결과 안내 미리보기 */}
           <div>
-            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>보낼 문자 미리보기</div>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{selected.email ? '보낼 메일 미리보기' : '보낼 문자 미리보기'} <span style={{ fontWeight: 400, color: '#9AA3AF' }}>(추가 메모는 들어가지 않습니다)</span></div>
             <div style={{ padding: 14, borderRadius: 10, background: '#FAF9F6', border: '1px solid #E2DDD2', fontSize: 12, lineHeight: 1.8, whiteSpace: 'pre-wrap', color: '#1B2430', maxHeight: 200, overflowY: 'auto' }}>
-              {buildKakaoMessage(selected, scores, resultNote)}
+              {diagnosisText(selected, scores, '')}
             </div>
           </div>
 
           {sendResult === 'sent' && (
             <div style={{ padding: '10px 14px', borderRadius: 8, background: '#D8E8E0', color: '#1E5645', fontSize: 13, fontWeight: 600 }}>
-              처리 완료로 표시했습니다
+              {selected.email ? '결과 메일을 보내고 완료로 표시했습니다' : '처리 완료로 표시했습니다'}
             </div>
           )}
           {sendResult === 'error' && (
             <div style={{ padding: '10px 14px', borderRadius: 8, background: '#FDE8E8', color: '#B91C1C', fontSize: 13 }}>
-              처리 표시에 실패했습니다. 다시 시도해 주세요.
+              {sendError || '처리하지 못했습니다. 다시 시도해 주세요.'}
             </div>
           )}
 
@@ -371,26 +363,24 @@ export function DiagnosisClient({ requests }: { requests: DiagRequest[] }) {
           )}
 
           <div style={{ display: 'flex', gap: 10 }}>
-            <a
-              href={smsHref(selected.phone, buildKakaoMessage(selected, scores, resultNote))}
-              onClick={() => { sendKakao(); }}
-              style={{
-                flex: 1,
-                height: 44,
-                borderRadius: 8,
-                background: '#1E5645',
-                color: '#FFFFFF',
-                fontSize: 14,
-                fontWeight: 700,
-                textDecoration: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                opacity: sending ? 0.6 : 1,
-              }}
-            >
-              {sendResult === 'sent' ? '문자 다시 보내기' : '문자 보내기'}
-            </a>
+            {selected.email ? (
+              <button
+                type="button"
+                onClick={sendResultMail}
+                disabled={sending}
+                style={{ flex: 1, height: 44, borderRadius: 8, background: '#1E5645', color: '#FFFFFF', border: 'none', fontSize: 14, fontWeight: 700, cursor: sending ? 'not-allowed' : 'pointer', opacity: sending ? 0.6 : 1, fontFamily: 'inherit' }}
+              >
+                {sending ? '보내는 중…' : sendResult === 'sent' ? '메일 다시 보내기' : '결과 메일 보내기'}
+              </button>
+            ) : selected.phone ? (
+              <a
+                href={smsHref(selected.phone, diagnosisText(selected, scores, ''))}
+                onClick={() => { sendResultMail(); }}
+                style={{ flex: 1, height: 44, borderRadius: 8, background: '#1E5645', color: '#FFFFFF', fontSize: 14, fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: sending ? 0.6 : 1 }}
+              >
+                {sendResult === 'sent' ? '문자 다시 보내기' : '문자 보내기'}
+              </a>
+            ) : null}
             <button
               onClick={save}
               disabled={saving}

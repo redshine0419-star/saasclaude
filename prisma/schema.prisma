@@ -763,7 +763,8 @@ model DiagnosticRequest {
   academyName     String
   area            String
   subject         String
-  phone           String
+  phone           String? // 예전 신청만 (2026-11-16부터 이메일로 받는다)
+  email           String?
   currentUrl      String?
   status          DiagnosticStatus @default(pending)
   resultNote      String?

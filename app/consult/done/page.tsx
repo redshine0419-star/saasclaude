@@ -17,8 +17,8 @@ export default function ConsultDonePage() {
           </div>
           <h1 style={{ margin: 0, fontSize: 32, fontWeight: 700 }}>진단 신청이 완료됐습니다</h1>
           <p style={{ margin: 0, fontSize: 16, lineHeight: 1.75, color: '#4A5568' }}>
-            영업일 기준 2일 이내 담당자가 연락드립니다.<br />
-            연락처를 확인해 주세요.
+            진단 결과를 입력하신 이메일로 보내 드렸습니다.<br />
+            메일이 보이지 않으면 스팸함도 확인해 주세요.
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
             <Link href="/start" style={{ height: 48, padding: '0 24px', borderRadius: 10, background: '#14213D', color: '#FFFFFF', textDecoration: 'none', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center' }}>무료로 바로 만들기</Link>

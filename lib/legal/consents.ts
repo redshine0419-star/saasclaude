@@ -60,14 +60,14 @@ export const DIAGNOSIS_CONSENTS: ConsentItem[] = [
     key: 'privacy',
     required: true,
     label: '개인정보 수집 및 이용',
-    table: { head: PRIVACY_HEAD, rows: [['학원명, 지역, 과목, 연락처, 현재 홈페이지 주소', '홈페이지 무료 진단과 결과 안내', '신청 처리 완료 후 1년']] },
+    table: { head: PRIVACY_HEAD, rows: [['학원명, 지역, 과목, 이메일, 현재 홈페이지 주소', '홈페이지 무료 진단과 결과 안내', '신청 처리 완료 후 1년']] },
     text: ['동의를 거부할 수 있습니다. 다만 필수 항목이라 거부하면 무료 진단을 신청할 수 없습니다.'],
   },
   {
     key: 'ad',
     required: false,
     label: '광고성 정보 수신',
-    text: ['진단 결과 외에 더클 소식·혜택 안내를 문자로 받습니다. "(광고)"를 표시하고 수신 거부 방법을 함께 안내합니다.', REFUSE_OPTIONAL],
+    text: ['진단 결과 외에 더클 소식·혜택 안내를 이메일로 받습니다. "(광고)"를 표시하고 수신 거부 방법을 함께 안내합니다.', REFUSE_OPTIONAL],
   },
 ];
 
