@@ -1,0 +1,21 @@
+[
+  { "id": "warm-home", "demo": "demo-warm", "device": "desktop", "path": "/demo-warm", "label": "첫 화면" },
+  { "id": "result-home-m", "demo": "demo-result", "device": "mobile", "path": "/demo-result", "label": "휴대폰 첫 화면" },
+  { "id": "bright-home", "demo": "demo-bright", "device": "desktop", "path": "/demo-bright", "label": "첫 화면" },
+  { "id": "warm-fee-m", "demo": "demo-warm", "device": "mobile", "path": "/demo-warm/fee", "label": "교습비 안내" },
+  { "id": "result-home", "demo": "demo-result", "device": "desktop", "path": "/demo-result", "label": "첫 화면" },
+  { "id": "bright-home-m", "demo": "demo-bright", "device": "mobile", "path": "/demo-bright", "label": "휴대폰 첫 화면" },
+  { "id": "warm-about", "demo": "demo-warm", "device": "desktop", "path": "/demo-warm/about", "label": "원장 소개" },
+  { "id": "result-reviews", "demo": "demo-result", "device": "desktop", "path": "/demo-result/reviews", "label": "후기·성적 사례" },
+  { "id": "bright-classes", "demo": "demo-bright", "device": "desktop", "path": "/demo-bright/classes", "label": "반 안내" },
+
+  { "id": "warm-admin", "demo": "demo-warm", "device": "desktop", "path": "/demo-warm/admin", "label": "관리자 대시보드" },
+  { "id": "warm-home-m", "demo": "demo-warm", "device": "mobile", "path": "/demo-warm", "label": "휴대폰 첫 화면" },
+  { "id": "result-classes", "demo": "demo-result", "device": "desktop", "path": "/demo-result/classes", "label": "반·시간표" },
+  { "id": "bright-consult-m", "demo": "demo-bright", "device": "mobile", "path": "/demo-bright/consult", "label": "상담 신청" },
+  { "id": "result-admin", "demo": "demo-result", "device": "desktop", "path": "/demo-result/admin/leads", "label": "상담 관리" },
+  { "id": "warm-reviews", "demo": "demo-warm", "device": "desktop", "path": "/demo-warm/reviews", "label": "학부모 후기" },
+  { "id": "result-fee-m", "demo": "demo-result", "device": "mobile", "path": "/demo-result/fee", "label": "교습비 안내" },
+  { "id": "bright-news", "demo": "demo-bright", "device": "desktop", "path": "/demo-bright/news", "label": "학원 소식" },
+  { "id": "bright-admin", "demo": "demo-bright", "device": "desktop", "path": "/demo-bright/admin/students", "label": "학생부" }
+]

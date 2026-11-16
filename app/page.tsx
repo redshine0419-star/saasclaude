@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { FdHeader } from '@/components/fd/FdHeader';
 import { FdFooter } from '@/components/fd/FdFooter';
+import { SampleSlider } from '@/components/fd/SampleSlider';
 
 export const metadata = {
   title: '더클 — 동네 학원·교습소 홈페이지와 상담 관리',
@@ -119,6 +120,9 @@ export default function MarketingHome() {
           </div>
         </div>
       </section>
+
+      {/* 샘플 화면 슬라이드 */}
+      <SampleSlider />
 
       {/* Pain points */}
       <section style={{ padding: 'clamp(56px, 7vw, 104px) clamp(20px, 4vw, 56px)', background: '#F3F5F8' }}>
