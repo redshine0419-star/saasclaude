@@ -23,6 +23,8 @@ const UPDATES = [
   { marker: 'seed:blog-drafts:v6', slug: 'tuition-change-guide', oldBodySha256: ['1faeef5b8c83614a7727e353f8ac794766d4f9ddc0b9861034674ed6d7ebbfba'], evenIfPublished: true },
   // v7: 2번 글(academy-ad-message-rules)을 운영자가 준 원고로 교체
   { marker: 'seed:blog-drafts:v7', slug: 'academy-ad-message-rules', oldBodySha256: ['2f8a27baa5feaa4ab4bb1b7cfa00ecace4119930aa3a16107fde88c24b0c346b'], evenIfPublished: true },
+  // v8: 2026-11-16 추가 글 중 naver-place-guide를 운영자가 준 원고로 교체 (아직 숨김 초안일 때만)
+  { marker: 'seed:blog-drafts:v8', slug: 'naver-place-guide', oldBodySha256: ['3a715f709cfe9dca6e43ac2e161e2464e3933cdd7b5cbf1d75ffebf9e291950b'] },
 ];
 const sha = (t) => createHash('sha256').update(t.replace(/\r\n?/g, '\n').trim()).digest('hex');
 
