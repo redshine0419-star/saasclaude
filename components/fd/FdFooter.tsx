@@ -39,10 +39,9 @@ export function FdFooter() {
           <div style={{ marginTop: 12, color: '#8A93A8', fontSize: 12, lineHeight: 1.8 }}>
             <div>상호 {OPERATOR.name} · 대표 {OPERATOR.ceo} · 사업자등록번호 {OPERATOR.bizNo}</div>
             <div>{OPERATOR.address}</div>
-            <div>
-              이메일 {OPERATOR.privacyEmail}
-              {OPERATOR.mailOrderNo && <> · 통신판매업 신고 {OPERATOR.mailOrderNo}</>}
-            </div>
+            {/* 이메일은 운영자 요청으로 하단에서 뺐다 (2026-11-16) — 개인정보처리방침의 보호책임자 연락처에는 남아 있다.
+                TODO(확인 필요): 통신판매업 신고 후 유료 판매를 시작하면 전자상거래법 사업자 정보(전자우편주소 포함) 표시 여부를 다시 확인 */}
+            {OPERATOR.mailOrderNo && <div>통신판매업 신고 {OPERATOR.mailOrderNo}</div>}
           </div>
           <div style={{ marginTop: 8, color: '#8A93A8', fontSize: 13 }}>
             © {new Date().getFullYear()} {BRAND_NAME}. All rights reserved.
