@@ -46,7 +46,7 @@ export function BillingClient({ slug, isMock, isOwner, planStatus, betaEndsAt, a
           : c.status === 'paid'
             ? `카드를 등록하고 ${won(c.amount)}을 결제했습니다.`
             : c.status === 'skipped'
-              ? '카드를 등록했습니다. 이번 달은 무료 구간이라 결제하지 않았습니다.'
+              ? '카드를 등록했습니다. 이번 달은 결제할 금액이 없어 결제하지 않았습니다.'
               : `카드는 등록했지만 결제에 실패했습니다 (${c.reason}). 내일 다시 시도합니다.`,
       });
       setConsents({ autopay: false, thirdParty: false });

@@ -3,6 +3,7 @@ import { FdHeader } from '@/components/fd/FdHeader';
 import { FdFooter } from '@/components/fd/FdFooter';
 import { prisma } from '@/lib/prisma';
 import { PLAN_TIERS, formatWon, tierPrice } from '@/lib/plan-tier';
+import { DISCLOSURE_EXAMPLE, EVENTS } from '@/lib/events';
 
 export const metadata = {
   title: '요금 — 더클',
@@ -35,7 +36,7 @@ export default async function PricingPage() {
   const faq = [
     {
       q: '학생 수는 어떻게 세나요?',
-      a: '관리자 학생부에 "재원"으로 등록된 학생 수입니다. 휴원·퇴원 학생과 상담만 한 학부모는 세지 않습니다. 재원생 5명까지는 계속 무료입니다.',
+      a: '관리자 학생부에 "재원"으로 등록된 학생 수입니다. 휴원·퇴원 학생과 상담만 한 학부모는 세지 않습니다.',
     },
     {
       q: '결제는 어떻게 하나요?',
@@ -44,6 +45,10 @@ export default async function PricingPage() {
     {
       q: '베타 기간 3개월이 지나면 어떻게 되나요?',
       a: '종료 2주 전·3일 전·당일에 원장님 휴대폰으로 안내가 갑니다. 관리 화면에서 "계속 이용 신청"을 하시면 그대로 이어서 쓰시고, 신청하지 않으면 종료 30일 뒤 홈페이지가 비공개로 바뀝니다. 데이터는 자동으로 지워지지 않으며 언제든 내보낼 수 있습니다.',
+    },
+    {
+      q: '무료 기간을 늘릴 수 있나요?',
+      a: `네. 더클을 써 보고 개선 제안을 보내 주시면 ${EVENTS.feedback.months}개월, 블로그에 더클 소개 글을 올려 주시면 ${EVENTS.blog.months}개월 무료 기간이 늘어납니다. 학원 관리자 › 결제 화면에서 신청하고, 운영자가 확인한 뒤 적용됩니다. 이미 결제 중이면 다음 결제일이 그만큼 늦춰집니다.`,
     },
     {
       q: '중간에 서비스를 해지할 수 있나요?',
@@ -121,6 +126,41 @@ export default async function PricingPage() {
           </div>
           <div style={{ fontSize: 13, color: '#8A93A8', textAlign: 'center', lineHeight: 1.7 }}>
             부가세 별도 여부 등 세부 조건은 베타 종료 전에 안내드립니다. 결제는 카드 정기결제(매월)이며, 베타 기간에는 결제가 없습니다.
+          </div>
+        </div>
+      </section>
+
+      {/* 무료 기간 이벤트 */}
+      <section id="events" style={{ padding: '0 clamp(20px, 4vw, 56px) clamp(56px, 7vw, 96px)' }}>
+        <div style={{ maxWidth: 960, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div style={{ textAlign: 'center' }}>
+            <span style={{ padding: '6px 14px', borderRadius: 6, background: '#FFF3CC', color: '#5C4300', fontSize: 14, fontWeight: 700 }}>이벤트</span>
+            <h2 style={{ margin: '14px 0 0', fontSize: 28, fontWeight: 700 }}>무료 기간을 더 늘려 드립니다</h2>
+            <p style={{ margin: '8px 0 0', fontSize: 15, color: '#4A5568', lineHeight: 1.7 }}>더클을 함께 만들어 주시는 원장님께 드리는 혜택입니다. 이벤트마다 학원당 한 번 받을 수 있습니다.</p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+            {[
+              { ev: EVENTS.feedback, emoji: '💬', how: ['더클을 써 보면서 불편했던 점, 있었으면 하는 기능을 적어 주세요.', '학원 관리자 › 결제 › 이벤트에서 보내면 됩니다 (30자 이상).'] },
+              { ev: EVENTS.blog, emoji: '✍️', how: ['블로그에 더클을 소개하는 글을 전체 공개로 올려 주세요.', `글에 "${DISCLOSURE_EXAMPLE}" 문구를 꼭 넣어 주세요.`, '학원 관리자 › 결제 › 이벤트에 글 주소를 보내면 됩니다.'] },
+            ].map(({ ev, emoji, how }) => (
+              <div key={ev.title} style={{ padding: 28, borderRadius: 16, border: '1px solid #E3E7EE', background: '#FFFFFF', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span aria-hidden="true" style={{ fontSize: 26 }}>{emoji}</span>
+                  <span style={{ fontSize: 19, fontWeight: 700 }}>{ev.title}</span>
+                </div>
+                <div style={{ fontSize: 30, fontWeight: 700, letterSpacing: '-1px', color: '#14213D' }}>+{ev.months}개월 무료</div>
+                <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 6, fontSize: 15, lineHeight: 1.65, color: '#4A5568' }}>
+                  {how.map((h) => <li key={h}>{h}</li>)}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <div style={{ fontSize: 13, color: '#8A93A8', textAlign: 'center', lineHeight: 1.8 }}>
+            운영자가 확인한 뒤 적용되며, 승인되면 알림으로 알려 드립니다. 무료 기간 중이면 종료일이, 결제 중이면 다음 결제일이 늦춰집니다.<br />
+            혜택을 받고 쓰는 블로그 글은 표시광고법(추천·보증 심사지침)에 따라 혜택을 받았다는 사실을 글에 밝혀야 합니다.
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <Link href="/start" style={{ height: 48, padding: '0 24px', borderRadius: 10, background: '#14213D', color: '#FFFFFF', textDecoration: 'none', fontSize: 15, fontWeight: 600, display: 'inline-flex', alignItems: 'center' }}>홈페이지 만들고 참여하기</Link>
           </div>
         </div>
       </section>

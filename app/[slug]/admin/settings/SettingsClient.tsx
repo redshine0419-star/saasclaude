@@ -360,7 +360,7 @@ export function SettingsClient({
         <div style={{ padding: '12px 14px', borderRadius: 10, background: '#F4F2EE', fontSize: 14, lineHeight: 1.7 }}>
           <div>재원생 <b>{tierInfo.students}명</b> · 정식 요금 구간 <b>{tierInfo.label}</b> ({tierInfo.range}, {tierInfo.price})</div>
           <div style={{ fontSize: 12, color: '#5A6270' }}>
-            재원생은 학생부의 &lsquo;재원&rsquo; 학생 수입니다. 5명까지 무료 · 6~50명 스탠다드 · 51명 이상 플러스{plan === 'beta' ? ' — 베타 기간에는 구간과 상관없이 무료입니다.' : ''}
+            재원생은 학생부의 &lsquo;재원&rsquo; 학생 수입니다. 50명까지 스탠다드 · 51명 이상 플러스{plan === 'beta' ? ' — 베타 기간에는 구간과 상관없이 무료입니다.' : ''}
           </div>
         </div>
         <a href={`/${slug}/admin/billing`} style={{ fontSize: 14, fontWeight: 700, color: '#1E5645', textDecoration: 'none' }}>결제·카드 관리 →</a>

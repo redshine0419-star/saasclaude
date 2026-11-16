@@ -2,13 +2,12 @@
  * 정식 요금 구간 — 재원생(학생부 '재원' 상태) 수 기준 (SPEC 10장, 2026-11 결정).
  * 금액은 기본값(스탠다드 3만·플러스 5만 원, 2026-11 결정)이고, 플랫폼 관리자 설정(platform_settings)에 값이 있으면 그 값을 쓴다.
  * 구간은 현재 재원생 수로 바로 정한다. 결제는 카드 정기결제만(연동 전 — SPEC 10장).
- * 베타 기간에는 구간과 상관없이 무료이며, 지금은 결제·차단을 하지 않고 안내만 한다.
+ * 무료 구간(재원생 5명까지)은 2026-11-17에 없앴다. 베타 기간·이벤트 무료 기간에는 구간과 상관없이 무료이며, 지금은 결제·차단을 하지 않고 안내만 한다.
  */
-export type PlanTierKey = 'free' | 'standard' | 'plus';
+export type PlanTierKey = 'standard' | 'plus';
 
 export const PLAN_TIERS: { key: PlanTierKey; label: string; range: string; max: number; priceKey: string | null; defaultPrice: number }[] = [
-  { key: 'free', label: '무료', range: '재원생 5명까지', max: 5, priceKey: null, defaultPrice: 0 },
-  { key: 'standard', label: '스탠다드', range: '재원생 6~50명', max: 50, priceKey: 'price_tier_standard', defaultPrice: 30000 },
+  { key: 'standard', label: '스탠다드', range: '재원생 50명까지', max: 50, priceKey: 'price_tier_standard', defaultPrice: 30000 },
   { key: 'plus', label: '플러스', range: '재원생 51명 이상', max: Infinity, priceKey: 'price_tier_plus', defaultPrice: 50000 },
 ];
 

@@ -93,6 +93,7 @@ model Tenant {
   extraCosts           ExtraCost[]
   refundPolicyText     RefundPolicyText?
   leads                Lead[]
+  eventClaims          EventClaim[]
   consents             Consent[]
   posts                Post[]
   reviews              Review[]
@@ -1391,4 +1392,31 @@ model AccessLog {
 
   @@index([tenantId, createdAt])
   @@map("access_logs")
+}
+
+/// 무료 기간 이벤트 신청 (2026-11-17) — kind: feedback(개선 제안, 1개월) | blog(블로그 소개글, 3개월)
+/// status: pending | approved | rejected. 승인하면 무료 종료일(또는 다음 결제일)을 months만큼 늦춘다.
+model EventClaim {
+  id                 String    @id @default(cuid())
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @default(now()) @updatedAt
+  tenantId           String
+  kind               String
+  status             String    @default("pending")
+  months             Int
+  content            String? // 개선 제안 내용
+  url                String? // 블로그 글 주소
+  disclosureAgreedAt DateTime? // 블로그: 경제적 대가(무료 이용) 표시 확인 — 표시광고법 추천·보증 심사지침
+  submittedBy        String
+  reviewedAt         DateTime?
+  reviewedBy         String?
+  rejectReason       String?
+  appliedTo          String? // beta | subscription
+  freeUntil          DateTime? // 적용 후 무료 종료일 또는 다음 결제일
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, kind])
+  @@index([status, createdAt])
+  @@map("event_claims")
 }

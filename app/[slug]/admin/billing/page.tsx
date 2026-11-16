@@ -6,6 +6,7 @@ import { AdminSide } from '@/components/admin/AdminSide';
 import { PLAN_TIERS, tierFor, tierPrice } from '@/lib/plan-tier';
 import { BILLING_IS_MOCK } from '@/lib/billing';
 import { BillingClient } from './BillingClient';
+import { EventsCard } from './EventsCard';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -18,11 +19,12 @@ export default async function BillingPage({ params }: Props) {
   const membership = await getAdminMembership(tenant.id, session.user.email);
   if (!membership) redirect('/auth/signin');
 
-  const [activeStudents, priceRows, sub, payments] = await Promise.all([
+  const [activeStudents, priceRows, sub, payments, claims] = await Promise.all([
     prisma.student.count({ where: { tenantId: tenant.id, status: 'active' } }),
     prisma.platformSetting.findMany({ where: { key: { in: ['price_tier_standard', 'price_tier_plus'] } } }),
     prisma.subscription.findUnique({ where: { tenantId: tenant.id } }),
     prisma.payment.findMany({ where: { tenantId: tenant.id }, orderBy: { createdAt: 'desc' }, take: 24 }),
+    prisma.eventClaim.findMany({ where: { tenantId: tenant.id }, orderBy: { createdAt: 'desc' }, select: { id: true, kind: true, status: true, createdAt: true, rejectReason: true, freeUntil: true, appliedTo: true } }),
   ]);
   const settings = Object.fromEntries(priceRows.map((r) => [r.key, r.value]));
   const tier = tierFor(activeStudents);
@@ -46,6 +48,12 @@ export default async function BillingPage({ params }: Props) {
           tiers={PLAN_TIERS.map((t) => ({ key: t.key, label: t.label, range: t.range, price: tierPrice(t.key, settings) }))}
           subscription={sub ? { status: sub.status, cardLabel: sub.cardLabel, nextBillingAt: sub.nextBillingAt.toISOString(), failCount: sub.failCount, canceledAt: sub.canceledAt?.toISOString() ?? null } : null}
           payments={payments.map((p) => ({ id: p.id, createdAt: p.createdAt.toISOString(), tierKey: p.tierKey, activeStudents: p.activeStudents, amount: p.amount, status: p.status, failReason: p.failReason, periodStart: p.periodStart.toISOString(), periodEnd: p.periodEnd.toISOString() }))}
+        />
+        <EventsCard
+          slug={slug}
+          isOwner={membership.role === 'owner'}
+          isDemo={/^demo(-|$)/.test(slug)}
+          claims={claims.map((c) => ({ ...c, createdAt: c.createdAt.toISOString(), freeUntil: c.freeUntil?.toISOString() ?? null }))}
         />
       </main>
     </div>

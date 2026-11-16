@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { AdminMobileBar } from '@/components/admin/AdminMobileBar';
 
-type Active = 'academies' | 'hidden' | 'diagnosis' | 'blog' | 'settings';
+type Active = 'academies' | 'hidden' | 'diagnosis' | 'events' | 'blog' | 'settings';
 
 const navItems = [
   {
@@ -38,6 +38,17 @@ const navItems = [
         <line x1="16" y1="13" x2="8" y2="13" />
         <line x1="16" y1="17" x2="8" y2="17" />
         <polyline points="10 9 9 9 8 9" />
+      </svg>
+    ),
+  },
+  {
+    key: 'events' as Active,
+    href: '/platform/events',
+    label: '이벤트',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="3" y="8" width="18" height="13" rx="1" />
+        <path d="M12 8v13M3 12h18M12 8c-2-4-6-4-6-1s4 1 6 1c2 0 6 2 6-1s-4-3-6 1" />
       </svg>
     ),
   },
