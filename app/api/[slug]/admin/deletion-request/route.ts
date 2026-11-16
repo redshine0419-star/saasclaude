@@ -2,6 +2,7 @@ import { after, NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { studentAccess } from '@/lib/students/access';
 import { notifyOperator } from '@/lib/mail/operator';
+import { pushToOperators } from '@/lib/push';
 
 type Params = Promise<{ slug: string }>;
 
@@ -38,6 +39,8 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
       linkLabel: '비공개·삭제 요청 보기',
     }).catch(() => {}),
   );
+  // 운영자 앱 알림 (요청한 사람 이메일은 넣지 않는다)
+  after(() => pushToOperators({ title: `학원 삭제 요청 — ${tenant.name}`, body: reason ? `사유: ${reason.slice(0, 80)}` : '사유 적지 않음', url: '/platform/hidden', tag: 'op-deletion' }).catch(() => 0));
   return NextResponse.json({ ok: true, requestedAt: now });
 }
 

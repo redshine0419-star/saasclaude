@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server';
+import { after, NextResponse } from 'next/server';
+import { pushToOperators } from '@/lib/push';
 import type { Prisma } from '@prisma/client';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
@@ -13,7 +14,7 @@ export async function POST(_req: Request, { params }: { params: Params }) {
   const session = await auth();
   if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const tenant = await prisma.tenant.findUnique({ where: { slug }, select: { id: true, slug: true, lifecycleNotices: true } });
+  const tenant = await prisma.tenant.findUnique({ where: { slug }, select: { id: true, slug: true, name: true, lifecycleNotices: true } });
   if (!tenant) return NextResponse.json({ error: '학원을 찾을 수 없습니다.' }, { status: 404 });
 
   const membership = await getAdminMembership(tenant.id, session.user.email);
@@ -30,6 +31,7 @@ export async function POST(_req: Request, { params }: { params: Params }) {
       },
     });
     console.log('[continue] 계속 이용 신청:', tenant.slug);
+    after(() => pushToOperators({ title: `계속 이용 신청 — ${tenant.name}`, body: `growweb.me/${tenant.slug} · 무료 기간 이후 계속 쓰겠다고 신청했습니다`, url: '/platform/academies', tag: 'op-continue' }).catch(() => 0));
   }
 
   return NextResponse.json({ ok: true });
