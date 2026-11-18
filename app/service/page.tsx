@@ -2,9 +2,35 @@ import Link from 'next/link';
 import { FdHeader } from '@/components/fd/FdHeader';
 import { FdFooter } from '@/components/fd/FdFooter';
 
+import { JsonLd } from '@/components/seo/JsonLd';
+import { SITE_URL, abs, breadcrumb, softwareApp, webPage } from '@/lib/seo/jsonld';
+
+const TITLE = '서비스 소개 — 더클';
+const DESC = '더클의 홈페이지·상담 관리·학부모 안내·원장님 알림 기능을 소개합니다.';
+
 export const metadata = {
-  title: '서비스 소개 — 더클',
-  description: '더클의 홈페이지·상담 관리·학부모 안내·원장님 알림 기능을 소개합니다.',
+  title: TITLE,
+  description: DESC,
+  alternates: { canonical: `${SITE_URL}/service` },
+  openGraph: { type: 'website', url: `${SITE_URL}/service`, title: TITLE, description: DESC, siteName: '더클', locale: 'ko_KR' },
+};
+
+// 학원 홈페이지를 만드는 순서 — HowTo 구조화 데이터 (바로 만들기 화면은 로그인 뒤라 검색엔진이 못 본다)
+const HOW_TO_STEPS = [
+  { name: '가입', text: '구글 계정으로 가입하고 약관에 동의합니다.' },
+  { name: '학원 정보 입력', text: '학원 이름, 홈페이지 주소(growweb.me/학원주소), 과목·대상, 대표 전화, 주소를 입력합니다.' },
+  { name: '테마 고르기', text: '원장 직강형·성과 중심형·밝은 친근형 중 학원 분위기에 맞는 테마를 고릅니다.' },
+  { name: '공개', text: '만들기를 누르면 홈페이지가 바로 공개되고, 원장 소개·반·교습비는 관리 화면에서 이어서 채웁니다.' },
+];
+
+const HOW_TO = {
+  '@type': 'HowTo',
+  '@id': `${SITE_URL}/service#howto`,
+  name: '더클로 학원 홈페이지 만드는 방법',
+  description: '구글 계정으로 가입하고 학원 정보와 테마를 고르면 몇 분 안에 학원 홈페이지가 공개됩니다.',
+  totalTime: 'PT10M',
+  estimatedCost: { '@type': 'MonetaryAmount', currency: 'KRW', value: 0 },
+  step: HOW_TO_STEPS.map((s, i) => ({ '@type': 'HowToStep', position: i + 1, url: abs(`/service#step-${i + 1}`), ...s })),
 };
 
 export default function ServicePage() {
@@ -63,6 +89,7 @@ export default function ServicePage() {
 
   return (
     <div data-theme="fd" style={{ fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif", background: '#FFFFFF', color: '#14213D' }}>
+      <JsonLd nodes={[webPage({ path: '/service', name: TITLE, description: DESC, extra: { about: { '@id': `${SITE_URL}/#software` }, mainEntity: { '@id': `${SITE_URL}/#software` } } }), softwareApp(), HOW_TO, breadcrumb([{ name: '서비스 소개', path: '/service' }])]} />
       <FdHeader active="service" />
 
       <section style={{ padding: 'clamp(56px, 7vw, 96px) clamp(20px, 4vw, 56px)' }}>
@@ -83,6 +110,20 @@ export default function ServicePage() {
                 <p style={{ margin: 0, fontSize: 15, lineHeight: 1.75, color: '#4A5568' }}>{f.body}</p>
               </div>
             ))}
+          </div>
+
+          {/* 만드는 순서 — HowTo 구조화 데이터와 같은 내용 */}
+          <div aria-labelledby="howto-h" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <h2 id="howto-h" style={{ margin: 0, fontSize: 28, fontWeight: 700 }}>학원 홈페이지, 이렇게 만들어집니다</h2>
+            <ol style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
+              {HOW_TO_STEPS.map((st, i) => (
+                <li key={st.name} id={`step-${i + 1}`} style={{ padding: 24, borderRadius: 16, background: '#F3F5F8', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <span style={{ width: 32, height: 32, borderRadius: 16, background: '#F5B700', color: '#14213D', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{i + 1}</span>
+                  <span style={{ fontSize: 18, fontWeight: 700 }}>{st.name}</span>
+                  <span style={{ fontSize: 15, lineHeight: 1.7, color: '#4A5568' }}>{st.text}</span>
+                </li>
+              ))}
+            </ol>
           </div>
 
           <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>

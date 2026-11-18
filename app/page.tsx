@@ -2,13 +2,26 @@ import Link from 'next/link';
 import { FdHeader } from '@/components/fd/FdHeader';
 import { FdFooter } from '@/components/fd/FdFooter';
 import { SampleSlider } from '@/components/fd/SampleSlider';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { SITE_URL, faqPage, homeFaq, organization, softwareApp, webPage, website } from '@/lib/seo/jsonld';
+import { getPlanPrices } from '@/lib/seo/prices';
+
+const HOME_TITLE = '더클 — 동네 학원·교습소 홈페이지와 상담 관리';
+const HOME_DESC = '학부모가 찾고, 상담 신청하고, 안내받고, 등원까지. 동네 학원을 위한 홈페이지와 상담 관리 솔루션.';
 
 export const metadata = {
-  title: '더클 — 동네 학원·교습소 홈페이지와 상담 관리',
-  description: '학부모가 찾고, 상담 신청하고, 안내받고, 등원까지. 동네 학원을 위한 홈페이지와 상담 관리 솔루션.',
+  title: HOME_TITLE,
+  description: HOME_DESC,
+  alternates: { canonical: SITE_URL },
+  openGraph: { type: 'website', url: SITE_URL, title: HOME_TITLE, description: HOME_DESC, siteName: '더클', locale: 'ko_KR' },
 };
 
-export default function MarketingHome() {
+// 요금(플랫폼 설정)이 FAQ·구조화 데이터에 들어가므로 10분마다 다시 만든다
+export const revalidate = 600;
+
+export default async function MarketingHome() {
+  const prices = await getPlanPrices();
+  const faq = homeFaq(prices);
   const painPoints = [
     {
       n: '01',
@@ -77,6 +90,7 @@ export default function MarketingHome() {
 
   return (
     <div data-theme="fd" style={{ fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif", background: '#FFFFFF', color: '#14213D' }}>
+      <JsonLd nodes={[organization(), website(), softwareApp(prices), webPage({ path: '/', name: HOME_TITLE, description: HOME_DESC, extra: { about: { '@id': `${SITE_URL}/#software` } } }), faqPage(faq, '/')]} />
       <FdHeader active="home" />
 
       {/* Hero */}
@@ -232,6 +246,28 @@ export default function MarketingHome() {
           </div>
           <div style={{ textAlign: 'center' }}>
             <Link href="/demo" style={{ height: 48, padding: '0 24px', borderRadius: 10, border: '1px solid #14213D', color: '#14213D', textDecoration: 'none', fontSize: 15, fontWeight: 600, display: 'inline-flex', alignItems: 'center' }}>3가지 테마 데모 보기</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 자주 묻는 질문 — 화면 글과 FAQPage 구조화 데이터가 같다 (AI 검색이 그대로 인용하기 좋게) */}
+      <section aria-labelledby="home-faq-h" style={{ padding: 'clamp(56px, 7vw, 96px) clamp(20px, 4vw, 56px)' }}>
+        <div style={{ maxWidth: 840, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#8A6400' }}>자주 묻는 질문</div>
+            <h2 id="home-faq-h" style={{ margin: 0, fontSize: 'clamp(28px, 3.2vw, 42px)', lineHeight: 1.35, letterSpacing: '-0.8px' }}>더클, 이것부터 궁금하시죠</h2>
+          </div>
+          <style>{`.home-faq-q::-webkit-details-marker{display:none} .home-faq-mark::before{content:'+'} details[open] .home-faq-mark::before{content:'−'}`}</style>
+          <div style={{ borderTop: '1px solid #E3E7EE' }}>
+            {faq.map((f, i) => (
+              <details key={f.q} open={i === 0} style={{ borderBottom: '1px solid #E3E7EE', padding: '18px 4px' }}>
+                <summary className="home-faq-q" style={{ cursor: 'pointer', fontSize: 17, fontWeight: 700, lineHeight: 1.5, listStyle: 'none', display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                  <span>Q. {f.q}</span>
+                  <span aria-hidden="true" className="home-faq-mark" style={{ color: '#8A93A8', fontWeight: 400, flexShrink: 0 }} />
+                </summary>
+                <p style={{ margin: '12px 0 0', fontSize: 16, lineHeight: 1.8, color: '#4A5568', wordBreak: 'keep-all' }}>{f.a}</p>
+              </details>
+            ))}
           </div>
         </div>
       </section>

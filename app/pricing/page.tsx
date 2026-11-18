@@ -5,9 +5,17 @@ import { prisma } from '@/lib/prisma';
 import { PLAN_TIERS, formatWon, tierPrice } from '@/lib/plan-tier';
 import { DISCLOSURE_EXAMPLE, EVENTS } from '@/lib/events';
 
+import { JsonLd } from '@/components/seo/JsonLd';
+import { SITE_URL, breadcrumb, faqPage, softwareApp, webPage } from '@/lib/seo/jsonld';
+
+const TITLE = '요금 — 더클';
+const DESC = '더클 베타 기간 3개월 무료. 이후 재원생 수에 따른 월 구독 요금과 무료 기간 이벤트를 확인하세요.';
+
 export const metadata = {
-  title: '요금 — 더클',
-  description: '더클 베타 기간 3개월 무료. 이후 월 구독 요금을 확인하세요.',
+  title: TITLE,
+  description: DESC,
+  alternates: { canonical: `${SITE_URL}/pricing` },
+  openGraph: { type: 'website', url: `${SITE_URL}/pricing`, title: TITLE, description: DESC, siteName: '더클', locale: 'ko_KR' },
 };
 
 // 금액은 플랫폼 관리자 설정에서 바뀌므로 요청마다 읽는다
@@ -66,6 +74,7 @@ export default async function PricingPage() {
 
   return (
     <div data-theme="fd" style={{ fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif", background: '#FFFFFF', color: '#14213D' }}>
+      <JsonLd nodes={[webPage({ path: '/pricing', name: TITLE, description: DESC, extra: { about: { '@id': `${SITE_URL}/#software` } } }), softwareApp({ standard: tierPrice('standard', priceSettings), plus: tierPrice('plus', priceSettings) }), faqPage(faq.map((f) => ({ q: f.q, a: f.a })), '/pricing'), breadcrumb([{ name: '요금', path: '/pricing' }])]} />
       <FdHeader active="pricing" />
 
       {/* Hero */}

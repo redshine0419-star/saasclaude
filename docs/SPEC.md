@@ -346,3 +346,13 @@ source 판별 순서: UTM → referrer (naver.com 검색/플레이스, kakao, bl
   - 학부모 동의 기록이 없는 학생은 발행 불가(서버). 퇴원(파기) 시 리포트도 함께 삭제
   - 전달은 선생님이 직접(링크 복사·문자 앱 열기). 자동 발송하지 않는다
 
+## GEO·구조화 데이터 (2026-11-18)
+
+- 서비스 사이트 페이지마다 JSON-LD를 `@graph` 하나로 넣는다 (`components/seo/JsonLd.tsx`, `lib/seo/jsonld.ts`). 회사 `#org`·사이트 `#website`·서비스 `#software`를 @id로 잇는다.
+  - `/` Organization·WebSite·SoftwareApplication(요금 Offer)·WebPage·FAQPage (메인 '자주 묻는 질문'과 같은 글) · `/service` HowTo(화면의 '만드는 순서'와 같은 글) · `/pricing` 요금 Offer·FAQPage · `/demo` CollectionPage·ItemList · `/consult` 무료 진단 Service · `/blog` Blog · `/privacy` `/terms` WebPage. 모든 페이지에 BreadcrumbList·canonical·OpenGraph
+- 블로그 글: 저장한 제목·요약·본문으로 BlogPosting·Blog·BreadcrumbList·FAQPage(본문 `### Q.`)를 자동 생성 (`lib/blog/jsonld.ts` `blogPostGraph`). 플랫폼 글쓰기 미리보기에 같은 JSON-LD를 보여 준다
+- 학원 소식 글: 글마다 BlogPosting·BreadcrumbList 자동 (`components/academy/JsonLd.tsx` `PostJsonLd`)
+- `/llms.txt`: AI 검색용 요약(정의·대상·기능·요금·이벤트·FAQ·주요 페이지·데모·공개 블로그 글), 1시간마다 갱신. 기능·요금 문장은 `lib/seo/jsonld.ts`와 같다
+- robots.txt: AI·검색 수집기(GPTBot, OAI-SearchBot, ClaudeBot, PerplexityBot, Google-Extended, Yeti, Daum 등) 이름으로 허용, 관리·개인 화면만 막는다. 사이트맵에 서비스 사이트 공개 페이지 추가(/start 는 로그인 뒤라 제외)
+- JSON-LD 문자열은 `ldJson`으로 `<`·줄 구분 문자를 이스케이프한다 (학원 FAQ 섹션 포함)
+

@@ -6,6 +6,9 @@ import { BlogCard } from '@/components/blog/BlogCard';
 import { BlogCta } from '@/components/blog/Markdown';
 import { BLOG_CATEGORIES, isCategory, categoryLabel } from '@/lib/blog';
 import { listPublishedPosts, BLOG_BASE_URL } from '@/lib/blog/queries';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { BLOG_ID } from '@/lib/blog/jsonld';
+import { ORG_ID, WEBSITE_ID, abs, breadcrumb } from '@/lib/seo/jsonld';
 
 type Props = { searchParams: Promise<{ c?: string; p?: string }> };
 
@@ -44,6 +47,21 @@ export default async function BlogListPage({ searchParams }: Props) {
 
   return (
     <div data-theme="fd" style={{ fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif", background: '#FFFFFF', color: '#14213D', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <JsonLd nodes={[
+        {
+          '@type': 'Blog',
+          '@id': BLOG_ID,
+          name: '더클 블로그',
+          url: abs('/blog'),
+          description: '교습비 신고, 광고 문자 규정, 상담 관리, 학원 홍보까지. 동네 학원·교습소 원장님이 알아야 할 운영 정보를 정리합니다.',
+          inLanguage: 'ko-KR',
+          isPartOf: { '@id': WEBSITE_ID },
+          publisher: { '@id': ORG_ID },
+          blogPost: posts.map((x) => ({ '@type': 'BlogPosting', '@id': `${abs(`/blog/${x.slug}`)}#article`, headline: x.title, url: abs(`/blog/${x.slug}`), ...(x.publishedAt && { datePublished: x.publishedAt.toISOString() }) })),
+        },
+        { '@type': 'Organization', '@id': ORG_ID, name: '더클', url: abs('/') },
+        breadcrumb([{ name: '블로그', path: '/blog' }]),
+      ]} />
       <FdHeader active="blog" />
       <main style={{ flex: 1, padding: 'clamp(40px, 6vw, 80px) clamp(20px, 4vw, 56px)', background: '#F7F8FA' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 28 }}>

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { FdHeader } from '@/components/fd/FdHeader';
 import { FdFooter } from '@/components/fd/FdFooter';
 
-export const metadata = { title: '진단 신청 완료 — 더클' };
+export const metadata = { title: '진단 신청 완료 — 더클', robots: { index: false, follow: true } };
 
 export default function ConsultDonePage() {
   return (

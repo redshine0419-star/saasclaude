@@ -6,8 +6,10 @@ import { FdFooter } from '@/components/fd/FdFooter';
 import { Markdown, BlogCta } from '@/components/blog/Markdown';
 import { BlogCard, blogDate } from '@/components/blog/BlogCard';
 import { categoryLabel, excerpt } from '@/lib/blog';
-import { parseMarkdown, readingMinutes, tableOfContents, extractFaq } from '@/lib/blog/markdown';
+import { parseMarkdown, readingMinutes, tableOfContents } from '@/lib/blog/markdown';
 import { getPublishedPost, relatedPosts, BLOG_BASE_URL } from '@/lib/blog/queries';
+import { blogPostGraph } from '@/lib/blog/jsonld';
+import { JsonLd } from '@/components/seo/JsonLd';
 
 // 공개 날짜가 된 예약 글도 늦어도 5분 안에 보이게
 export const revalidate = 300;
@@ -43,47 +45,13 @@ export default async function BlogPostPage({ params }: Props) {
   const blocks = parseMarkdown(post.body);
   const toc = tableOfContents(blocks);
   const related = await relatedPosts(post);
-  const url = `${BLOG_BASE_URL}/blog/${post.slug}`;
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
-    headline: post.seoTitle || post.title,
-    description: excerpt(post.summary, post.body, 150),
-    datePublished: post.publishedAt?.toISOString(),
-    dateModified: post.updatedAt.toISOString(),
-    mainEntityOfPage: url,
-    url,
-    inLanguage: 'ko-KR',
-    articleSection: categoryLabel(post.category),
-    ...(post.coverImage && { image: abs(post.coverImage) }),
-    author: { '@type': 'Organization', name: '더클', url: BLOG_BASE_URL },
-    publisher: { '@type': 'Organization', name: '더클', url: BLOG_BASE_URL },
-  };
-  const crumbs = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: '더클', item: BLOG_BASE_URL },
-      { '@type': 'ListItem', position: 2, name: '블로그', item: `${BLOG_BASE_URL}/blog` },
-      { '@type': 'ListItem', position: 3, name: post.title, item: url },
-    ],
-  };
-  // 본문의 "### Q. …" 질문·답 → FAQPage (검색엔진·AI 검색이 질문과 답으로 읽는다)
-  const faq = extractFaq(blocks);
-  const faqLd = faq.length > 0 && {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
-  };
-  // JSON-LD 안의 </script> 차단
-  const ld = (o: object) => JSON.stringify(o).replace(/</g, '\\u003c');
+  // 구조화 데이터 — 글 내용에서 자동 생성 (lib/blog/jsonld.ts)
+  const graph = blogPostGraph(post);
 
   return (
     <div data-theme="fd" style={{ fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif", background: '#FFFFFF', color: '#14213D', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: ld(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: ld(crumbs) }} />
-      {faqLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: ld(faqLd) }} />}
+      <JsonLd nodes={graph} />
       <FdHeader active="blog" />
       <main style={{ flex: 1 }}>
         <article style={{ maxWidth: 760, margin: '0 auto', padding: 'clamp(32px, 5vw, 64px) 20px 24px', display: 'flex', flexDirection: 'column', gap: 18 }}>

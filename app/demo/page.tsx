@@ -2,9 +2,17 @@ import Link from 'next/link';
 import { FdHeader } from '@/components/fd/FdHeader';
 import { FdFooter } from '@/components/fd/FdFooter';
 
+import { JsonLd } from '@/components/seo/JsonLd';
+import { SITE_URL, abs, breadcrumb, webPage } from '@/lib/seo/jsonld';
+
+const TITLE = '데모 보기 — 더클';
+const DESC = '3가지 테마의 학원 홈페이지 데모와 원장님 관리 화면을 직접 확인해보세요.';
+
 export const metadata = {
-  title: '데모 보기 — 더클',
-  description: '3가지 테마의 학원 홈페이지 데모를 직접 확인해보세요.',
+  title: TITLE,
+  description: DESC,
+  alternates: { canonical: `${SITE_URL}/demo` },
+  openGraph: { type: 'website', url: `${SITE_URL}/demo`, title: TITLE, description: DESC, siteName: '더클', locale: 'ko_KR' },
 };
 
 const demos = [
@@ -58,6 +66,13 @@ const COMPARISON_ROWS = [
 export default function DemoPage() {
   return (
     <div data-theme="fd" style={{ fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif", background: '#FFFFFF', color: '#14213D' }}>
+      <JsonLd nodes={[
+        webPage({
+          path: '/demo', name: TITLE, description: DESC, type: 'CollectionPage',
+          extra: { mainEntity: { '@type': 'ItemList', itemListElement: demos.map((d, i) => ({ '@type': 'ListItem', position: i + 1, item: { '@type': 'WebSite', name: `${d.name} (${d.label} ${d.sub} 데모)`, url: abs(`/${d.slug}`), description: d.desc } })) } },
+        }),
+        breadcrumb([{ name: '데모', path: '/demo' }]),
+      ]} />
       <FdHeader active="demo" />
 
       {/* Hero */}

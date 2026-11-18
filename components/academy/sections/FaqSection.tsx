@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { ldJson } from '@/lib/seo/ld-json';
 
 export interface FaqItem {
   id: string;
@@ -14,7 +15,6 @@ export default function FaqSection({ items, eyebrow }: { items: FaqItem[]; eyebr
   if (items.length === 0) return null;
 
   const jsonLd = {
-    '@context': 'https://schema.org',
     '@type': 'FAQPage',
     mainEntity: items.map((item) => ({
       '@type': 'Question',
@@ -25,7 +25,7 @@ export default function FaqSection({ items, eyebrow }: { items: FaqItem[]; eyebr
 
   return (
     <section id="faq" className="acad-section acad-faq">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: ldJson(jsonLd) }} />
       <div className="acad-wrap">
         <div className="max-w-[850px] mx-auto">
           <div className="text-center mb-[30px]">

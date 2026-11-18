@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { BLOG_CATEGORIES, BLOG_SLUG_RE, UNCHECKED_MARK } from '@/lib/blog';
 import { parseMarkdown, readingMinutes } from '@/lib/blog/markdown';
 import { Markdown } from '@/components/blog/Markdown';
+import { blogPostGraph } from '@/lib/blog/jsonld';
+import { extractFaq } from '@/lib/blog/markdown';
 
 export type EditorPost = {
   id: string; slug: string; title: string; summary: string; body: string; category: string;
@@ -41,6 +43,12 @@ export function BlogEditor({ post }: { post: EditorPost | null }) {
 
   const blocks = useMemo(() => parseMarkdown(f.body), [f.body]);
   const minutes = readingMinutes(f.body);
+  // 구조화 데이터(JSON-LD) — 공개된 글 화면에 자동으로 들어가는 것과 같은 내용
+  const ldPreview = useMemo(() => {
+    const graph = blogPostGraph({ ...f, publishedAt: f.publishedAt ? new Date(f.publishedAt) : null, updatedAt: null });
+    return JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }, null, 2);
+  }, [f]);
+  const faqCount = useMemo(() => extractFaq(blocks).length, [blocks]);
   const slugOk = BLOG_SLUG_RE.test(f.slug);
   const unchecked = (f.title + f.summary + f.body).split(UNCHECKED_MARK).length - 1;
   const scheduled = f.status === 'published' && f.publishedAt && new Date(f.publishedAt) > new Date();
@@ -255,6 +263,15 @@ export function BlogEditor({ post }: { post: EditorPost | null }) {
           <h1 style={{ margin: 0, fontSize: 28, lineHeight: 1.35, color: '#14213D', fontWeight: 700, wordBreak: 'keep-all' }}>{f.title || '제목'}</h1>
           {f.summary && <p style={{ margin: 0, fontSize: 16, color: '#4A5568', lineHeight: 1.7 }}>{f.summary}</p>}
           {f.body.trim() ? <Markdown blocks={blocks} /> : <div style={{ color: '#8A93A0', fontSize: 14 }}>본문을 쓰면 여기에 보입니다.</div>}
+          <details style={{ marginTop: 12, borderTop: '1px solid #EEEAE2', paddingTop: 12 }}>
+            <summary style={{ cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#3A4556' }}>
+              검색엔진·AI용 구조화 데이터 (자동 생성) — 글·블로그·경로{faqCount > 0 ? ` · FAQ ${faqCount}개` : ''}
+            </summary>
+            <div style={{ fontSize: 12, color: '#6B7482', lineHeight: 1.7, margin: '8px 0' }}>
+              따로 입력할 필요 없이 제목·요약·본문으로 만들어져 공개된 글에 들어갑니다. 본문에 <code>### Q. 질문</code> 소제목과 그 아래 답을 쓰면 FAQ로도 인식됩니다.
+            </div>
+            <pre style={{ margin: 0, padding: 12, borderRadius: 8, background: '#F7F8FA', border: '1px solid #E3E7EE', fontSize: 11.5, lineHeight: 1.5, maxHeight: 320, overflow: 'auto', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{ldPreview}</pre>
+          </details>
         </div>
       </div>
     </>

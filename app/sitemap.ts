@@ -43,6 +43,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 1.0 },
+    // 서비스 사이트 공개 페이지 (바로 만들기 /start 는 로그인 뒤라 넣지 않는다)
+    ...[
+      { path: '/service', priority: 0.9 },
+      { path: '/pricing', priority: 0.9 },
+      { path: '/demo', priority: 0.8 },
+      { path: '/consult', priority: 0.8 },
+      { path: '/privacy', priority: 0.2 },
+      { path: '/terms', priority: 0.2 },
+    ].map((x) => ({ url: `${baseUrl}${x.path}`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: x.priority })),
     { url: `${baseUrl}/blog`, lastModified: blogPosts.length ? blogPosts.reduce((m, b) => (b.updatedAt > m ? b.updatedAt : m), blogPosts[0].updatedAt) : new Date(), changeFrequency: 'weekly' as const, priority: 0.8 },
     ...blogPosts.map((b) => ({ url: `${baseUrl}/blog/${b.slug}`, lastModified: b.updatedAt, changeFrequency: 'monthly' as const, priority: 0.7 })),
     ...tenantUrls,

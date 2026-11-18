@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getAcademyPageData, getPostData } from '@/lib/academy-data';
 import SiteHeader from '@/components/academy/SiteHeader';
 import SiteFooter from '@/components/academy/SiteFooter';
+import { PostJsonLd } from '@/components/academy/JsonLd';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string; id: string }> }): Promise<Metadata> {
   const { slug, id } = await params;
@@ -36,6 +37,7 @@ export default async function NewsDetailPage({
 
   return (
     <>
+      <PostJsonLd tenant={tenant} post={post} />
       <SiteHeader
         name={tenant.name} hasResources={tenant.hasResources}
         slug={slug}
