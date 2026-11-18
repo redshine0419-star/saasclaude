@@ -29,6 +29,8 @@ const UPDATES = [
   { marker: 'seed:blog-drafts:v9', slug: 'level-test-result-guide', oldBodySha256: ['55b9ee1bbe0fed82a1d72f71a3be42dcc6ff038bdfd7ad97cf5b7cd2de6930f1'] },
   // v10: 같은 글 FAQ 출처 표기(교육부 → 교육청) 수정 — v9가 이미 돌았으면 이걸로 바꾼다
   { marker: 'seed:blog-drafts:v10', slug: 'level-test-result-guide', oldBodySha256: ['815827fea924c12ac9acc9e05b16e68a7417dbe0a2df78f230c5fb81343e0aab', '55b9ee1bbe0fed82a1d72f71a3be42dcc6ff038bdfd7ad97cf5b7cd2de6930f1'] },
+  // v11: tuition-refund-rules를 운영자가 준 원고로 교체 (【확인 필요】 표시 없는 확정 원고, 아직 숨김 초안일 때만)
+  { marker: 'seed:blog-drafts:v11', slug: 'tuition-refund-rules', oldBodySha256: ['4a1a05aeab98acec934f6f680b388032a993f177c14a4803a85fc6a005810c63'] },
 ];
 const sha = (t) => createHash('sha256').update(t.replace(/\r\n?/g, '\n').trim()).digest('hex');
 
