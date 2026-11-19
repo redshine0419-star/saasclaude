@@ -5,8 +5,8 @@ import { FdFooter } from '@/components/fd/FdFooter';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { SITE_URL, abs, breadcrumb, softwareApp, webPage } from '@/lib/seo/jsonld';
 
-const TITLE = '서비스 소개 — 더클';
-const DESC = '더클의 홈페이지·상담 관리·학부모 안내·원장님 알림 기능을 소개합니다.';
+const TITLE = '학원 홈페이지·상담 관리·레벨테스트 기능 — 더클';
+const DESC = '학원 홈페이지 3가지 테마, 상담 신청·레벨테스트 예약 관리, 온라인 레벨테스트 자동 채점, 학부모 안내 문자, 학생부·출결·리포트까지 더클의 학원 관리 기능을 소개합니다.';
 
 export const metadata = {
   title: TITLE,

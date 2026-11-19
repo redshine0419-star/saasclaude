@@ -15,10 +15,12 @@ type Props = { searchParams: Promise<{ c?: string; p?: string }> };
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const { c, p } = await searchParams;
   const cat = isCategory(c) ? c : null;
-  const title = cat ? `${categoryLabel(cat)} — 더클 블로그` : '더클 블로그 — 학원 원장님을 위한 운영·법규·홍보 가이드';
+  const title = cat
+    ? cat === 'news' ? '더클 소식 | 더클 블로그' : `학원 ${categoryLabel(cat)} 가이드 | 더클 블로그`
+    : '학원 운영 가이드 — 교습비·광고 문자·상담·홍보 | 더클 블로그';
   return {
     title,
-    description: '교습비 신고, 광고 문자 규정, 상담 관리, 학원 홍보까지. 동네 학원·교습소 원장님이 알아야 할 운영 정보를 정리합니다.',
+    description: '교습비 신고·반환 기준, 광고 문자 규정, 학부모 상담·레벨테스트, 네이버 플레이스와 학원 홍보까지. 학원·교습소 원장님이 알아야 할 운영 정보를 정리합니다.',
     alternates: {
       canonical: `${BLOG_BASE_URL}/blog${cat ? `?c=${cat}` : ''}`,
       types: { 'application/rss+xml': `${BLOG_BASE_URL}/blog/rss.xml` },
@@ -53,7 +55,7 @@ export default async function BlogListPage({ searchParams }: Props) {
           '@id': BLOG_ID,
           name: '더클 블로그',
           url: abs('/blog'),
-          description: '교습비 신고, 광고 문자 규정, 상담 관리, 학원 홍보까지. 동네 학원·교습소 원장님이 알아야 할 운영 정보를 정리합니다.',
+          description: '교습비 신고·반환 기준, 광고 문자 규정, 학부모 상담·레벨테스트, 네이버 플레이스와 학원 홍보까지. 학원·교습소 원장님이 알아야 할 운영 정보를 정리합니다.',
           inLanguage: 'ko-KR',
           isPartOf: { '@id': WEBSITE_ID },
           publisher: { '@id': ORG_ID },

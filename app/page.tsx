@@ -6,11 +6,12 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { SITE_URL, faqPage, homeFaq, organization, softwareApp, webPage, website } from '@/lib/seo/jsonld';
 import { getPlanPrices } from '@/lib/seo/prices';
 
-const HOME_TITLE = '더클 — 동네 학원·교습소 홈페이지와 상담 관리';
-const HOME_DESC = '학부모가 찾고, 상담 신청하고, 안내받고, 등원까지. 동네 학원을 위한 홈페이지와 상담 관리 솔루션.';
+const HOME_TITLE = '학원 홈페이지 제작·상담 관리 프로그램 — 더클 (3개월 무료)';
+const HOME_DESC = '학원 홈페이지 제작부터 상담 신청 관리, 온라인 레벨테스트, 학생부·출결, 학부모 안내 문자까지. 동네 학원·교습소 원장님이 휴대폰으로 직접 관리하는 더클, 3개월 무료로 시작하세요.';
 
 export const metadata = {
-  title: HOME_TITLE,
+  // 루트 레이아웃의 제목 틀을 쓰지 않고 그대로
+  title: { absolute: HOME_TITLE },
   description: HOME_DESC,
   alternates: { canonical: SITE_URL },
   openGraph: { type: 'website', url: SITE_URL, title: HOME_TITLE, description: HOME_DESC, siteName: '더클', locale: 'ko_KR' },
@@ -98,7 +99,7 @@ export default async function MarketingHome() {
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 'clamp(40px, 5vw, 72px)', alignItems: 'center' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              <span style={{ padding: '6px 12px', borderRadius: 6, background: '#FFF3CC', color: '#5C4300', fontSize: 14, fontWeight: 700 }}>동네 학원·교습소 전용</span>
+              <span style={{ padding: '6px 12px', borderRadius: 6, background: '#FFF3CC', color: '#5C4300', fontSize: 14, fontWeight: 700 }}>학원 홈페이지 제작·상담 관리 프로그램</span>
               <Link href="/pricing" style={{ padding: '6px 12px', borderRadius: 6, background: '#14213D', color: '#FFFFFF', fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>지금 베타 · 3개월 무료</Link>
             </div>
             <h1 style={{ margin: 0, fontSize: 'clamp(38px, 5.2vw, 68px)', lineHeight: 1.2, fontWeight: 700, letterSpacing: '-1.5px' }}>

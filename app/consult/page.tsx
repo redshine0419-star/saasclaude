@@ -2,7 +2,7 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { SITE_URL, ORG_ID, breadcrumb, webPage } from '@/lib/seo/jsonld';
 import { ConsultClient } from './ConsultClient';
 
-const TITLE = '우리 학원 홈페이지 무료 진단 — 더클';
+const TITLE = '학원 홈페이지 무료 진단 — 모바일·검색·상담 신청 점검 | 더클';
 const DESC = '지금 쓰는 학원 홈페이지·블로그 주소를 넣으면 모바일 화면, 검색 노출, 상담 신청 구조, 학원 정보 표기를 바로 점검해 드립니다. 무료입니다.';
 
 export const metadata = {

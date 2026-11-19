@@ -5,18 +5,28 @@ import { prisma } from '@/lib/prisma';
 import { PLAN_TIERS, formatWon, tierPrice } from '@/lib/plan-tier';
 import { DISCLOSURE_EXAMPLE, EVENTS } from '@/lib/events';
 
+import type { Metadata } from 'next';
 import { JsonLd } from '@/components/seo/JsonLd';
+import { getPlanPrices } from '@/lib/seo/prices';
 import { SITE_URL, breadcrumb, faqPage, softwareApp, webPage } from '@/lib/seo/jsonld';
 
-const TITLE = '요금 — 더클';
-const DESC = '더클 베타 기간 3개월 무료. 이후 재원생 수에 따른 월 구독 요금과 무료 기간 이벤트를 확인하세요.';
+const manwon = (n: number) => (n % 10000 === 0 ? `${n / 10000}만 원` : `${n.toLocaleString('ko-KR')}원`);
+const pricingTitle = (p: { standard: number }) => `학원 홈페이지 제작 비용, 월 ${manwon(p.standard)}부터 (3개월 무료) — 더클`;
+const pricingDesc = (p: { standard: number; plus: number }) =>
+  `더클 학원 홈페이지·상담 관리 요금. 베타 기간 3개월 무료, 이후 재원생 50명까지 월 ${manwon(p.standard)}, 51명 이상 월 ${manwon(p.plus)}. 모든 요금제 기능 동일, 개선 제안·블로그 소개글 이벤트로 무료 기간을 늘릴 수 있습니다.`;
 
-export const metadata = {
-  title: TITLE,
-  description: DESC,
-  alternates: { canonical: `${SITE_URL}/pricing` },
-  openGraph: { type: 'website', url: `${SITE_URL}/pricing`, title: TITLE, description: DESC, siteName: '더클', locale: 'ko_KR' },
-};
+// 금액이 플랫폼 설정에서 바뀌므로 제목·설명도 그 값으로
+export async function generateMetadata(): Promise<Metadata> {
+  const p = await getPlanPrices();
+  const title = pricingTitle(p);
+  const description = pricingDesc(p);
+  return {
+    title: { absolute: title },
+    description,
+    alternates: { canonical: `${SITE_URL}/pricing` },
+    openGraph: { type: 'website', url: `${SITE_URL}/pricing`, title, description, siteName: '더클', locale: 'ko_KR' },
+  };
+}
 
 // 금액은 플랫폼 관리자 설정에서 바뀌므로 요청마다 읽는다
 export const dynamic = 'force-dynamic';
@@ -26,6 +36,7 @@ export default async function PricingPage() {
     .findMany({ where: { key: { in: ['price_tier_standard', 'price_tier_plus'] } } })
     .catch(() => []);
   const priceSettings = Object.fromEntries(priceRows.map((r) => [r.key, r.value]));
+  const planPrices = { standard: tierPrice('standard', priceSettings), plus: tierPrice('plus', priceSettings) };
 
   const features = [
     '학원 홈페이지 (3가지 테마 중 선택)',
@@ -74,7 +85,7 @@ export default async function PricingPage() {
 
   return (
     <div data-theme="fd" style={{ fontFamily: "'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif", background: '#FFFFFF', color: '#14213D' }}>
-      <JsonLd nodes={[webPage({ path: '/pricing', name: TITLE, description: DESC, extra: { about: { '@id': `${SITE_URL}/#software` } } }), softwareApp({ standard: tierPrice('standard', priceSettings), plus: tierPrice('plus', priceSettings) }), faqPage(faq.map((f) => ({ q: f.q, a: f.a })), '/pricing'), breadcrumb([{ name: '요금', path: '/pricing' }])]} />
+      <JsonLd nodes={[webPage({ path: '/pricing', name: pricingTitle(planPrices), description: pricingDesc(planPrices), extra: { about: { '@id': `${SITE_URL}/#software` } } }), softwareApp(planPrices), faqPage(faq.map((f) => ({ q: f.q, a: f.a })), '/pricing'), breadcrumb([{ name: '요금', path: '/pricing' }])]} />
       <FdHeader active="pricing" />
 
       {/* Hero */}

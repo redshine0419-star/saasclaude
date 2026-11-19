@@ -5,8 +5,8 @@ import { FdFooter } from '@/components/fd/FdFooter';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { SITE_URL, abs, breadcrumb, webPage } from '@/lib/seo/jsonld';
 
-const TITLE = '데모 보기 — 더클';
-const DESC = '3가지 테마의 학원 홈페이지 데모와 원장님 관리 화면을 직접 확인해보세요.';
+const TITLE = '학원 홈페이지 디자인 예시 3가지 (테마 데모) — 더클';
+const DESC = '원장 직강형·성과 중심형·밝은 친근형, 3가지 학원 홈페이지 디자인 예시와 원장님 관리 화면을 데모로 직접 둘러보세요. 수학·영어 학원 예시가 있습니다.';
 
 export const metadata = {
   title: TITLE,
