@@ -33,6 +33,8 @@ const UPDATES = [
   { marker: 'seed:blog-drafts:v11', slug: 'tuition-refund-rules', oldBodySha256: ['4a1a05aeab98acec934f6f680b388032a993f177c14a4803a85fc6a005810c63'] },
   // v12: parent-sms-examples를 운영자가 준 원고로 교체 (아직 숨김 초안일 때만)
   { marker: 'seed:blog-drafts:v12', slug: 'parent-sms-examples', oldBodySha256: ['61341504b7717deb8b68590de852f070bc21c1c146f375f303a517b9d46a80ca'] },
+  // v13: 같은 글 '더클에서는' 부분을 실제 동작에 맞게 수정 — v12가 이미 돌았으면 이걸로 바꾼다
+  { marker: 'seed:blog-drafts:v13', slug: 'parent-sms-examples', oldBodySha256: ['fbed7ae128a6237488e13983bfb3c0debbc6206c361247292c2832ae9da7edd8', '61341504b7717deb8b68590de852f070bc21c1c146f375f303a517b9d46a80ca'] },
 ];
 const sha = (t) => createHash('sha256').update(t.replace(/\r\n?/g, '\n').trim()).digest('hex');
 
