@@ -56,6 +56,8 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
     if (el && el.getBoundingClientRect().top > window.innerHeight * 0.6) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [selectedId]);
   const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState<{ ok: boolean; text: string; id?: string } | null>(null);
+  const [slotMsg, setSlotMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [seatsLoading, setSeatsLoading] = useState<string | null>(null);
   const [showAddSlot, setShowAddSlot] = useState(false);
   const [newSlot, setNewSlot] = useState({ weekday: 0, time: '' });
@@ -97,6 +99,7 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
   async function saveClass() {
     if (!selectedId) return;
     setSaving(true);
+    setSaveMsg(null);
     try {
       const payload = {
         name: fieldVal('name'),
@@ -114,11 +117,17 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
-        const data = await res.json();
         setClasses((prev) => prev.map((c) => (c.id === selectedId ? { ...c, ...data.class } : c)));
         setForm({});
+        setSaveMsg({ ok: true, text: '저장했습니다. 홈페이지에 바로 반영되었습니다.', id: selectedId });
+        window.setTimeout(() => setSaveMsg((m) => (m?.ok ? null : m)), 4000);
+      } else {
+        setSaveMsg({ ok: false, text: data.error ?? '저장하지 못했습니다. 다시 눌러 주세요.', id: selectedId });
       }
+    } catch {
+      setSaveMsg({ ok: false, text: '저장하지 못했습니다. 인터넷 연결을 확인하고 다시 눌러 주세요.', id: selectedId });
     } finally {
       setSaving(false);
     }
@@ -138,12 +147,18 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
     }
   }
 
-  async function removeSlot(id: string) {
-    await fetch(`/api/${slug}/admin/classes/slots/${id}`, { method: 'DELETE' });
+  async function removeSlot(id: string, label: string) {
+    if (!window.confirm(`${label} 시간을 지울까요?`)) return;
+    setSlotMsg(null);
+    const res = await fetch(`/api/${slug}/admin/classes/slots/${id}`, { method: 'DELETE' }).catch(() => null);
+    if (!res?.ok) return setSlotMsg({ ok: false, text: '지우지 못했습니다. 다시 시도해 주세요.' });
     setSlots((prev) => prev.filter((s) => s.id !== id));
+    setSlotMsg({ ok: true, text: `${label} 시간을 지웠습니다.` });
   }
 
   async function addSlot() {
+    setSlotMsg(null);
+    if (!newSlot.time) return setSlotMsg({ ok: false, text: '시간을 골라 주세요.' });
     const res = await fetch(`/api/${slug}/admin/classes/slots`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -154,6 +169,10 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
       setSlots((prev) => [...prev, data.slot]);
       setShowAddSlot(false);
       setNewSlot({ weekday: 0, time: '' });
+      setSlotMsg({ ok: true, text: `${WEEKDAY_LABELS[data.slot.weekday] ?? ''} ${data.slot.time} 시간을 추가했습니다. 홈페이지에 바로 보입니다.` });
+    } else {
+      const d = await res.json().catch(() => ({}));
+      setSlotMsg({ ok: false, text: d.error ?? '추가하지 못했습니다.' });
     }
   }
 
@@ -187,7 +206,7 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           <div style={{ flex: '1 1 320px', minWidth: 0 }}>
             <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>수업·시간표</h1>
-            <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>반 정보·잔여석과 레벨테스트 가능 시간을 관리합니다. 저장하면 홈페이지에 바로 반영됩니다.</div>
+            <div style={{ fontSize: 14, color: '#5A6270', marginTop: 4 }}>반 정보·잔여석과 레벨테스트 가능 시간을 관리합니다. 저장하면 홈페이지에 바로 반영되고, 매주 월요일 오전 9시에 잔여석이 맞는지 확인하라는 알림이 갑니다.</div>
           </div>
           <button
             type="button"
@@ -300,16 +319,17 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
             <div style={{ fontSize: 16, fontWeight: 700 }}>레벨테스트 가능 시간</div>
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#1E5645', background: '#E4EEE9', padding: '4px 10px', borderRadius: 20 }}>
-              매주 월요일 확인 알림 자동 발송
-            </span>
+          </div>
+          <div style={{ fontSize: 13, color: '#5A6270', lineHeight: 1.7 }}>
+            학부모가 홈페이지 상담 신청에서 <b>&lsquo;레벨테스트 예약&rsquo;</b>을 고르면 이 시간 중 하나를 희망 시간으로 고릅니다(맞는 시간이 없으면 &lsquo;다른 시간&rsquo;). 홈페이지 반 안내 화면에도 &lsquo;레벨테스트 가능 시간&rsquo;으로 보입니다. 매주 반복되는 요일·시간으로 넣어 주세요. 실제 테스트 날짜는 상담 관리에서 학부모와 정합니다.
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {slots.map((slot) => (
               <button
                 key={slot.id}
                 type="button"
-                onClick={() => removeSlot(slot.id)}
+                onClick={() => removeSlot(slot.id, `${slot.weekday !== null ? WEEKDAY_LABELS[slot.weekday] : ''} ${slot.time ?? ''}`.trim())}
+                aria-label={`${slot.weekday !== null ? WEEKDAY_LABELS[slot.weekday] : ''} ${slot.time ?? ''} 지우기`}
                 style={{
                   height: 40,
                   padding: '0 14px',
@@ -336,11 +356,12 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
                   {WEEKDAY_LABELS.map((d, i) => <option key={i} value={i}>{d}</option>)}
                 </select>
                 <input
-                  type="text"
+                  type="time"
+                  step={600}
                   value={newSlot.time}
                   onChange={(e) => setNewSlot((p) => ({ ...p, time: e.target.value }))}
-                  placeholder="18:00"
-                  style={{ width: 72, height: 40, padding: '0 10px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
+                  aria-label="시간"
+                  style={{ width: 120, height: 40, padding: '0 10px', border: '1px solid #D5D0C6', borderRadius: 8, font: 'inherit', fontSize: 14 }}
                 />
                 <button type="button" onClick={addSlot} style={{ height: 40, padding: '0 12px', border: 'none', borderRadius: 8, background: '#1E5645', color: '#FFFFFF', font: 'inherit', fontSize: 14, cursor: 'pointer' }}>추가</button>
                 <button type="button" onClick={() => setShowAddSlot(false)} style={{ height: 40, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, background: '#FFFFFF', font: 'inherit', fontSize: 14, cursor: 'pointer' }}>취소</button>
@@ -355,6 +376,8 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
               </button>
             )}
           </div>
+          {slots.length === 0 && !showAddSlot && <div style={{ fontSize: 13, color: '#8A5A00' }}>아직 시간이 없어 학부모가 희망 시간을 고를 수 없습니다. &lsquo;+ 시간 추가&rsquo;로 넣어 주세요.</div>}
+          {slotMsg && <div role="status" style={{ fontSize: 13, fontWeight: 600, color: slotMsg.ok ? '#1E5645' : '#B42318' }}>{slotMsg.ok ? '✓ ' : ''}{slotMsg.text}</div>}
         </div>
       </div>
 
@@ -516,14 +539,23 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
             )}
           </div>
 
+          {Object.keys(form).length > 0 && !saving && (
+            <div style={{ marginTop: 'auto', fontSize: 13, color: '#8A5A00', fontWeight: 600 }}>● 저장하지 않은 변경이 있습니다</div>
+          )}
           <button
             type="button"
             onClick={saveClass}
             disabled={saving}
-            style={{ marginTop: 'auto', height: 48, border: 'none', borderRadius: 10, background: '#1E5645', color: '#FFFFFF', font: 'inherit', fontSize: 15, fontWeight: 700, cursor: saving ? 'wait' : 'pointer' }}
+            style={{ marginTop: Object.keys(form).length > 0 ? 0 : 'auto', height: 48, border: 'none', borderRadius: 10, background: saving ? '#6E8F82' : '#1E5645', color: '#FFFFFF', font: 'inherit', fontSize: 15, fontWeight: 700, cursor: saving ? 'wait' : 'pointer' }}
           >
-            저장하면 홈페이지에 바로 반영
+            {saving ? '저장 중…' : saveMsg?.ok && saveMsg.id === selectedId && Object.keys(form).length === 0 ? '✓ 저장했습니다' : '저장 (홈페이지에 바로 반영)'}
           </button>
+          {saveMsg && saveMsg.id === selectedId && (
+            <div role="status" style={{ padding: '10px 12px', borderRadius: 8, fontSize: 14, fontWeight: 600, background: saveMsg.ok ? '#E4EEE9' : '#FDECEA', color: saveMsg.ok ? '#1E5645' : '#B42318' }}>
+              {saveMsg.ok ? '✓ ' : ''}{saveMsg.text}
+              {saveMsg.ok && <> <a href={`/${slug}/classes`} target="_blank" rel="noopener noreferrer" style={{ color: '#1E5645' }}>홈페이지에서 보기</a></>}
+            </div>
+          )}
         </div>
       )}
     </div>

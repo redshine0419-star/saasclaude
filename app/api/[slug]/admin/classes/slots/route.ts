@@ -18,13 +18,14 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   if (!membership) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const body = await req.json().catch(() => null);
+  const weekday = Number(body?.weekday);
+  const time = typeof body?.time === 'string' ? body.time.trim() : '';
+  if (!Number.isInteger(weekday) || weekday < 0 || weekday > 6) return NextResponse.json({ error: '요일을 골라 주세요.' }, { status: 400 });
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) return NextResponse.json({ error: '시간을 18:00처럼 넣어 주세요.' }, { status: 400 });
+  const dup = await prisma.levelTestSlot.findFirst({ where: { tenantId: tenant.id, weekday, time, active: true }, select: { id: true } });
+  if (dup) return NextResponse.json({ error: '이미 있는 시간입니다.' }, { status: 409 });
   const slot = await prisma.levelTestSlot.create({
-    data: {
-      tenantId: tenant.id,
-      weekday: body?.weekday != null ? Number(body.weekday) : null,
-      time: body?.time ?? null,
-      active: true,
-    },
+    data: { tenantId: tenant.id, weekday, time, active: true },
   });
 
   return NextResponse.json({ slot: { id: slot.id, weekday: slot.weekday, time: slot.time, active: slot.active } });
