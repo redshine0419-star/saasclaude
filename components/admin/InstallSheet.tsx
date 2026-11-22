@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { OPEN_INSTALL_EVENT } from './OpenInstallLink';
 
 /**
  * 관리자 앱(홈 화면) 설치 안내.
@@ -47,6 +48,10 @@ export function InstallSheet({ slug, appName, qrSvg, installUrl }: { slug: strin
   useEffect(() => {
     const onPrompt = (e: Event) => { e.preventDefault(); setEvt(e as BIPEvent); };
     const onInstalled = () => { set(key(slug, 'state'), 'installed'); setStep('notify'); };
+    // 체크리스트에서 누르면 바로 연다 (이미 앱으로 열었으면 알림 켜기 단계로)
+    const onOpen = () => { setEnv(detectEnv()); setStep(isStandalone() ? 'notify' : 'install'); setOpen(true); };
+    (window as unknown as { __admInstallReady?: boolean }).__admInstallReady = true;
+    window.addEventListener(OPEN_INSTALL_EVENT, onOpen);
     window.addEventListener('beforeinstallprompt', onPrompt);
     window.addEventListener('appinstalled', onInstalled);
 
@@ -87,6 +92,8 @@ export function InstallSheet({ slug, appName, qrSvg, installUrl }: { slug: strin
     const timer = window.setTimeout(decide, 600);
     return () => {
       window.clearTimeout(timer);
+      (window as unknown as { __admInstallReady?: boolean }).__admInstallReady = false;
+      window.removeEventListener(OPEN_INSTALL_EVENT, onOpen);
       window.removeEventListener('beforeinstallprompt', onPrompt);
       window.removeEventListener('appinstalled', onInstalled);
     };

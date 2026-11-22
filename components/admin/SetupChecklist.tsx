@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { ChecklistItem } from '@/lib/setup-checklist';
+import { OpenInstallLink } from './OpenInstallLink';
 
 export function SetupChecklist({ items, slug, welcome }: { items: ChecklistItem[]; slug: string; welcome: boolean }) {
   const done = items.filter((i) => i.done).length;
@@ -27,17 +28,23 @@ export function SetupChecklist({ items, slug, welcome }: { items: ChecklistItem[
         <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
           {todo.map((item) => (
             <li key={item.key}>
-              <Link
-                href={item.href}
-                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', border: '1px solid #E2DDD2', borderRadius: 8, textDecoration: 'none', color: '#1B2430' }}
-              >
-                <span aria-hidden="true" style={{ width: 18, height: 18, borderRadius: 9, border: '2px solid #C8CDD5', flexShrink: 0 }} />
-                <span style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  <span style={{ fontSize: 15, fontWeight: 600 }}>{item.label}</span>
-                  <span style={{ fontSize: 13, color: '#5A6270' }}>{item.why}</span>
-                </span>
-                <span style={{ fontSize: 13, color: '#1E5645', fontWeight: 600, whiteSpace: 'nowrap' }}>입력하기 →</span>
-              </Link>
+              {(() => {
+                const inner = (
+                  <>
+                    <span aria-hidden="true" style={{ width: 18, height: 18, borderRadius: 9, border: '2px solid #C8CDD5', flexShrink: 0 }} />
+                    <span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <span style={{ fontSize: 15, fontWeight: 600 }}>{item.label}</span>
+                      <span style={{ fontSize: 13, color: '#5A6270' }}>{item.why}</span>
+                    </span>
+                    <span className="adm-check-cta" style={{ fontSize: 13, color: '#1E5645', fontWeight: 600, whiteSpace: 'nowrap' }}>{item.key === 'notify' ? '설치하기 →' : '입력하기 →'}</span>
+                    <span className="adm-check-arrow" aria-hidden="true">›</span>
+                  </>
+                );
+                const rowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', border: '1px solid #E2DDD2', borderRadius: 8, textDecoration: 'none', color: '#1B2430' };
+                return item.key === 'notify'
+                  ? <OpenInstallLink href={item.href} className="adm-check-row" style={rowStyle}>{inner}</OpenInstallLink>
+                  : <Link href={item.href} className="adm-check-row" style={rowStyle}>{inner}</Link>;
+              })()}
             </li>
           ))}
         </ul>

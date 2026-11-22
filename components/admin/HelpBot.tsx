@@ -144,7 +144,7 @@ export function HelpBot({ slug }: { slug: string }) {
           style={{ position: 'fixed', right: 16, bottom: 16, zIndex: 90, height: 48, padding: '0 18px', borderRadius: 24, border: 'none', background: '#1B2430', color: '#FFFFFF', font: 'inherit', fontSize: 14, fontWeight: 700, cursor: 'pointer', boxShadow: '0 6px 20px rgba(27,36,48,0.25)', display: 'flex', alignItems: 'center', gap: 6 }}
         >
           <span aria-hidden="true" style={{ display: 'inline-flex', width: 22, height: 22, borderRadius: 11, background: '#F5B700', color: '#1B2430', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>?</span>
-          사용법
+          <span className="adm-help-fab-label">사용법</span>
         </button>
       )}
 

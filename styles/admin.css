@@ -220,3 +220,19 @@
   .adm-help-fab, .adm-help-panel { display: none !important; }
   .adm { padding-bottom: 0; }
 }
+
+/* 시작 체크리스트: PC는 '입력하기 →', 휴대폰은 › 만 (글자 칸을 넓게) */
+.adm .adm-check-arrow { display: none; font-size: 24px; line-height: 1; color: #8A93A0; flex-shrink: 0; }
+@media (max-width: 480px) {
+  .adm .adm-check-cta { display: none; }
+  .adm .adm-check-arrow { display: block; }
+  .adm .adm-check-row { gap: 10px !important; padding: 12px !important; }
+}
+
+/* 사용법 버튼: 휴대폰에서는 둥근 ? 버튼으로 작게, 화면 맨 아래는 버튼에 가리지 않게 여백 */
+@media (max-width: 768px) {
+  .adm-help-fab { width: 48px; padding: 0 !important; justify-content: center; }
+  .adm-help-fab .adm-help-fab-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .adm > div > main { padding-bottom: 88px !important; }
+}
+
