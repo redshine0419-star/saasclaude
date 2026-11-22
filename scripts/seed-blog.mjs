@@ -35,6 +35,8 @@ const UPDATES = [
   { marker: 'seed:blog-drafts:v12', slug: 'parent-sms-examples', oldBodySha256: ['61341504b7717deb8b68590de852f070bc21c1c146f375f303a517b9d46a80ca'] },
   // v13: 같은 글 '더클에서는' 부분을 실제 동작에 맞게 수정 — v12가 이미 돌았으면 이걸로 바꾼다
   { marker: 'seed:blog-drafts:v13', slug: 'parent-sms-examples', oldBodySha256: ['fbed7ae128a6237488e13983bfb3c0debbc6206c361247292c2832ae9da7edd8', '61341504b7717deb8b68590de852f070bc21c1c146f375f303a517b9d46a80ca'] },
+  // v14: homepage-blog-instagram을 운영자가 준 원고로 교체 (아직 숨김 초안일 때만)
+  { marker: 'seed:blog-drafts:v14', slug: 'homepage-blog-instagram', oldBodySha256: ['fb1d7afbcb0ffe0a144074a3fbd7ac56a918ae919be7f851c8b2c57e866e5ab3'] },
 ];
 const sha = (t) => createHash('sha256').update(t.replace(/\r\n?/g, '\n').trim()).digest('hex');
 
