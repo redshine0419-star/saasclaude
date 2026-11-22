@@ -4,6 +4,8 @@ import { adminSession, isDemoViewer } from '@/lib/demo-viewer';
 import { DemoReadOnly } from '@/components/admin/DemoReadOnly';
 import { HelpBot } from '@/components/admin/HelpBot';
 import { PwaRegister } from '@/components/admin/PwaRegister';
+import { InstallSheet } from '@/components/admin/InstallSheet';
+import QRCode from 'qrcode';
 import type { Metadata, Viewport } from 'next';
 import { prisma } from '@/lib/prisma';
 import '@/styles/admin.css';
@@ -97,6 +99,15 @@ export default async function AdminLayout({
     }
   }
 
+  // 관리자 앱 설치 안내 (원장·직원 본인 접속일 때만) — PC에서는 휴대폰으로 찍을 QR 코드를 함께 보여 준다
+  let install: { appName: string; qrSvg: string; installUrl: string } | null = null;
+  if (!isProxy) {
+    const t = await prisma.tenant.findUnique({ where: { slug }, select: { name: true } });
+    const installUrl = `${(process.env.NEXT_PUBLIC_BASE_URL ?? 'https://growweb.me').replace(/\/$/, '')}/${slug}/admin?install=1`;
+    const qrSvg = await QRCode.toString(installUrl, { type: 'svg', margin: 1, errorCorrectionLevel: 'M', color: { dark: '#1B2430', light: '#FFFFFF' } }).catch(() => '');
+    install = { appName: (t?.name ?? '더클').slice(0, 12), qrSvg, installUrl };
+  }
+
   return (
     <>
       {isProxy && (
@@ -116,6 +127,7 @@ export default async function AdminLayout({
       </div>
       <HelpBot slug={slug} />
       <PwaRegister />
+      {install && <InstallSheet slug={slug} {...install} />}
     </>
   );
 }

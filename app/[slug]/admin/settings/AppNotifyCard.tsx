@@ -125,7 +125,7 @@ export function AppNotifyCard({ slug, isOwner, myEmail, vapidKey, devices, pushR
   }
 
   return (
-    <section style={card} aria-labelledby="app-notify-title">
+    <section id="app-notify" style={{ ...card, scrollMarginTop: 16 }} aria-labelledby="app-notify-title">
       <div>
         <div id="app-notify-title" style={{ fontSize: 16, fontWeight: 700 }}>앱 설치 · 앱 알림</div>
         <div style={{ fontSize: 13, color: '#5A6270', marginTop: 4, lineHeight: 1.6 }}>

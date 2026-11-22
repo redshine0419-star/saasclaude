@@ -356,3 +356,9 @@ source 판별 순서: UTM → referrer (naver.com 검색/플레이스, kakao, bl
 - robots.txt: AI·검색 수집기(GPTBot, OAI-SearchBot, ClaudeBot, PerplexityBot, Google-Extended, Yeti, Daum 등) 이름으로 허용, 관리·개인 화면만 막는다. 사이트맵에 서비스 사이트 공개 페이지 추가(/start 는 로그인 뒤라 제외)
 - JSON-LD 문자열은 `ldJson`으로 `<`·줄 구분 문자를 이스케이프한다 (학원 FAQ 섹션 포함)
 
+## 관리자 앱 설치 안내 (2026-11-22)
+
+- `components/admin/InstallSheet.tsx` (관리자 레이아웃, 원장·직원 본인 접속일 때만): 홈페이지를 만든 직후(`?welcome=1`), 시작 체크리스트 '휴대폰에 관리자 앱 설치·알림 켜기'(`?install=1`), 설치하지 않은 휴대폰의 세 번째 방문에 한 번 띄운다
+- 안드로이드는 설치 버튼(beforeinstallprompt), 아이폰은 공유 → 홈 화면에 추가 안내, 카카오톡·네이버 앱 안은 주소 복사, PC는 QR 코드(`qrcode`, 서버에서 SVG)
+- 설치하면 '알림 켜기'(설정 › 앱 알림 `#app-notify`)로 이어진다. '나중에'·설치 여부는 기기 브라우저(localStorage)에만 기록, 앱으로 연 기기에는 띄우지 않는다
+

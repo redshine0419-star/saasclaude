@@ -33,7 +33,7 @@ export async function getSetupChecklist(tenant: {
 
   const base = `/${tenant.slug}/admin`;
   const items: ChecklistItem[] = [
-    { key: 'notify', label: '휴대폰 앱 알림 켜기', why: '상담이 들어오면 바로 휴대폰으로 알려드립니다', href: `${base}/settings`, done: recipients > 0 },
+    { key: 'notify', label: '휴대폰에 관리자 앱 설치·알림 켜기', why: '홈 화면에 설치하면 새 상담이 들어올 때 바로 휴대폰으로 알려드립니다', href: `${base}?install=1`, done: recipients > 0 },
     { key: 'photos', label: '메인 사진을 우리 학원 사진으로', why: '처음에는 샘플 사진이 들어가 있습니다. 교실·수업 사진으로 바꿔 주세요', href: `${base}/sections`, done: (tenant.heroPhotos ?? []).length > 0 && !(tenant.heroPhotos ?? []).some(isSamplePhoto) },
     { key: 'slots', label: '레벨테스트·상담 가능 시간', why: '학부모가 신청할 때 시간을 고릅니다', href: `${base}/classes`, done: slots > 0 },
     { key: 'director', label: '원장 소개', why: '학부모가 가장 먼저 보는 신뢰 요소입니다', href: `${base}/info`, done: !!director?.headline?.trim() },
