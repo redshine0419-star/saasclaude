@@ -8,6 +8,7 @@
 .adm-mobilebar { display: none; }
 .adm .adm-only-mobile { display: none; }
 
+/* 인라인 style 선택자는 "속성:값"(서버 렌더링)과 "속성: 값"(화면 이동 뒤 브라우저가 다시 쓴 형태)을 둘 다 적는다 */
 @media (max-width: 768px) {
   /* ── 운영자 대행 접속 배너: 고정 대신 맨 위에 한 줄로 ── */
   .adm-proxy-banner { position: static !important; padding: 8px 12px !important; flex-wrap: wrap; gap: 4px; }
@@ -33,7 +34,8 @@
     gap: 16px !important;
     flex-wrap: wrap;
   }
-  .adm > div > main > [style*="flex:1"] { min-width: 0; flex-basis: 100%; }
+  .adm > div > main > [style*="flex:1"],
+  .adm > div > main > [style*="flex: 1"] { min-width: 0; flex-basis: 100%; }
   .adm > div > main > * { max-width: 100%; }
 
   .adm-mobilebar {
@@ -67,8 +69,10 @@
   .adm-drawer-close { align-self: flex-end; color: #C8CDD5; }
 
   /* ── 가로 줄(제목줄·버튼줄·목록+패널): 넘치면 다음 줄로 ── */
-  .adm main [style*="display:flex"]:not([style*="flex-direction:column"]) { flex-wrap: wrap; row-gap: 8px; }
-  .adm main [style*="display:flex"]:not([style*="flex-direction:column"]) > [style*="flex:1"] { min-width: 0; }
+  .adm main [style*="display:flex"]:not([style*="flex-direction:column"]),
+  .adm main [style*="display: flex"]:not([style*="flex-direction: column"]) { flex-wrap: wrap; row-gap: 8px; }
+  .adm main [style*="display:flex"]:not([style*="flex-direction:column"]) > [style*="flex:1"],
+  .adm main [style*="display: flex"]:not([style*="flex-direction: column"]) > [style*="flex: 1"] { min-width: 0; }
   .adm main h1 { font-size: 22px !important; }
 
   /* ── 목록 + 고정 폭 상세 패널: 패널을 아래로 내려 전체 폭 사용 ── */
@@ -77,7 +81,13 @@
   .adm main div:has(> [style*="width:400px"]),
   .adm main div:has(> [style*="width:420px"]),
   .adm main div:has(> [style*="width:440px"]),
-  .adm main div:has(> [style*="width:520px"]) {
+  .adm main div:has(> [style*="width:520px"]),
+  .adm main div:has(> [style*="width: 360px"]),
+  .adm main div:has(> [style*="width: 380px"]),
+  .adm main div:has(> [style*="width: 400px"]),
+  .adm main div:has(> [style*="width: 420px"]),
+  .adm main div:has(> [style*="width: 440px"]),
+  .adm main div:has(> [style*="width: 520px"]) {
     flex-wrap: wrap !important;
   }
   .adm main [style*="width:360px"],
@@ -85,29 +95,44 @@
   .adm main [style*="width:400px"],
   .adm main [style*="width:420px"],
   .adm main [style*="width:440px"],
-  .adm main [style*="width:520px"] {
+  .adm main [style*="width:520px"],
+  .adm main [style*="width: 360px"],
+  .adm main [style*="width: 380px"],
+  .adm main [style*="width: 400px"],
+  .adm main [style*="width: 420px"],
+  .adm main [style*="width: 440px"],
+  .adm main [style*="width: 520px"] {
     width: 100% !important;
     max-width: 100% !important;
     flex-basis: 100% !important;
   }
   .adm main [style*="min-width:300px"],
   .adm main [style*="min-width:320px"],
-  .adm main [style*="min-width:420px"] {
+  .adm main [style*="min-width:420px"],
+  .adm main [style*="min-width: 300px"],
+  .adm main [style*="min-width: 320px"],
+  .adm main [style*="min-width: 420px"] {
     min-width: 0 !important;
   }
 
   /* ── 다열 그리드: 3~4열은 2열, 5~6열(요일 버튼 등)은 3열 ── */
   .adm main [style*="grid-template-columns:repeat(3,"],
+  .adm main [style*="grid-template-columns: repeat(3,"],
   .adm main [style*="grid-template-columns:repeat(4,"],
-  .adm main [style*="grid-template-columns:1fr 1fr 1fr"] {
+  .adm main [style*="grid-template-columns: repeat(4,"],
+  .adm main [style*="grid-template-columns:1fr 1fr 1fr"],
+  .adm main [style*="grid-template-columns: 1fr 1fr 1fr"] {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
   /* 본문 + 고정 폭 보조 칸 그리드는 세로로 */
-  .adm main [style*="grid-template-columns:1fr 300px"] {
+  .adm main [style*="grid-template-columns:1fr 300px"],
+  .adm main [style*="grid-template-columns: 1fr 300px"] {
     grid-template-columns: minmax(0, 1fr) !important;
   }
   .adm main [style*="grid-template-columns:repeat(5,"],
-  .adm main [style*="grid-template-columns:repeat(6,"] {
+  .adm main [style*="grid-template-columns: repeat(5,"],
+  .adm main [style*="grid-template-columns:repeat(6,"],
+  .adm main [style*="grid-template-columns: repeat(6,"] {
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   }
 
@@ -121,7 +146,8 @@
     -webkit-overflow-scrolling: touch;
   }
   .adm main th, .adm main td { white-space: nowrap; }
-  .adm main td [style*="display:flex"] { flex-wrap: nowrap !important; }
+  .adm main td [style*="display:flex"],
+  .adm main td [style*="display: flex"] { flex-wrap: nowrap !important; }
 
   /* ── 입력·버튼: 확대 방지(16px)와 터치 크기 ── */
   .adm main input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]),
@@ -130,7 +156,10 @@
   /* 그리드 칸 안의 입력은 칸 너비를 따른다 (기본 고유 너비로 카드 밖으로 밀려나지 않게) */
   .adm main [style*="display:grid"] > input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]),
   .adm main [style*="display:grid"] > select,
-  .adm main [style*="display:grid"] > textarea { width: 100% !important; }
+  .adm main [style*="display:grid"] > textarea,
+  .adm main [style*="display: grid"] > input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]),
+  .adm main [style*="display: grid"] > select,
+  .adm main [style*="display: grid"] > textarea { width: 100% !important; }
   .adm main button { min-height: 40px; }
 
   /* 긴 텍스트·이미지가 화면 밖으로 밀지 않게 */
@@ -174,7 +203,9 @@
 /* 아주 좁은 화면: 2열 그리드(설정 카드, 입력 칸)도 1열로 */
 @media (max-width: 480px) {
   .adm main [style*="grid-template-columns:repeat(2,"],
-  .adm main [style*="grid-template-columns:1fr 1fr"] { grid-template-columns: minmax(0, 1fr) !important; }
+  .adm main [style*="grid-template-columns: repeat(2,"],
+  .adm main [style*="grid-template-columns:1fr 1fr"],
+  .adm main [style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: minmax(0, 1fr) !important; }
 }
 
 /* 학생부 상세: 본문 + 오른쪽 칸 — 좁은 노트북·태블릿에서는 한 줄로 */
