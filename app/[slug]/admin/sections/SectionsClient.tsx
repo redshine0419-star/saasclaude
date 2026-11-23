@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DEFAULT_SECTION_ORDER, LOCKED_SECTIONS, SECTION_LABELS, normalizeSections, themeSections, type ThemeKey } from '@/lib/sections';
 
@@ -28,6 +28,16 @@ export function SectionsClient({ slug, theme: initTheme, sections: initSections,
   const [theme, setTheme] = useState<ThemeKey>(initTheme);
   const [sections, setSections] = useState<SectionState[]>(initSections);
   const [saving, setSaving] = useState(false);
+  // 테마·섹션 구성이 마지막 저장과 다르면 화면 아래 저장 줄을 띄운다
+  const snap = (t: string, list: SectionState[]) => JSON.stringify([t, list.map((x) => [x.key, x.enabled])]);
+  const [savedSnap, setSavedSnap] = useState(() => snap(initTheme, initSections));
+  const dirty = snap(theme, sections) !== savedSnap;
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ''; };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [dirty]);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
 
@@ -85,11 +95,16 @@ export function SectionsClient({ slug, theme: initTheme, sections: initSections,
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setSaved(true);
-        if (Array.isArray(data.sections)) setSections(data.sections);
+        window.setTimeout(() => setSaved(false), 4000);
+        const nextSections = Array.isArray(data.sections) ? (data.sections as SectionState[]) : sections;
+        setSections(nextSections);
+        setSavedSnap(snap(theme, nextSections));
         router.refresh();
       } else {
         setError(data.error ?? '저장하지 못했습니다.');
       }
+    } catch {
+      setError('저장하지 못했습니다. 인터넷 연결을 확인하고 다시 눌러 주세요.');
     } finally {
       setSaving(false);
     }
@@ -125,6 +140,7 @@ export function SectionsClient({ slug, theme: initTheme, sections: initSections,
           </div>
         )}
       </div>
+      {canEdit && <div style={{ fontSize: 13, color: '#5A6270', marginTop: -12 }}>위 저장 버튼은 <b>테마와 섹션 순서·표시</b>를 저장합니다. 메인 화면 사진·문구와 섹션 문구는 각 카드의 저장 버튼으로 따로 저장합니다.</div>}
 
       {!canEdit && (
         <div style={{ padding: '12px 16px', borderRadius: 8, background: '#FFF7E6', color: '#7A4B00', fontSize: 14 }}>
@@ -222,8 +238,31 @@ export function SectionsClient({ slug, theme: initTheme, sections: initSections,
               </div>
             );
           })}
+          {canEdit && (
+            <button
+              type="button"
+              onClick={save}
+              disabled={saving}
+              style={{ marginTop: 4, height: 46, border: 'none', borderRadius: 10, background: saved && !dirty ? '#2F6E5A' : '#1E5645', color: '#FFFFFF', fontFamily: 'inherit', fontSize: 15, fontWeight: 700, cursor: saving ? 'wait' : 'pointer' }}
+            >
+              {saving ? '저장 중…' : saved && !dirty ? '저장 완료 ✓ 홈페이지에 반영되었습니다' : '섹션 구성 저장'}
+            </button>
+          )}
         </section>
       </fieldset>
+
+      {/* 저장하지 않은 테마·섹션 변경이 있으면 화면 아래 저장 줄 */}
+      {canEdit && (dirty || error) && (
+        <div className="sections-savebar" role="region" aria-label="섹션 구성 저장" style={{ position: 'sticky', bottom: 12, zIndex: 40, display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px 12px 18px', borderRadius: 12, background: '#1B2430', color: '#FFFFFF', boxShadow: '0 8px 24px rgba(27,36,48,0.3)', flexWrap: 'wrap' }}>
+          <span style={{ flex: '1 1 180px', fontSize: 14, fontWeight: 600, color: error ? '#FFB4A8' : '#FFFFFF' }}>
+            {error || '저장하지 않은 테마·섹션 변경이 있습니다'}
+          </span>
+          <button type="button" onClick={save} disabled={saving} style={{ height: 40, padding: '0 20px', border: 'none', borderRadius: 8, background: '#F5B700', color: '#1B2430', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, cursor: saving ? 'wait' : 'pointer' }}>
+            {saving ? '저장 중…' : '저장'}
+          </button>
+        </div>
+      )}
+      <style>{`@media (max-width: 768px) { .sections-savebar { margin-right: 60px; } }`}</style>
     </div>
   );
 }
