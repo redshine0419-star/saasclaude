@@ -236,3 +236,7 @@
   .adm > div > main { padding-bottom: 88px !important; }
 }
 
+/* 대시보드 '홈페이지 완성도'에서 눌러 들어온 카드·입력칸 잠깐 강조 */
+@keyframes adm-jump-flash { 0%, 60% { box-shadow: 0 0 0 3px #F5B700; } 100% { box-shadow: 0 0 0 3px rgba(245, 183, 0, 0); } }
+.adm .adm-jump-flash { animation: adm-jump-flash 2.2s ease-out; }
+

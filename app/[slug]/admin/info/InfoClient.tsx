@@ -346,7 +346,7 @@ export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: init
         <div style={{ flex: 1, minWidth: 320, display: 'flex', flexDirection: 'column', gap: 16 }}>
 
           {/* Basic info */}
-          <div style={{ padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div id="basic" style={{ padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div style={{ fontSize: 16, fontWeight: 700 }}>기본 정보</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
               {([
@@ -360,6 +360,7 @@ export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: init
                 <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   <label style={LABEL}>{label}</label>
                   <input
+                    id={`field-${key}`}
                     type="text"
                     value={(info[key] as string) ?? ''}
                     onChange={(e) => setI(key, e.target.value)}
@@ -441,11 +442,11 @@ export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: init
           </div>
 
           {/* Connection info */}
-          <div style={{ padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div id="connection" style={{ padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div style={{ fontSize: 16, fontWeight: 700 }}>연결 설정</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={LABEL}>카카오 채널 URL</label>
-              <input type="url" value={info.kakaoChannelUrl ?? ''} onChange={(e) => setI('kakaoChannelUrl', e.target.value)} placeholder="https://pf.kakao.com/_xxxxx" style={INPUT} />
+              <input id="field-kakao" type="url" value={info.kakaoChannelUrl ?? ''} onChange={(e) => setI('kakaoChannelUrl', e.target.value)} placeholder="https://pf.kakao.com/_xxxxx" style={INPUT} />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={LABEL}>네이버 서치어드바이저 인증 코드</label>
@@ -455,7 +456,7 @@ export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: init
           </div>
 
           {/* Director */}
-          <div style={{ padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div id="director" style={{ padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div style={{ fontSize: 16, fontWeight: 700 }}>원장 소개</div>
             <div style={{ display: 'flex', gap: 14 }}>
               <label style={{ width: 100, height: 130, flexShrink: 0, border: '1px dashed #B7B0A2', borderRadius: 10, background: '#FAF9F6', overflow: 'hidden', cursor: directorPhotoUploading ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
@@ -544,7 +545,7 @@ export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: init
         </div>
 
         {/* Right column: fees */}
-        <div style={{ width: 440, minWidth: 300, padding: 24, boxSizing: 'border-box', background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div id="fees" style={{ width: 440, minWidth: 300, padding: 24, boxSizing: 'border-box', background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ fontSize: 16, fontWeight: 700 }}>교습비</div>
             <button type="button" onClick={() => setFees((p) => [...p, { id: `new-${Date.now()}`, label: '새 과정', amount: 0 }])} style={{ height: 36, padding: '0 12px', border: '1px solid #D5D0C6', borderRadius: 8, background: '#FFFFFF', font: 'inherit', fontSize: 13, cursor: 'pointer' }}>
@@ -729,7 +730,7 @@ export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: init
       </div>
 
       {/* 환불 정책 */}
-      <div style={{ padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div id="refund" style={{ padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div style={{ fontSize: 16, fontWeight: 700 }}>환불 정책</div>
         <div style={{ padding: '14px 16px', background: '#FBF1CF', borderRadius: 10, fontSize: 13, lineHeight: 1.7, color: '#3E3510' }}>
           학원법 시행령 제18조에 따른 기준을 참고하여 작성하세요. 홈페이지 수강료 안내 페이지에 표시됩니다.

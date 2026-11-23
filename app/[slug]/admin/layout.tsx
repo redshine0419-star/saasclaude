@@ -5,6 +5,7 @@ import { DemoReadOnly } from '@/components/admin/DemoReadOnly';
 import { HelpBot } from '@/components/admin/HelpBot';
 import { PwaRegister } from '@/components/admin/PwaRegister';
 import { InstallSheet } from '@/components/admin/InstallSheet';
+import { JumpToHash } from '@/components/admin/JumpToHash';
 import QRCode from 'qrcode';
 import type { Metadata, Viewport } from 'next';
 import { prisma } from '@/lib/prisma';
@@ -128,6 +129,7 @@ export default async function AdminLayout({
       <HelpBot slug={slug} />
       <PwaRegister />
       {install && <InstallSheet slug={slug} {...install} />}
+      <JumpToHash />
     </>
   );
 }

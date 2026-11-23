@@ -229,7 +229,7 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
         </div>
 
         {/* Class table */}
-        <div style={{ background: '#FFFFFF', borderRadius: 12, overflowX: 'auto' }}>
+        <div id="classes-list" style={{ background: '#FFFFFF', borderRadius: 12, overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ textAlign: 'left', color: '#5A6270', background: '#FAF9F6' }}>
@@ -308,6 +308,7 @@ export function ClassesClient({ slug, classes: initialClasses, levelTestSlots: i
 
         {/* Level test slots */}
         <div
+          id="slots"
           style={{
             padding: 24,
             background: '#FFFFFF',

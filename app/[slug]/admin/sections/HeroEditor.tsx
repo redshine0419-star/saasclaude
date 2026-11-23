@@ -83,7 +83,7 @@ export function HeroEditor({ slug, theme, subjects, canEdit, initial }: Props) {
   }
 
   return (
-    <section style={{ background: '#FFFFFF', borderRadius: 12, padding: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
+    <section id="hero" style={{ background: '#FFFFFF', borderRadius: 12, padding: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
         <h2 style={{ margin: 0, fontSize: 18 }}>메인 화면 (첫 화면)</h2>
         <a href={`/${slug}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: '#1E5645', fontWeight: 600 }}>홈페이지에서 보기 ↗</a>
