@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PhotoPicker } from '@/components/admin/PhotoPicker';
 import { formatKstDateTime } from '@/lib/format-date';
 import { AiDraftPanel } from '@/components/admin/AiDraftPanel';
@@ -109,6 +109,17 @@ export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: init
   const [fees, setFees] = useState(initialFees);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  // 기본 정보·원장 소개·교습비는 한 번에 저장한다 — 마지막으로 저장한 내용과 다르면 아래 저장 줄을 띄운다
+  const snap = (i: unknown, d: unknown, f: unknown) => JSON.stringify([i, d, f]);
+  const [savedSnap, setSavedSnap] = useState(() => snap(initialTenant, initialDirector ?? { headline: null, career: null, philosophy: null, education: null, photo: null }, initialFees));
+  const dirty = snap(info, director, fees) !== savedSnap;
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ''; };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [dirty]);
   const [showFeeConfirm, setShowFeeConfirm] = useState(false);
 
   // Principles state
@@ -153,13 +164,23 @@ export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: init
   async function save(confirmed = false) {
     if (feeChanged && !confirmed) { setShowFeeConfirm(true); return; }
     setSaving(true);
+    setSaveError('');
     try {
       const res = await fetch(`/api/${slug}/admin/info`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ info, director, fees: fees.map((f) => ({ id: f.id, amount: f.amount, label: f.label })) }),
       });
-      if (res.ok) { setSaved(true); setTimeout(() => setSaved(false), 2500); }
+      if (res.ok) {
+        setSavedSnap(snap(info, director, fees));
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2500);
+      } else {
+        const d = await res.json().catch(() => ({}));
+        setSaveError(d.error ?? '저장하지 못했습니다. 다시 눌러 주세요.');
+      }
+    } catch {
+      setSaveError('저장하지 못했습니다. 인터넷 연결을 확인하고 다시 눌러 주세요.');
     } finally {
       setSaving(false);
       setShowFeeConfirm(false);
@@ -510,6 +531,15 @@ export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: init
                 }
               />
             )}
+            <button
+              type="button"
+              onClick={() => save()}
+              disabled={saving}
+              style={{ height: 44, border: 'none', borderRadius: 10, background: saved ? '#2F6E5A' : '#1E5645', color: '#FFFFFF', font: 'inherit', fontSize: 14, fontWeight: 700, cursor: saving ? 'wait' : 'pointer' }}
+            >
+              {saved ? '저장 완료 ✓' : saving ? '저장 중…' : '원장 소개 저장'}
+            </button>
+            <div style={{ fontSize: 12, color: '#8A93A0', marginTop: -6 }}>기본 정보·원장 소개·교습비는 한 번에 저장됩니다.</div>
           </div>
         </div>
 
@@ -812,6 +842,19 @@ export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: init
           <div style={{ fontSize: 12, color: '#9AA3AF' }}>최근 10건. 변경 전 금액 전체는 DB에 보관됩니다.</div>
         </div>
       )}
+
+      {/* 저장하지 않은 변경이 있으면 화면 아래에 저장 줄 (기본 정보·원장 소개·교습비) */}
+      {(dirty || saveError) && !showFeeConfirm && (
+        <div className="info-savebar" role="region" aria-label="저장" style={{ position: 'sticky', bottom: 12, zIndex: 40, display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px 12px 18px', borderRadius: 12, background: '#1B2430', color: '#FFFFFF', boxShadow: '0 8px 24px rgba(27,36,48,0.3)', flexWrap: 'wrap' }}>
+          <span style={{ flex: '1 1 180px', fontSize: 14, fontWeight: 600, color: saveError ? '#FFB4A8' : '#FFFFFF' }}>
+            {saveError || '저장하지 않은 변경이 있습니다 (기본 정보·원장 소개·교습비)'}
+          </span>
+          <button type="button" onClick={() => save()} disabled={saving} style={{ height: 40, padding: '0 20px', border: 'none', borderRadius: 8, background: '#F5B700', color: '#1B2430', font: 'inherit', fontSize: 14, fontWeight: 700, cursor: saving ? 'wait' : 'pointer' }}>
+            {saving ? '저장 중…' : '저장'}
+          </button>
+        </div>
+      )}
+      <style>{`@media (max-width: 768px) { .info-savebar { margin-right: 60px; } }`}</style>
     </>
   );
 }
