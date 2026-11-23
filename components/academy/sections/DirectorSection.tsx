@@ -3,9 +3,11 @@ import type { AcademyDirector, AcademyTenant } from '@/lib/academy-data';
 type Props = {
   tenant: AcademyTenant;
   director: AcademyDirector;
+  /** 섹션 머리 라벨 — 테마마다 다르다 (A '원장 소개', B 'DIRECTOR', C "DIRECTOR'S NOTE") */
+  eyebrow?: string;
 };
 
-export default function DirectorSection({ tenant, director }: Props) {
+export default function DirectorSection({ tenant, director, eyebrow = '원장 소개' }: Props) {
   if (!director) return null;
 
   const hasContent = director.headline || director.philosophy || director.education;
@@ -36,7 +38,7 @@ export default function DirectorSection({ tenant, director }: Props) {
         {/* 텍스트 */}
         <div className="flex flex-col gap-5 min-w-0">
           <div>
-            <p className="acad-eyebrow">원장 소개</p>
+            <p className="acad-eyebrow">{eyebrow}</p>
             {director.headline && <h2 className="acad-h2 whitespace-pre-line">{director.headline}</h2>}
           </div>
 

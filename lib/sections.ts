@@ -8,6 +8,21 @@ export const DEFAULT_SECTION_ORDER: Record<ThemeKey, string[]> = {
   bright: ['hero', 'day_flow', 'classes', 'gallery', 'safety', 'fees', 'reviews', 'faq', 'consult_form', 'location'],
 };
 
+/**
+ * 기본으로는 꺼져 있지만 원장이 켤 수 있는 섹션 (2026-11-23).
+ * B·C 테마도 원장이 직접 운영하는 동네 학원이 많아 원장 소개를 켤 수 있게 한다.
+ */
+export const OPTIONAL_SECTIONS: Record<ThemeKey, string[]> = {
+  warm: [],
+  result: ['director'],
+  bright: ['director'],
+};
+
+/** 이 테마에서 쓸 수 있는 섹션 전부 (기본 순서 + 선택 섹션) */
+export function themeSections(theme: ThemeKey): string[] {
+  return [...DEFAULT_SECTION_ORDER[theme], ...OPTIONAL_SECTIONS[theme]];
+}
+
 /** 섹션 머리 작은 라벨 — 테마마다 말투가 다르다 (A 한글, B·C 영문) */
 const EYEBROW: Record<ThemeKey, Record<string, string>> = {
   warm: {
@@ -16,10 +31,10 @@ const EYEBROW: Record<ThemeKey, Record<string, string>> = {
   },
   result: {
     results_stats: 'PROVEN RESULTS', exam_system: 'EXAM STRATEGY', curriculum: 'CURRICULUM', score_cases: 'STUDENT STORIES',
-    teachers: 'OUR TEACHERS', fees: 'TUITION GUIDE', faq: 'FAQ', consult_form: 'FREE LEVEL TEST', location: 'LOCATION',
+    teachers: 'OUR TEACHERS', director: 'DIRECTOR', fees: 'TUITION GUIDE', faq: 'FAQ', consult_form: 'FREE LEVEL TEST', location: 'LOCATION',
   },
   bright: {
-    day_flow: 'A HAPPY DAY', classes: 'OUR CLASSES', gallery: 'CLASS GALLERY', safety: 'SAFE & CARE', reviews: "PARENTS' VOICE",
+    day_flow: 'A HAPPY DAY', director: "DIRECTOR'S NOTE", classes: 'OUR CLASSES', gallery: 'CLASS GALLERY', safety: 'SAFE & CARE', reviews: "PARENTS' VOICE",
     fees: 'TUITION', faq: 'FAQ', consult_form: 'FREE TRIAL CLASS', location: 'COME VISIT',
   },
 };
@@ -67,7 +82,7 @@ export type SectionInput = { key: string; enabled: boolean };
  * - 잠금 섹션은 항상 켜고, hero는 0번으로 올린다
  */
 export function normalizeSections(theme: ThemeKey, input: SectionInput[]) {
-  const allowed = DEFAULT_SECTION_ORDER[theme];
+  const allowed = themeSections(theme);
   const seen = new Set<string>();
   const ordered: SectionInput[] = [];
 

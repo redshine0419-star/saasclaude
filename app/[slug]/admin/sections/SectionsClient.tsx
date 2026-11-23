@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { DEFAULT_SECTION_ORDER, LOCKED_SECTIONS, SECTION_LABELS, normalizeSections, type ThemeKey } from '@/lib/sections';
+import { DEFAULT_SECTION_ORDER, LOCKED_SECTIONS, SECTION_LABELS, normalizeSections, themeSections, type ThemeKey } from '@/lib/sections';
 
 interface SectionState {
   key: string;
@@ -36,7 +36,8 @@ export function SectionsClient({ slug, theme: initTheme, sections: initSections,
     setTheme(next);
     // 새 테마 기본 순서로 다시 구성하되, 두 테마에 공통인 섹션의 켜짐 상태는 유지
     const prev = new Map(sections.map((s) => [s.key, s.enabled]));
-    setSections(normalizeSections(next, DEFAULT_SECTION_ORDER[next].map((key) => ({ key, enabled: prev.get(key) ?? true }))));
+    // 선택 섹션(원장 소개 등)은 이전 테마에서 켜 둔 경우에만 켠다
+    setSections(normalizeSections(next, themeSections(next).map((key) => ({ key, enabled: prev.get(key) ?? DEFAULT_SECTION_ORDER[next].includes(key) }))));
   }
 
   function moveUp(i: number) {
@@ -59,7 +60,16 @@ export function SectionsClient({ slug, theme: initTheme, sections: initSections,
 
   function toggleEnabled(key: string) {
     if (LOCKED_SECTIONS.has(key)) return;
-    setSections((prev) => prev.map((s) => s.key === key ? { ...s, enabled: !s.enabled } : s));
+    setSections((prev) => {
+      const next = prev.map((s) => s.key === key ? { ...s, enabled: !s.enabled } : s);
+      // 선택 섹션(원장 소개)을 처음 켜면 맨 아래 대신 메인 바로 아래로 올린다 — 이후 ▲▼로 옮길 수 있다
+      const i = next.findIndex((s) => s.key === key);
+      if (key === 'director' && next[i]?.enabled && i === next.length - 1 && next.length > 2) {
+        const [row] = next.splice(i, 1);
+        next.splice(1, 0, row);
+      }
+      return next.map((s, j) => ({ ...s, sortOrder: j }));
+    });
   }
 
   async function save() {
@@ -179,6 +189,11 @@ export function SectionsClient({ slug, theme: initTheme, sections: initSections,
                 <span style={{ fontSize: 13, color: '#9AA3AF', minWidth: 20 }}>{i + 1}</span>
                 <span style={{ flex: 1, fontSize: 15, fontWeight: s.enabled ? 600 : 400, color: s.enabled ? '#1B2430' : '#9AA3AF' }}>
                   {SECTION_LABELS[s.key] ?? s.key}
+                  {s.key === 'director' && theme !== 'warm' && (
+                    <span style={{ display: 'block', fontSize: 12, fontWeight: 400, color: '#8A93A0', marginTop: 2 }}>
+                      선택 섹션 · 학원 정보의 &lsquo;원장 소개&rsquo;에 쓴 내용이 나옵니다
+                    </span>
+                  )}
                 </span>
                 {locked ? (
                   <span style={{ fontSize: 12, color: '#5A6270', padding: '4px 10px', borderRadius: 999, background: '#F1EFEA' }}>항상 표시</span>

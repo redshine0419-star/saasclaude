@@ -35,7 +35,7 @@ import LocationSection from '@/components/academy/sections/LocationSection';
 import PrinciplesSection from '@/components/academy/sections/PrinciplesSection';
 import TimetableSection from '@/components/academy/sections/TimetableSection';
 import FaqSection from '@/components/academy/sections/FaqSection';
-import { DEFAULT_SECTION_ORDER, LOCKED_SECTIONS, isThemeKey, sectionEyebrow, type ThemeKey } from '@/lib/sections';
+import { DEFAULT_SECTION_ORDER, LOCKED_SECTIONS, isThemeKey, sectionEyebrow, themeSections, type ThemeKey } from '@/lib/sections';
 
 
 export default async function AcademyPage({
@@ -63,8 +63,10 @@ export default async function AcademyPage({
 
   const theme: ThemeKey = isThemeKey(data.tenant.theme) ? data.tenant.theme : 'warm';
   const allowed = DEFAULT_SECTION_ORDER[theme];
-  // DB 설정(켜진 섹션만, 순서대로)을 따르되 현재 테마에 없는 섹션은 제외하고 잠금 섹션은 항상 포함
-  const configured = data.sections.filter((k) => allowed.includes(k));
+  // DB 설정(켜진 섹션만, 순서대로)을 따르되 현재 테마에 없는 섹션은 제외하고 잠금 섹션은 항상 포함.
+  // 선택 섹션(B·C의 원장 소개 등)은 원장이 켰을 때만 나온다
+  const usable = themeSections(theme);
+  const configured = data.sections.filter((k) => usable.includes(k));
   const displayOrder: string[] = configured.length > 0 ? [...configured] : [...allowed];
   for (const key of allowed) {
     if (LOCKED_SECTIONS.has(key) && !displayOrder.includes(key)) {
@@ -141,7 +143,7 @@ export default async function AcademyPage({
         return <QuickInfoSection key="quick_info" tenant={data!.tenant} classes={data!.classes} />;
       case 'director':
         return data!.director ? (
-          <DirectorSection key="director" tenant={data!.tenant} director={data!.director} />
+          <DirectorSection key="director" tenant={data!.tenant} director={data!.director} eyebrow={E('director')} />
         ) : null;
       case 'classes':
         return data!.classes.length > 0 ? <ClassesSection title={T('classes')} eyebrow={E('classes')} key="classes" classes={data!.classes} slug={slug} look={theme === 'bright' ? 'detail' : 'photo'} /> : null;

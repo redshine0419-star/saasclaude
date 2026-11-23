@@ -1,6 +1,6 @@
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { DEFAULT_SECTION_ORDER, type ThemeKey } from '@/lib/sections';
+import { themeSections, type ThemeKey } from '@/lib/sections';
 
 export type SiteSnapshot = {
   theme: string;
@@ -50,7 +50,7 @@ export async function applySiteConfig(
   tenantId: string,
   config: { theme: ThemeKey; sections: { key: string; enabled: boolean; sortOrder: number }[]; accentColor?: string | null },
 ) {
-  const allowed = DEFAULT_SECTION_ORDER[config.theme];
+  const allowed = themeSections(config.theme);
   await prisma.$transaction([
     prisma.tenant.update({
       where: { id: tenantId },

@@ -8,7 +8,7 @@ type Props = { params: Promise<{ id: string }> };
 const ALL_SECTIONS = [
   { key: 'hero', label: '히어로', themes: ['warm', 'result', 'bright'] },
   { key: 'quick_info', label: '빠른 안내 (주소·전화)', themes: ['warm'] },
-  { key: 'director', label: '원장 소개', themes: ['warm'] },
+  { key: 'director', label: '원장 소개', themes: ['warm', 'result', 'bright'] },
   { key: 'principles', label: '수업 원칙', themes: ['warm'] },
   { key: 'classes', label: '반·수업 정보', themes: ['warm', 'bright'] },
   { key: 'timetable', label: '주간 시간표', themes: ['warm'] },

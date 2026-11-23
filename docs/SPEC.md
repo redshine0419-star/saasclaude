@@ -362,3 +362,9 @@ source 판별 순서: UTM → referrer (naver.com 검색/플레이스, kakao, bl
 - 안드로이드는 설치 버튼(beforeinstallprompt), 아이폰은 공유 → 홈 화면에 추가 안내, 카카오톡·네이버 앱 안은 주소 복사, PC는 QR 코드(`qrcode`, 서버에서 SVG)
 - 설치하면 '알림 켜기'(설정 › 앱 알림 `#app-notify`)로 이어진다. '나중에'·설치 여부는 기기 브라우저(localStorage)에만 기록, 앱으로 연 기기에는 띄우지 않는다
 
+## 선택 섹션 — B·C 테마 원장 소개 (2026-11-23)
+
+- `lib/sections.ts` `OPTIONAL_SECTIONS`: 테마 기본 순서에는 없지만 원장이 켤 수 있는 섹션. 지금은 result·bright의 `director`
+- 기본은 꺼짐(기존 학원·데모 영향 없음). 관리자 › 홈페이지 구성에서 켜면 메인 바로 아래로 올라가고 ▲▼로 옮긴다. 내용은 학원 정보 › 원장 소개
+- 라벨: A '원장 소개', B 'DIRECTOR', C "DIRECTOR'S NOTE". 섹션 허용 목록은 `themeSections(theme)`(홈페이지·저장·버전 복원 공통)
+
