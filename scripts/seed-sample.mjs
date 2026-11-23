@@ -351,7 +351,7 @@ const LOOKS = [
     },
     classPhotos: [U('photo-1497633762265-9d179a990aa6', 700), U('photo-1453738773917-9c3eff1db985', 700), U('photo-1509228468518-180dd4864904', 700), U('photo-1503676260728-1c00da094a0b', 700)],
     postPhotos: [U('photo-1509062522246-3755977927d7', 1000), U('photo-1434030216411-0b793f4b4173', 900), U('photo-1497633762265-9d179a990aa6', 900)],
-    sections: ['hero', 'quick_info', 'principles', 'classes', 'timetable', 'fees', 'reviews', 'news', 'faq', 'consult_form', 'location'],
+    sections: ['hero', 'quick_info', 'director', 'principles', 'classes', 'timetable', 'fees', 'reviews', 'news', 'faq', 'consult_form', 'location'],
   },
   {
     slug: 'demo-result',
@@ -364,7 +364,7 @@ const LOOKS = [
       heroPhotos: [U('photo-1434030216411-0b793f4b4173'), U('photo-1509062522246-3755977927d7'), U('photo-1453738773917-9c3eff1db985', 500), U('photo-1434648957308-5e6a859697e8', 500), U('photo-1562774053-701939374585')],
     },
     staffPhotos: [U('photo-1551836022-d5d88e9218df', 700), U('photo-1509062522246-3755977927d7', 700), U('photo-1521737711867-e3b97375f902', 700)],
-    sections: ['hero', 'results_stats', 'exam_system', 'curriculum', 'score_cases', 'teachers', 'fees', 'faq', 'consult_form', 'location'],
+    sections: ['hero', 'director', 'results_stats', 'exam_system', 'curriculum', 'score_cases', 'teachers', 'fees', 'faq', 'consult_form', 'location'],
   },
   {
     slug: 'demo-bright',
@@ -380,7 +380,7 @@ const LOOKS = [
       { title: '집중하는 시간', image: U('photo-1427504494785-3a9ca7044f45', 700) },
       { title: '즐거운 영어 활동', image: U('photo-1503454537195-1dcabb73ffb9', 700) },
     ],
-    sections: ['hero', 'day_flow', 'classes', 'gallery', 'safety', 'reviews', 'faq', 'consult_form', 'location'],
+    sections: ['hero', 'director', 'day_flow', 'classes', 'gallery', 'safety', 'reviews', 'faq', 'consult_form', 'location'],
   },
 ];
 
@@ -475,6 +475,35 @@ async function seedResources({ slug, marker, items }) {
   await prisma.platformSetting.create({ data: { key: marker, value: NOW.toISOString() } });
 }
 
+// ── 데모 3곳 메인에 원장 소개 켜기 (2026-11-23) — 이미 화면 시안을 적용한 DB에도 한 번만 ──
+const DEMO_DIRECTOR = { marker: 'seed:demo-director:v1', demos: [
+  { slug: 'demo-warm', after: 'quick_info' },
+  { slug: 'demo-result', after: 'hero' },
+  { slug: 'demo-bright', after: 'hero' },
+] };
+
+async function seedDemoDirector() {
+  if (await prisma.platformSetting.findUnique({ where: { key: DEMO_DIRECTOR.marker } })) return console.log('[seed-sample] 데모 원장 소개 이미 켬 — 건너뜀');
+  for (const d of DEMO_DIRECTOR.demos) {
+    const tenant = await prisma.tenant.findUnique({ where: { slug: d.slug }, select: { id: true } });
+    if (!tenant) continue;
+    const T = tenant.id;
+    if (!(await prisma.directorProfile.findUnique({ where: { tenantId: T } }))) continue; // 원장 정보가 없으면 켜도 안 보인다
+    const rows = await prisma.tenantSection.findMany({ where: { tenantId: T }, orderBy: { sortOrder: 'asc' } });
+    if (rows.some((r) => r.sectionKey === 'director' && r.enabled)) continue;
+    const keys = rows.filter((r) => r.sectionKey !== 'director').map((r) => ({ key: r.sectionKey, enabled: r.enabled }));
+    const at = keys.findIndex((r) => r.key === d.after);
+    keys.splice(at >= 0 ? at + 1 : 1, 0, { key: 'director', enabled: true });
+    await prisma.$transaction(keys.map((r, i) => prisma.tenantSection.upsert({
+      where: { tenantId_sectionKey: { tenantId: T, sectionKey: r.key } },
+      update: { enabled: r.enabled, sortOrder: i },
+      create: { tenantId: T, sectionKey: r.key, enabled: r.enabled, sortOrder: i },
+    })));
+    console.log(`[seed-sample] ${d.slug} 메인에 원장 소개 켬`);
+  }
+  await prisma.platformSetting.create({ data: { key: DEMO_DIRECTOR.marker, value: NOW.toISOString() } });
+}
+
 async function main() {
   for (const t of TARGETS) {
     try {
@@ -489,6 +518,11 @@ async function main() {
     } catch (e) {
       console.error(`[seed-sample] ${look.slug} 화면 시안 실패 (빌드는 계속):`, e instanceof Error ? e.message : e);
     }
+  }
+  try {
+    await seedDemoDirector();
+  } catch (e) {
+    console.error('[seed-sample] 데모 원장 소개 실패 (빌드는 계속):', e instanceof Error ? e.message : e);
   }
   for (const r of RESOURCES) {
     try {

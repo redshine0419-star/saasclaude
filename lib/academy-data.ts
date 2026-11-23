@@ -308,7 +308,7 @@ export const DEMO_DATA_RESULT: AcademyPageData = {
     ga4MeasurementId: null,
     naverSiteVerification: null,
   },
-  sections: ['hero', 'results_stats', 'exam_system', 'curriculum', 'score_cases', 'teachers', 'fees', 'consult_form'],
+  sections: ['hero', 'director', 'results_stats', 'exam_system', 'curriculum', 'score_cases', 'teachers', 'fees', 'consult_form'],
   director: {
     photo: null,
     name: '박수진',
@@ -395,7 +395,7 @@ export const DEMO_DATA_BRIGHT: AcademyPageData = {
     ga4MeasurementId: null,
     naverSiteVerification: null,
   },
-  sections: ['hero', 'day_flow', 'classes', 'gallery', 'safety', 'consult_form'],
+  sections: ['hero', 'director', 'day_flow', 'classes', 'gallery', 'safety', 'consult_form'],
   director: {
     photo: null,
     name: '김지선',

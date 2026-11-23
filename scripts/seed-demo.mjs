@@ -39,7 +39,7 @@ const DEMOS = [
     phone: '02-2345-6789',
     hours: '평일 15:00~22:00 / 토 10:00~16:00',
     regNo: '제2024-서울서초-0002호',
-    sections: ['hero', 'results_stats', 'exam_system', 'curriculum', 'score_cases', 'teachers', 'fees', 'consult_form'],
+    sections: ['hero', 'director', 'results_stats', 'exam_system', 'curriculum', 'score_cases', 'teachers', 'fees', 'consult_form'],
   },
   {
     slug: 'demo-bright',
@@ -52,7 +52,7 @@ const DEMOS = [
     phone: '02-3456-7890',
     hours: '평일 14:00~20:00 / 토 10:00~14:00',
     regNo: '제2024-서울마포-0003호',
-    sections: ['hero', 'day_flow', 'classes', 'gallery', 'safety', 'reviews', 'consult_form'],
+    sections: ['hero', 'director', 'day_flow', 'classes', 'gallery', 'safety', 'reviews', 'consult_form'],
   },
 ];
 
