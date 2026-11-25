@@ -37,6 +37,8 @@ const UPDATES = [
   { marker: 'seed:blog-drafts:v13', slug: 'parent-sms-examples', oldBodySha256: ['fbed7ae128a6237488e13983bfb3c0debbc6206c361247292c2832ae9da7edd8', '61341504b7717deb8b68590de852f070bc21c1c146f375f303a517b9d46a80ca'] },
   // v14: homepage-blog-instagram을 운영자가 준 원고로 교체 (아직 숨김 초안일 때만)
   { marker: 'seed:blog-drafts:v14', slug: 'homepage-blog-instagram', oldBodySha256: ['fb1d7afbcb0ffe0a144074a3fbd7ac56a918ae919be7f851c8b2c57e866e5ab3'] },
+  // v15: monthly-parent-report를 운영자가 준 원고로 교체 (아직 숨김 초안일 때만)
+  { marker: 'seed:blog-drafts:v15', slug: 'monthly-parent-report', oldBodySha256: ['5f3838582e97b5d327c1733d16fa48df85d59f101b649af5893cf58e74e6bcc0'] },
 ];
 const sha = (t) => createHash('sha256').update(t.replace(/\r\n?/g, '\n').trim()).digest('hex');
 
