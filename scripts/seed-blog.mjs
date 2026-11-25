@@ -54,6 +54,7 @@ const prisma = new PrismaClient({ adapter: new PrismaNeon({ connectionString: pr
 // 나중에 추가한 초안 — 표시가 없으면 아직 없는 글 주소만 숨김으로 넣는다
 const ADDITIONS = [
   { marker: 'seed:blog-drafts:add-2026-11-16', slugs: ['naver-place-guide', 'level-test-result-guide', 'tuition-refund-rules', 'parent-sms-examples', 'homepage-blog-instagram', 'monthly-parent-report'] },
+  { marker: 'seed:blog-drafts:add-2026-11-25', slugs: ['academy-review-result-ads', 'class-capacity-waitlist', 'attendance-makeup-class', 'staff-account-management', 'vacation-special-class'] },
 ];
 
 async function applyAdditions() {

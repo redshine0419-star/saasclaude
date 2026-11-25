@@ -23,7 +23,8 @@ describe('블로그 초안', () => {
   });
 
   it('2026-11-16 추가 글 — FAQ가 있고 카톡 표현이 없다', () => {
-    const added = ['naver-place-guide', 'level-test-result-guide', 'tuition-refund-rules', 'parent-sms-examples', 'homepage-blog-instagram', 'monthly-parent-report'];
+    const added = ['naver-place-guide', 'level-test-result-guide', 'tuition-refund-rules', 'parent-sms-examples', 'homepage-blog-instagram', 'monthly-parent-report',
+      'academy-review-result-ads', 'class-capacity-waitlist', 'attendance-makeup-class', 'staff-account-management', 'vacation-special-class'];
     for (const slug of added) {
       const d = drafts.find((x) => x.slug === slug);
       expect(d, slug).toBeTruthy();
