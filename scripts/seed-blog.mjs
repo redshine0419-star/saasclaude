@@ -39,6 +39,9 @@ const UPDATES = [
   { marker: 'seed:blog-drafts:v14', slug: 'homepage-blog-instagram', oldBodySha256: ['fb1d7afbcb0ffe0a144074a3fbd7ac56a918ae919be7f851c8b2c57e866e5ab3'] },
   // v15: monthly-parent-report를 운영자가 준 원고로 교체 (아직 숨김 초안일 때만)
   { marker: 'seed:blog-drafts:v15', slug: 'monthly-parent-report', oldBodySha256: ['5f3838582e97b5d327c1733d16fa48df85d59f101b649af5893cf58e74e6bcc0'] },
+  // v16·v17: 더클에 없는 기능 설명 수정 (광고 발송·차단 → 동의 기록만, 퇴원 시 법정 보관 → 학원이 따로 보관). 공개 중이어도 원고 그대로면 바꾼다
+  { marker: 'seed:blog-drafts:v16', slug: 'academy-ad-message-rules', oldBodySha256: ['9111a9f066d6215225a72ec3844e90618792c6c27d7565bd7b6cc27dc551a150'], evenIfPublished: true },
+  { marker: 'seed:blog-drafts:v17', slug: 'student-privacy-consent', oldBodySha256: ['b7886ea911760b2f93339b714ed5b7fa0da99e3ca824241c5cecf06802ed5a38'], evenIfPublished: true },
 ];
 const sha = (t) => createHash('sha256').update(t.replace(/\r\n?/g, '\n').trim()).digest('hex');
 
