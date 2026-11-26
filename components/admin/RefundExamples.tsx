@@ -5,7 +5,7 @@ import { STATUTORY_REFUND_LINES } from '@/lib/refund';
 
 /**
  * 학원 정보 › 환불 정책 — 예시 문구를 복사하거나 입력칸에 바로 넣는다.
- * 예시는 모두 법정 반환 기준(lib/refund.ts) 그대로이거나, 학습자에게 불리하지 않은 안내만 더한 것이다.
+ * 예시는 법정 반환 기준(lib/refund.ts) 그대로다.
  */
 const EXAMPLES: { key: string; title: string; desc: string; text: string }[] = [
   {
@@ -13,16 +13,6 @@ const EXAMPLES: { key: string; title: string; desc: string; text: string }[] = [
     title: '법정 기준 그대로',
     desc: '학원법 시행령의 교습비 반환 기준입니다. 따로 정한 규정이 없다면 이대로 쓰면 됩니다.',
     text: STATUTORY_REFUND_LINES.join('\n'),
-  },
-  {
-    key: 'with-steps',
-    title: '법정 기준 + 반환 절차 안내',
-    desc: '법정 기준에 신청 방법과 돌려드리는 방법을 덧붙인 예시입니다. 학원에 맞게 고쳐 쓰세요.',
-    text: [
-      ...STATUTORY_REFUND_LINES,
-      '반환 신청: 학원 대표 전화나 문자로 수강을 그만둔다고 알려 주세요. 알려 주신 날을 반환 사유가 생긴 날로 봅니다.',
-      '반환 방법: 납부하신 방법으로 돌려드립니다(카드 결제는 결제 취소, 그 밖에는 보호자 계좌로 이체).',
-    ].join('\n'),
   },
 ];
 
