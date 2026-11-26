@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { PhotoPicker } from '@/components/admin/PhotoPicker';
 import { formatKstDateTime } from '@/lib/format-date';
 import { AiDraftPanel } from '@/components/admin/AiDraftPanel';
+import { RefundExamples } from '@/components/admin/RefundExamples';
 
 interface TenantInfo {
   name: string;
@@ -733,15 +734,17 @@ export function InfoClient({ slug, tenant: initialTenant, naverPlaceMirror: init
       <div id="refund" style={{ padding: 24, background: '#FFFFFF', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div style={{ fontSize: 16, fontWeight: 700 }}>환불 정책</div>
         <div style={{ padding: '14px 16px', background: '#FBF1CF', borderRadius: 10, fontSize: 13, lineHeight: 1.7, color: '#3E3510' }}>
-          학원법 시행령 제18조에 따른 기준을 참고하여 작성하세요. 홈페이지 수강료 안내 페이지에 표시됩니다.
+          학원법 시행령 제18조의 반환 기준보다 불리하지 않게 작성하세요. 홈페이지 교습비 아래에 표시되고, 비워 두면 법정 기준이 대신 표시됩니다. 한 줄에 한 항목씩 쓰면 목록으로 보입니다.
         </div>
         <textarea
-          rows={6}
+          id="refund-text"
+          rows={10}
           value={refundPolicyText}
           onChange={(e) => setRefundPolicyText(e.target.value)}
-          placeholder={'수업 시작 전: 이미 낸 교습비 전액\n총 교습시간 1/3 지나기 전: 2/3 환불\n총 교습시간 1/2 지나기 전: 1/2 환불\n총 교습시간 1/2 지난 후: 환불 없음'}
+          placeholder={'비워 두면 학원법 시행령의 법정 반환 기준이 홈페이지에 표시됩니다.\n아래 예시를 넣고 학원에 맞게 고쳐 쓸 수 있습니다.'}
           style={TEXTAREA}
         />
+        <RefundExamples current={refundPolicyText} onApply={(t) => { setRefundPolicyText(t); window.setTimeout(() => document.getElementById('refund-text')?.focus(), 50); }} />
         <button
           type="button"
           onClick={saveRefundPolicy}
