@@ -42,6 +42,8 @@ const UPDATES = [
   // v16·v17: 더클에 없는 기능 설명 수정 (광고 발송·차단 → 동의 기록만, 퇴원 시 법정 보관 → 학원이 따로 보관). 공개 중이어도 원고 그대로면 바꾼다
   { marker: 'seed:blog-drafts:v16', slug: 'academy-ad-message-rules', oldBodySha256: ['9111a9f066d6215225a72ec3844e90618792c6c27d7565bd7b6cc27dc551a150'], evenIfPublished: true },
   { marker: 'seed:blog-drafts:v17', slug: 'student-privacy-consent', oldBodySha256: ['b7886ea911760b2f93339b714ed5b7fa0da99e3ca824241c5cecf06802ed5a38'], evenIfPublished: true },
+  // v18: academy-review-result-ads를 운영자가 준 원고로 교체 (아직 숨김 초안일 때만)
+  { marker: 'seed:blog-drafts:v18', slug: 'academy-review-result-ads', oldBodySha256: ['48fd6db2d944d22b7b4d7df0e6ae82f69f4a5620b9d84f651e503ccea21e6bf5'] },
 ];
 const sha = (t) => createHash('sha256').update(t.replace(/\r\n?/g, '\n').trim()).digest('hex');
 
